@@ -193,17 +193,12 @@ export const sftpService = {
 
   readFile(sessionId: string, path: string, binary?: boolean): Promise<string> {
     return new Promise((resolve, reject) => {
-      console.log('[SFTP] readFile request:', { sessionId, path, binary })
-      
       const handler = (message: IPCMessage) => {
-        console.log('[SFTP] readFile received message:', message.type, message.session_id)
         if (message.session_id === sessionId && message.type === 'sftp:readfile') {
-          console.log('[SFTP] readFile success')
           backendService.off('sftp:readfile')
           backendService.off('error')
           resolve(message.data.content as string)
         } else if (message.session_id === sessionId && message.type === 'error') {
-          console.log('[SFTP] readFile error:', message.data)
           backendService.off('sftp:readfile')
           backendService.off('error')
           reject(new Error(message.data.error))

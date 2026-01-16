@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
 )
@@ -239,29 +238,20 @@ func (h *SFTPHandler) handleCancel(msg *models.IPCMessage, writer ResponseWriter
 
 
 func (h *SFTPHandler) handleReadFile(msg *models.IPCMessage, writer ResponseWriter) error {
-	log.Printf("[SFTP] handleReadFile: sessionID=%s", msg.SessionID)
-	
 	jsonData, err := json.Marshal(msg.Data)
 	if err != nil {
-		log.Printf("[SFTP] handleReadFile: marshal error: %v", err)
 		return fmt.Errorf("invalid data: %w", err)
 	}
 
 	var req models.ReadFileRequest
 	if err := json.Unmarshal(jsonData, &req); err != nil {
-		log.Printf("[SFTP] handleReadFile: unmarshal error: %v", err)
 		return fmt.Errorf("failed to parse read file request: %w", err)
 	}
 
-	log.Printf("[SFTP] handleReadFile: path=%s binary=%v", req.Path, req.Binary)
-
 	content, err := h.manager.ReadFile(msg.SessionID, req.Path, req.Binary)
 	if err != nil {
-		log.Printf("[SFTP] handleReadFile: read error: %v", err)
 		return err
 	}
-
-	log.Printf("[SFTP] handleReadFile: success, content length=%d", len(content))
 
 	return writer.WriteMessage(&models.IPCMessage{
 		Type:      models.MsgSFTPReadFile,
