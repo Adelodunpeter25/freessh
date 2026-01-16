@@ -7,6 +7,7 @@ import * as path from 'path'
 app.setName('FreeSSH')
 
 let goBackend: ChildProcess | null = null
+let stdoutBuffer = ''
 
 // Start Go backend
 function startBackend() {
@@ -22,11 +23,14 @@ function startBackend() {
   })
 
   goBackend.stdout?.on('data', (data: Buffer) => {
-    const lines = data.toString().split('\n').filter(line => line.trim())
+    stdoutBuffer += data.toString()
+    const lines = stdoutBuffer.split('\n')
+    stdoutBuffer = lines.pop() || '' // Keep incomplete line in buffer
+    
     for (const line of lines) {
+      if (!line.trim()) continue
       try {
         const message = JSON.parse(line)
-        // Forward to all windows
         BrowserWindow.getAllWindows().forEach(win => {
           win.webContents.send('backend:message', message)
         })
