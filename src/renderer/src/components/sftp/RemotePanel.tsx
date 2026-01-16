@@ -1,20 +1,10 @@
-import { useState, useEffect } from "react";
-import { Server } from "lucide-react";
+import { useState } from "react";
 import { FilePanel } from "./FilePanel";
+import { ConnectionSelector } from "./ConnectionSelector";
 import { FileInfo } from "@/types";
 import { useConnectionStore } from "@/stores/connectionStore";
-import { useUIStore } from "@/stores/uiStore";
-import { useSSH } from "@/hooks";
 import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
 import { LoadingOverlay } from "@/components/common/LoadingOverlay";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 
 interface RemotePanelProps {
   sessionId: string | null;
@@ -50,96 +40,20 @@ export function RemotePanel({
   transferActive = false,
 }: RemotePanelProps) {
   const connections = useConnectionStore((state) => state.connections);
-  const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
-  const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
-  const [selectedConnectionId, setSelectedConnectionId] = useState<string>("");
   const [connectedConnectionId, setConnectedConnectionId] = useState<string>("");
-  const [connecting, setConnecting] = useState(false);
-  const { connect } = useSSH();
   const { previewLoading, isRemotePreview } = useFilePreviewContext();
 
   const connectedConnection = connections.find(
     (c) => c.id === connectedConnectionId,
   );
 
-  useEffect(() => {
-    if (sftpConnectionId && !sessionId) {
-      setSelectedConnectionId(sftpConnectionId);
-      clearSFTPConnection();
-      const connection = connections.find((c) => c.id === sftpConnectionId);
-      if (connection) {
-        setConnecting(true);
-        connect(connection)
-          .then((session) => {
-            setConnectedConnectionId(sftpConnectionId);
-            onSessionChange(session.id);
-          })
-          .catch((error) => console.error("Failed to connect:", error))
-          .finally(() => setConnecting(false));
-      }
-    }
-  }, [
-    sftpConnectionId,
-    sessionId,
-    connections,
-    connect,
-    onSessionChange,
-    clearSFTPConnection,
-  ]);
-
-  const handleConnect = async () => {
-    const connection = connections.find((c) => c.id === selectedConnectionId);
-    if (!connection) return;
-
-    setConnecting(true);
-    try {
-      const session = await connect(connection);
-      setConnectedConnectionId(selectedConnectionId);
-      onSessionChange(session.id);
-    } catch (error) {
-      console.error("Failed to connect:", error);
-    } finally {
-      setConnecting(false);
-    }
+  const handleConnect = (newSessionId: string, connectionId: string) => {
+    setConnectedConnectionId(connectionId);
+    onSessionChange(newSessionId);
   };
 
   if (!sessionId) {
-    return (
-      <div className="flex flex-col h-full border rounded-lg bg-card">
-        <div className="p-3 border-b">
-          <span className="text-sm font-medium">Remote Server</span>
-        </div>
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 p-4">
-          <Server className="w-12 h-12 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground text-center">
-            Select a connection to browse remote files
-          </p>
-          <div className="flex gap-2 w-full max-w-xs">
-            <Select
-              value={selectedConnectionId}
-              onValueChange={setSelectedConnectionId}
-            >
-              <SelectTrigger className="flex-1">
-                <SelectValue placeholder="Select connection" />
-              </SelectTrigger>
-              <SelectContent>
-                {connections.map((conn) => (
-                  <SelectItem key={conn.id} value={conn.id}>
-                    {conn.name || conn.host}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
-              onClick={handleConnect}
-              disabled={!selectedConnectionId || connecting}
-            >
-              {connecting ? "Connecting..." : "Connect"}
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    return <ConnectionSelector onConnect={handleConnect} />;
   }
 
   return (
