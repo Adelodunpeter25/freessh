@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { formatPermissions } from '@/utils/formatPermissions'
@@ -38,7 +38,7 @@ export function PermissionModal({ open, onOpenChange, filename, currentMode, isD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="truncate">Edit Permissions: {filename}</DialogTitle>
         </DialogHeader>
@@ -63,10 +63,10 @@ export function PermissionModal({ open, onOpenChange, filename, currentMode, isD
           ))}
         </div>
         <div className="text-center font-mono text-lg py-2">{formatPermissions(mode, isDir ?? false)}</div>
-        <DialogFooter>
+        <div className="flex justify-between">
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={handleSave} disabled={saving}>{saving ? 'Saving...' : 'Apply'}</Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   )
