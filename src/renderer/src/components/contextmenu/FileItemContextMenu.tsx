@@ -49,6 +49,7 @@ export function FileItemContextMenu({
         onOpenChange={setShowPermissions}
         filename={file.name}
         currentMode={file.mode}
+        isDir={file.is_dir}
         onSave={onChmod}
       />
     </>
