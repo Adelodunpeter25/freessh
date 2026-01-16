@@ -119,6 +119,7 @@ export function FilePanel({
           onDragStart={onDragStart}
           onNewFolder={() => {}}
           onRefresh={onRefresh}
+          isLocal={!isRemote}
         />
       )}
     </div>

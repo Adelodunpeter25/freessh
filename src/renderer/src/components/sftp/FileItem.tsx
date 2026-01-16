@@ -3,6 +3,7 @@ import { Folder, File } from 'lucide-react'
 import { FileInfo } from '@/types'
 import { formatFileSize } from '@/utils/formatFileSize'
 import { formatPermissions } from '@/utils/formatPermissions'
+import { formatDate } from '@/utils/formatDate'
 import { FileItemContextMenu } from '@/components/contextmenu'
 
 interface FileItemProps {
@@ -14,18 +15,10 @@ interface FileItemProps {
   onRename: (newName: string) => void
   draggable?: boolean
   onDragStart?: (e: React.DragEvent) => void
+  isLocal?: boolean
 }
 
-const formatDate = (timestamp: number) => {
-  if (!timestamp) return '-'
-  return new Date(timestamp * 1000).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  })
-}
-
-export const FileItem = memo(function FileItem({ file, selected, onSelect, onOpen, onDelete, onRename, draggable, onDragStart }: FileItemProps) {
+export const FileItem = memo(function FileItem({ file, selected, onSelect, onOpen, onDelete, onRename, draggable, onDragStart, isLocal }: FileItemProps) {
   const [isRenaming, setIsRenaming] = useState(false)
   const [newName, setNewName] = useState(file.name)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -89,7 +82,7 @@ export const FileItem = memo(function FileItem({ file, selected, onSelect, onOpe
             <span className="truncate">{file.name}</span>
           )}
         </div>
-        <span className="text-xs text-muted-foreground">{formatDate(file.mod_time)}</span>
+        <span className="text-xs text-muted-foreground">{formatDate(file.mod_time, isLocal)}</span>
         <span className="text-xs text-muted-foreground font-mono">{formatPermissions(file.mode, file.is_dir)}</span>
         <span className="text-xs text-muted-foreground text-right">{file.is_dir ? '-' : formatFileSize(file.size)}</span>
       </div>

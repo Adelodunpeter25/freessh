@@ -15,6 +15,7 @@ interface FileListProps {
   onDragStart?: (file: FileInfo, e: React.DragEvent) => void;
   onNewFolder: () => void;
   onRefresh: () => void;
+  isLocal?: boolean;
 }
 
 export function FileList({
@@ -29,6 +30,7 @@ export function FileList({
   onDragStart,
   onNewFolder,
   onRefresh,
+  isLocal,
 }: FileListProps) {
   const sortedFiles = useMemo(() => {
     const filtered = showHidden ? files : files.filter(f => !f.name.startsWith('.'));
@@ -66,6 +68,7 @@ export function FileList({
                 e.dataTransfer.setData("application/json", JSON.stringify([file]));
                 onDragStart?.(file, e);
               }}
+              isLocal={isLocal}
             />
           ))}
           {!loading && files.length === 0 && (
