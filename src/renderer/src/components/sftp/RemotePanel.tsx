@@ -5,6 +5,7 @@ import { FileInfo } from "@/types";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useSSH } from "@/hooks";
+import { LoadingOverlay } from "@/components/common/LoadingOverlay";
 import {
   Select,
   SelectContent,
@@ -155,28 +156,31 @@ export function RemotePanel({
   }
 
   return (
-    <FilePanel
-      title={`Remote Server: ${connectedConnection?.name || ""}`}
-      files={files}
-      currentPath={currentPath}
-      loading={loading}
-      isRemote={true}
-      onNavigate={onNavigate}
-      onRefresh={onRefresh}
-      onDelete={onDelete}
-      onRename={onRename}
-      onMkdir={onMkdir}
-      onDrop={onDrop}
-      selectedFile={selectedFile}
-      onSelectFile={onSelectFile}
-      onOpenFile={onOpenFile}
-      transferActive={transferActive}
-      previewFile={previewFile}
-      previewContent={previewContent}
-      previewBlobUrl={previewBlobUrl}
-      previewLoading={previewLoading}
-      onSaveFile={onSaveFile}
-      onClosePreview={onClosePreview}
-    />
+    <div className="relative h-full">
+      <LoadingOverlay visible={previewLoading ?? false} message="Loading preview..." />
+      <FilePanel
+        title={`Remote Server: ${connectedConnection?.name || ""}`}
+        files={files}
+        currentPath={currentPath}
+        loading={loading}
+        isRemote={true}
+        onNavigate={onNavigate}
+        onRefresh={onRefresh}
+        onDelete={onDelete}
+        onRename={onRename}
+        onMkdir={onMkdir}
+        onDrop={onDrop}
+        selectedFile={selectedFile}
+        onSelectFile={onSelectFile}
+        onOpenFile={onOpenFile}
+        transferActive={transferActive}
+        previewFile={previewFile}
+        previewContent={previewContent}
+        previewBlobUrl={previewBlobUrl}
+        previewLoading={previewLoading}
+        onSaveFile={onSaveFile}
+        onClosePreview={onClosePreview}
+      />
+    </div>
   );
 }
