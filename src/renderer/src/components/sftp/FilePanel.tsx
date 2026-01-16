@@ -24,6 +24,7 @@ interface FilePanelProps {
   selectedFile: FileInfo | null;
   onSelectFile: (file: FileInfo | null) => void;
   transferActive?: boolean;
+  fetchSuggestions: (path: string) => Promise<FileInfo[]>;
 }
 
 export function FilePanel({
@@ -42,6 +43,7 @@ export function FilePanel({
   onDragStart,
   selectedFile,
   onSelectFile,
+  fetchSuggestions,
 }: FilePanelProps) {
   const [showHidden, setShowHidden] = useState(false);
   const { isDragOver, dragProps } = useDragDrop(onDrop, currentPath);
@@ -80,6 +82,10 @@ export function FilePanel({
     }
   };
 
+  const handleOpenFilePath = (path: string) => {
+    openFile({ name: path.split('/').pop() || '', path, is_dir: false, size: 0, mode: 0, mod_time: 0 }, isRemote);
+  };
+
   return (
     <div className="relative flex flex-col h-full border rounded-lg bg-card" {...dragProps}>
       <DropZoneOverlay 
@@ -93,10 +99,12 @@ export function FilePanel({
         loading={loading}
         showHidden={showHidden}
         onNavigate={onNavigate}
+        onOpenFile={handleOpenFilePath}
         onRefresh={onRefresh}
         onGoBack={handleGoBack}
         onToggleHidden={() => setShowHidden(!showHidden)}
         onNewFolder={handleNewFolder}
+        fetchSuggestions={fetchSuggestions}
       />
       {showPreview ? (
         <div className="flex-1 overflow-hidden">

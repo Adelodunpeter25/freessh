@@ -3,6 +3,8 @@ import { ArrowLeft, FolderPlus, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { PathAutocomplete } from "@/components/common/PathAutocomplete";
+import { FileInfo } from "@/types";
 
 interface FilePanelHeaderProps {
   title: string;
@@ -10,10 +12,12 @@ interface FilePanelHeaderProps {
   loading: boolean;
   showHidden: boolean;
   onNavigate: (path: string) => void;
+  onOpenFile: (path: string) => void;
   onRefresh: () => void;
   onGoBack: () => void;
   onToggleHidden: () => void;
   onNewFolder: (name: string) => void;
+  fetchSuggestions: (path: string) => Promise<FileInfo[]>;
 }
 
 export function FilePanelHeader({
@@ -22,10 +26,12 @@ export function FilePanelHeader({
   loading,
   showHidden,
   onNavigate,
+  onOpenFile,
   onRefresh,
   onGoBack,
   onToggleHidden,
   onNewFolder,
+  fetchSuggestions,
 }: FilePanelHeaderProps) {
   const [pathInput, setPathInput] = useState(currentPath);
   const [showNewFolder, setShowNewFolder] = useState(false);
@@ -35,9 +41,12 @@ export function FilePanelHeader({
     setPathInput(currentPath);
   }, [currentPath]);
 
-  const handlePathSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onNavigate(pathInput);
+  const handlePathNavigate = (path: string, isFile: boolean) => {
+    if (isFile) {
+      onOpenFile(path);
+    } else {
+      onNavigate(path);
+    }
   };
 
   const handleCreateFolder = () => {
@@ -97,7 +106,7 @@ export function FilePanelHeader({
           </div>
         </TooltipProvider>
       </div>
-      <form onSubmit={handlePathSubmit} className="flex gap-2">
+      <div className="flex gap-2">
         <TooltipProvider delayDuration={150}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -114,13 +123,14 @@ export function FilePanelHeader({
             <TooltipContent>Go Back</TooltipContent>
           </Tooltip>
         </TooltipProvider>
-        <Input
+        <PathAutocomplete
           value={pathInput}
-          onChange={(e) => setPathInput(e.target.value)}
+          onChange={setPathInput}
+          onNavigate={handlePathNavigate}
+          fetchSuggestions={fetchSuggestions}
           className="h-8 text-sm"
-          placeholder="Path..."
         />
-      </form>
+      </div>
       {showNewFolder && (
         <div className="flex gap-2 mt-2">
           <Input

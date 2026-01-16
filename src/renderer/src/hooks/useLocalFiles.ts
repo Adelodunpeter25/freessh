@@ -60,5 +60,9 @@ export function useLocalFiles() {
     refresh()
   }, [refresh])
 
-  return { files, currentPath, loading, navigate, refresh, deleteFile, rename, mkdir, chmod }
+  const listPath = useCallback(async (path: string): Promise<FileInfo[]> => {
+    return window.electron.ipcRenderer.invoke('fs:readdir', path)
+  }, [])
+
+  return { files, currentPath, loading, navigate, refresh, deleteFile, rename, mkdir, chmod, listPath }
 }

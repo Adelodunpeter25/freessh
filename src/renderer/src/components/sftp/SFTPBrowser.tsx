@@ -63,6 +63,7 @@ export function SFTPBrowser() {
               selectedFile={selectedLocal}
               onSelectFile={setSelectedLocal}
               transferActive={transferActive}
+              fetchSuggestions={local.listPath}
             />
           </div>
           <div className="flex-1 h-full overflow-hidden">
@@ -82,6 +83,7 @@ export function SFTPBrowser() {
               selectedFile={selectedRemote}
               onSelectFile={setSelectedRemote}
               transferActive={transferActive}
+              fetchSuggestions={sftp.listPath}
             />
           </div>
         </div>

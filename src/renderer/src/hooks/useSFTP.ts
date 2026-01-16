@@ -27,6 +27,11 @@ export const useSFTP = (sessionId: string | null) => {
     }
   }, [sessionId])
 
+  const listPath = useCallback(async (path: string): Promise<FileInfo[]> => {
+    if (!sessionId) return []
+    return sftpService.list(sessionId, path)
+  }, [sessionId])
+
   const upload = useCallback(async (localPath: string, remotePath: string) => {
     if (!sessionId) return
 
@@ -183,6 +188,7 @@ export const useSFTP = (sessionId: string | null) => {
     currentPath,
     transfers: Array.from(transfers.values()),
     listFiles,
+    listPath,
     upload,
     download,
     deleteFile,
