@@ -19,6 +19,7 @@ export const monacoOptions: editor.IStandaloneEditorConstructionOptions = {
   renderLineHighlight: 'line',
   cursorBlinking: 'smooth',
   cursorSmoothCaretAnimation: 'on',
+  unusualLineTerminators: 'off',
 }
 
 export const readOnlyOptions: editor.IStandaloneEditorConstructionOptions = {

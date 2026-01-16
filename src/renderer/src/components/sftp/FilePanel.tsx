@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { FilePanelContextMenu } from "@/components/contextmenu";
 import { DropZoneOverlay } from "@/components/common/DropZoneOverlay";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { FilePreview } from "./filepreview";
 
 interface FilePanelProps {
   title: string;
@@ -25,6 +26,11 @@ interface FilePanelProps {
   onSelectFile: (file: FileInfo | null) => void;
   onOpenFile?: (file: FileInfo) => void;
   transferActive?: boolean;
+  previewFile?: FileInfo | null;
+  previewContent?: string | null;
+  previewLoading?: boolean;
+  onSaveFile?: (content: string) => void;
+  onClosePreview?: () => void;
 }
 
 export function FilePanel({
@@ -44,6 +50,11 @@ export function FilePanel({
   onSelectFile,
   onOpenFile,
   transferActive = false,
+  previewFile,
+  previewContent,
+  previewLoading,
+  onSaveFile,
+  onClosePreview,
 }: FilePanelProps) {
   const [pathInput, setPathInput] = useState(currentPath);
   const [showNewFolder, setShowNewFolder] = useState(false);
@@ -61,8 +72,12 @@ export function FilePanel({
   };
 
   const handleGoUp = () => {
-    const parent = currentPath.split("/").slice(0, -1).join("/") || "/";
-    onNavigate(parent);
+    if (previewFile) {
+      onClosePreview?.();
+    } else {
+      const parent = currentPath.split("/").slice(0, -1).join("/") || "/";
+      onNavigate(parent);
+    }
   };
 
   const handleCreateFolder = () => {
@@ -217,43 +232,57 @@ export function FilePanel({
           </div>
         )}
       </div>
-      <div className="grid grid-cols-[1fr_100px_90px_70px] items-center gap-2 px-3 py-1 border-b text-xs text-muted-foreground font-medium">
-        <span>Name</span>
-        <span>Modified</span>
-        <span>Perms</span>
-        <span className="text-right">Size</span>
-      </div>
-      <FilePanelContextMenu onNewFolder={() => setShowNewFolder(true)} onRefresh={onRefresh}>
-        <div className="flex-1 overflow-auto scrollbar-hide">
-          {sortedFiles.map((file) => (
-            <FileItem
-              key={file.path}
-              file={file}
-              selected={selectedFile?.path === file.path}
-              onSelect={() => onSelectFile(file)}
-              onOpen={() => file.is_dir ? onNavigate(file.path) : onOpenFile?.(file)}
-              onDelete={() => onDelete(file.path)}
-              onRename={(newName) => {
-                const newPath = file.path.replace(/[^/]+$/, newName);
-                onRename(file.path, newPath);
-              }}
-              draggable
-              onDragStart={(e) => {
-                e.dataTransfer.setData(
-                  "application/json",
-                  JSON.stringify([file]),
-                );
-                onDragStart?.(file);
-              }}
-            />
-          ))}
-          {!loading && files.length === 0 && (
-            <div className="p-4 text-center text-sm text-muted-foreground">
-              Empty folder
-            </div>
-          )}
+      {previewFile ? (
+        <div className="flex-1 overflow-hidden">
+          <FilePreview
+            filename={previewFile.name}
+            content={previewContent ?? null}
+            blobUrl={previewFile.name.match(/\.(jpg|jpeg|png|gif|svg|webp|ico|bmp)$/i) ? `file://${previewFile.path}` : null}
+            isLoading={previewLoading ?? false}
+            onSave={onSaveFile}
+          />
         </div>
-      </FilePanelContextMenu>
+      ) : (
+        <>
+          <div className="grid grid-cols-[1fr_100px_90px_70px] items-center gap-2 px-3 py-1 border-b text-xs text-muted-foreground font-medium">
+            <span>Name</span>
+            <span>Modified</span>
+            <span>Perms</span>
+            <span className="text-right">Size</span>
+          </div>
+          <FilePanelContextMenu onNewFolder={() => setShowNewFolder(true)} onRefresh={onRefresh}>
+            <div className="flex-1 overflow-auto scrollbar-hide">
+              {sortedFiles.map((file) => (
+                <FileItem
+                  key={file.path}
+                  file={file}
+                  selected={selectedFile?.path === file.path}
+                  onSelect={() => onSelectFile(file)}
+                  onOpen={() => file.is_dir ? onNavigate(file.path) : onOpenFile?.(file)}
+                  onDelete={() => onDelete(file.path)}
+                  onRename={(newName) => {
+                    const newPath = file.path.replace(/[^/]+$/, newName);
+                    onRename(file.path, newPath);
+                  }}
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.setData(
+                      "application/json",
+                      JSON.stringify([file]),
+                    );
+                    onDragStart?.(file);
+                  }}
+                />
+              ))}
+              {!loading && files.length === 0 && (
+                <div className="p-4 text-center text-sm text-muted-foreground">
+                  Empty folder
+                </div>
+              )}
+            </div>
+          </FilePanelContextMenu>
+        </>
+      )}
     </div>
   );
 }

@@ -30,6 +30,11 @@ interface RemotePanelProps {
   onSelectFile: (file: FileInfo | null) => void;
   onOpenFile?: (file: FileInfo) => void;
   transferActive?: boolean;
+  previewFile?: FileInfo | null;
+  previewContent?: string | null;
+  previewLoading?: boolean;
+  onSaveFile?: (content: string) => void;
+  onClosePreview?: () => void;
 }
 
 export function RemotePanel({
@@ -48,6 +53,11 @@ export function RemotePanel({
   onSelectFile,
   onOpenFile,
   transferActive = false,
+  previewFile,
+  previewContent,
+  previewLoading,
+  onSaveFile,
+  onClosePreview,
 }: RemotePanelProps) {
   const connections = useConnectionStore((state) => state.connections);
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
@@ -159,6 +169,11 @@ export function RemotePanel({
       onSelectFile={onSelectFile}
       onOpenFile={onOpenFile}
       transferActive={transferActive}
+      previewFile={previewFile}
+      previewContent={previewContent}
+      previewLoading={previewLoading}
+      onSaveFile={onSaveFile}
+      onClosePreview={onClosePreview}
     />
   );
 }

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { FilePanel } from "./FilePanel";
 import { RemotePanel } from "./RemotePanel";
 import { TransferQueue } from "./TransferQueue";
-import { FilePreview } from "./filepreview";
 import { useSFTP } from "@/hooks/useSFTP";
 import { useLocalFiles } from "@/hooks/useLocalFiles";
 import { FileInfo } from "@/types";
@@ -83,74 +82,60 @@ export function SFTPBrowser() {
   };
 
   // Show preview inline for local panel
-  const showLocalPreview = previewFile && !previewFile.isRemote;
+  const localPreviewFile = previewFile && !previewFile.isRemote ? previewFile.file : null;
   // Show preview inline for remote panel
-  const showRemotePreview = previewFile && previewFile.isRemote;
+  const remotePreviewFile = previewFile && previewFile.isRemote ? previewFile.file : null;
 
   return (
     <div className="flex flex-col h-full gap-4 overflow-hidden">
       <div className="flex flex-1 gap-4 overflow-hidden">
         <div className="flex-1 h-full overflow-hidden">
-          {showLocalPreview ? (
-            <div className="h-full flex flex-col border border-border rounded-lg overflow-hidden">
-              <FilePreview
-                filename={previewFile.file.name}
-                content={previewContent}
-                blobUrl={isImageFile(previewFile.file.name) ? `file://${previewFile.file.path}` : null}
-                isLoading={previewLoading}
-                onSave={handleSaveFile}
-              />
-            </div>
-          ) : (
-            <FilePanel
-              title="Local Files"
-              files={local.files}
-              currentPath={local.currentPath}
-              loading={local.loading}
-              isRemote={false}
-              onNavigate={local.navigate}
-              onRefresh={local.refresh}
-              onDelete={local.deleteFile}
-              onRename={local.rename}
-              onMkdir={local.mkdir}
-              onDrop={handleDownloadDrop}
-              selectedFile={selectedLocal}
-              onSelectFile={setSelectedLocal}
-              onOpenFile={(file) => handleOpenFile(file, false)}
-              transferActive={transferActive}
-            />
-          )}
+          <FilePanel
+            title="Local Files"
+            files={local.files}
+            currentPath={local.currentPath}
+            loading={local.loading}
+            isRemote={false}
+            onNavigate={local.navigate}
+            onRefresh={local.refresh}
+            onDelete={local.deleteFile}
+            onRename={local.rename}
+            onMkdir={local.mkdir}
+            onDrop={handleDownloadDrop}
+            selectedFile={selectedLocal}
+            onSelectFile={setSelectedLocal}
+            onOpenFile={(file) => handleOpenFile(file, false)}
+            transferActive={transferActive}
+            previewFile={localPreviewFile}
+            previewContent={previewContent}
+            previewLoading={previewLoading}
+            onSaveFile={handleSaveFile}
+            onClosePreview={handleClosePreview}
+          />
         </div>
         <div className="flex-1 h-full overflow-hidden">
-          {showRemotePreview ? (
-            <div className="h-full flex flex-col border border-border rounded-lg overflow-hidden">
-              <FilePreview
-                filename={previewFile.file.name}
-                content={previewContent}
-                blobUrl={isImageFile(previewFile.file.name) ? `file://${previewFile.file.path}` : null}
-                isLoading={previewLoading}
-                onSave={handleSaveFile}
-              />
-            </div>
-          ) : (
-            <RemotePanel
-              sessionId={sessionId}
-              onSessionChange={setSessionId}
-              files={sftp.files}
-              currentPath={sftp.currentPath}
-              loading={sftp.loading}
-              onNavigate={sftp.listFiles}
-              onRefresh={() => sftp.listFiles(sftp.currentPath)}
-              onDelete={sftp.deleteFile}
-              onRename={sftp.rename}
-              onMkdir={sftp.createDirectory}
-              onDrop={handleUploadDrop}
-              selectedFile={selectedRemote}
-              onSelectFile={setSelectedRemote}
-              onOpenFile={(file) => handleOpenFile(file, true)}
-              transferActive={transferActive}
-            />
-          )}
+          <RemotePanel
+            sessionId={sessionId}
+            onSessionChange={setSessionId}
+            files={sftp.files}
+            currentPath={sftp.currentPath}
+            loading={sftp.loading}
+            onNavigate={sftp.listFiles}
+            onRefresh={() => sftp.listFiles(sftp.currentPath)}
+            onDelete={sftp.deleteFile}
+            onRename={sftp.rename}
+            onMkdir={sftp.createDirectory}
+            onDrop={handleUploadDrop}
+            selectedFile={selectedRemote}
+            onSelectFile={setSelectedRemote}
+            onOpenFile={(file) => handleOpenFile(file, true)}
+            transferActive={transferActive}
+            previewFile={remotePreviewFile}
+            previewContent={previewContent}
+            previewLoading={previewLoading}
+            onSaveFile={handleSaveFile}
+            onClosePreview={handleClosePreview}
+          />
         </div>
       </div>
       {sftp.transfers.length > 0 && (
