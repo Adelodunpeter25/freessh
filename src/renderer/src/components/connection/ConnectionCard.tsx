@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Server, Pencil } from 'lucide-react'
 import { ConnectionConfig } from '@/types'
 import { ConnectionCardContextMenu } from '@/components/contextmenu'
@@ -15,7 +16,7 @@ interface ConnectionCardProps {
   onDelete: (id: string) => Promise<void>
 }
 
-export function ConnectionCard({ connection, selected, loading, onSelect, onConnect, onOpenSFTP, onEdit, onDelete }: ConnectionCardProps) {
+export const ConnectionCard = memo(function ConnectionCard({ connection, selected, loading, onSelect, onConnect, onOpenSFTP, onEdit, onDelete }: ConnectionCardProps) {
   return (
     <ConnectionCardContextMenu
       connection={connection}
@@ -66,4 +67,4 @@ export function ConnectionCard({ connection, selected, loading, onSelect, onConn
       </div>
     </ConnectionCardContextMenu>
   )
-}
+})

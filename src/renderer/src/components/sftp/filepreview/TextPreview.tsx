@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { FilePreviewHeader } from './FilePreviewHeader'
 
 interface TextPreviewProps {
@@ -11,7 +11,7 @@ export function TextPreview({ content, filename, onSave }: TextPreviewProps) {
   const [value, setValue] = useState(content)
   const [isEditing, setIsEditing] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
-  const lines = value.split('\n')
+  const lines = useMemo(() => value.split('\n'), [value])
 
   const handleSave = () => {
     onSave?.(value)
