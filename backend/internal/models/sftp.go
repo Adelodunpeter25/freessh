@@ -48,3 +48,17 @@ type RenameRequest struct {
 type CancelRequest struct {
 	TransferID string `json:"transfer_id"`
 }
+
+type ReadFileRequest struct {
+	Path string `json:"path"`
+}
+
+type ReadFileResponse struct {
+	Content string `json:"content"`
+	Path    string `json:"path"`
+}
+
+type WriteFileRequest struct {
+	Path    string `json:"path"`
+	Content string `json:"content"`
+}

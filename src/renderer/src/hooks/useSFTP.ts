@@ -160,6 +160,16 @@ export const useSFTP = (sessionId: string | null) => {
     })
   }, [])
 
+  const readFile = useCallback(async (path: string): Promise<string> => {
+    if (!sessionId) throw new Error('No session')
+    return sftpService.readFile(sessionId, path)
+  }, [sessionId])
+
+  const writeFile = useCallback(async (path: string, content: string): Promise<void> => {
+    if (!sessionId) throw new Error('No session')
+    await sftpService.writeFile(sessionId, path, content)
+  }, [sessionId])
+
   return {
     files,
     loading,
@@ -173,6 +183,8 @@ export const useSFTP = (sessionId: string | null) => {
     createDirectory,
     rename,
     cancelTransfer,
-    clearCompleted
+    clearCompleted,
+    readFile,
+    writeFile
   }
 }

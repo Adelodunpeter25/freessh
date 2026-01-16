@@ -189,5 +189,51 @@ export const sftpService = {
         data: { transfer_id: transferId }
       })
     })
+  },
+
+  readFile(sessionId: string, path: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const handler = (message: IPCMessage) => {
+        if (message.session_id === sessionId && message.type === 'sftp:readfile') {
+          backendService.off('sftp:readfile')
+          resolve(message.data.content as string)
+        } else if (message.type === 'error') {
+          backendService.off('error')
+          reject(new Error(message.data.error))
+        }
+      }
+
+      backendService.on('sftp:readfile', handler)
+      backendService.on('error', handler)
+
+      backendService.send({
+        type: 'sftp:readfile',
+        session_id: sessionId,
+        data: { path }
+      })
+    })
+  },
+
+  writeFile(sessionId: string, path: string, content: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const handler = (message: IPCMessage) => {
+        if (message.session_id === sessionId && message.type === 'sftp:writefile') {
+          backendService.off('sftp:writefile')
+          resolve()
+        } else if (message.type === 'error') {
+          backendService.off('error')
+          reject(new Error(message.data.error))
+        }
+      }
+
+      backendService.on('sftp:writefile', handler)
+      backendService.on('error', handler)
+
+      backendService.send({
+        type: 'sftp:writefile',
+        session_id: sessionId,
+        data: { path, content }
+      })
+    })
   }
 }

@@ -13,14 +13,16 @@ const (
 	MsgSessionList   MessageType = "session_list"
 	
 	// SFTP messages
-	MsgSFTPList     MessageType = "sftp:list"
-	MsgSFTPUpload   MessageType = "sftp:upload"
-	MsgSFTPDownload MessageType = "sftp:download"
-	MsgSFTPDelete   MessageType = "sftp:delete"
-	MsgSFTPMkdir    MessageType = "sftp:mkdir"
-	MsgSFTPRename   MessageType = "sftp:rename"
-	MsgSFTPProgress MessageType = "sftp:progress"
-	MsgSFTPCancel   MessageType = "sftp:cancel"
+	MsgSFTPList      MessageType = "sftp:list"
+	MsgSFTPUpload    MessageType = "sftp:upload"
+	MsgSFTPDownload  MessageType = "sftp:download"
+	MsgSFTPDelete    MessageType = "sftp:delete"
+	MsgSFTPMkdir     MessageType = "sftp:mkdir"
+	MsgSFTPRename    MessageType = "sftp:rename"
+	MsgSFTPProgress  MessageType = "sftp:progress"
+	MsgSFTPCancel    MessageType = "sftp:cancel"
+	MsgSFTPReadFile  MessageType = "sftp:readfile"
+	MsgSFTPWriteFile MessageType = "sftp:writefile"
 )
 
 type IPCMessage struct {

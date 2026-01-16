@@ -124,3 +124,40 @@ func (c *Client) Download(remotePath, localPath string, progress ProgressCallbac
 
 	return nil
 }
+
+func (c *Client) ReadFile(remotePath string) (string, error) {
+	if !c.IsConnected() {
+		return "", fmt.Errorf("SFTP not connected")
+	}
+
+	file, err := c.sftpClient.Open(remotePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open remote file: %w", err)
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		return "", fmt.Errorf("failed to read remote file: %w", err)
+	}
+
+	return string(content), nil
+}
+
+func (c *Client) WriteFile(remotePath, content string) error {
+	if !c.IsConnected() {
+		return fmt.Errorf("SFTP not connected")
+	}
+
+	file, err := c.sftpClient.Create(remotePath)
+	if err != nil {
+		return fmt.Errorf("failed to create remote file: %w", err)
+	}
+	defer file.Close()
+
+	if _, err := file.Write([]byte(content)); err != nil {
+		return fmt.Errorf("failed to write remote file: %w", err)
+	}
+
+	return nil
+}
