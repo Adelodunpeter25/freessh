@@ -28,7 +28,7 @@ export function FileItemContextMenu({
   const actions: ContextMenuAction[] = [
     ...(file.is_dir ? [{ label: 'Open', icon: <FolderOpen className="w-4 h-4" />, onClick: onOpen }] : []),
     { label: 'Rename', icon: <Pencil className="w-4 h-4" />, onClick: onRename, separator: file.is_dir },
-    { label: 'Permissions', icon: <Shield className="w-4 h-4" />, onClick: () => setShowPermissions(true) },
+    { label: 'Edit Permissions', icon: <Shield className="w-4 h-4" />, onClick: () => setShowPermissions(true) },
     { label: 'Delete', icon: <Trash2 className="w-4 h-4" />, onClick: () => setShowDeleteConfirm(true), destructive: true, separator: true },
   ]
 
