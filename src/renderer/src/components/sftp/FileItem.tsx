@@ -1,0 +1,98 @@
+import { memo, useState, useEffect, useRef } from 'react'
+import { Folder, File } from 'lucide-react'
+import { FileInfo } from '@/types'
+import { formatFileSize } from '@/utils/formatFileSize'
+import { formatPermissions } from '@/utils/formatPermissions'
+import { FileItemContextMenu } from '@/components/contextmenu'
+
+interface FileItemProps {
+  file: FileInfo
+  selected: boolean
+  onSelect: () => void
+  onOpen: () => void
+  onDelete: () => Promise<void>
+  onRename: (newName: string) => void
+  draggable?: boolean
+  onDragStart?: (e: React.DragEvent) => void
+}
+
+const formatDate = (timestamp: number) => {
+  if (!timestamp) return '-'
+  return new Date(timestamp * 1000).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  })
+}
+
+export const FileItem = memo(function FileItem({ file, selected, onSelect, onOpen, onDelete, onRename, draggable, onDragStart }: FileItemProps) {
+  const [isRenaming, setIsRenaming] = useState(false)
+  const [newName, setNewName] = useState(file.name)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (isRenaming && inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.select()
+    }
+  }, [isRenaming])
+
+  const handleRenameSubmit = () => {
+    if (newName.trim() && newName !== file.name) {
+      onRename(newName.trim())
+    }
+    setIsRenaming(false)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleRenameSubmit()
+    } else if (e.key === 'Escape') {
+      setNewName(file.name)
+      setIsRenaming(false)
+    }
+  }
+
+  const startRename = () => {
+    setNewName(file.name)
+    setIsRenaming(true)
+  }
+
+  return (
+    <FileItemContextMenu file={file} onOpen={onOpen} onRename={startRename} onDelete={onDelete}>
+      <div
+        className={`grid grid-cols-[1fr_100px_90px_70px] items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent/50 text-sm ${selected ? 'bg-primary/30' : ''}`}
+        onClick={onSelect}
+        onContextMenu={onSelect}
+        onDoubleClick={onOpen}
+        draggable={draggable && !isRenaming}
+        onDragStart={onDragStart}
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          {file.is_dir ? (
+            <Folder className="w-4 h-4 text-primary shrink-0" fill="currentColor" />
+          ) : (
+            <File className="w-4 h-4 text-white shrink-0" fill="currentColor" />
+          )}
+          {isRenaming ? (
+            <input
+              ref={inputRef}
+              type="text"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onBlur={handleRenameSubmit}
+              onKeyDown={handleKeyDown}
+              onClick={(e) => e.stopPropagation()}
+              className="flex-1 bg-background border-2 border-primary rounded px-1.5 py-0.5 text-sm outline-none"
+            />
+          ) : (
+            <span className="truncate">{file.name}</span>
+          )}
+        </div>
+        <span className="text-xs text-muted-foreground">{formatDate(file.mod_time)}</span>
+        <span className="text-xs text-muted-foreground font-mono">{formatPermissions(file.mode, file.is_dir)}</span>
+        <span className="text-xs text-muted-foreground text-right">{file.is_dir ? '-' : formatFileSize(file.size)}</span>
+      </div>
+    </FileItemContextMenu>
+  )
+})

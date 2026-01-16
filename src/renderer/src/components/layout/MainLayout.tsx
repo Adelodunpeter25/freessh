@@ -1,0 +1,118 @@
+import { useState, useEffect, useRef } from "react";
+import { TitleBar } from "./TitleBar";
+import { Sidebar } from "./Sidebar";
+import { ConnectionsPage } from "@/pages/ConnectionsPage";
+import { SFTPPage } from "@/pages/SFTPPage";
+import { TerminalView } from "@/components/terminal/TerminalView";
+import { TerminalSettings } from "@/components/terminal/TerminalSettings";
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { useTabStore } from "@/stores/tabStore";
+import { useUIStore } from "@/stores/uiStore";
+
+type SidebarTab = "connections" | "snippets" | "settings";
+type MainView = "home" | "sftp" | "terminal";
+
+export function MainLayout() {
+  const [sidebarTab, setSidebarTab] = useState<SidebarTab>("connections");
+  const [mainView, setMainView] = useState<MainView>("home");
+  const [showTerminalSettings, setShowTerminalSettings] = useState(false);
+  const activeSessionTabId = useTabStore((state) => state.activeTabId);
+  const tabs = useTabStore((state) => state.tabs);
+  const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
+  const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
+  const prevTabsLength = useRef(tabs.length);
+
+  useEffect(() => {
+    if (tabs.length > prevTabsLength.current) {
+      setMainView("terminal");
+    } else if (tabs.length === 0 && mainView === "terminal") {
+      setMainView("home");
+    }
+    prevTabsLength.current = tabs.length;
+  }, [tabs.length, mainView]);
+
+  useEffect(() => {
+    if (sftpConnectionId) {
+      setMainView("sftp");
+    }
+  }, [sftpConnectionId]);
+
+  const handleHomeClick = () => {
+    setMainView("home");
+    clearSFTPConnection();
+  };
+  const handleSFTPClick = () => setMainView("sftp");
+  const handleSessionClick = () => setMainView("terminal");
+
+  const handleSidebarTabChange = (tab: SidebarTab) => {
+    setSidebarTab(tab);
+  };
+
+  const renderHomeContent = () => {
+    switch (sidebarTab) {
+      case "connections":
+        return <ConnectionsPage />;
+      case "snippets":
+        return (
+          <div className="flex items-center justify-center h-full text-muted-foreground">
+            Snippets
+          </div>
+        );
+      case "settings":
+        return (
+          <div className="flex items-center justify-center h-full text-muted-foreground">
+            Settings
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const activeTab = tabs.find((t) => t.id === activeSessionTabId);
+
+  return (
+    <div className="h-screen w-screen flex flex-col overflow-hidden">
+      <TitleBar
+        showHome={mainView === "home"}
+        showSFTP={mainView === "sftp"}
+        showTerminal={mainView === "terminal"}
+        sidebarOpen={showTerminalSettings}
+        onHomeClick={handleHomeClick}
+        onSFTPClick={handleSFTPClick}
+        onSessionClick={handleSessionClick}
+        onSidebarToggle={() => setShowTerminalSettings(!showTerminalSettings)}
+      />
+
+      {/* Home view with sidebar */}
+      <div className={mainView === "home" ? "flex-1 overflow-hidden" : "hidden"}>
+        <ResizablePanelGroup direction="horizontal" autoSaveId="sidebar-layout">
+          <ResizablePanel defaultSize={20} minSize={20}>
+            <Sidebar onTabChange={handleSidebarTabChange} />
+          </ResizablePanel>
+          <ResizableHandle />
+          <ResizablePanel defaultSize={80}>
+            <div className="h-full w-full bg-background overflow-hidden">
+              {renderHomeContent()}
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </div>
+
+      {/* SFTP view */}
+      <div className={mainView === "sftp" ? "flex-1 overflow-hidden" : "hidden"}>
+        <SFTPPage />
+      </div>
+
+      {/* Terminal view */}
+      <div className={mainView === "terminal" ? "flex-1 overflow-hidden" : "hidden"}>
+        {activeTab && <TerminalView sessionId={activeTab.sessionId} />}
+      </div>
+
+      {/* Terminal Settings Sidebar */}
+      {showTerminalSettings && (
+        <TerminalSettings onClose={() => setShowTerminalSettings(false)} />
+      )}
+    </div>
+  );
+}

@@ -1,0 +1,33 @@
+appId: com.freessh.app
+productName: FreeSSH
+directories:
+  buildResources: build
+files:
+  - '!**/.vscode/*'
+  - '!src/*'
+  - '!electron.vite.config.{js,ts,mjs,cjs}'
+  - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
+  - '!{.env,.env.*,.npmrc,pnpm-lock.yaml,bun.lockb}'
+  - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+asarUnpack:
+  - resources/**
+extraResources:
+  - from: backend/bin/
+    to: backend
+    filter:
+      - "**/*"
+mac:
+  category: public.app-category.developer-tools
+  entitlementsInherit: build/entitlements.mac.plist
+  notarize: false
+  target:
+    - target: dmg
+      arch:
+        - x64
+dmg:
+  artifactName: ${name}.${ext}
+  title: FreeSSH
+npmRebuild: false
+extraMetadata:
+  description: A free, open-source, local-first SSH client.
+  author: Adelodun Peter

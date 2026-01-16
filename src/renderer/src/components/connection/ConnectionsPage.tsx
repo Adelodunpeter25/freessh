@@ -1,0 +1,76 @@
+import { useState } from 'react'
+import { ConnectionList } from './ConnectionList'
+import { ConnectionForm } from './ConnectionForm'
+import { NewConnectionButton } from './NewConnectionButton'
+import { useConnections } from '@/hooks'
+import { ConnectionConfig } from '@/types'
+
+export function ConnectionsPage() {
+  const { connections, loading, deleteConnection, updateConnection, connectToSaved } = useConnections()
+  const [showForm, setShowForm] = useState(false)
+  const [editingConnection, setEditingConnection] = useState<ConnectionConfig | undefined>()
+
+  const handleConnect = async (connection: ConnectionConfig) => {
+    try {
+      await connectToSaved(connection.id)
+      // Connection successful - session will be added to tabs
+    } catch (error) {
+      console.error('Failed to connect:', error)
+    }
+  }
+
+  const handleEdit = (connection: ConnectionConfig) => {
+    setEditingConnection(connection)
+    setShowForm(true)
+  }
+
+  const handleFormConnect = async (config: ConnectionConfig) => {
+    try {
+      if (editingConnection) {
+        await updateConnection(config)
+      }
+      await connectToSaved(config.id)
+      setShowForm(false)
+      setEditingConnection(undefined)
+    } catch (error) {
+      console.error('Failed to connect:', error)
+    }
+  }
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteConnection(id)
+    } catch (error) {
+      console.error('Failed to delete connection:', error)
+    }
+  }
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="p-4 border-b border-border">
+        <NewConnectionButton onClick={() => setShowForm(true)} />
+      </div>
+
+      <div className="flex-1 overflow-hidden">
+        <ConnectionList
+          connections={connections}
+          loading={loading}
+          onConnect={handleConnect}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </div>
+
+      {showForm && (
+        <ConnectionForm
+          connection={editingConnection}
+          onConnect={handleFormConnect}
+          onClose={() => {
+            setShowForm(false)
+            setEditingConnection(undefined)
+          }}
+        />
+      )}
+    </div>
+  )
+}
