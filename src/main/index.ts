@@ -101,6 +101,10 @@ ipcMain.handle('fs:writefile', async (_event, filePath: string, content: string)
   await fs.promises.writeFile(filePath, content, 'utf-8')
 })
 
+ipcMain.handle('fs:chmod', async (_event, filePath: string, mode: number) => {
+  await fs.promises.chmod(filePath, mode)
+})
+
 app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 

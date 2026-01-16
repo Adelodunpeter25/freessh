@@ -21,7 +21,8 @@ func (h *SFTPHandler) CanHandle(msgType models.MessageType) bool {
 	switch msgType {
 	case models.MsgSFTPList, models.MsgSFTPUpload, models.MsgSFTPDownload,
 		models.MsgSFTPDelete, models.MsgSFTPMkdir, models.MsgSFTPRename, 
-		models.MsgSFTPCancel, models.MsgSFTPReadFile, models.MsgSFTPWriteFile:
+		models.MsgSFTPCancel, models.MsgSFTPReadFile, models.MsgSFTPWriteFile,
+		models.MsgSFTPChmod:
 		return true
 	}
 	return false
@@ -47,6 +48,8 @@ func (h *SFTPHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) erro
 		return h.handleReadFile(msg, writer)
 	case models.MsgSFTPWriteFile:
 		return h.handleWriteFile(msg, writer)
+	case models.MsgSFTPChmod:
+		return h.handleChmod(msg, writer)
 	default:
 		return fmt.Errorf("unsupported message type: %s", msg.Type)
 	}
@@ -279,5 +282,27 @@ func (h *SFTPHandler) handleWriteFile(msg *models.IPCMessage, writer ResponseWri
 		Type:      models.MsgSFTPWriteFile,
 		SessionID: msg.SessionID,
 		Data:      map[string]string{"status": "saved", "path": req.Path},
+	})
+}
+
+func (h *SFTPHandler) handleChmod(msg *models.IPCMessage, writer ResponseWriter) error {
+	jsonData, err := json.Marshal(msg.Data)
+	if err != nil {
+		return fmt.Errorf("invalid data: %w", err)
+	}
+
+	var req models.ChmodRequest
+	if err := json.Unmarshal(jsonData, &req); err != nil {
+		return fmt.Errorf("failed to parse chmod request: %w", err)
+	}
+
+	if err := h.manager.Chmod(msg.SessionID, req.Path, req.Mode); err != nil {
+		return err
+	}
+
+	return writer.WriteMessage(&models.IPCMessage{
+		Type:      models.MsgSFTPChmod,
+		SessionID: msg.SessionID,
+		Data:      map[string]interface{}{"status": "changed", "path": req.Path, "mode": req.Mode},
 	})
 }

@@ -165,3 +165,10 @@ func (c *Client) WriteFile(remotePath, content string) error {
 
 	return nil
 }
+
+func (c *Client) Chmod(path string, mode uint32) error {
+	if !c.IsConnected() {
+		return fmt.Errorf("SFTP not connected")
+	}
+	return c.sftpClient.Chmod(path, os.FileMode(mode))
+}

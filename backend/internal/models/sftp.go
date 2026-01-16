@@ -63,3 +63,8 @@ type WriteFileRequest struct {
 	Path    string `json:"path"`
 	Content string `json:"content"`
 }
+
+type ChmodRequest struct {
+	Path string `json:"path"`
+	Mode uint32 `json:"mode"`
+}

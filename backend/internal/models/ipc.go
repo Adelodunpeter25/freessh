@@ -23,6 +23,7 @@ const (
 	MsgSFTPCancel    MessageType = "sftp:cancel"
 	MsgSFTPReadFile  MessageType = "sftp:readfile"
 	MsgSFTPWriteFile MessageType = "sftp:writefile"
+	MsgSFTPChmod     MessageType = "sftp:chmod"
 )
 
 type IPCMessage struct {

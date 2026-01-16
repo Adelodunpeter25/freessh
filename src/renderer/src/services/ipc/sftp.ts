@@ -237,5 +237,28 @@ export const sftpService = {
         data: { path, content }
       })
     })
+  },
+
+  chmod(sessionId: string, path: string, mode: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const handler = (message: IPCMessage) => {
+        if (message.session_id === sessionId && message.type === 'sftp:chmod') {
+          backendService.off('sftp:chmod')
+          resolve()
+        } else if (message.type === 'error') {
+          backendService.off('error')
+          reject(new Error(message.data.error))
+        }
+      }
+
+      backendService.on('sftp:chmod', handler)
+      backendService.on('error', handler)
+
+      backendService.send({
+        type: 'sftp:chmod',
+        session_id: sessionId,
+        data: { path, mode }
+      })
+    })
   }
 }

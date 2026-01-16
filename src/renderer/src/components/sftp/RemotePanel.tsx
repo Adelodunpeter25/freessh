@@ -16,6 +16,7 @@ interface RemotePanelProps {
   onRefresh: () => void;
   onDelete: (path: string) => Promise<void>;
   onRename: (oldPath: string, newPath: string) => void;
+  onChmod: (path: string, mode: number) => Promise<void>;
   onMkdir: (path: string) => void;
   onDrop?: (files: FileInfo[], targetPath: string) => void;
   selectedFile: FileInfo | null;
@@ -33,6 +34,7 @@ export function RemotePanel({
   onRefresh,
   onDelete,
   onRename,
+  onChmod,
   onMkdir,
   onDrop,
   selectedFile,
@@ -69,6 +71,7 @@ export function RemotePanel({
         onRefresh={onRefresh}
         onDelete={onDelete}
         onRename={onRename}
+        onChmod={onChmod}
         onMkdir={onMkdir}
         onDrop={onDrop}
         selectedFile={selectedFile}

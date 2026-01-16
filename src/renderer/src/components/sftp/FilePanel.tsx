@@ -17,6 +17,7 @@ interface FilePanelProps {
   onRefresh: () => void;
   onDelete: (path: string) => Promise<void>;
   onRename: (oldPath: string, newPath: string) => void;
+  onChmod: (path: string, mode: number) => Promise<void>;
   onMkdir: (path: string) => void;
   onDrop?: (files: FileInfo[], targetPath: string) => void;
   onDragStart?: (file: FileInfo) => void;
@@ -35,6 +36,7 @@ export function FilePanel({
   onRefresh,
   onDelete,
   onRename,
+  onChmod,
   onMkdir,
   onDrop,
   onDragStart,
@@ -116,6 +118,7 @@ export function FilePanel({
           onOpenFile={handleOpenFile}
           onDeleteFile={onDelete}
           onRenameFile={onRename}
+          onChmodFile={onChmod}
           onDragStart={onDragStart}
           onNewFolder={() => {}}
           onRefresh={onRefresh}

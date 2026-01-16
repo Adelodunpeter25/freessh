@@ -57,6 +57,7 @@ export function SFTPBrowser() {
               onRefresh={local.refresh}
               onDelete={local.deleteFile}
               onRename={local.rename}
+              onChmod={local.chmod}
               onMkdir={local.mkdir}
               onDrop={handleDownloadDrop}
               selectedFile={selectedLocal}
@@ -75,6 +76,7 @@ export function SFTPBrowser() {
               onRefresh={() => sftp.listFiles(sftp.currentPath)}
               onDelete={sftp.deleteFile}
               onRename={sftp.rename}
+              onChmod={sftp.chmod}
               onMkdir={sftp.createDirectory}
               onDrop={handleUploadDrop}
               selectedFile={selectedRemote}

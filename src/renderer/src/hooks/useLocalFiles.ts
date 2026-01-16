@@ -55,5 +55,10 @@ export function useLocalFiles() {
     }
   }, [refresh])
 
-  return { files, currentPath, loading, navigate, refresh, deleteFile, rename, mkdir }
+  const chmod = useCallback(async (path: string, mode: number) => {
+    await window.electron.ipcRenderer.invoke('fs:chmod', path, mode)
+    refresh()
+  }, [refresh])
+
+  return { files, currentPath, loading, navigate, refresh, deleteFile, rename, mkdir, chmod }
 }

@@ -239,3 +239,11 @@ func (m *Manager) WriteFile(sessionID, path, content string) error {
 
 	return session.SFTPClient.WriteFile(path, content)
 }
+
+func (m *Manager) Chmod(sessionID, path string, mode uint32) error {
+	client, err := m.ensureSFTP(sessionID)
+	if err != nil {
+		return err
+	}
+	return client.Chmod(path, mode)
+}

@@ -12,6 +12,7 @@ interface FileListProps {
   onOpenFile: (file: FileInfo) => void;
   onDeleteFile: (path: string) => void;
   onRenameFile: (oldPath: string, newPath: string) => void;
+  onChmodFile: (path: string, mode: number) => Promise<void>;
   onDragStart?: (file: FileInfo, e: React.DragEvent) => void;
   onNewFolder: () => void;
   onRefresh: () => void;
@@ -27,6 +28,7 @@ export function FileList({
   onOpenFile,
   onDeleteFile,
   onRenameFile,
+  onChmodFile,
   onDragStart,
   onNewFolder,
   onRefresh,
@@ -63,6 +65,7 @@ export function FileList({
                 const newPath = file.path.replace(/[^/]+$/, newName);
                 onRenameFile(file.path, newPath);
               }}
+              onChmod={(mode) => onChmodFile(file.path, mode)}
               draggable
               onDragStart={(e) => {
                 e.dataTransfer.setData("application/json", JSON.stringify([file]));

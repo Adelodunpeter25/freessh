@@ -13,12 +13,13 @@ interface FileItemProps {
   onOpen: () => void
   onDelete: () => Promise<void>
   onRename: (newName: string) => void
+  onChmod: (mode: number) => Promise<void>
   draggable?: boolean
   onDragStart?: (e: React.DragEvent) => void
   isLocal?: boolean
 }
 
-export const FileItem = memo(function FileItem({ file, selected, onSelect, onOpen, onDelete, onRename, draggable, onDragStart, isLocal }: FileItemProps) {
+export const FileItem = memo(function FileItem({ file, selected, onSelect, onOpen, onDelete, onRename, onChmod, draggable, onDragStart, isLocal }: FileItemProps) {
   const [isRenaming, setIsRenaming] = useState(false)
   const [newName, setNewName] = useState(file.name)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -52,7 +53,7 @@ export const FileItem = memo(function FileItem({ file, selected, onSelect, onOpe
   }
 
   return (
-    <FileItemContextMenu file={file} onOpen={onOpen} onRename={startRename} onDelete={onDelete}>
+    <FileItemContextMenu file={file} onOpen={onOpen} onRename={startRename} onDelete={onDelete} onChmod={onChmod}>
       <div
         className={`grid grid-cols-[1fr_100px_90px_70px] items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent/50 text-sm ${selected ? 'bg-primary/30' : ''}`}
         onClick={onSelect}
