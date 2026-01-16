@@ -23,6 +23,7 @@ interface FilePanelProps {
   onDragStart?: (file: FileInfo) => void;
   selectedFile: FileInfo | null;
   onSelectFile: (file: FileInfo | null) => void;
+  onOpenFile?: (file: FileInfo) => void;
   transferActive?: boolean;
 }
 
@@ -41,6 +42,7 @@ export function FilePanel({
   onDragStart,
   selectedFile,
   onSelectFile,
+  onOpenFile,
   transferActive = false,
 }: FilePanelProps) {
   const [pathInput, setPathInput] = useState(currentPath);
@@ -222,7 +224,7 @@ export function FilePanel({
               file={file}
               selected={selectedFile?.path === file.path}
               onSelect={() => onSelectFile(file)}
-              onOpen={() => file.is_dir && onNavigate(file.path)}
+              onOpen={() => file.is_dir ? onNavigate(file.path) : onOpenFile?.(file)}
               onDelete={() => onDelete(file.path)}
               onRename={(newName) => {
                 const newPath = file.path.replace(/[^/]+$/, newName);

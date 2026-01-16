@@ -28,6 +28,7 @@ interface RemotePanelProps {
   onDrop?: (files: FileInfo[], targetPath: string) => void;
   selectedFile: FileInfo | null;
   onSelectFile: (file: FileInfo | null) => void;
+  onOpenFile?: (file: FileInfo) => void;
   transferActive?: boolean;
 }
 
@@ -45,17 +46,21 @@ export function RemotePanel({
   onDrop,
   selectedFile,
   onSelectFile,
+  onOpenFile,
   transferActive = false,
 }: RemotePanelProps) {
   const connections = useConnectionStore((state) => state.connections);
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
   const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
   const [selectedConnectionId, setSelectedConnectionId] = useState<string>("");
-  const [connectedConnectionId, setConnectedConnectionId] = useState<string>("");
+  const [connectedConnectionId, setConnectedConnectionId] =
+    useState<string>("");
   const [connecting, setConnecting] = useState(false);
   const { connect } = useSSH();
 
-  const connectedConnection = connections.find((c) => c.id === connectedConnectionId);
+  const connectedConnection = connections.find(
+    (c) => c.id === connectedConnectionId,
+  );
 
   useEffect(() => {
     if (sftpConnectionId && !sessionId) {
@@ -73,7 +78,14 @@ export function RemotePanel({
           .finally(() => setConnecting(false));
       }
     }
-  }, [sftpConnectionId, sessionId, connections, connect, onSessionChange, clearSFTPConnection]);
+  }, [
+    sftpConnectionId,
+    sessionId,
+    connections,
+    connect,
+    onSessionChange,
+    clearSFTPConnection,
+  ]);
 
   const handleConnect = async () => {
     const connection = connections.find((c) => c.id === selectedConnectionId);
@@ -132,7 +144,7 @@ export function RemotePanel({
 
   return (
     <FilePanel
-      title={`Remote Server: ${connectedConnection?.name || connectedConnection?.host || ''}`}
+      title={`Remote Server: ${connectedConnection?.name || ""}`}
       files={files}
       currentPath={currentPath}
       loading={loading}
@@ -145,6 +157,7 @@ export function RemotePanel({
       onDrop={onDrop}
       selectedFile={selectedFile}
       onSelectFile={onSelectFile}
+      onOpenFile={onOpenFile}
       transferActive={transferActive}
     />
   );

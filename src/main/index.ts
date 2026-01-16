@@ -89,6 +89,14 @@ ipcMain.handle('fs:mkdir', async (_event, dirPath: string) => {
   await fs.promises.mkdir(dirPath, { recursive: true })
 })
 
+ipcMain.handle('fs:readfile', async (_event, filePath: string) => {
+  return fs.promises.readFile(filePath, 'utf-8')
+})
+
+ipcMain.handle('fs:writefile', async (_event, filePath: string, content: string) => {
+  await fs.promises.writeFile(filePath, content, 'utf-8')
+})
+
 app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 

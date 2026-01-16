@@ -2,14 +2,21 @@ import { useState, useEffect } from "react";
 import { FilePanel } from "./FilePanel";
 import { RemotePanel } from "./RemotePanel";
 import { TransferQueue } from "./TransferQueue";
+import { FilePreview } from "./filepreview";
 import { useSFTP } from "@/hooks/useSFTP";
 import { useLocalFiles } from "@/hooks/useLocalFiles";
 import { FileInfo } from "@/types";
+import { isImageFile, isTextFile } from "@/utils/language";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function SFTPBrowser() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [selectedRemote, setSelectedRemote] = useState<FileInfo | null>(null);
   const [selectedLocal, setSelectedLocal] = useState<FileInfo | null>(null);
+  const [previewFile, setPreviewFile] = useState<{ file: FileInfo; isRemote: boolean } | null>(null);
+  const [previewContent, setPreviewContent] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
 
   const sftp = useSFTP(sessionId);
   const local = useLocalFiles();
@@ -21,6 +28,39 @@ export function SFTPBrowser() {
       sftp.listFiles("/");
     }
   }, [sessionId]);
+
+  const handleOpenFile = async (file: FileInfo, isRemote: boolean) => {
+    if (file.is_dir) return;
+    if (!isTextFile(file.name) && !isImageFile(file.name)) return;
+
+    setPreviewFile({ file, isRemote });
+    setPreviewLoading(true);
+    setPreviewContent(null);
+
+    try {
+      if (isTextFile(file.name)) {
+        const content = isRemote 
+          ? await sftp.readFile(file.path)
+          : await window.electron.ipcRenderer.invoke('fs:readfile', file.path);
+        setPreviewContent(content);
+      }
+    } catch (err) {
+      console.error('Failed to read file:', err);
+    } finally {
+      setPreviewLoading(false);
+    }
+  };
+
+  const handleSaveFile = async (content: string) => {
+    if (!previewFile) return;
+    
+    if (previewFile.isRemote) {
+      await sftp.writeFile(previewFile.file.path, content);
+    } else {
+      await window.electron.ipcRenderer.invoke('fs:writefile', previewFile.file.path, content);
+    }
+    setPreviewContent(content);
+  };
 
   const handleUploadDrop = async (files: FileInfo[], targetPath: string) => {
     for (const file of files) {
@@ -57,6 +97,7 @@ export function SFTPBrowser() {
             onDrop={handleDownloadDrop}
             selectedFile={selectedLocal}
             onSelectFile={setSelectedLocal}
+            onOpenFile={(file) => handleOpenFile(file, false)}
             transferActive={transferActive}
           />
         </div>
@@ -75,12 +116,35 @@ export function SFTPBrowser() {
             onDrop={handleUploadDrop}
             selectedFile={selectedRemote}
             onSelectFile={setSelectedRemote}
+            onOpenFile={(file) => handleOpenFile(file, true)}
             transferActive={transferActive}
           />
         </div>
       </div>
       {sftp.transfers.length > 0 && (
         <TransferQueue transfers={sftp.transfers} onCancel={sftp.cancelTransfer} />
+      )}
+      
+      {previewFile && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-8">
+          <div className="bg-background rounded-lg border border-border w-full max-w-4xl h-[80vh] flex flex-col overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+              <span className="text-sm font-medium">{previewFile.file.name}</span>
+              <Button variant="ghost" size="icon" onClick={() => setPreviewFile(null)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <FilePreview
+                filename={previewFile.file.name}
+                content={previewContent}
+                blobUrl={isImageFile(previewFile.file.name) ? `file://${previewFile.file.path}` : null}
+                isLoading={previewLoading}
+                onSave={handleSaveFile}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
