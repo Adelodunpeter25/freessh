@@ -13,6 +13,7 @@ export function SFTPBrowser() {
   const [selectedLocal, setSelectedLocal] = useState<FileInfo | null>(null);
   const [previewFile, setPreviewFile] = useState<{ file: FileInfo; isRemote: boolean } | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
+  const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
 
   const sftp = useSFTP(sessionId);
@@ -33,6 +34,10 @@ export function SFTPBrowser() {
     setPreviewFile({ file, isRemote });
     setPreviewLoading(true);
     setPreviewContent(null);
+    if (previewBlobUrl) {
+      URL.revokeObjectURL(previewBlobUrl);
+      setPreviewBlobUrl(null);
+    }
 
     try {
       if (isTextFile(file.name)) {
@@ -40,6 +45,19 @@ export function SFTPBrowser() {
           ? await sftp.readFile(file.path)
           : await window.electron.ipcRenderer.invoke('fs:readfile', file.path);
         setPreviewContent(content);
+      } else if (isImageFile(file.name)) {
+        if (isRemote) {
+          const base64 = await sftp.readFile(file.path, true);
+          const binary = atob(base64);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+          }
+          const blob = new Blob([bytes]);
+          setPreviewBlobUrl(URL.createObjectURL(blob));
+        } else {
+          setPreviewBlobUrl(`file://${file.path}`);
+        }
       }
     } catch (err) {
       console.error('Failed to read file:', err);
@@ -60,8 +78,12 @@ export function SFTPBrowser() {
   };
 
   const handleClosePreview = () => {
+    if (previewBlobUrl) {
+      URL.revokeObjectURL(previewBlobUrl);
+    }
     setPreviewFile(null);
     setPreviewContent(null);
+    setPreviewBlobUrl(null);
   };
 
   const handleUploadDrop = async (files: FileInfo[], targetPath: string) => {
@@ -108,6 +130,7 @@ export function SFTPBrowser() {
             transferActive={transferActive}
             previewFile={localPreviewFile}
             previewContent={previewContent}
+            previewBlobUrl={localPreviewFile ? previewBlobUrl : null}
             previewLoading={previewLoading}
             onSaveFile={handleSaveFile}
             onClosePreview={handleClosePreview}
@@ -132,6 +155,7 @@ export function SFTPBrowser() {
             transferActive={transferActive}
             previewFile={remotePreviewFile}
             previewContent={previewContent}
+            previewBlobUrl={remotePreviewFile ? previewBlobUrl : null}
             previewLoading={previewLoading}
             onSaveFile={handleSaveFile}
             onClosePreview={handleClosePreview}

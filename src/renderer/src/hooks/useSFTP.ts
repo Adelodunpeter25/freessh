@@ -160,9 +160,9 @@ export const useSFTP = (sessionId: string | null) => {
     })
   }, [])
 
-  const readFile = useCallback(async (path: string): Promise<string> => {
+  const readFile = useCallback(async (path: string, binary?: boolean): Promise<string> => {
     if (!sessionId) throw new Error('No session')
-    return sftpService.readFile(sessionId, path)
+    return sftpService.readFile(sessionId, path, binary)
   }, [sessionId])
 
   const writeFile = useCallback(async (path: string, content: string): Promise<void> => {

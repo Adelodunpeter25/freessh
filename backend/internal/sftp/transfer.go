@@ -1,6 +1,7 @@
 package sftp
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -125,7 +126,7 @@ func (c *Client) Download(remotePath, localPath string, progress ProgressCallbac
 	return nil
 }
 
-func (c *Client) ReadFile(remotePath string) (string, error) {
+func (c *Client) ReadFile(remotePath string, binary bool) (string, error) {
 	if !c.IsConnected() {
 		return "", fmt.Errorf("SFTP not connected")
 	}
@@ -141,6 +142,9 @@ func (c *Client) ReadFile(remotePath string) (string, error) {
 		return "", fmt.Errorf("failed to read remote file: %w", err)
 	}
 
+	if binary {
+		return base64.StdEncoding.EncodeToString(content), nil
+	}
 	return string(content), nil
 }
 

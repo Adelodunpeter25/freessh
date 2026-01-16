@@ -28,6 +28,7 @@ interface FilePanelProps {
   transferActive?: boolean;
   previewFile?: FileInfo | null;
   previewContent?: string | null;
+  previewBlobUrl?: string | null;
   previewLoading?: boolean;
   onSaveFile?: (content: string) => void;
   onClosePreview?: () => void;
@@ -52,6 +53,7 @@ export function FilePanel({
   transferActive = false,
   previewFile,
   previewContent,
+  previewBlobUrl,
   previewLoading,
   onSaveFile,
   onClosePreview,
@@ -237,7 +239,7 @@ export function FilePanel({
           <FilePreview
             filename={previewFile.name}
             content={previewContent ?? null}
-            blobUrl={previewFile.name.match(/\.(jpg|jpeg|png|gif|svg|webp|ico|bmp)$/i) ? `file://${previewFile.path}` : null}
+            blobUrl={previewBlobUrl ?? null}
             isLoading={previewLoading ?? false}
             onSave={onSaveFile}
           />

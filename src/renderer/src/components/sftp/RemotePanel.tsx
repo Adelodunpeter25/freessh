@@ -32,6 +32,7 @@ interface RemotePanelProps {
   transferActive?: boolean;
   previewFile?: FileInfo | null;
   previewContent?: string | null;
+  previewBlobUrl?: string | null;
   previewLoading?: boolean;
   onSaveFile?: (content: string) => void;
   onClosePreview?: () => void;
@@ -55,6 +56,7 @@ export function RemotePanel({
   transferActive = false,
   previewFile,
   previewContent,
+  previewBlobUrl,
   previewLoading,
   onSaveFile,
   onClosePreview,
@@ -171,6 +173,7 @@ export function RemotePanel({
       transferActive={transferActive}
       previewFile={previewFile}
       previewContent={previewContent}
+      previewBlobUrl={previewBlobUrl}
       previewLoading={previewLoading}
       onSaveFile={onSaveFile}
       onClosePreview={onClosePreview}

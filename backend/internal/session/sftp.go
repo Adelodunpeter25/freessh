@@ -177,7 +177,7 @@ func (m *Manager) RenameFile(sessionID, oldPath, newPath string) error {
 	return session.SFTPClient.Rename(oldPath, newPath)
 }
 
-func (m *Manager) ReadFile(sessionID, path string) (string, error) {
+func (m *Manager) ReadFile(sessionID, path string, binary bool) (string, error) {
 	session, err := m.GetSession(sessionID)
 	if err != nil {
 		return "", err
@@ -189,7 +189,7 @@ func (m *Manager) ReadFile(sessionID, path string) (string, error) {
 		}
 	}
 
-	return session.SFTPClient.ReadFile(path)
+	return session.SFTPClient.ReadFile(path, binary)
 }
 
 func (m *Manager) WriteFile(sessionID, path, content string) error {

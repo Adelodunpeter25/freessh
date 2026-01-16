@@ -248,7 +248,7 @@ func (h *SFTPHandler) handleReadFile(msg *models.IPCMessage, writer ResponseWrit
 		return fmt.Errorf("failed to parse read file request: %w", err)
 	}
 
-	content, err := h.manager.ReadFile(msg.SessionID, req.Path)
+	content, err := h.manager.ReadFile(msg.SessionID, req.Path, req.Binary)
 	if err != nil {
 		return err
 	}

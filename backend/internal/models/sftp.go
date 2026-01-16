@@ -50,7 +50,8 @@ type CancelRequest struct {
 }
 
 type ReadFileRequest struct {
-	Path string `json:"path"`
+	Path   string `json:"path"`
+	Binary bool   `json:"binary"`
 }
 
 type ReadFileResponse struct {

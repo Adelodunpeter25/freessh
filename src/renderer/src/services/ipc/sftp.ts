@@ -191,7 +191,7 @@ export const sftpService = {
     })
   },
 
-  readFile(sessionId: string, path: string): Promise<string> {
+  readFile(sessionId: string, path: string, binary?: boolean): Promise<string> {
     return new Promise((resolve, reject) => {
       const handler = (message: IPCMessage) => {
         if (message.session_id === sessionId && message.type === 'sftp:readfile') {
@@ -209,7 +209,7 @@ export const sftpService = {
       backendService.send({
         type: 'sftp:readfile',
         session_id: sessionId,
-        data: { path }
+        data: { path, binary: binary ?? false }
       })
     })
   },
