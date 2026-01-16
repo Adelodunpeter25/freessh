@@ -54,10 +54,11 @@ export function isImageFile(filename: string): boolean {
 
 export function isTextFile(filename: string): boolean {
   const ext = filename.split('.').pop()?.toLowerCase() || ''
+  const name = filename.toLowerCase()
   const textExts = [
     'txt', 'md', 'json', 'yaml', 'yml', 'toml', 'ini', 'conf', 'cfg',
     'sh', 'bash', 'zsh', 'py', 'js', 'ts', 'html', 'css', 'xml',
     'log', 'env', 'gitignore', 'dockerignore'
   ]
-  return textExts.includes(ext) || filename.startsWith('.')
+  return textExts.includes(ext) || filename.startsWith('.') || name === 'dockerfile' || name === 'makefile'
 }
