@@ -8,6 +8,7 @@ import { FilePanelContextMenu } from "@/components/contextmenu";
 import { DropZoneOverlay } from "@/components/common/DropZoneOverlay";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { FilePreview } from "./filepreview";
+import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
 
 interface FilePanelProps {
   title: string;
@@ -24,14 +25,7 @@ interface FilePanelProps {
   onDragStart?: (file: FileInfo) => void;
   selectedFile: FileInfo | null;
   onSelectFile: (file: FileInfo | null) => void;
-  onOpenFile?: (file: FileInfo) => void;
   transferActive?: boolean;
-  previewFile?: FileInfo | null;
-  previewContent?: string | null;
-  previewBlobUrl?: string | null;
-  previewLoading?: boolean;
-  onSaveFile?: (content: string) => void;
-  onClosePreview?: () => void;
 }
 
 export function FilePanel({
@@ -49,20 +43,27 @@ export function FilePanel({
   onDragStart,
   selectedFile,
   onSelectFile,
-  onOpenFile,
   transferActive = false,
-  previewFile,
-  previewContent,
-  previewBlobUrl,
-  previewLoading,
-  onSaveFile,
-  onClosePreview,
 }: FilePanelProps) {
+  const { 
+    previewFile, 
+    isRemotePreview, 
+    previewContent, 
+    previewBlobUrl, 
+    previewLoading, 
+    openFile, 
+    saveFile, 
+    closePreview 
+  } = useFilePreviewContext();
+
   const [pathInput, setPathInput] = useState(currentPath);
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
   const [isDragOver, setIsDragOver] = useState(false);
   const [showHidden, setShowHidden] = useState(false);
+
+  // Only show preview if it belongs to this panel
+  const showPreview = previewFile && isRemotePreview === isRemote;
 
   useEffect(() => {
     setPathInput(currentPath);
@@ -74,8 +75,8 @@ export function FilePanel({
   };
 
   const handleGoUp = () => {
-    if (previewFile) {
-      onClosePreview?.();
+    if (showPreview) {
+      closePreview();
     } else {
       const parent = currentPath.split("/").slice(0, -1).join("/") || "/";
       onNavigate(parent);
@@ -234,14 +235,14 @@ export function FilePanel({
           </div>
         )}
       </div>
-      {previewFile ? (
+      {showPreview ? (
         <div className="flex-1 overflow-hidden">
           <FilePreview
             filename={previewFile.name}
-            content={previewContent ?? null}
-            blobUrl={previewBlobUrl ?? null}
-            isLoading={previewLoading ?? false}
-            onSave={onSaveFile}
+            content={previewContent}
+            blobUrl={previewBlobUrl}
+            isLoading={previewLoading}
+            onSave={saveFile}
           />
         </div>
       ) : (
@@ -260,7 +261,7 @@ export function FilePanel({
                   file={file}
                   selected={selectedFile?.path === file.path}
                   onSelect={() => onSelectFile(file)}
-                  onOpen={() => file.is_dir ? onNavigate(file.path) : onOpenFile?.(file)}
+                  onOpen={() => file.is_dir ? onNavigate(file.path) : openFile(file, isRemote)}
                   onDelete={() => onDelete(file.path)}
                   onRename={(newName) => {
                     const newPath = file.path.replace(/[^/]+$/, newName);

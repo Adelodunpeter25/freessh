@@ -5,6 +5,7 @@ import { FileInfo } from "@/types";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useSSH } from "@/hooks";
+import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
 import { LoadingOverlay } from "@/components/common/LoadingOverlay";
 import {
   Select,
@@ -29,14 +30,7 @@ interface RemotePanelProps {
   onDrop?: (files: FileInfo[], targetPath: string) => void;
   selectedFile: FileInfo | null;
   onSelectFile: (file: FileInfo | null) => void;
-  onOpenFile?: (file: FileInfo) => void;
   transferActive?: boolean;
-  previewFile?: FileInfo | null;
-  previewContent?: string | null;
-  previewBlobUrl?: string | null;
-  previewLoading?: boolean;
-  onSaveFile?: (content: string) => void;
-  onClosePreview?: () => void;
 }
 
 export function RemotePanel({
@@ -53,23 +47,16 @@ export function RemotePanel({
   onDrop,
   selectedFile,
   onSelectFile,
-  onOpenFile,
   transferActive = false,
-  previewFile,
-  previewContent,
-  previewBlobUrl,
-  previewLoading,
-  onSaveFile,
-  onClosePreview,
 }: RemotePanelProps) {
   const connections = useConnectionStore((state) => state.connections);
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
   const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
   const [selectedConnectionId, setSelectedConnectionId] = useState<string>("");
-  const [connectedConnectionId, setConnectedConnectionId] =
-    useState<string>("");
+  const [connectedConnectionId, setConnectedConnectionId] = useState<string>("");
   const [connecting, setConnecting] = useState(false);
   const { connect } = useSSH();
+  const { previewLoading, isRemotePreview } = useFilePreviewContext();
 
   const connectedConnection = connections.find(
     (c) => c.id === connectedConnectionId,
@@ -157,7 +144,7 @@ export function RemotePanel({
 
   return (
     <div className="relative h-full">
-      <LoadingOverlay visible={previewLoading ?? false} message="Loading preview..." />
+      <LoadingOverlay visible={previewLoading && isRemotePreview} message="Loading preview..." />
       <FilePanel
         title={`Remote Server: ${connectedConnection?.name || ""}`}
         files={files}
@@ -172,14 +159,7 @@ export function RemotePanel({
         onDrop={onDrop}
         selectedFile={selectedFile}
         onSelectFile={onSelectFile}
-        onOpenFile={onOpenFile}
         transferActive={transferActive}
-        previewFile={previewFile}
-        previewContent={previewContent}
-        previewBlobUrl={previewBlobUrl}
-        previewLoading={previewLoading}
-        onSaveFile={onSaveFile}
-        onClosePreview={onClosePreview}
       />
     </div>
   );
