@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import Editor from '@monaco-editor/react'
 import { getLanguageFromFilename } from '@/utils/language'
-import { Button } from '@/components/ui/button'
-import { Save } from 'lucide-react'
+import { FilePreviewHeader } from './FilePreviewHeader'
 import { monacoOptions, readOnlyOptions } from './config'
 
 interface CodeEditorProps {
@@ -13,6 +12,7 @@ interface CodeEditorProps {
 
 export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
   const [value, setValue] = useState(content)
+  const [isEditing, setIsEditing] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
   const language = getLanguageFromFilename(filename)
 
@@ -26,19 +26,25 @@ export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
   const handleSave = () => {
     onSave?.(value)
     setIsDirty(false)
+    setIsEditing(false)
+  }
+
+  const handleCancel = () => {
+    setValue(content)
+    setIsDirty(false)
+    setIsEditing(false)
   }
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-        <span className="text-sm text-muted-foreground">{filename}</span>
-        {onSave && (
-          <Button size="sm" onClick={handleSave} disabled={!isDirty}>
-            <Save className="h-4 w-4 mr-1" />
-            Save
-          </Button>
-        )}
-      </div>
+      <FilePreviewHeader
+        filename={filename}
+        isEditing={isEditing}
+        isDirty={isDirty}
+        onEdit={() => setIsEditing(true)}
+        onSave={handleSave}
+        onCancel={handleCancel}
+      />
       <div className="flex-1">
         <Editor
           height="100%"
@@ -46,7 +52,7 @@ export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
           value={value}
           onChange={handleChange}
           theme="vs-dark"
-          options={onSave ? monacoOptions : readOnlyOptions}
+          options={isEditing ? monacoOptions : readOnlyOptions}
         />
       </div>
     </div>
