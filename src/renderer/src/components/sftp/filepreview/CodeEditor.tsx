@@ -50,6 +50,7 @@ export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
       />
       <div className="flex-1">
         <Editor
+          key={isEditing ? 'edit' : 'readonly'}
           height="100%"
           language={language}
           value={value}
