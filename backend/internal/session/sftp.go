@@ -2,6 +2,8 @@ package session
 
 import (
 	"freessh-backend/internal/models"
+	"freessh-backend/internal/sftp"
+	"strings"
 	"sync"
 
 	"github.com/google/uuid"
@@ -11,6 +13,29 @@ var (
 	activeTransfers = make(map[string]chan struct{})
 	transfersMu     sync.Mutex
 )
+
+func (m *Manager) ensureSFTP(sessionID string) (*sftp.Client, error) {
+	session, err := m.GetSession(sessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !session.SFTPClient.IsConnected() {
+		if err := session.SFTPClient.Connect(); err != nil {
+			return nil, err
+		}
+	}
+
+	return session.SFTPClient, nil
+}
+
+func isConnectionError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	return strings.Contains(msg, "connection lost") || strings.Contains(msg, "EOF") || strings.Contains(msg, "broken pipe")
+}
 
 func (m *Manager) InitSFTP(sessionID string) error {
 	session, err := m.GetSession(sessionID)
@@ -189,7 +214,15 @@ func (m *Manager) ReadFile(sessionID, path string, binary bool) (string, error) 
 		}
 	}
 
-	return session.SFTPClient.ReadFile(path, binary)
+	content, err := session.SFTPClient.ReadFile(path, binary)
+	if err != nil && !session.SFTPClient.IsConnected() {
+		// Reconnect and retry once
+		if err := session.SFTPClient.Connect(); err != nil {
+			return "", err
+		}
+		return session.SFTPClient.ReadFile(path, binary)
+	}
+	return content, err
 }
 
 func (m *Manager) WriteFile(sessionID, path, content string) error {

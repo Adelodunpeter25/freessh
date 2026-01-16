@@ -40,10 +40,13 @@ func (c *Client) Close() error {
 }
 
 func (c *Client) IsConnected() bool {
+	return c.sftpClient != nil
+}
+
+func (c *Client) checkConnection() bool {
 	if c.sftpClient == nil {
 		return false
 	}
-	// Test connection by getting working directory
 	_, err := c.sftpClient.Getwd()
 	if err != nil {
 		c.sftpClient = nil
