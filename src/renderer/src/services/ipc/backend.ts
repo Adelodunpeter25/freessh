@@ -22,6 +22,8 @@ class BackendService {
   }
 
   private handleMessage(message: IPCMessage): void {
+    console.log('[Backend] received:', message.type, message.session_id)
+    
     if (message.session_id) {
       const handlerKey = `${message.type}:${message.session_id}`
       const sessionHandler = this.messageHandlers.get(handlerKey)
@@ -34,6 +36,8 @@ class BackendService {
     const handler = this.messageHandlers.get(message.type)
     if (handler) {
       handler(message)
+    } else {
+      console.log('[Backend] no handler for:', message.type)
     }
   }
 }

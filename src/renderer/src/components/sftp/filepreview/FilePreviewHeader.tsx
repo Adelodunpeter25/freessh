@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button'
-import { Pencil, Save } from 'lucide-react'
+import { Loader2, Pencil, Save } from 'lucide-react'
 
 interface FilePreviewHeaderProps {
   filename: string
   isEditing: boolean
   isDirty: boolean
+  isSaving?: boolean
   onEdit: () => void
   onSave: () => void
   onCancel: () => void
@@ -14,6 +15,7 @@ export function FilePreviewHeader({
   filename, 
   isEditing, 
   isDirty, 
+  isSaving,
   onEdit, 
   onSave, 
   onCancel
@@ -31,12 +33,12 @@ export function FilePreviewHeader({
       <div className="flex items-center gap-2">
         {isEditing ? (
           <>
-            <Button size="sm" variant="ghost" onClick={onCancel}>
+            <Button size="sm" variant="ghost" onClick={onCancel} disabled={isSaving}>
               Cancel
             </Button>
-            <Button size="sm" onClick={onSave} disabled={!isDirty}>
-              <Save className="h-4 w-4 mr-1" />
-              Save
+            <Button size="sm" onClick={onSave} disabled={!isDirty || isSaving}>
+              {isSaving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+              {isSaving ? 'Saving...' : 'Save'}
             </Button>
           </>
         ) : (
