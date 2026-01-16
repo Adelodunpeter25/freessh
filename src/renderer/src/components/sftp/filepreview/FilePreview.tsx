@@ -20,11 +20,11 @@ export function FilePreview({ filename, content, blobUrl, isLoading, onSave }: F
   }
 
   if (isImageFile(filename) && blobUrl) {
-    return <ImagePreview src={blobUrl} filename={filename} />
+    return <ImagePreview src={blobUrl} filename={filename} onClose={onClose} />
   }
 
   if (isTextFile(filename) && content !== null) {
-    return <CodeEditor filename={filename} content={content} onSave={onSave} />
+    return <CodeEditor filename={filename} content={content} onSave={onSave} onClose={onClose} />
   }
 
   return (

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { ChevronUp, FolderPlus, RefreshCw, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, FolderPlus, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { FileInfo } from "@/types";
 import { FileItem } from "./FileItem";
 import { Input } from "@/components/ui/input";
@@ -171,15 +171,22 @@ export function FilePanel({
           </TooltipProvider>
         </div>
         <form onSubmit={handlePathSubmit} className="flex gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 shrink-0"
-            onClick={handleGoUp}
-          >
-            <ChevronUp className="w-4 h-4" />
-          </Button>
+          <TooltipProvider delayDuration={150}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={handleGoUp}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Go Back</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           <Input
             value={pathInput}
             onChange={(e) => setPathInput(e.target.value)}

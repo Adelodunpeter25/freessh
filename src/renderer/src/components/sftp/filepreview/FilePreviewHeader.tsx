@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button'
-import { Pencil, Save, X } from 'lucide-react'
+import { Pencil, Save } from 'lucide-react'
 
 interface FilePreviewHeaderProps {
   filename: string
@@ -16,7 +16,7 @@ export function FilePreviewHeader({
   isDirty, 
   onEdit, 
   onSave, 
-  onCancel 
+  onCancel
 }: FilePreviewHeaderProps) {
   return (
     <div className="flex items-center justify-between px-3 py-2 border-b border-border">
@@ -32,7 +32,6 @@ export function FilePreviewHeader({
         {isEditing ? (
           <>
             <Button size="sm" variant="ghost" onClick={onCancel}>
-              <X className="h-4 w-4 mr-1" />
               Cancel
             </Button>
             <Button size="sm" onClick={onSave} disabled={!isDirty}>
