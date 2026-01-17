@@ -37,6 +37,8 @@ func (c *Client) Upload(localPath, remotePath string, progress ProgressCallback,
 
 	buf := make([]byte, 128*1024)
 	var transferred int64
+	var lastReported int64
+	const reportInterval = 512 * 1024 // Report every 512KB
 
 	for {
 		select {
@@ -59,9 +61,16 @@ func (c *Client) Upload(localPath, remotePath string, progress ProgressCallback,
 		}
 
 		transferred += int64(n)
-		if progress != nil {
+		// Only report progress every 512KB or on completion
+		if progress != nil && (transferred-lastReported >= reportInterval || transferred == stat.Size()) {
 			progress(transferred, stat.Size())
+			lastReported = transferred
 		}
+	}
+
+	// Final progress update
+	if progress != nil && transferred > lastReported {
+		progress(transferred, stat.Size())
 	}
 
 	return nil
@@ -95,6 +104,8 @@ func (c *Client) Download(remotePath, localPath string, progress ProgressCallbac
 
 	buf := make([]byte, 128*1024)
 	var transferred int64
+	var lastReported int64
+	const reportInterval = 512 * 1024 // Report every 512KB
 
 	for {
 		select {
@@ -118,9 +129,16 @@ func (c *Client) Download(remotePath, localPath string, progress ProgressCallbac
 		}
 
 		transferred += int64(n)
-		if progress != nil {
+		// Only report progress every 512KB or on completion
+		if progress != nil && (transferred-lastReported >= reportInterval || transferred == stat.Size()) {
 			progress(transferred, stat.Size())
+			lastReported = transferred
 		}
+	}
+
+	// Final progress update
+	if progress != nil && transferred > lastReported {
+		progress(transferred, stat.Size())
 	}
 
 	return nil
