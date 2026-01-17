@@ -88,7 +88,7 @@ export function SFTPBrowser() {
           </div>
         </div>
         {sftp.transfers.length > 0 && (
-          <TransferQueue transfers={sftp.transfers} onCancel={sftp.cancelTransfer} />
+          <TransferQueue transfers={sftp.transfers} onCancel={sftp.cancelTransfer} onClearCompleted={sftp.clearCompleted} />
         )}
       </div>
     </FilePreviewProvider>

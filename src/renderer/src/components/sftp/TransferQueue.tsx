@@ -6,15 +6,23 @@ import { Progress } from '@/components/ui/progress'
 interface TransferQueueProps {
   transfers: TransferProgress[]
   onCancel: (transferId: string) => void
+  onClearCompleted: () => void
 }
 
-export function TransferQueue({ transfers, onCancel }: TransferQueueProps) {
+export function TransferQueue({ transfers, onCancel, onClearCompleted }: TransferQueueProps) {
   if (transfers.length === 0) return null
+
+  const hasCompleted = transfers.some(t => t.status === 'completed' || t.status === 'failed')
 
   return (
     <div className="border rounded-lg bg-card p-3">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium">Transfers</span>
+        {hasCompleted && (
+          <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onClearCompleted}>
+            Clear Completed
+          </Button>
+        )}
       </div>
       <div className="space-y-2 max-h-32 overflow-y-auto">
         {transfers.slice(-5).map((transfer) => (
