@@ -20,9 +20,7 @@ export function SFTPBrowser() {
   const transferActive = sftp.transfers.some(t => t.status !== 'completed' && t.status !== 'failed');
 
   useEffect(() => {
-    console.log('[SFTPBrowser] useEffect triggered:', { sessionId })
     if (sessionId) {
-      console.log('[SFTPBrowser] calling sftp.listFiles')
       sftp.listFiles("/");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

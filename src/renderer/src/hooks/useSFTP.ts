@@ -12,21 +12,17 @@ export const useSFTP = (sessionId: string | null) => {
   const listFiles = useCallback(async (path: string) => {
     if (!sessionId) return
 
-    console.log('[useSFTP] listFiles called:', { path, sessionId })
     setLoading(true)
     setError(null)
     
     try {
       const data = await sftpService.list(sessionId, path)
-      console.log('[useSFTP] listFiles response:', { path, filesCount: data.length })
       setFiles(data)
       setCurrentPath(path)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to list files'
-      console.error('[useSFTP] listFiles error:', errorMessage)
       setError(errorMessage)
     } finally {
-      console.log('[useSFTP] listFiles finally, setting loading=false')
       setLoading(false)
     }
   }, [sessionId])
