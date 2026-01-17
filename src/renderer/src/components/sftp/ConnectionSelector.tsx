@@ -50,14 +50,18 @@ export function ConnectionSelector({ onConnect }: ConnectionSelectorProps) {
     const connection = connections.find((c) => c.id === selectedConnectionId);
     if (!connection) return;
 
+    console.log('[ConnectionSelector] Starting connection to:', connection.name || connection.host);
     setConnecting(true);
     try {
       const session = await connect(connection);
+      console.log('[ConnectionSelector] Connection successful:', session.id);
       onConnect(session.id, selectedConnectionId);
       toast.success(`Connected to ${connection.name || connection.host}`);
     } catch (error) {
-      console.error("Failed to connect:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to connect");
+      console.error('[ConnectionSelector] Connection failed:', error);
+      const errorMsg = error instanceof Error ? error.message : "Failed to connect";
+      console.log('[ConnectionSelector] Showing error toast:', errorMsg);
+      toast.error(errorMsg);
     } finally {
       setConnecting(false);
     }

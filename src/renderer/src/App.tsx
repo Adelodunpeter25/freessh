@@ -5,6 +5,8 @@ import { useBackend } from "./hooks";
 function App(): React.JSX.Element {
   useBackend();
 
+  console.log('[App] Rendering with Toaster');
+
   return (
     <>
       <MainLayout />
