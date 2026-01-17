@@ -71,7 +71,7 @@ export function FileList({
         <span className="text-right">Size</span>
       </div>
       <FilePanelContextMenu onNewFolder={onNewFolder} onRefresh={onRefresh}>
-        <div className="flex-1 overflow-auto scrollbar-hide">
+        <div className="flex-1 overflow-auto">
           {sortedFiles.map((file) => (
             <FileItem
               key={file.path}

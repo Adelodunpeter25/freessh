@@ -96,16 +96,6 @@
     -webkit-app-region: no-drag;
   }
 
-  /* Hide scrollbar */
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
   /* React Split styles */
   .gutter {
     background-color: hsl(var(--border)) !important;

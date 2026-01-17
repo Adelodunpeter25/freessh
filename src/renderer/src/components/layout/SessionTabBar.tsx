@@ -65,7 +65,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
   }, [removeTab])
 
   return (
-    <div className="flex items-center gap-2 flex-1 overflow-x-auto scrollbar-hide">
+    <div className="flex items-center gap-2 flex-1 overflow-x-auto">
       <div
         className={cn(
           'flex items-center gap-2 px-8 py-2 rounded-md border cursor-pointer transition-all backdrop-blur-md',
