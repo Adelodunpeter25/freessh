@@ -29,7 +29,7 @@ export function PathAutocomplete({
 
   useEffect(() => {
     const loadSuggestions = async () => {
-      if (!value) {
+      if (!value || !showSuggestions) {
         setSuggestions([])
         return
       }
@@ -44,7 +44,7 @@ export function PathAutocomplete({
     }
     const timer = setTimeout(loadSuggestions, 150)
     return () => clearTimeout(timer)
-  }, [value, fetchSuggestions])
+  }, [value, showSuggestions, fetchSuggestions])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
