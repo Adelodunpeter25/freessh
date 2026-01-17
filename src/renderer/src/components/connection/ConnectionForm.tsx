@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { X, Eye, EyeOff } from 'lucide-react'
+import { toast } from 'sonner'
 import { ConnectionConfig, AuthMethod } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,6 +35,8 @@ export function ConnectionForm({ connection, onConnect, onClose }: ConnectionFor
     setIsConnecting(true)
     try {
       await onConnect(formData as ConnectionConfig)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to connect')
     } finally {
       setIsConnecting(false)
     }
