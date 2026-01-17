@@ -23,7 +23,7 @@ export function SFTPBrowser() {
     if (sessionId) {
       sftp.listFiles("/");
     }
-  }, [sessionId]);
+  }, [sessionId, sftp.listFiles]);
 
   const handleUploadDrop = async (files: FileInfo[], targetPath: string) => {
     for (const file of files) {
