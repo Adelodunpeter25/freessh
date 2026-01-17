@@ -35,7 +35,7 @@ func (c *Client) Upload(localPath, remotePath string, progress ProgressCallback,
 	}
 	defer remoteFile.Close()
 
-	buf := make([]byte, 32*1024)
+	buf := make([]byte, 128*1024)
 	var transferred int64
 
 	for {
@@ -93,7 +93,7 @@ func (c *Client) Download(remotePath, localPath string, progress ProgressCallbac
 	}
 	defer localFile.Close()
 
-	buf := make([]byte, 32*1024)
+	buf := make([]byte, 128*1024)
 	var transferred int64
 
 	for {
