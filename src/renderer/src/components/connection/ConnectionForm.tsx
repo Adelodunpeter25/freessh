@@ -38,7 +38,6 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
       if (connection && onSave) {
         // Editing existing connection - just save
         await onSave(formData as ConnectionConfig)
-        toast.success('Connection updated')
         onClose()
       } else {
         // New connection - save and connect
