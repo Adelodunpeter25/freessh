@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Server } from "lucide-react";
+import { toast } from "sonner";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useSSH } from "@/hooks";
@@ -34,8 +35,12 @@ export function ConnectionSelector({ onConnect }: ConnectionSelectorProps) {
         connect(connection)
           .then((session) => {
             onConnect(session.id, sftpConnectionId);
+            toast.success(`Connected to ${connection.name || connection.host}`);
           })
-          .catch((error) => console.error("Failed to connect:", error))
+          .catch((error) => {
+            console.error("Failed to connect:", error);
+            toast.error(error instanceof Error ? error.message : "Failed to connect");
+          })
           .finally(() => setConnecting(false));
       }
     }
@@ -49,8 +54,10 @@ export function ConnectionSelector({ onConnect }: ConnectionSelectorProps) {
     try {
       const session = await connect(connection);
       onConnect(session.id, selectedConnectionId);
+      toast.success(`Connected to ${connection.name || connection.host}`);
     } catch (error) {
       console.error("Failed to connect:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to connect");
     } finally {
       setConnecting(false);
     }

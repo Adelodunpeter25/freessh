@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
@@ -29,8 +30,10 @@ export function ConnectionsPage() {
       const session = await connect(connection)
       addSession(session, connection)
       addTab(session, connection, 'terminal')
+      toast.success(`Connected to ${connection.name || connection.host}`)
     } catch (error) {
       console.error('Failed to connect:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to connect')
     } finally {
       setConnectingId(null)
     }
