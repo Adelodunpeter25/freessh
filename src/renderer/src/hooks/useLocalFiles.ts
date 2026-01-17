@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
+import { toast } from 'sonner'
 import { FileInfo } from '@/types'
 
 export function useLocalFiles() {
@@ -33,16 +34,26 @@ export function useLocalFiles() {
   }, [loadFiles, currentPath])
 
   const deleteFile = useCallback(async (path: string): Promise<void> => {
-    await window.electron.ipcRenderer.invoke('fs:delete', path)
-    refresh()
+    try {
+      await window.electron.ipcRenderer.invoke('fs:delete', path)
+      refresh()
+      toast.success('File deleted successfully')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Delete failed'
+      toast.error(errorMessage)
+      throw error
+    }
   }, [refresh])
 
   const rename = useCallback(async (oldPath: string, newPath: string) => {
     try {
       await window.electron.ipcRenderer.invoke('fs:rename', oldPath, newPath)
       refresh()
+      toast.success('Renamed successfully')
     } catch (error) {
-      console.error('Failed to rename:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Rename failed'
+      toast.error(errorMessage)
+      throw error
     }
   }, [refresh])
 
@@ -50,14 +61,24 @@ export function useLocalFiles() {
     try {
       await window.electron.ipcRenderer.invoke('fs:mkdir', path)
       refresh()
+      toast.success('Folder created successfully')
     } catch (error) {
-      console.error('Failed to create folder:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Create folder failed'
+      toast.error(errorMessage)
+      throw error
     }
   }, [refresh])
 
   const chmod = useCallback(async (path: string, mode: number) => {
-    await window.electron.ipcRenderer.invoke('fs:chmod', path, mode)
-    refresh()
+    try {
+      await window.electron.ipcRenderer.invoke('fs:chmod', path, mode)
+      refresh()
+      toast.success('Permissions updated successfully')
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Chmod failed'
+      toast.error(errorMessage)
+      throw error
+    }
   }, [refresh])
 
   const listPath = useCallback(async (path: string): Promise<FileInfo[]> => {

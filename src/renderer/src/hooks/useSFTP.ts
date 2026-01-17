@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { toast } from 'sonner'
 import { sftpService } from '../services/ipc'
 import { FileInfo, TransferProgress } from '../types'
 
@@ -52,9 +53,11 @@ export const useSFTP = (sessionId: string | null) => {
         })
       }
       await listFiles(currentPath)
+      toast.success('Upload completed')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Upload failed'
       setError(errorMessage)
+      toast.error(errorMessage)
       if (lastTransferId) {
         setTransfers(prev => {
           const next = new Map(prev)
@@ -86,9 +89,11 @@ export const useSFTP = (sessionId: string | null) => {
           return next
         })
       }
+      toast.success('Download completed')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Download failed'
       setError(errorMessage)
+      toast.error(errorMessage)
       if (lastTransferId) {
         setTransfers(prev => {
           const next = new Map(prev)
@@ -107,9 +112,11 @@ export const useSFTP = (sessionId: string | null) => {
     try {
       await sftpService.delete(sessionId, path)
       await listFiles(currentPath)
+      toast.success('File deleted successfully')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Delete failed'
       setError(errorMessage)
+      toast.error(errorMessage)
       throw err
     }
   }, [sessionId, currentPath, listFiles])
@@ -120,9 +127,11 @@ export const useSFTP = (sessionId: string | null) => {
     try {
       await sftpService.mkdir(sessionId, path)
       await listFiles(currentPath)
+      toast.success('Folder created successfully')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Create directory failed'
       setError(errorMessage)
+      toast.error(errorMessage)
       throw err
     }
   }, [sessionId, currentPath, listFiles])
@@ -133,9 +142,11 @@ export const useSFTP = (sessionId: string | null) => {
     try {
       await sftpService.rename(sessionId, oldPath, newPath)
       await listFiles(currentPath)
+      toast.success('Renamed successfully')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Rename failed'
       setError(errorMessage)
+      toast.error(errorMessage)
       throw err
     }
   }, [sessionId, currentPath, listFiles])
@@ -172,13 +183,27 @@ export const useSFTP = (sessionId: string | null) => {
 
   const writeFile = useCallback(async (path: string, content: string): Promise<void> => {
     if (!sessionId) throw new Error('No session')
-    await sftpService.writeFile(sessionId, path, content)
+    try {
+      await sftpService.writeFile(sessionId, path, content)
+      toast.success('File saved successfully')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Save failed'
+      toast.error(errorMessage)
+      throw err
+    }
   }, [sessionId])
 
   const chmod = useCallback(async (path: string, mode: number): Promise<void> => {
     if (!sessionId) throw new Error('No session')
-    await sftpService.chmod(sessionId, path, mode)
-    await listFiles(currentPath)
+    try {
+      await sftpService.chmod(sessionId, path, mode)
+      await listFiles(currentPath)
+      toast.success('Permissions updated successfully')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Chmod failed'
+      toast.error(errorMessage)
+      throw err
+    }
   }, [sessionId, currentPath, listFiles])
 
   return {
