@@ -24,6 +24,11 @@ const (
 	MsgSFTPReadFile  MessageType = "sftp:readfile"
 	MsgSFTPWriteFile MessageType = "sftp:writefile"
 	MsgSFTPChmod     MessageType = "sftp:chmod"
+
+	// Port forwarding messages
+	MsgPortForwardCreate MessageType = "portforward:create"
+	MsgPortForwardStop   MessageType = "portforward:stop"
+	MsgPortForwardList   MessageType = "portforward:list"
 )
 
 type IPCMessage struct {

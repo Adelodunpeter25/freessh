@@ -29,6 +29,7 @@ func NewServer() *Server {
 			handlers.NewSessionHandler(manager),
 			handlers.NewConnectionHandler(manager),
 			handlers.NewSFTPHandler(manager),
+			handlers.NewPortForwardHandler(manager),
 		},
 	}
 }
