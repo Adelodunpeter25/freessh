@@ -1,9 +1,6 @@
 import { memo, useState, useEffect, useRef } from 'react'
 import { Folder, File } from 'lucide-react'
 import { FileInfo } from '@/types'
-import { formatFileSize } from '@/utils/formatFileSize'
-import { formatPermissions } from '@/utils/formatPermissions'
-import { formatDate } from '@/utils/formatDate'
 import { FileItemContextMenu } from '@/components/contextmenu'
 
 interface FileItemProps {
@@ -16,10 +13,25 @@ interface FileItemProps {
   onChmod: (mode: number) => Promise<void>
   draggable?: boolean
   onDragStart?: (e: React.DragEvent) => void
-  isLocal?: boolean
+  formattedDate?: string
+  formattedPerms?: string
+  formattedSize?: string
 }
 
-export const FileItem = memo(function FileItem({ file, selected, onSelect, onOpen, onDelete, onRename, onChmod, draggable, onDragStart, isLocal }: FileItemProps) {
+export const FileItem = memo(function FileItem({ 
+  file, 
+  selected, 
+  onSelect, 
+  onOpen, 
+  onDelete, 
+  onRename, 
+  onChmod, 
+  draggable, 
+  onDragStart,
+  formattedDate,
+  formattedPerms,
+  formattedSize
+}: FileItemProps) {
   const [isRenaming, setIsRenaming] = useState(false)
   const [newName, setNewName] = useState(file.name)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -83,9 +95,9 @@ export const FileItem = memo(function FileItem({ file, selected, onSelect, onOpe
             <span className="truncate">{file.name}</span>
           )}
         </div>
-        <span className="text-xs text-muted-foreground">{formatDate(file.mod_time, isLocal)}</span>
-        <span className="text-xs text-muted-foreground font-mono">{formatPermissions(file.mode, file.is_dir)}</span>
-        <span className="text-xs text-muted-foreground text-right">{file.is_dir ? '-' : formatFileSize(file.size)}</span>
+        <span className="text-xs text-muted-foreground">{formattedDate}</span>
+        <span className="text-xs text-muted-foreground font-mono">{formattedPerms}</span>
+        <span className="text-xs text-muted-foreground text-right">{formattedSize}</span>
       </div>
     </FileItemContextMenu>
   )

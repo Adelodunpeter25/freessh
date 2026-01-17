@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { FileInfo } from "@/types";
 import { FilePanelHeader } from "./FilePanelHeader";
 import { FileList } from "./FileList";
@@ -58,6 +58,8 @@ export function FilePanel({
     closePreview 
   } = useFilePreviewContext();
 
+  const navigateTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const showPreview = previewFile && isRemotePreview === isRemote;
 
   const handleGoBack = () => {
@@ -74,13 +76,19 @@ export function FilePanel({
     onMkdir(newPath);
   };
 
-  const handleOpenFile = (file: FileInfo) => {
+  const handleOpenFile = useCallback((file: FileInfo) => {
     if (file.is_dir) {
-      onNavigate(file.path);
+      // Debounce navigation to prevent rapid clicks
+      if (navigateTimerRef.current) {
+        clearTimeout(navigateTimerRef.current);
+      }
+      navigateTimerRef.current = setTimeout(() => {
+        onNavigate(file.path);
+      }, 50);
     } else {
       openFile(file, isRemote);
     }
-  };
+  }, [onNavigate, openFile, isRemote]);
 
   const handleOpenFilePath = (path: string) => {
     openFile({ name: path.split('/').pop() || '', path, is_dir: false, size: 0, mode: 0, mod_time: 0 }, isRemote);
