@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
@@ -24,9 +24,9 @@ export function PermissionModal({ open, onOpenChange, filename, currentMode, isD
     if (open) setMode(currentMode & 0o777)
   }, [open, currentMode])
 
-  const toggleBit = (bit: number) => setMode(m => m ^ bit)
+  const toggleBit = useCallback((bit: number) => setMode(m => m ^ bit), [])
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     setSaving(true)
     try {
       await onSave(mode)
@@ -34,7 +34,7 @@ export function PermissionModal({ open, onOpenChange, filename, currentMode, isD
     } finally {
       setSaving(false)
     }
-  }
+  }, [mode, onSave, onOpenChange])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

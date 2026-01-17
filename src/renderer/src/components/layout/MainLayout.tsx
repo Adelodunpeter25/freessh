@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { TitleBar } from "./TitleBar";
 import { Sidebar } from "./Sidebar";
 import { ConnectionsPage } from "@/pages/ConnectionsPage";
@@ -37,16 +37,14 @@ export function MainLayout() {
     }
   }, [sftpConnectionId]);
 
-  const handleHomeClick = () => {
+  const handleHomeClick = useCallback(() => {
     setMainView("home");
     clearSFTPConnection();
-  };
-  const handleSFTPClick = () => setMainView("sftp");
-  const handleSessionClick = () => setMainView("terminal");
+  }, [clearSFTPConnection]);
 
-  const handleSidebarTabChange = (tab: SidebarTab) => {
-    setSidebarTab(tab);
-  };
+  const handleSFTPClick = useCallback(() => setMainView("sftp"), []);
+  const handleSessionClick = useCallback(() => setMainView("terminal"), []);
+  const handleSidebarTabChange = useCallback((tab: SidebarTab) => setSidebarTab(tab), []);
 
   const renderHomeContent = () => {
     switch (sidebarTab) {

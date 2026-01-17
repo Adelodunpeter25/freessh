@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { FileInfo } from '@/types'
 import { isImageFile, isTextFile } from '@/utils/language'
 
@@ -16,17 +16,17 @@ export const useFilePreview = (
   const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
 
-  const openFile = async (file: FileInfo, isRemote: boolean) => {
+  const openFile = useCallback(async (file: FileInfo, isRemote: boolean) => {
     if (file.is_dir) return
     if (!isTextFile(file.name) && !isImageFile(file.name)) return
 
     setPreviewFile({ file, isRemote })
     setPreviewLoading(true)
     setPreviewContent(null)
-    if (previewBlobUrl) {
-      URL.revokeObjectURL(previewBlobUrl)
-      setPreviewBlobUrl(null)
-    }
+    setPreviewBlobUrl(prev => {
+      if (prev) URL.revokeObjectURL(prev)
+      return null
+    })
 
     try {
       if (isTextFile(file.name)) {
@@ -53,9 +53,9 @@ export const useFilePreview = (
     } finally {
       setPreviewLoading(false)
     }
-  }
+  }, [readRemoteFile])
 
-  const saveFile = async (content: string) => {
+  const saveFile = useCallback(async (content: string) => {
     if (!previewFile) return
     
     if (previewFile.isRemote) {
@@ -64,16 +64,16 @@ export const useFilePreview = (
       await window.electron.ipcRenderer.invoke('fs:writefile', previewFile.file.path, content)
     }
     setPreviewContent(content)
-  }
+  }, [previewFile, writeRemoteFile])
 
-  const closePreview = () => {
-    if (previewBlobUrl) {
-      URL.revokeObjectURL(previewBlobUrl)
-    }
+  const closePreview = useCallback(() => {
+    setPreviewBlobUrl(prev => {
+      if (prev) URL.revokeObjectURL(prev)
+      return null
+    })
     setPreviewFile(null)
     setPreviewContent(null)
-    setPreviewBlobUrl(null)
-  }
+  }, [])
 
   return {
     previewFile: previewFile?.file ?? null,

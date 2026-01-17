@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Input } from '@/components/ui/input'
 import { FileInfo } from '@/types'
 import { getParentPath, getBasename, filterSuggestions, buildFullPath } from '@/utils/pathAutocomplete'
@@ -56,7 +56,20 @@ export function PathAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const selectSuggestion = useCallback((file: FileInfo) => {
+    const parentPath = value.endsWith('/') ? value.slice(0, -1) || '/' : getParentPath(value)
+    const newPath = buildFullPath(parentPath, file.name)
+    onChange(newPath)
+    setShowSuggestions(false)
+    setSelectedIndex(-1)
+    if (file.is_dir) {
+      onNavigate(newPath, false)
+    } else {
+      onNavigate(newPath, true)
+    }
+  }, [value, onChange, onNavigate])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (!showSuggestions || suggestions.length === 0) {
       if (e.key === 'Enter') {
         e.preventDefault()
@@ -82,20 +95,7 @@ export function PathAutocomplete({
     } else if (e.key === 'Escape') {
       setShowSuggestions(false)
     }
-  }
-
-  const selectSuggestion = (file: FileInfo) => {
-    const parentPath = value.endsWith('/') ? value.slice(0, -1) || '/' : getParentPath(value)
-    const newPath = buildFullPath(parentPath, file.name)
-    onChange(newPath)
-    setShowSuggestions(false)
-    setSelectedIndex(-1)
-    if (file.is_dir) {
-      onNavigate(newPath, false)
-    } else {
-      onNavigate(newPath, true)
-    }
-  }
+  }, [showSuggestions, suggestions, selectedIndex, value, onNavigate, selectSuggestion])
 
   return (
     <div ref={containerRef} className="relative flex-1">

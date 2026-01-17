@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { X, Eye, EyeOff } from 'lucide-react'
 import { toast } from 'sonner'
 import { ConnectionConfig, AuthMethod } from '@/types'
@@ -31,16 +31,14 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
   const [showPassphrase, setShowPassphrase] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     setIsConnecting(true)
     try {
       if (connection && onSave) {
-        // Editing existing connection - just save
         await onSave(formData as ConnectionConfig)
         onClose()
       } else {
-        // New connection - save and connect
         await onConnect(formData as ConnectionConfig)
       }
     } catch (error) {
@@ -48,7 +46,7 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
     } finally {
       setIsConnecting(false)
     }
-  }
+  }, [connection, onSave, formData, onClose, onConnect])
 
   return (
     <div className="fixed right-0 top-12 bottom-0 w-96 bg-background border-l border-border shadow-lg z-50 flex flex-col">
