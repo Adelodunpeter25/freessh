@@ -1,12 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
+import { toast } from "sonner";
 import { connectionService } from "../services/ipc";
 import { ConnectionConfig, Session } from "../types";
 import { useConnectionStore } from "../stores/connectionStore";
+import { useSessionStore } from "../stores/sessionStore";
+import { useTabStore } from "../stores/tabStore";
 
 export const useConnections = () => {
   const [connections, setConnections] = useState<ConnectionConfig[]>([]);
   const [loading, setLoading] = useState(false);
+  const [connectingId, setConnectingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const addSession = useSessionStore((state) => state.addSession);
+  const addTab = useTabStore((state) => state.addTab);
 
   const loadConnections = useCallback(async () => {
     setLoading(true);
@@ -15,7 +22,6 @@ export const useConnections = () => {
     try {
       const data = await connectionService.list();
       setConnections(data);
-      // populate global connection store so other components (e.g. RemotePanel) see the list
       useConnectionStore.getState().setConnections(data);
     } catch (err) {
       const errorMessage =
@@ -46,10 +52,12 @@ export const useConnections = () => {
       try {
         await connectionService.delete(id);
         await loadConnections();
+        toast.success("Connection deleted");
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to delete connection";
         setError(errorMessage);
+        toast.error(errorMessage);
         throw err;
       }
     },
@@ -61,39 +69,62 @@ export const useConnections = () => {
       try {
         await connectionService.update(config);
         await loadConnections();
+        toast.success("Connection updated");
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to update connection";
         setError(errorMessage);
+        toast.error(errorMessage);
         throw err;
       }
     },
     [loadConnections],
   );
 
-  const connect = useCallback(
+  const connectAndOpen = useCallback(
     async (config: ConnectionConfig): Promise<Session> => {
+      setConnectingId(config.id);
       try {
         const session = await connectionService.connect(config);
+        addSession(session, config);
+        addTab(session, config, "terminal");
+        toast.success(`Connected to ${config.name || config.host}`);
         return session;
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : "Failed to connect";
         setError(errorMessage);
+        toast.error(errorMessage);
+        throw err;
+      } finally {
+        setConnectingId(null);
+      }
+    },
+    [addSession, addTab],
+  );
+
+  const saveAndConnect = useCallback(
+    async (config: ConnectionConfig): Promise<void> => {
+      try {
+        await connectAndOpen(config);
+        await loadConnections();
+      } catch (err) {
         throw err;
       }
     },
-    [],
+    [connectAndOpen, loadConnections],
   );
 
   return {
     connections,
     loading,
+    connectingId,
     error,
     loadConnections,
     getConnection,
     deleteConnection,
     updateConnection,
-    connect,
+    connectAndOpen,
+    saveAndConnect,
   };
 };
