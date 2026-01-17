@@ -76,8 +76,6 @@ export function ConnectionsPage() {
       toast.error(error instanceof Error ? error.message : 'Failed to delete connection')
     }
   }
-    await deleteConnection(id)
-  }
 
   return (
     <div className="h-full flex flex-col relative">
