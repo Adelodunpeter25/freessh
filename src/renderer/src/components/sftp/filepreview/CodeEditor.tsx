@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { Loader2 } from 'lucide-react'
 import { getLanguageFromFilename } from '@/utils/language'
 import { FilePreviewHeader } from './FilePreviewHeader'
@@ -7,6 +7,25 @@ import { monacoOptions, readOnlyOptions } from './config'
 const Editor = lazy(() => import('@monaco-editor/react').then(async (m) => {
   const monaco = await import('monaco-editor')
   m.loader.config({ monaco })
+  
+  monaco.editor.defineTheme('custom-dark', {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [],
+    colors: {
+      'editor.background': '#0a0a0a',
+    }
+  })
+  
+  monaco.editor.defineTheme('custom-light', {
+    base: 'vs',
+    inherit: true,
+    rules: [],
+    colors: {
+      'editor.background': '#ffffff',
+    }
+  })
+  
   return { default: m.default }
 }))
 
@@ -20,7 +39,19 @@ export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
   const [value, setValue] = useState(content)
   const [isEditing, setIsEditing] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
+  const [theme, setTheme] = useState(() => 
+    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'custom-dark' : 'custom-light'
+  )
   const language = getLanguageFromFilename(filename)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = (e: MediaQueryListEvent) => {
+      setTheme(e.matches ? 'custom-dark' : 'custom-light')
+    }
+    mediaQuery.addEventListener('change', handleChange)
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
 
   const handleChange = (newValue: string | undefined) => {
     if (newValue !== undefined) {
@@ -63,7 +94,7 @@ export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
             language={language}
             value={value}
             onChange={handleChange}
-            theme="vs-dark"
+            theme={theme}
             options={isEditing ? monacoOptions : readOnlyOptions}
           />
         </Suspense>

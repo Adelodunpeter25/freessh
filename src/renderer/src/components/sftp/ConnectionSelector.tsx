@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Server } from "lucide-react";
 import { toast } from "sonner";
 import { useConnectionStore } from "@/stores/connectionStore";
@@ -25,6 +25,22 @@ export function ConnectionSelector({ onConnect }: ConnectionSelectorProps) {
   const [connecting, setConnecting] = useState(false);
   const { connect } = useSSH();
 
+  const handleConnect = useCallback(async () => {
+    const connection = connections.find((c) => c.id === selectedConnectionId);
+    if (!connection) return;
+
+    setConnecting(true);
+    try {
+      const session = await connect(connection);
+      onConnect(session.id, selectedConnectionId);
+      toast.success(`Connected to ${connection.name || connection.host}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to connect");
+    } finally {
+      setConnecting(false);
+    }
+  }, [connections, selectedConnectionId, connect, onConnect]);
+
   useEffect(() => {
     if (sftpConnectionId) {
       setSelectedConnectionId(sftpConnectionId);
@@ -45,22 +61,6 @@ export function ConnectionSelector({ onConnect }: ConnectionSelectorProps) {
       }
     }
   }, [sftpConnectionId, connections, connect, onConnect, clearSFTPConnection]);
-
-  const handleConnect = async () => {
-    const connection = connections.find((c) => c.id === selectedConnectionId);
-    if (!connection) return;
-
-    setConnecting(true);
-    try {
-      const session = await connect(connection);
-      onConnect(session.id, selectedConnectionId);
-      toast.success(`Connected to ${connection.name || connection.host}`);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to connect");
-    } finally {
-      setConnecting(false);
-    }
-  };
 
   return (
     <div className="flex flex-col h-full border rounded-lg bg-card">

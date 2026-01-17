@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
@@ -20,11 +20,11 @@ export function ConnectionsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [connectingId, setConnectingId] = useState<string | null>(null)
 
-  const handleSelect = (connection: ConnectionConfig | null) => {
+  const handleSelect = useCallback((connection: ConnectionConfig | null) => {
     setSelectedId(connection?.id ?? null)
-  }
+  }, [])
 
-  const handleConnect = async (connection: ConnectionConfig) => {
+  const handleConnect = useCallback(async (connection: ConnectionConfig) => {
     setConnectingId(connection.id)
     try {
       const session = await connect(connection)
@@ -37,18 +37,18 @@ export function ConnectionsPage() {
     } finally {
       setConnectingId(null)
     }
-  }
+  }, [connect, addSession, addTab])
 
-  const handleOpenSFTP = (connection: ConnectionConfig) => {
+  const handleOpenSFTP = useCallback((connection: ConnectionConfig) => {
     openSFTP(connection.id)
-  }
+  }, [openSFTP])
 
-  const handleEdit = (connection: ConnectionConfig) => {
+  const handleEdit = useCallback((connection: ConnectionConfig) => {
     setEditingConnection(connection)
     setShowForm(true)
-  }
+  }, [])
 
-  const handleFormConnect = async (config: ConnectionConfig) => {
+  const handleFormConnect = useCallback(async (config: ConnectionConfig) => {
     try {
       const session = await connect(config)
       
@@ -63,9 +63,9 @@ export function ConnectionsPage() {
       toast.error(error instanceof Error ? error.message : 'Failed to connect')
       throw error
     }
-  }
+  }, [connect, addSession, addTab, loadConnections])
 
-  const handleFormSave = async (config: ConnectionConfig) => {
+  const handleFormSave = useCallback(async (config: ConnectionConfig) => {
     try {
       await updateConnection(config)
       toast.success('Connection updated')
@@ -75,16 +75,16 @@ export function ConnectionsPage() {
       toast.error(error instanceof Error ? error.message : 'Failed to update connection')
       throw error
     }
-  }
+  }, [updateConnection])
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     try {
       await deleteConnection(id)
       toast.success('Connection deleted')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to delete connection')
     }
-  }
+  }, [deleteConnection])
 
   return (
     <div className="h-full flex flex-col relative">

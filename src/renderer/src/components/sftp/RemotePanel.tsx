@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { FilePanel } from "./FilePanel";
 import { ConnectionSelector } from "./ConnectionSelector";
 import { FileInfo } from "@/types";
@@ -51,10 +51,10 @@ export function RemotePanel({
     (c) => c.id === connectedConnectionId,
   );
 
-  const handleConnect = (newSessionId: string, connectionId: string) => {
+  const handleConnect = useCallback((newSessionId: string, connectionId: string) => {
     setConnectedConnectionId(connectionId);
     onSessionChange(newSessionId);
-  };
+  }, [onSessionChange]);
 
   if (!sessionId) {
     return <ConnectionSelector onConnect={handleConnect} />;
