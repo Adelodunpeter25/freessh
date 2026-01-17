@@ -19,6 +19,9 @@ export type MessageType =
   | 'sftp:mkdir'
   | 'sftp:rename'
   | 'sftp:progress'
+  | 'portforward:create'
+  | 'portforward:stop'
+  | 'portforward:list'
 
 export interface IPCMessage {
   type: MessageType

@@ -1,4 +1,5 @@
 export * from './connection'
 export * from './session'
 export * from './sftp'
+export * from './portforward'
 export * from './ipc'
