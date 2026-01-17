@@ -52,6 +52,7 @@ export function ConnectionsPage() {
     try {
       if (editingConnection) {
         await updateConnection(config)
+        toast.success('Connection updated')
       }
       const session = await connect(config)
       
@@ -63,11 +64,18 @@ export function ConnectionsPage() {
       setShowForm(false)
       setEditingConnection(undefined)
     } catch (error) {
-      console.error('Failed to connect:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to connect')
     }
   }
 
   const handleDelete = async (id: string) => {
+    try {
+      await deleteConnection(id)
+      toast.success('Connection deleted')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to delete connection')
+    }
+  }
     await deleteConnection(id)
   }
 

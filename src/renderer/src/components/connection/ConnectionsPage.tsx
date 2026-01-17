@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { ConnectionList } from './ConnectionList'
 import { ConnectionForm } from './ConnectionForm'
 import { NewConnectionButton } from './NewConnectionButton'
@@ -13,9 +14,9 @@ export function ConnectionsPage() {
   const handleConnect = async (connection: ConnectionConfig) => {
     try {
       await connectToSaved(connection.id)
-      // Connection successful - session will be added to tabs
+      toast.success(`Connected to ${connection.name || connection.host}`)
     } catch (error) {
-      console.error('Failed to connect:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to connect')
     }
   }
 
@@ -28,20 +29,22 @@ export function ConnectionsPage() {
     try {
       if (editingConnection) {
         await updateConnection(config)
+        toast.success('Connection updated')
       }
       await connectToSaved(config.id)
       setShowForm(false)
       setEditingConnection(undefined)
     } catch (error) {
-      console.error('Failed to connect:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to connect')
     }
   }
 
   const handleDelete = async (id: string) => {
     try {
       await deleteConnection(id)
+      toast.success('Connection deleted')
     } catch (error) {
-      console.error('Failed to delete connection:', error)
+      toast.error(error instanceof Error ? error.message : 'Failed to delete connection')
     }
   }
 
