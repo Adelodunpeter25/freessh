@@ -25,17 +25,26 @@ export function ConnectionsPage() {
     setShowForm(true)
   }
 
+  const handleFormSave = async (config: ConnectionConfig) => {
+    try {
+      await updateConnection(config)
+      toast.success('Connection updated')
+      setShowForm(false)
+      setEditingConnection(undefined)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to update connection')
+      throw error
+    }
+  }
+
   const handleFormConnect = async (config: ConnectionConfig) => {
     try {
-      if (editingConnection) {
-        await updateConnection(config)
-        toast.success('Connection updated')
-      }
       await connectToSaved(config.id)
       setShowForm(false)
       setEditingConnection(undefined)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to connect')
+      throw error
     }
   }
 
@@ -68,6 +77,7 @@ export function ConnectionsPage() {
         <ConnectionForm
           connection={editingConnection}
           onConnect={handleFormConnect}
+          onSave={handleFormSave}
           onClose={() => {
             setShowForm(false)
             setEditingConnection(undefined)

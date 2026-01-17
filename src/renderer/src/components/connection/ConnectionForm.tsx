@@ -11,10 +11,11 @@ import { Textarea } from '@/components/ui/textarea'
 interface ConnectionFormProps {
   connection?: ConnectionConfig
   onConnect: (config: ConnectionConfig) => void
+  onSave?: (config: ConnectionConfig) => void
   onClose: () => void
 }
 
-export function ConnectionForm({ connection, onConnect, onClose }: ConnectionFormProps) {
+export function ConnectionForm({ connection, onConnect, onSave, onClose }: ConnectionFormProps) {
   const [formData, setFormData] = useState<Partial<ConnectionConfig>>(connection || {
     id: crypto.randomUUID(),
     name: '',
@@ -34,9 +35,17 @@ export function ConnectionForm({ connection, onConnect, onClose }: ConnectionFor
     e.preventDefault()
     setIsConnecting(true)
     try {
-      await onConnect(formData as ConnectionConfig)
+      if (connection && onSave) {
+        // Editing existing connection - just save
+        await onSave(formData as ConnectionConfig)
+        toast.success('Connection updated')
+        onClose()
+      } else {
+        // New connection - save and connect
+        await onConnect(formData as ConnectionConfig)
+      }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to connect')
+      toast.error(error instanceof Error ? error.message : 'Operation failed')
     } finally {
       setIsConnecting(false)
     }
@@ -214,7 +223,7 @@ export function ConnectionForm({ connection, onConnect, onClose }: ConnectionFor
 
         <div className="flex gap-2 pt-4">
           <Button type="submit" className="flex-1" loading={isConnecting}>
-            {connection ? 'Save & Connect' : 'Connect'}
+            {connection ? 'Save Changes' : 'Connect'}
           </Button>
           <Button type="button" variant="outline" onClick={onClose} disabled={isConnecting}>
             Cancel
