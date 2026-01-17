@@ -20,6 +20,7 @@ export function SFTPBrowser() {
   const transferActive = sftp.transfers.some(t => t.status !== 'completed' && t.status !== 'failed');
 
   useEffect(() => {
+    console.log('[SFTPBrowser] useEffect triggered:', { sessionId, hasListFiles: !!sftp.listFiles })
     if (sessionId) {
       sftp.listFiles("/");
     }
