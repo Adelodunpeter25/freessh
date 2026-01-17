@@ -3,12 +3,16 @@ import { FileInfo, TransferProgress, IPCMessage } from '../../types'
 
 export const sftpService = {
   list(sessionId: string, path: string): Promise<FileInfo[]> {
+    console.log('[sftpService] list called:', { sessionId, path })
     return new Promise((resolve, reject) => {
       const handler = (message: IPCMessage) => {
+        console.log('[sftpService] list received message:', { type: message.type, session_id: message.session_id, matches: message.session_id === sessionId && message.type === 'sftp:list' })
         if (message.session_id === sessionId && message.type === 'sftp:list') {
+          console.log('[sftpService] list resolving with data:', message.data)
           backendService.off('sftp:list')
           resolve(message.data as FileInfo[])
         } else if (message.type === 'error') {
+          console.error('[sftpService] list error:', message.data)
           backendService.off('error')
           reject(new Error(message.data.error))
         }
