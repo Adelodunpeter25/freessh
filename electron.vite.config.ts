@@ -12,6 +12,27 @@ export default defineConfig({
         '@': resolve('src/renderer/src')
       }
     },
-    plugins: [react()]
+    plugins: [react()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            // Only include languages we actually use
+            if (id.includes('monaco-editor')) {
+              if (id.includes('/esm/vs/language/')) {
+                const usedLanguages = [
+                  'json', 'html', 'css', 'typescript', 'javascript',
+                  'python', 'markdown', 'yaml', 'xml', 'shell'
+                ]
+                const isUsedLanguage = usedLanguages.some(lang => id.includes(`/language/${lang}/`))
+                if (!isUsedLanguage) {
+                  return 'monaco-unused'
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 })
