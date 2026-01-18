@@ -6,19 +6,22 @@ import (
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/ssh/auth"
 	"net"
+	"time"
 
 	"golang.org/x/crypto/ssh"
 )
 
 type Client struct {
-	config    models.ConnectionConfig
-	sshClient *ssh.Client
-	sshConfig *ssh.ClientConfig
+	config       models.ConnectionConfig
+	sshClient    *ssh.Client
+	sshConfig    *ssh.ClientConfig
+	stopKeepAlive chan struct{}
 }
 
 func NewClient(connConfig models.ConnectionConfig) *Client {
 	return &Client{
-		config: connConfig,
+		config:       connConfig,
+		stopKeepAlive: make(chan struct{}),
 	}
 }
 
@@ -49,10 +52,34 @@ func (c *Client) Connect() error {
 	}
 
 	c.sshClient = ssh.NewClient(sshConn, chans, reqs)
+	
+	// Start keep-alive
+	go c.keepAlive()
+	
 	return nil
 }
 
+func (c *Client) keepAlive() {
+	ticker := time.NewTicker(config.DefaultKeepAlive)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			if c.sshClient != nil {
+				_, _, err := c.sshClient.SendRequest("keepalive@openssh.com", true, nil)
+				if err != nil {
+					return
+				}
+			}
+		case <-c.stopKeepAlive:
+			return
+		}
+	}
+}
+
 func (c *Client) Disconnect() error {
+	close(c.stopKeepAlive)
 	if c.sshClient != nil {
 		return c.sshClient.Close()
 	}
