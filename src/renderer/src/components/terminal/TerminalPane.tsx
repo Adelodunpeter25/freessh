@@ -84,7 +84,7 @@ export function TerminalPane({ sessionId, onData, onResize, onReady }: TerminalP
   }, [sessionId, onReady])
 
   return (
-    <div className="h-full w-full p-2" style={{ backgroundColor: theme.background }}>
+    <div className="h-full w-full" style={{ backgroundColor: theme.background }}>
       <div ref={terminalRef} className="h-full w-full" />
     </div>
   )
