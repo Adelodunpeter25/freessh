@@ -6,22 +6,24 @@ import (
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/ssh/auth"
 	"net"
+	"sync"
 	"time"
 
 	"golang.org/x/crypto/ssh"
 )
 
 type Client struct {
-	config       models.ConnectionConfig
-	sshClient    *ssh.Client
-	sshConfig    *ssh.ClientConfig
+	config        models.ConnectionConfig
+	sshClient     *ssh.Client
+	sshConfig     *ssh.ClientConfig
 	stopKeepAlive chan struct{}
+	keepAliveMu   sync.Mutex
+	keepAliveRunning bool
 }
 
 func NewClient(connConfig models.ConnectionConfig) *Client {
 	return &Client{
-		config:       connConfig,
-		stopKeepAlive: make(chan struct{}),
+		config: connConfig,
 	}
 }
 
@@ -53,15 +55,33 @@ func (c *Client) Connect() error {
 
 	c.sshClient = ssh.NewClient(sshConn, chans, reqs)
 	
-	// Start keep-alive
-	go c.keepAlive()
+	c.startKeepAlive()
 	
 	return nil
+}
+
+func (c *Client) startKeepAlive() {
+	c.keepAliveMu.Lock()
+	defer c.keepAliveMu.Unlock()
+
+	if c.keepAliveRunning {
+		return
+	}
+
+	c.stopKeepAlive = make(chan struct{})
+	c.keepAliveRunning = true
+
+	go c.keepAlive()
 }
 
 func (c *Client) keepAlive() {
 	ticker := time.NewTicker(config.DefaultKeepAlive)
 	defer ticker.Stop()
+	defer func() {
+		c.keepAliveMu.Lock()
+		c.keepAliveRunning = false
+		c.keepAliveMu.Unlock()
+	}()
 
 	for {
 		select {
@@ -78,8 +98,18 @@ func (c *Client) keepAlive() {
 	}
 }
 
+func (c *Client) stopKeepAliveRoutine() {
+	c.keepAliveMu.Lock()
+	defer c.keepAliveMu.Unlock()
+
+	if c.keepAliveRunning && c.stopKeepAlive != nil {
+		close(c.stopKeepAlive)
+		c.keepAliveRunning = false
+	}
+}
+
 func (c *Client) Disconnect() error {
-	close(c.stopKeepAlive)
+	c.stopKeepAliveRoutine()
 	if c.sshClient != nil {
 		return c.sshClient.Close()
 	}

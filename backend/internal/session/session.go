@@ -35,8 +35,19 @@ func NewActiveSession(id string, sshClient *ssh.Client, term *terminal.Terminal,
 }
 
 func (as *ActiveSession) Stop() {
-	as.PortForwardMgr.StopAll()
-	close(as.stopChan)
+	// Stop port forwarding first
+	if as.PortForwardMgr != nil {
+		as.PortForwardMgr.StopAll()
+	}
+	
+	// Close channels
+	select {
+	case <-as.stopChan:
+		// Already stopped
+	default:
+		close(as.stopChan)
+	}
+	
 	close(as.OutputChan)
 	close(as.ErrorChan)
 }
