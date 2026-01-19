@@ -14,8 +14,9 @@ export function createWindow(): BrowserWindow {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
-      webSecurity: false
+      sandbox: true,
+      webSecurity: false,
+      v8CacheOptions: 'code'
     }
   })
 
