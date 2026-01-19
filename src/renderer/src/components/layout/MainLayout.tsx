@@ -1,13 +1,16 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { TitleBar } from "./TitleBar";
 import { Sidebar } from "./Sidebar";
-import { ConnectionsPage } from "@/pages/ConnectionsPage";
-import { SFTPPage } from "@/pages/SFTPPage";
-import { TerminalView } from "@/components/terminal/TerminalView";
-import { TerminalSettings } from "@/components/terminal/TerminalSettings";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
+
+// Lazy load pages
+const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));
+const SFTPPage = lazy(() => import("@/pages/SFTPPage"));
+const TerminalView = lazy(() => import("@/components/terminal/TerminalView").then(m => ({ default: m.TerminalView })));
+const TerminalSettings = lazy(() => import("@/components/terminal/TerminalSettings").then(m => ({ default: m.TerminalSettings })));
 
 type SidebarTab = "connections" | "snippets" | "settings";
 type MainView = "home" | "sftp" | "terminal";
@@ -91,7 +94,9 @@ export function MainLayout() {
           <ResizableHandle />
           <ResizablePanel defaultSize={80}>
             <div className="h-full w-full bg-background overflow-hidden">
-              {renderHomeContent()}
+              <Suspense fallback={<div className="flex items-center justify-center h-full"><LoadingSpinner /></div>}>
+                {renderHomeContent()}
+              </Suspense>
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
@@ -99,17 +104,23 @@ export function MainLayout() {
 
       {/* SFTP view */}
       <div className={mainView === "sftp" ? "flex-1 overflow-hidden" : "hidden"}>
-        <SFTPPage />
+        <Suspense fallback={<div className="flex items-center justify-center h-full"><LoadingSpinner /></div>}>
+          <SFTPPage />
+        </Suspense>
       </div>
 
       {/* Terminal view */}
       <div className={mainView === "terminal" ? "flex-1 overflow-hidden" : "hidden"}>
-        {activeTab && <TerminalView sessionId={activeTab.sessionId} />}
+        <Suspense fallback={<div className="flex items-center justify-center h-full"><LoadingSpinner /></div>}>
+          {activeTab && <TerminalView sessionId={activeTab.sessionId} />}
+        </Suspense>
       </div>
 
       {/* Terminal Settings Sidebar */}
       {showTerminalSettings && (
-        <TerminalSettings onClose={() => setShowTerminalSettings(false)} />
+        <Suspense fallback={null}>
+          <TerminalSettings onClose={() => setShowTerminalSettings(false)} />
+        </Suspense>
       )}
     </div>
   );
