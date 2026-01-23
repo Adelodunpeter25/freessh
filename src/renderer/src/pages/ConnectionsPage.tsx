@@ -2,7 +2,6 @@ import { useState, useCallback } from 'react'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
-import { LoadingOverlay } from '@/components/common/LoadingOverlay'
 import { useConnections } from '@/hooks'
 import { useUIStore } from '@/stores/uiStore'
 import { ConnectionConfig } from '@/types'
@@ -86,8 +85,6 @@ export function ConnectionsPage() {
           onClose={handleCloseForm}
         />
       )}
-
-      <LoadingOverlay visible={!!connectingId} message="Connecting..." />
     </div>
   )
 }
