@@ -52,66 +52,6 @@ const SessionTab = memo(function SessionTab({
   onOpenSFTP,
   onTogglePin
 }: SessionTabProps) {
-  const tabDiv = (
-    <div
-      className={cn(
-        'group flex items-center gap-2 pl-8 pr-2 py-2 rounded-md border cursor-pointer transition-all backdrop-blur-md',
-        isActive
-          ? 'bg-white/20 dark:bg-white/15 border-white/30 text-foreground shadow-sm'
-          : 'bg-white/5 dark:bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:border-white/20'
-      )}
-      style={noDrag}
-      onClick={() => !isRenaming && onSelect(id)}
-    >
-      {isPinned && <Pin className="h-3 w-3 shrink-0" />}
-      {isRenaming ? (
-        <div style={noDrag}>
-          <SessionTabInput
-            value={title}
-            onSave={(newTitle) => onRenameSubmit(id, newTitle)}
-            onCancel={onRenameCancel}
-          />
-        </div>
-      ) : (
-        <span className="text-sm font-medium truncate max-w-[180px]">
-          {title}
-        </span>
-      )}
-      {!isPinned && !isRenaming && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 shrink-0"
-          onClick={(e) => {
-            e.stopPropagation()
-            onClose(id)
-          }}
-        >
-          <X className="h-3 w-3" />
-        </Button>
-      )}
-      {isPinned && !isRenaming && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5 invisible shrink-0"
-          disabled
-        >
-          <X className="h-3 w-3" />
-        </Button>
-      )}
-    </div>
-  )
-
-  const tabWithTooltip = connectionHost && !isRenaming ? (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        {tabDiv}
-      </TooltipTrigger>
-      <TooltipContent>{connectionHost}</TooltipContent>
-    </Tooltip>
-  ) : tabDiv
-
   return (
     <SessionTabContextMenu
       tabId={id}
@@ -122,7 +62,63 @@ const SessionTab = memo(function SessionTab({
       onOpenSFTP={() => onOpenSFTP(sessionId)}
       onTogglePin={() => onTogglePin(id)}
     >
-      {tabWithTooltip}
+      <div
+        className={cn(
+          'group flex items-center gap-2 pl-8 pr-2 py-2 rounded-md border cursor-pointer transition-all backdrop-blur-md',
+          isActive
+            ? 'bg-white/20 dark:bg-white/15 border-white/30 text-foreground shadow-sm'
+            : 'bg-white/5 dark:bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:border-white/20'
+        )}
+        style={noDrag}
+        onClick={() => !isRenaming && onSelect(id)}
+      >
+        {isPinned && <Pin className="h-3 w-3 shrink-0" />}
+        {isRenaming ? (
+          <div style={noDrag}>
+            <SessionTabInput
+              value={title}
+              onSave={(newTitle) => onRenameSubmit(id, newTitle)}
+              onCancel={onRenameCancel}
+            />
+          </div>
+        ) : connectionHost ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-sm font-medium truncate max-w-[180px]">
+                {title}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>{connectionHost}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <span className="text-sm font-medium truncate max-w-[180px]">
+            {title}
+          </span>
+        )}
+        {!isPinned && !isRenaming && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 shrink-0"
+            onClick={(e) => {
+              e.stopPropagation()
+              onClose(id)
+            }}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+        {isPinned && !isRenaming && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 invisible shrink-0"
+            disabled
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
     </SessionTabContextMenu>
   )
 })
