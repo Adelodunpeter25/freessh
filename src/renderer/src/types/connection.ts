@@ -1,4 +1,4 @@
-export type AuthMethod = 'password' | 'publickey' | 'keyboard-interactive'
+export type AuthMethod = 'password' | 'publickey'
 
 export interface ConnectionConfig {
   id: string
