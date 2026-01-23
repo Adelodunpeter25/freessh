@@ -1,15 +1,26 @@
-import { Monitor, Apple, HardDrive, Server } from 'lucide-react'
+import { Monitor, Server } from 'lucide-react'
+import { AppleIcon, UbuntuIcon, DebianIcon, ArchIcon, RedHatIcon, FreeBSDIcon, LinuxIcon } from '@/components/icons/OSIcons'
 
-export type OSType = 'linux' | 'macos' | 'freebsd' | 'windows' | 'unknown'
+export type OSType = 'ubuntu' | 'debian' | 'arch' | 'redhat' | 'centos' | 'fedora' | 'linux' | 'macos' | 'freebsd' | 'windows' | 'unknown'
 
 export const getOSIcon = (osType?: string) => {
   switch (osType) {
+    case 'ubuntu':
+      return UbuntuIcon
+    case 'debian':
+      return DebianIcon
+    case 'arch':
+      return ArchIcon
+    case 'redhat':
+    case 'centos':
+    case 'fedora':
+      return RedHatIcon
     case 'linux':
-      return Monitor
+      return LinuxIcon
     case 'macos':
-      return Apple
+      return AppleIcon
     case 'freebsd':
-      return HardDrive
+      return FreeBSDIcon
     case 'windows':
       return Monitor
     default:
