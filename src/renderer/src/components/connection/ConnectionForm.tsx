@@ -186,7 +186,6 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
             </Button>
           </div>
         )}
-      </form>
 
         <div className="flex gap-2 pt-4">
           <Button type="submit" className="flex-1" loading={isConnecting}>
