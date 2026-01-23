@@ -12,8 +12,12 @@ export function SessionTabInput({ value, onSave, onCancel }: SessionTabInputProp
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    inputRef.current?.focus()
-    inputRef.current?.select()
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      inputRef.current?.focus()
+      inputRef.current?.select()
+    }, 0)
+    return () => clearTimeout(timer)
   }, [])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -43,7 +47,7 @@ export function SessionTabInput({ value, onSave, onCancel }: SessionTabInputProp
       onChange={(e) => setInputValue(e.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
-      className="h-7 px-2 text-sm max-w-[180px]"
+      className="h-8 px-2 py-1 text-sm w-[180px] bg-background/50"
       onClick={(e) => e.stopPropagation()}
     />
   )
