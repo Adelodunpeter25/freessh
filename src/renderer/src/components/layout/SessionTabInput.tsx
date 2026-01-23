@@ -49,7 +49,6 @@ export function SessionTabInput({ value, onSave, onCancel }: SessionTabInputProp
       onBlur={handleBlur}
       className="h-8 px-2 py-1 text-sm w-[180px] bg-background/50"
       onClick={(e) => e.stopPropagation()}
-      style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
     />
   )
 }

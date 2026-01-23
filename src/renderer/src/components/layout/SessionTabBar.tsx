@@ -71,11 +71,13 @@ const SessionTab = memo(function SessionTab({
       >
         {isPinned && <Pin className="h-3 w-3 shrink-0" />}
         {isRenaming ? (
-          <SessionTabInput
-            value={title}
-            onSave={(newTitle) => onRenameSubmit(id, newTitle)}
-            onCancel={onRenameCancel}
-          />
+          <div style={noDrag}>
+            <SessionTabInput
+              value={title}
+              onSave={(newTitle) => onRenameSubmit(id, newTitle)}
+              onCancel={onRenameCancel}
+            />
+          </div>
         ) : (
           <span className="text-sm font-medium truncate max-w-[180px]">
             {title}
@@ -95,7 +97,14 @@ const SessionTab = memo(function SessionTab({
           </Button>
         )}
         {isPinned && !isRenaming && (
-          <div className="h-5 w-5 shrink-0" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 invisible shrink-0"
+            disabled
+          >
+            <X className="h-3 w-3" />
+          </Button>
         )}
       </div>
     </SessionTabContextMenu>
