@@ -4,7 +4,6 @@ import { toast } from 'sonner'
 import { ConnectionConfig, AuthMethod } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -69,162 +68,125 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-6">
-        {/* General */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-muted-foreground">General</h3>
-          <div className="space-y-2">
-            <Label htmlFor="name">Connection Name</Label>
-            <Input
-              id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="My Server"
-              required
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-4">
+        <Input
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="Connection Name"
+          required
+        />
+
+        <Input
+          value={formData.host}
+          onChange={(e) => setFormData({ ...formData, host: e.target.value })}
+          placeholder="Host"
+          required
+        />
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground whitespace-nowrap">SSH on</span>
+          <Input
+            type="number"
+            value={formData.port}
+            onChange={(e) => setFormData({ ...formData, port: parseInt(e.target.value) })}
+            className="w-24"
+            required
+          />
+          <span className="text-sm text-muted-foreground">port</span>
         </div>
 
-        {/* Server */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-muted-foreground">Server</h3>
-          <div className="space-y-2">
-            <Label htmlFor="host">Host</Label>
-            <Input
-              id="host"
-              value={formData.host}
-              onChange={(e) => setFormData({ ...formData, host: e.target.value })}
-              placeholder="example.com"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="port">Port</Label>
-            <Input
-              id="port"
-              type="number"
-              value={formData.port}
-              onChange={(e) => setFormData({ ...formData, port: parseInt(e.target.value) })}
-              required
-            />
-          </div>
-        </div>
+        <Input
+          value={formData.username}
+          onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+          placeholder="Username"
+          required
+        />
 
-        {/* Authentication */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-muted-foreground">Authentication</h3>
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-              placeholder="root"
-              required
-            />
-          </div>
+        <Select
+          value={formData.auth_method}
+          onValueChange={(value: AuthMethod) => setFormData({ ...formData, auth_method: value })}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="password">Password</SelectItem>
+            <SelectItem value="publickey">Public Key</SelectItem>
+            <SelectItem value="keyboard-interactive">Keyboard Interactive</SelectItem>
+          </SelectContent>
+        </Select>
 
-          <div className="space-y-2">
-            <Label htmlFor="auth_method">Method</Label>
-            <Select
-              value={formData.auth_method}
-              onValueChange={(value: AuthMethod) => setFormData({ ...formData, auth_method: value })}
+        {formData.auth_method === 'password' && (
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Password"
+              className="pr-10"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 h-full px-3"
+              onClick={() => setShowPassword(!showPassword)}
             >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="password">Password</SelectItem>
-                <SelectItem value="publickey">Public Key</SelectItem>
-                <SelectItem value="keyboard-interactive">Keyboard Interactive</SelectItem>
-              </SelectContent>
-            </Select>
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
           </div>
+        )}
 
-          {formData.auth_method === 'password' && (
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full px-3"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
+        {formData.auth_method === 'publickey' && (
+          <>
+            <Textarea
+              value={formData.private_key}
+              onChange={(e) => setFormData({ ...formData, private_key: e.target.value })}
+              placeholder="Private Key"
+              rows={6}
+            />
+            <div className="relative">
+              <Input
+                type={showPassphrase ? 'text' : 'password'}
+                value={formData.passphrase}
+                onChange={(e) => setFormData({ ...formData, passphrase: e.target.value })}
+                placeholder="Passphrase (optional)"
+                className="pr-10"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-0 top-0 h-full px-3"
+                onClick={() => setShowPassphrase(!showPassphrase)}
+              >
+                {showPassphrase ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
             </div>
-          )}
+          </>
+        )}
 
-          {formData.auth_method === 'publickey' && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="private_key">Private Key</Label>
-                <Textarea
-                  id="private_key"
-                  value={formData.private_key}
-                  onChange={(e) => setFormData({ ...formData, private_key: e.target.value })}
-                  placeholder="-----BEGIN RSA PRIVATE KEY-----"
-                  rows={6}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="passphrase">Passphrase (optional)</Label>
-                <div className="relative">
-                  <Input
-                    id="passphrase"
-                    type={showPassphrase ? 'text' : 'password'}
-                    value={formData.passphrase}
-                    onChange={(e) => setFormData({ ...formData, passphrase: e.target.value })}
-                    className="pr-10"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 top-0 h-full px-3"
-                    onClick={() => setShowPassphrase(!showPassphrase)}
-                  >
-                    {showPassphrase ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-            </>
-          )}
-
-          {formData.auth_method === 'keyboard-interactive' && (
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="pr-10"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full px-3"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
+        {formData.auth_method === 'keyboard-interactive' && (
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              placeholder="Password"
+              className="pr-10"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-0 top-0 h-full px-3"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
+          </div>
+        )}
+      </form>
 
         <div className="flex gap-2 pt-4">
           <Button type="submit" className="flex-1" loading={isConnecting}>
