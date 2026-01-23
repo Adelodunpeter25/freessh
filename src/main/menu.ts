@@ -1,4 +1,4 @@
-import { app, Menu, BrowserWindow } from 'electron'
+import { app, Menu, BrowserWindow, shell } from 'electron'
 
 export function createMenu(): void {
   const isMac = process.platform === 'darwin'
@@ -9,6 +9,13 @@ export function createMenu(): void {
       label: app.name,
       submenu: [
         { role: 'about' as const },
+        { type: 'separator' as const },
+        {
+          label: 'Check for Updates...',
+          click: () => {
+            BrowserWindow.getFocusedWindow()?.webContents.send('menu:check-updates')
+          }
+        },
         { type: 'separator' as const },
         {
           label: 'Settings...',
@@ -51,6 +58,43 @@ export function createMenu(): void {
           label: 'Close Window',
           accelerator: 'CmdOrCtrl+Shift+W',
           role: 'close' as const
+        },
+        // Add Check for Updates on Windows/Linux
+        ...(!isMac ? [
+          { type: 'separator' as const },
+          {
+            label: 'Check for Updates...',
+            click: () => {
+              BrowserWindow.getFocusedWindow()?.webContents.send('menu:check-updates')
+            }
+          }
+        ] : [])
+      ]
+    },
+
+    // Help menu
+    {
+      role: 'help' as const,
+      submenu: [
+        {
+          label: 'Keyboard Shortcuts',
+          accelerator: 'CmdOrCtrl+?',
+          click: () => {
+            BrowserWindow.getFocusedWindow()?.webContents.send('menu:show-shortcuts')
+          }
+        },
+        { type: 'separator' as const },
+        {
+          label: 'Documentation',
+          click: async () => {
+            await shell.openExternal('https://github.com/yourusername/freessh')
+          }
+        },
+        {
+          label: 'Report Issue',
+          click: async () => {
+            await shell.openExternal('https://github.com/yourusername/freessh/issues')
+          }
         }
       ]
     }
