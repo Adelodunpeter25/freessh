@@ -53,10 +53,19 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
       // Navigation shortcuts
       if (shortcutKey.match(/^cmd\+[1-9]$/)) {
         const index = parseInt(shortcutKey.slice(-1)) - 1
-        if (tabs[index]) {
-          e.preventDefault()
-          setActiveTab(tabs[index].id)
-          handlers.onSwitchTab?.(index)
+        e.preventDefault()
+        
+        // Index 0 = Home, Index 1 = SFTP, Index 2+ = Session tabs
+        if (index === 0) {
+          handlers.onSwitchTab?.(0) // Home
+        } else if (index === 1) {
+          handlers.onSwitchTab?.(1) // SFTP
+        } else {
+          const sessionIndex = index - 2
+          if (tabs[sessionIndex]) {
+            setActiveTab(tabs[sessionIndex].id)
+            handlers.onSwitchTab?.(index)
+          }
         }
         return
       }
