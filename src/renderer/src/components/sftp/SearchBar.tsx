@@ -30,7 +30,7 @@ export function SearchBar({ value, onChange, onClear }: SearchBarProps) {
             <Search className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Search</TooltipContent>
+        <TooltipContent>Search current directory</TooltipContent>
       </Tooltip>
     )
   }
