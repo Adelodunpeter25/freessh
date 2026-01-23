@@ -6,6 +6,7 @@ interface Tab {
   sessionId: string
   title: string
   type: 'terminal' | 'sftp'
+  isPinned?: boolean
 }
 
 interface TabStore {
@@ -16,6 +17,7 @@ interface TabStore {
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
+  togglePinTab: (tabId: string) => void
   getTabBySessionId: (sessionId: string) => Tab | undefined
 }
 
@@ -39,6 +41,9 @@ export const useTabStore = create<TabStore>((set, get) => ({
 
   removeTab: (tabId) => {
     set((state) => {
+      const tab = state.tabs.find(t => t.id === tabId)
+      if (tab?.isPinned) return state // Prevent closing pinned tabs
+      
       const newTabs = state.tabs.filter((tab) => tab.id !== tabId)
       const newActiveTabId = 
         state.activeTabId === tabId 
@@ -60,6 +65,14 @@ export const useTabStore = create<TabStore>((set, get) => ({
     set((state) => ({
       tabs: state.tabs.map((tab) =>
         tab.id === tabId ? { ...tab, title } : tab
+      )
+    }))
+  },
+
+  togglePinTab: (tabId) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) =>
+        tab.id === tabId ? { ...tab, isPinned: !tab.isPinned } : tab
       )
     }))
   },
