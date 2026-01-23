@@ -6,6 +6,8 @@ import { FilePreview } from "./filepreview";
 import { DropZoneOverlay } from "@/components/common/DropZoneOverlay";
 import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
 import { useDragDrop } from "@/hooks/useDragDrop";
+import { useSearch } from "@/hooks/useSearch";
+import { SearchBar } from "./SearchBar";
 
 interface FilePanelProps {
   title: string;
@@ -47,6 +49,7 @@ export function FilePanel({
 }: FilePanelProps) {
   const [showHidden, setShowHidden] = useState(false);
   const { isDragOver, dragProps } = useDragDrop(onDrop, currentPath);
+  const { query, setQuery, filteredFiles, clearSearch, isSearching } = useSearch(files);
   const { 
     previewFile, 
     isRemotePreview, 
@@ -113,7 +116,9 @@ export function FilePanel({
         onToggleHidden={() => setShowHidden(!showHidden)}
         onNewFolder={handleNewFolder}
         fetchSuggestions={fetchSuggestions}
-      />
+      >
+        <SearchBar value={query} onChange={setQuery} onClear={clearSearch} />
+      </FilePanelHeader>
       {showPreview ? (
         <div className="flex-1 overflow-hidden">
           <FilePreview
@@ -126,7 +131,7 @@ export function FilePanel({
         </div>
       ) : (
         <FileList
-          files={files}
+          files={filteredFiles}
           loading={loading}
           showHidden={showHidden}
           selectedFile={selectedFile}

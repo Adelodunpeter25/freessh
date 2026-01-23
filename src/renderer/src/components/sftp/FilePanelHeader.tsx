@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { ArrowLeft, FolderPlus, RefreshCw, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ interface FilePanelHeaderProps {
   onToggleHidden: () => void;
   onNewFolder: (name: string) => void;
   fetchSuggestions: (path: string) => Promise<FileInfo[]>;
+  children?: ReactNode;
 }
 
 export function FilePanelHeader({
@@ -32,6 +33,7 @@ export function FilePanelHeader({
   onToggleHidden,
   onNewFolder,
   fetchSuggestions,
+  children,
 }: FilePanelHeaderProps) {
   const [pathInput, setPathInput] = useState(currentPath);
   const [showNewFolder, setShowNewFolder] = useState(false);
@@ -76,6 +78,7 @@ export function FilePanelHeader({
               </TooltipTrigger>
               <TooltipContent>New folder</TooltipContent>
             </Tooltip>
+            {children}
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
