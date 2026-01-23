@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, RefObject } from 'react'
 import { Terminal as XTerm } from 'xterm'
 
 interface UseTerminalActionsOptions {
@@ -6,34 +6,34 @@ interface UseTerminalActionsOptions {
   onSplit?: () => void
 }
 
-export const useTerminalActions = (xterm: XTerm | null, options?: UseTerminalActionsOptions) => {
+export const useTerminalActions = (xtermRef: RefObject<XTerm | null>, options?: UseTerminalActionsOptions) => {
   const clear = useCallback(() => {
-    if (xterm) {
-      xterm.clear()
+    if (xtermRef.current) {
+      xtermRef.current.clear()
     }
-  }, [xterm])
+  }, [xtermRef])
 
   const copy = useCallback(() => {
-    if (xterm) {
-      const selection = xterm.getSelection()
+    if (xtermRef.current) {
+      const selection = xtermRef.current.getSelection()
       if (selection) {
         navigator.clipboard.writeText(selection)
       }
     }
-  }, [xterm])
+  }, [xtermRef])
 
   const paste = useCallback(async () => {
-    if (xterm) {
+    if (xtermRef.current) {
       const text = await navigator.clipboard.readText()
-      xterm.paste(text)
+      xtermRef.current.paste(text)
     }
-  }, [xterm])
+  }, [xtermRef])
 
   const selectAll = useCallback(() => {
-    if (xterm) {
-      xterm.selectAll()
+    if (xtermRef.current) {
+      xtermRef.current.selectAll()
     }
-  }, [xterm])
+  }, [xtermRef])
 
   const find = useCallback(() => {
     options?.onFind?.()

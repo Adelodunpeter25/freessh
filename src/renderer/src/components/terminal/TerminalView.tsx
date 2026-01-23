@@ -17,7 +17,7 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
   const searchAddonRef = useRef<SearchAddon | null>(null)
   const xtermRef = useRef<XTerm | null>(null)
 
-  const actions = useTerminalActions(xtermRef.current, {
+  const actions = useTerminalActions(xtermRef, {
     onFind: () => setShowSearch(true),
     onSplit: () => console.log('Split not implemented')
   })
