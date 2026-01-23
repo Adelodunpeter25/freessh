@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
+import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
 import { useConnections } from '@/hooks'
 import { useUIStore } from '@/stores/uiStore'
@@ -61,6 +62,7 @@ export function ConnectionsPage() {
 
   return (
     <div className="h-full flex flex-col relative">
+      <ConnectionsHeader onNewConnection={() => setShowForm(true)} />
       <div className="flex-1 overflow-hidden">
         <ConnectionList
           connections={connections}
