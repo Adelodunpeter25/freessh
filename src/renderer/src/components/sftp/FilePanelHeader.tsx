@@ -66,45 +66,45 @@ export function FilePanelHeader({
   };
 
   return (
-    <div className="p-3 border-b">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium">{title}</span>
-        <div className="flex gap-1">
-          {children}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <MoreVertical className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setShowNewFolder(true)}>
-                <FolderPlus className="w-4 h-4 mr-2" />
-                New Folder
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onToggleHidden}>
-                {showHidden ? (
-                  <>
-                    <Eye className="w-4 h-4 mr-2" />
-                    Hide Hidden Files
-                  </>
-                ) : (
-                  <>
-                    <EyeOff className="w-4 h-4 mr-2" />
-                    Show Hidden Files
-                  </>
-                )}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={onRefresh} disabled={loading}>
-                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
-                Refresh
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <TooltipProvider delayDuration={150}>
+      <div className="p-3 border-b">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium">{title}</span>
+          <div className="flex gap-1">
+            {children}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowNewFolder(true)}>
+                  <FolderPlus className="w-4 h-4 mr-2" />
+                  New Folder
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onToggleHidden}>
+                  {showHidden ? (
+                    <>
+                      <Eye className="w-4 h-4 mr-2" />
+                      Hide Hidden Files
+                    </>
+                  ) : (
+                    <>
+                      <EyeOff className="w-4 h-4 mr-2" />
+                      Show Hidden Files
+                    </>
+                  )}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onRefresh} disabled={loading}>
+                  <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+                  Refresh
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
-      </div>
-      <div className="flex gap-2">
-        <TooltipProvider delayDuration={150}>
+        <div className="flex gap-2">
           <Tooltip>
             <TooltipTrigger asChild>
               <Button
@@ -119,37 +119,37 @@ export function FilePanelHeader({
             </TooltipTrigger>
             <TooltipContent>Go Back</TooltipContent>
           </Tooltip>
-        </TooltipProvider>
-        <PathAutocomplete
-          value={pathInput}
-          onChange={setPathInput}
-          onNavigate={handlePathNavigate}
-          fetchSuggestions={fetchSuggestions}
-          className="h-8 text-sm"
-        />
-      </div>
-      {showNewFolder && (
-        <div className="flex gap-2 mt-2">
-          <Input
-            value={newFolderName}
-            onChange={(e) => setNewFolderName(e.target.value)}
-            placeholder="Folder name"
+          <PathAutocomplete
+            value={pathInput}
+            onChange={setPathInput}
+            onNavigate={handlePathNavigate}
+            fetchSuggestions={fetchSuggestions}
             className="h-8 text-sm"
-            autoFocus
-            onKeyDown={(e) => e.key === "Enter" && handleCreateFolder()}
           />
-          <Button size="sm" onClick={handleCreateFolder}>
-            Create
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => setShowNewFolder(false)}
-          >
-            Cancel
-          </Button>
         </div>
-      )}
-    </div>
+        {showNewFolder && (
+          <div className="flex gap-2 mt-2">
+            <Input
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Folder name"
+              className="h-8 text-sm"
+              autoFocus
+              onKeyDown={(e) => e.key === "Enter" && handleCreateFolder()}
+            />
+            <Button size="sm" onClick={handleCreateFolder}>
+              Create
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowNewFolder(false)}
+            >
+              Cancel
+            </Button>
+          </div>
+        )}
+      </div>
+    </TooltipProvider>
   );
 }
