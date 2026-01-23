@@ -23,6 +23,7 @@ interface SessionTabProps {
   id: string
   sessionId: string
   title: string
+  connectionHost?: string
   isActive: boolean
   isPinned: boolean
   isRenaming: boolean
@@ -38,7 +39,8 @@ interface SessionTabProps {
 const SessionTab = memo(function SessionTab({ 
   id, 
   sessionId,
-  title, 
+  title,
+  connectionHost,
   isActive, 
   isPinned,
   isRenaming,
@@ -50,7 +52,7 @@ const SessionTab = memo(function SessionTab({
   onOpenSFTP,
   onTogglePin
 }: SessionTabProps) {
-  return (
+  const tabContent = (
     <SessionTabContextMenu
       tabId={id}
       tabTitle={title}
@@ -110,6 +112,19 @@ const SessionTab = memo(function SessionTab({
       </div>
     </SessionTabContextMenu>
   )
+
+  if (connectionHost && !isRenaming) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {tabContent}
+        </TooltipTrigger>
+        <TooltipContent>{connectionHost}</TooltipContent>
+      </Tooltip>
+    )
+  }
+
+  return tabContent
 })
 
 export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, onSessionClick }: SessionTabBarProps) {
@@ -194,24 +209,30 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
         </Tooltip>
       </TooltipProvider>
       
-      {tabs.map((tab) => (
-        <SessionTab
-          key={tab.id}
-          id={tab.id}
-          sessionId={tab.sessionId}
-          title={tab.title}
-          isActive={activeTabId === tab.id && !showHome && !showSFTP}
-          isPinned={tab.isPinned || false}
-          isRenaming={renamingTabId === tab.id}
-          onSelect={handleSelect}
-          onClose={handleClose}
-          onRename={handleRename}
-          onRenameSubmit={handleRenameSubmit}
-          onRenameCancel={handleRenameCancel}
-          onOpenSFTP={handleOpenSFTP}
-          onTogglePin={handleTogglePin}
-        />
-      ))}
+      {tabs.map((tab) => {
+        const sessionData = getSession(tab.sessionId)
+        const connectionHost = sessionData ? `${sessionData.connection.username}@${sessionData.connection.host}` : undefined
+        
+        return (
+          <SessionTab
+            key={tab.id}
+            id={tab.id}
+            sessionId={tab.sessionId}
+            title={tab.title}
+            connectionHost={connectionHost}
+            isActive={activeTabId === tab.id && !showHome && !showSFTP}
+            isPinned={tab.isPinned || false}
+            isRenaming={renamingTabId === tab.id}
+            onSelect={handleSelect}
+            onClose={handleClose}
+            onRename={handleRename}
+            onRenameSubmit={handleRenameSubmit}
+            onRenameCancel={handleRenameCancel}
+            onOpenSFTP={handleOpenSFTP}
+            onTogglePin={handleTogglePin}
+          />
+        )
+      })}
     </div>
   )
 }
