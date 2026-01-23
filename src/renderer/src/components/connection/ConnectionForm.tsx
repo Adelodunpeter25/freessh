@@ -56,7 +56,7 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
         <h2 className="text-lg font-semibold">
           {connection ? 'Edit Connection' : 'New Connection'}
         </h2>
-        <TooltipProvider delayDuration={200}>
+        <TooltipProvider delayDuration={150}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" onClick={onClose}>
