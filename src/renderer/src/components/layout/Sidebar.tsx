@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Server, FileText, Settings, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-type SidebarTab = 'connections' | 'snippets' | 'settings'
+type SidebarTab = 'connections' | 'snippets'
 
 interface SidebarProps {
   onTabChange?: (tab: SidebarTab) => void
@@ -49,11 +49,6 @@ export function Sidebar({ onTabChange }: SidebarProps) {
         {mainTabs.map((tab) => (
           <SidebarItem key={tab.id} {...tab} />
         ))}
-      </div>
-
-      <div className="mt-auto space-y-1">
-        <div className="h-px bg-border/50 mx-2 mb-3" />
-        <SidebarItem id="settings" icon={Settings} label="Settings" />
       </div>
     </div>
   )
