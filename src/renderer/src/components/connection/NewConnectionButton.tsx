@@ -8,7 +8,7 @@ interface NewConnectionButtonProps {
 
 export function NewConnectionButton({ onClick }: NewConnectionButtonProps) {
   return (
-    <TooltipProvider delayDuration={300}>
+    <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button 
@@ -19,7 +19,7 @@ export function NewConnectionButton({ onClick }: NewConnectionButtonProps) {
             <Plus className="h-6 w-6 transition-transform group-hover:rotate-90" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent>Add new connection</TooltipContent>
+        <TooltipContent>Add new SSH connection</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   )
