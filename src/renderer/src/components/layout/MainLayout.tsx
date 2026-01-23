@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react"
 import { TitleBar } from "./TitleBar";
 import { Sidebar } from "./Sidebar";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { KeyboardShortcutsDialog } from "@/components/common/KeyboardShortcutsDialog";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
@@ -21,6 +22,7 @@ export function MainLayout() {
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("connections");
   const [mainView, setMainView] = useState<MainView>("home");
   const [showTerminalSettings, setShowTerminalSettings] = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
   const activeSessionTabId = useTabStore((state) => state.activeTabId);
   const tabs = useTabStore((state) => state.tabs);
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
@@ -70,6 +72,7 @@ export function MainLayout() {
       handleHomeClick()
       setSidebarTab('settings')
     },
+    onShowShortcuts: () => setShowShortcuts(true),
   })
 
   const renderHomeContent = () => {
@@ -141,6 +144,9 @@ export function MainLayout() {
           <TerminalSettings onClose={() => setShowTerminalSettings(false)} />
         </Suspense>
       )}
+
+      {/* Keyboard Shortcuts Dialog */}
+      <KeyboardShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />
     </div>
   );
 }
