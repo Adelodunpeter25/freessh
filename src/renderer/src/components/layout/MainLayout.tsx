@@ -8,6 +8,7 @@ import { useUIStore } from "@/stores/uiStore";
 
 // Lazy load pages
 const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));
+const SettingsPage = lazy(() => import("@/pages/SettingsPage").then(m => ({ default: m.SettingsPage })));
 const SFTPPage = lazy(() => import("@/pages/SFTPPage"));
 const TerminalView = lazy(() => import("@/components/terminal/TerminalView").then(m => ({ default: m.TerminalView })));
 const TerminalSettings = lazy(() => import("@/components/terminal/TerminalSettings").then(m => ({ default: m.TerminalSettings })));
@@ -60,11 +61,7 @@ export function MainLayout() {
           </div>
         );
       case "settings":
-        return (
-          <div className="flex items-center justify-center h-full text-muted-foreground">
-            Settings
-          </div>
-        );
+        return <SettingsPage />;
       default:
         return null;
     }
