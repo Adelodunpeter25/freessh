@@ -73,8 +73,8 @@ const SessionTab = memo(function SessionTab({
         className={cn(
           'group flex items-center gap-2 pl-8 pr-2 py-2 rounded-md border cursor-pointer transition-all backdrop-blur-md',
           isActive
-            ? 'bg-white/20 dark:bg-white/15 border-white/30 text-foreground shadow-sm'
-            : 'bg-white/5 dark:bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:border-white/20'
+            ? 'bg-white/20 dark:bg-white/15 border-white/30 dark:border-white/30 text-foreground shadow-sm'
+            : 'bg-white/5 dark:bg-white/5 border-white/10 dark:border-white/10 text-foreground/70 dark:text-muted-foreground hover:bg-white/10 hover:border-white/20'
         )}
         style={noDrag}
         onClick={() => !isRenaming && onSelect(id)}
@@ -180,8 +180,8 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               className={cn(
                 'flex items-center gap-2 px-8 py-2 rounded-md border cursor-pointer transition-all backdrop-blur-md',
                 showHome
-                  ? 'bg-white/20 dark:bg-white/15 border-white/30 text-foreground shadow-sm'
-                  : 'bg-white/5 dark:bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:border-white/20'
+                  ? 'bg-white/20 dark:bg-white/15 border-white/30 dark:border-white/30 text-foreground shadow-sm'
+                  : 'bg-white/5 dark:bg-white/5 border-white/10 dark:border-white/10 text-foreground/70 dark:text-muted-foreground hover:bg-white/10 hover:border-white/20'
               )}
               style={noDrag}
               onClick={onHomeClick}
@@ -199,8 +199,8 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               className={cn(
                 'flex items-center gap-2 px-8 py-2 rounded-md border cursor-pointer transition-all backdrop-blur-md',
                 showSFTP
-                  ? 'bg-white/20 dark:bg-white/15 border-white/30 text-foreground shadow-sm'
-                  : 'bg-white/5 dark:bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:border-white/20'
+                  ? 'bg-white/20 dark:bg-white/15 border-white/30 dark:border-white/30 text-foreground shadow-sm'
+                  : 'bg-white/5 dark:bg-white/5 border-white/10 dark:border-white/10 text-foreground/70 dark:text-muted-foreground hover:bg-white/10 hover:border-white/20'
               )}
               style={noDrag}
               onClick={onSFTPClick}
