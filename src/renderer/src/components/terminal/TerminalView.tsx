@@ -54,12 +54,14 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
         onFind={actions.find}
         onSplit={actions.split}
       >
-        <TerminalPane
-          sessionId={sessionId}
-          onData={sendInput}
-          onResize={(cols, rows) => resize(rows, cols)}
-          onReady={handleReady}
-        />
+        <div className="h-full w-full">
+          <TerminalPane
+            sessionId={sessionId}
+            onData={sendInput}
+            onResize={(cols, rows) => resize(rows, cols)}
+            onReady={handleReady}
+          />
+        </div>
       </TerminalContextMenu>
     </div>
   )
