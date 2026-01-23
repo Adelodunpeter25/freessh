@@ -30,9 +30,9 @@ export const useTerminalActions = (xterm: XTerm | null) => {
     }
   }, [xterm])
 
-  const find = useCallback(() => {
-    // TODO: Implement find functionality with search addon
-    console.log('Find not implemented yet')
+  const find = useCallback((query: string, direction: 'next' | 'prev' = 'next') => {
+    // Search addon will be passed separately
+    console.log('Find:', query, direction)
   }, [])
 
   const split = useCallback(() => {

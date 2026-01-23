@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Terminal as XTerm } from 'xterm'
 import { FitAddon } from '@xterm/addon-fit'
+import { SearchAddon } from '@xterm/addon-search'
 import { useTerminalThemeStore } from '@/stores/terminalThemeStore'
 import { useTerminalFontStore } from '@/stores/terminalFontStore'
 import 'xterm/css/xterm.css'
@@ -9,13 +10,14 @@ interface TerminalPaneProps {
   sessionId: string
   onData: (data: string) => void
   onResize: (cols: number, rows: number) => void
-  onReady: (xterm: XTerm) => void
+  onReady: (xterm: XTerm, searchAddon: SearchAddon) => void
 }
 
 export function TerminalPane({ sessionId, onData, onResize, onReady }: TerminalPaneProps) {
   const terminalRef = useRef<HTMLDivElement>(null)
   const xtermRef = useRef<XTerm | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
+  const searchAddonRef = useRef<SearchAddon | null>(null)
   const onDataRef = useRef(onData)
   const onResizeRef = useRef(onResize)
   const theme = useTerminalThemeStore((state) => state.getTheme())
@@ -66,13 +68,16 @@ export function TerminalPane({ sessionId, onData, onResize, onReady }: TerminalP
     })
 
     const fitAddon = new FitAddon()
+    const searchAddon = new SearchAddon()
     xterm.loadAddon(fitAddon)
+    xterm.loadAddon(searchAddon)
     xterm.open(terminalRef.current)
 
     xtermRef.current = xterm
     fitAddonRef.current = fitAddon
+    searchAddonRef.current = searchAddon
 
-    onReady(xterm)
+    onReady(xterm, searchAddon)
 
     requestAnimationFrame(() => {
       if (fitAddonRef.current && xtermRef.current) {
