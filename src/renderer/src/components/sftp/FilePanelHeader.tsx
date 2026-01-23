@@ -1,8 +1,14 @@
 import { useState, useEffect, ReactNode } from "react";
-import { ArrowLeft, FolderPlus, RefreshCw, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, FolderPlus, RefreshCw, Eye, EyeOff, MoreVertical } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { PathAutocomplete } from "@/components/common/PathAutocomplete";
 import { FileInfo } from "@/types";
 
@@ -63,51 +69,39 @@ export function FilePanelHeader({
     <div className="p-3 border-b">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium">{title}</span>
-        <TooltipProvider delayDuration={150}>
-          <div className="flex gap-1">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={() => setShowNewFolder(true)}
-                >
-                  <FolderPlus className="w-4 h-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>New folder</TooltipContent>
-            </Tooltip>
-            {children}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={onToggleHidden}
-                >
-                  {showHidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{showHidden ? "Hide hidden files" : "Show hidden files"}</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7"
-                  onClick={onRefresh}
-                  disabled={loading}
-                >
-                  <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>Refresh</TooltipContent>
-            </Tooltip>
-          </div>
-        </TooltipProvider>
+        <div className="flex gap-1">
+          {children}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <MoreVertical className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setShowNewFolder(true)}>
+                <FolderPlus className="w-4 h-4 mr-2" />
+                New Folder
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onToggleHidden}>
+                {showHidden ? (
+                  <>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Hide Hidden Files
+                  </>
+                ) : (
+                  <>
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    Show Hidden Files
+                  </>
+                )}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onRefresh} disabled={loading}>
+                <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+                Refresh
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="flex gap-2">
         <TooltipProvider delayDuration={150}>
