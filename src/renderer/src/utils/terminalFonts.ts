@@ -11,6 +11,12 @@ export const terminalFonts: TerminalFont[] = [
   { name: 'Monaco', family: 'Monaco, monospace' },
   { name: 'Menlo', family: 'Menlo, monospace' },
   { name: 'Courier New', family: '"Courier New", monospace' },
+  { name: 'SF Mono', family: '"SF Mono", monospace' },
+  { name: 'Cascadia Code', family: '"Cascadia Code", monospace' },
+  { name: 'IBM Plex Mono', family: '"IBM Plex Mono", monospace' },
+  { name: 'Roboto Mono', family: '"Roboto Mono", monospace' },
+  { name: 'Ubuntu Mono', family: '"Ubuntu Mono", monospace' },
+  { name: 'Inconsolata', family: 'Inconsolata, monospace' },
   { name: 'System Monospace', family: 'monospace' }
 ]
 

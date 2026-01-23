@@ -86,15 +86,10 @@ export function TerminalFontSettings({ onBack }: TerminalFontSettingsProps) {
               fontWeight
             }}
           >
-            <div>$ ssh user@server.com</div>
-            <div>Welcome to Ubuntu 22.04 LTS</div>
-            <div>Last login: Fri Jan 23 12:00:00 2026</div>
-            <div className="flex items-center gap-2">
-              <span className="text-green-400">user@server</span>
-              <span className="text-blue-400">~</span>
-              <span>$</span>
-              <span className="animate-pulse">_</span>
-            </div>
+            <div>The quick brown fox jumps over the lazy dog</div>
+            <div>0123456789 !@#$%^&*()_+-=[]&#123;&#125;|;:',./&lt;&gt;?</div>
+            <div>abcdefghijklmnopqrstuvwxyz</div>
+            <div>ABCDEFGHIJKLMNOPQRSTUVWXYZ</div>
           </div>
         </div>
       </div>
