@@ -10,4 +10,5 @@ export interface ConnectionConfig {
   password?: string
   private_key?: string
   passphrase?: string
+  group?: string
 }

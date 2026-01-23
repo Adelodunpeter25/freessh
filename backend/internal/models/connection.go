@@ -17,4 +17,5 @@ type ConnectionConfig struct {
 	Password   string     `json:"password,omitempty"`
 	PrivateKey string     `json:"private_key,omitempty"`
 	Passphrase string     `json:"passphrase,omitempty"`
+	Group      string     `json:"group,omitempty"`
 }
