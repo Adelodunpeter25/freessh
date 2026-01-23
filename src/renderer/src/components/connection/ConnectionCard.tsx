@@ -50,7 +50,7 @@ export const ConnectionCard = memo(function ConnectionCard({ connection, selecte
           {loading ? (
             <Loader2 className="h-5 w-5 text-primary animate-spin" />
           ) : (
-            <OSIcon className="h-5 w-5 text-primary" />
+            <OSIcon className="h-6 w-6 text-primary" />
           )}
         </div>
         
