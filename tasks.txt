@@ -3,3 +3,7 @@
  path autocomplete should accept tab so when i enter tab the first path should what should be entered do you understand do not do anything just give me feedback
  
  you know on the connection card when i click it once it highlights can you change that highlight to be a round border glow
+ 
+ termius has icon maping for the os detected i like it can we do that it would detect os and give it a currespondign icon and that icon would show in the connection card and on the session tab bar what do you think give me feedback
+ 
+we need to change out connection animation it looks like it is longer than usual becuase it loads as an overlay why done we make it load on the connection card itself 
