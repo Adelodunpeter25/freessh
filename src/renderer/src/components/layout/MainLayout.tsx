@@ -51,6 +51,27 @@ export function MainLayout() {
   const handleSessionClick = useCallback(() => setMainView("terminal"), []);
   const handleSidebarTabChange = useCallback((tab: SidebarTab) => setSidebarTab(tab), []);
 
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onSwitchTab: (index) => {
+      if (index === 0) {
+        handleHomeClick()
+      } else if (index === 1) {
+        handleSFTPClick()
+      } else {
+        handleSessionClick()
+      }
+    },
+    onNewConnection: () => {
+      handleHomeClick()
+      setSidebarTab('connections')
+    },
+    onOpenSettings: () => {
+      handleHomeClick()
+      setSidebarTab('settings')
+    },
+  })
+
   const renderHomeContent = () => {
     switch (sidebarTab) {
       case "connections":
