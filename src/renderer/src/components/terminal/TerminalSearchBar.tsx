@@ -22,12 +22,17 @@ export function TerminalSearchBar({ onSearch, onClose }: TerminalSearchBarProps)
     }
   }
 
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.select()
+  }
+
   return (
     <div className="absolute top-0 right-0 m-2 flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1 z-10">
       <Input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={handleKeyDown}
+        onFocus={handleFocus}
         placeholder="Find..."
         className="h-8 w-48"
         autoFocus

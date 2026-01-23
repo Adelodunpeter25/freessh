@@ -5,6 +5,7 @@ import { SearchAddon } from '@xterm/addon-search'
 import { useTerminalThemeStore } from '@/stores/terminalThemeStore'
 import { useTerminalFontStore } from '@/stores/terminalFontStore'
 import 'xterm/css/xterm.css'
+import './terminal-search.css'
 
 interface TerminalPaneProps {
   sessionId: string
@@ -69,6 +70,12 @@ export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onRe
 
     const fitAddon = new FitAddon()
     const searchAddon = new SearchAddon()
+    
+    // Configure search decoration colors
+    searchAddon.onDidChangeResults(() => {
+      // Custom highlight colors applied via CSS
+    })
+    
     xterm.loadAddon(fitAddon)
     xterm.loadAddon(searchAddon)
     xterm.open(terminalRef.current)
