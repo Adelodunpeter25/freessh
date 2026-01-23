@@ -24,7 +24,7 @@ interface BaseContextMenuProps {
 export function BaseContextMenu({ children, actions }: BaseContextMenuProps) {
   return (
     <ContextMenu>
-      <ContextMenuTrigger asChild className="h-full w-full">{children}</ContextMenuTrigger>
+      <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent>
         {actions.map((action, index) => (
           <div key={index}>
