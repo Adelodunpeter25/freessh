@@ -31,13 +31,11 @@ const buildShortcutKey = (e: KeyboardEvent): string => {
 interface ShortcutHandlers {
   onSwitchTab?: (index: number) => void
   onNewConnection?: () => void
-  onCloseTab?: () => void
   onOpenSettings?: () => void
   onClearTerminal?: () => void
   onSearchTerminal?: () => void
   onRefreshSFTP?: () => void
   onDeleteFile?: () => void
-  onOpenFile?: () => void
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true) {
@@ -75,7 +73,6 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           if (activeTabId) {
             closeTab(activeTabId)
           }
-          handlers.onCloseTab?.()
           break
         
         case 'cmd+,':
@@ -101,19 +98,10 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           break
         
         case 'delete':
-        case 'backspace':
           // Only if not in input field
           if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
             e.preventDefault()
             handlers.onDeleteFile?.()
-          }
-          break
-        
-        case 'enter':
-          // Only if not in input field
-          if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
-            e.preventDefault()
-            handlers.onOpenFile?.()
           }
           break
       }
