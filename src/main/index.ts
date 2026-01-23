@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { spawn, ChildProcess } from 'child_process'
 import { createWindow } from './window'
+import { createMenu } from './menu'
+import { setupMenuHandlers } from './menuHandlers'
 import * as fs from 'fs'
 import * as path from 'path'
 
@@ -126,6 +128,8 @@ ipcMain.handle('dialog:openFile', async () => {
 app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
 
+  setupMenuHandlers()
+  createMenu()
   startBackend()
   createWindow()
 
