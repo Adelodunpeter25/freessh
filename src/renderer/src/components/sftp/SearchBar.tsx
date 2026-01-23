@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface SearchBarProps {
   value: string
@@ -23,9 +24,14 @@ export function SearchBar({ value, onChange, onClear }: SearchBarProps) {
 
   if (!isOpen) {
     return (
-      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleOpen}>
-        <Search className="h-4 w-4" />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleOpen}>
+            <Search className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Search</TooltipContent>
+      </Tooltip>
     )
   }
 
