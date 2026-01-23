@@ -18,6 +18,12 @@ export function ConnectionFormGeneral({ formData, onChange }: ConnectionFormGene
       />
 
       <Input
+        value={formData.group || ''}
+        onChange={(e) => onChange({ ...formData, group: e.target.value || undefined })}
+        placeholder="Group (optional)"
+      />
+
+      <Input
         value={formData.host}
         onChange={(e) => onChange({ ...formData, host: e.target.value })}
         placeholder="Host"
