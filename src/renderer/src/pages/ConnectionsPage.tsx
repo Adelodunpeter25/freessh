@@ -73,6 +73,9 @@ export function ConnectionsPage() {
         onNewConnection={() => setShowForm(true)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
+        filteredConnections={filteredConnections}
+        onConnect={handleConnect}
+        onOpenSFTP={handleOpenSFTP}
       />
       <div className="flex-1 overflow-hidden">
         <ConnectionList
