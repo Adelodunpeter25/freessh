@@ -5,6 +5,7 @@ import { TransferQueue } from "./TransferQueue";
 import { useSFTP } from "@/hooks/useSFTP";
 import { useLocalFiles } from "@/hooks/useLocalFiles";
 import { useFilePreview } from "@/hooks/useFilePreview";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { FilePreviewProvider } from "@/contexts/FilePreviewContext";
 import { FileInfo } from "@/types";
 
@@ -45,6 +46,21 @@ export function SFTPBrowser() {
       local.refresh();
     }
   }, [sftp.download, local.refresh]);
+
+  // SFTP keyboard shortcuts
+  useKeyboardShortcuts({
+    onRefreshSFTP: () => {
+      sftp.listFiles(sftp.currentPath || '/')
+      local.refresh()
+    },
+    onDeleteFile: () => {
+      if (selectedRemote) {
+        sftp.deleteFile(selectedRemote.path)
+      } else if (selectedLocal) {
+        local.deleteFile(selectedLocal.path)
+      }
+    },
+  })
 
   return (
     <FilePreviewProvider value={preview}>
