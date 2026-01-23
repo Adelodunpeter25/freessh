@@ -37,7 +37,7 @@ export function SearchBar({ value, onChange, onClear }: SearchBarProps) {
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Search files and folders..."
-          className="pl-8 pr-8 h-9 w-64"
+          className="pl-8 pr-8 h-9 w-48"
           autoFocus
         />
         {value && (
