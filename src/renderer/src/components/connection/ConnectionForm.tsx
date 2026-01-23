@@ -80,107 +80,68 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-6">
-        {/* General */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-medium text-foreground">General</h3>
-          <Input
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            placeholder="Connection Name"
-            required
-          />
-
-          <Input
-            value={formData.host}
-            onChange={(e) => setFormData({ ...formData, host: e.target.value })}
-            placeholder="Host"
-            required
-          />
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground whitespace-nowrap">SSH on</span>
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          {/* General */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-foreground">General</h3>
             <Input
-              type="number"
-              value={formData.port}
-              onChange={(e) => setFormData({ ...formData, port: parseInt(e.target.value) })}
-              className="w-24"
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              placeholder="Connection Name"
               required
             />
-            <span className="text-sm text-muted-foreground">port</span>
-          </div>
-        </div>
 
-        {/* Credentials */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-medium text-foreground">Credentials</h3>
-          <Input
-            value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-            placeholder="Username"
-            required
-          />
+            <Input
+              value={formData.host}
+              onChange={(e) => setFormData({ ...formData, host: e.target.value })}
+              placeholder="Host"
+              required
+            />
 
-          <Select
-            value={formData.auth_method}
-            onValueChange={(value: AuthMethod) => setFormData({ ...formData, auth_method: value })}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="password">Password</SelectItem>
-              <SelectItem value="publickey">Public Key</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {formData.auth_method === 'password' && (
-            <div className="relative">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">SSH on</span>
               <Input
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="Password"
-                className="pr-10"
+                type="number"
+                value={formData.port}
+                onChange={(e) => setFormData({ ...formData, port: parseInt(e.target.value) })}
+                className="w-24"
+                required
               />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full px-3"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
+              <span className="text-sm text-muted-foreground">port</span>
             </div>
-          )}
+          </div>
 
-          {formData.auth_method === 'publickey' && (
-            <>
-              <div className="space-y-2">
-                <Textarea
-                  value={formData.private_key}
-                  onChange={(e) => setFormData({ ...formData, private_key: e.target.value })}
-                  placeholder="Private Key"
-                  rows={6}
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  onClick={handleBrowseKey}
-                >
-                  <FolderOpen className="h-4 w-4 mr-2" />
-                  Browse Key File
-                </Button>
-              </div>
+          {/* Credentials */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-foreground">Credentials</h3>
+            <Input
+              value={formData.username}
+              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              placeholder="Username"
+              required
+            />
+
+            <Select
+              value={formData.auth_method}
+              onValueChange={(value: AuthMethod) => setFormData({ ...formData, auth_method: value })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="password">Password</SelectItem>
+                <SelectItem value="publickey">Public Key</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {formData.auth_method === 'password' && (
               <div className="relative">
                 <Input
-                  type={showPassphrase ? 'text' : 'password'}
-                  value={formData.passphrase}
-                  onChange={(e) => setFormData({ ...formData, passphrase: e.target.value })}
-                  placeholder="Passphrase (optional)"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="Password"
                   className="pr-10"
                 />
                 <Button
@@ -188,27 +149,67 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
                   variant="ghost"
                   size="icon"
                   className="absolute right-0 top-0 h-full px-3"
-                  onClick={() => setShowPassphrase(!showPassphrase)}
+                  onClick={() => setShowPassword(!showPassword)}
                 >
-                  {showPassphrase ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
               </div>
-            </>
-          )}
-        </div>
-      </div>
+            )}
 
-      {/* Footer */}
-      <div className="p-4 border-t border-border bg-background">
-        <div className="flex gap-2">
-          <Button type="submit" className="flex-1" loading={isConnecting}>
-            {connection ? 'Save Changes' : 'Connect'}
-          </Button>
-          <Button type="button" variant="outline" onClick={onClose} disabled={isConnecting}>
-            Cancel
-          </Button>
+            {formData.auth_method === 'publickey' && (
+              <>
+                <div className="space-y-2">
+                  <Textarea
+                    value={formData.private_key}
+                    onChange={(e) => setFormData({ ...formData, private_key: e.target.value })}
+                    placeholder="Private Key"
+                    rows={6}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={handleBrowseKey}
+                  >
+                    <FolderOpen className="h-4 w-4 mr-2" />
+                    Browse Key File
+                  </Button>
+                </div>
+                <div className="relative">
+                  <Input
+                    type={showPassphrase ? 'text' : 'password'}
+                    value={formData.passphrase}
+                    onChange={(e) => setFormData({ ...formData, passphrase: e.target.value })}
+                    placeholder="Passphrase (optional)"
+                    className="pr-10"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-full px-3"
+                    onClick={() => setShowPassphrase(!showPassphrase)}
+                  >
+                    {showPassphrase ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-border bg-background">
+          <div className="flex gap-2">
+            <Button type="submit" className="flex-1" loading={isConnecting}>
+              {connection ? 'Save Changes' : 'Connect'}
+            </Button>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isConnecting}>
+              Cancel
+            </Button>
+          </div>
+        </div>
       </form>
     </div>
   )
