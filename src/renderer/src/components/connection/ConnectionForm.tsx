@@ -80,9 +80,8 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="flex-1 flex flex-col">
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          {/* General */}
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6">{/* General */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium text-foreground">General</h3>
             <Input
