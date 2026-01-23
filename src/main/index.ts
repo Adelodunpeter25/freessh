@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog } from 'electron'
 import { spawn, ChildProcess } from 'child_process'
 import { createWindow } from './window'
 import * as fs from 'fs'
@@ -103,6 +103,24 @@ ipcMain.handle('fs:writefile', async (_event, filePath: string, content: string)
 
 ipcMain.handle('fs:chmod', async (_event, filePath: string, mode: number) => {
   await fs.promises.chmod(filePath, mode)
+})
+
+ipcMain.handle('dialog:openFile', async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    filters: [
+      { name: 'SSH Keys', extensions: ['pem', 'key', 'pub'] },
+      { name: 'All Files', extensions: ['*'] }
+    ]
+  })
+  
+  if (result.canceled || result.filePaths.length === 0) {
+    return null
+  }
+  
+  const filePath = result.filePaths[0]
+  const content = await fs.promises.readFile(filePath, 'utf-8')
+  return { path: filePath, content }
 })
 
 app.whenReady().then(() => {
