@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"freessh-backend/internal/config"
 	"freessh-backend/internal/models"
+	"freessh-backend/internal/reconnect"
 	"freessh-backend/internal/ssh/auth"
 	"net"
 	"sync"
@@ -13,18 +14,33 @@ import (
 )
 
 type Client struct {
-	config        models.ConnectionConfig
-	sshClient     *ssh.Client
-	sshConfig     *ssh.ClientConfig
-	stopKeepAlive chan struct{}
-	keepAliveMu   sync.Mutex
+	config           models.ConnectionConfig
+	sshClient        *ssh.Client
+	sshConfig        *ssh.ClientConfig
+	stopKeepAlive    chan struct{}
+	keepAliveMu      sync.Mutex
 	keepAliveRunning bool
+	reconnectEnabled bool
+	onReconnecting   func(attempt int)
+	onReconnected    func()
+	onReconnectFailed func(err error)
 }
 
 func NewClient(connConfig models.ConnectionConfig) *Client {
 	return &Client{
-		config: connConfig,
+		config:           connConfig,
+		reconnectEnabled: true,
 	}
+}
+
+func (c *Client) SetReconnectCallbacks(onReconnecting func(int), onReconnected func(), onFailed func(error)) {
+	c.onReconnecting = onReconnecting
+	c.onReconnected = onReconnected
+	c.onReconnectFailed = onFailed
+}
+
+func (c *Client) DisableReconnect() {
+	c.reconnectEnabled = false
 }
 
 func (c *Client) Connect() error {
@@ -89,6 +105,10 @@ func (c *Client) keepAlive() {
 			if c.sshClient != nil {
 				_, _, err := c.sshClient.SendRequest("keepalive@openssh.com", true, nil)
 				if err != nil {
+					// Connection lost, attempt reconnect
+					if c.reconnectEnabled {
+						c.attemptReconnect()
+					}
 					return
 				}
 			}
@@ -105,6 +125,44 @@ func (c *Client) stopKeepAliveRoutine() {
 	if c.keepAliveRunning && c.stopKeepAlive != nil {
 		close(c.stopKeepAlive)
 		c.keepAliveRunning = false
+	}
+}
+
+func (c *Client) attemptReconnect() {
+	backoff := reconnect.NewBackoff(reconnect.DefaultConfig())
+
+	for {
+		delay, ok := backoff.Next()
+		if !ok {
+			// Max attempts reached
+			if c.onReconnectFailed != nil {
+				c.onReconnectFailed(fmt.Errorf("max reconnect attempts reached"))
+			}
+			return
+		}
+
+		if c.onReconnecting != nil {
+			c.onReconnecting(backoff.Attempt())
+		}
+
+		time.Sleep(delay)
+
+		// Close old connection
+		if c.sshClient != nil {
+			c.sshClient.Close()
+			c.sshClient = nil
+		}
+
+		// Attempt reconnection
+		err := c.Connect()
+		if err == nil {
+			// Reconnection successful
+			backoff.Reset()
+			if c.onReconnected != nil {
+				c.onReconnected()
+			}
+			return
+		}
 	}
 }
 
