@@ -49,7 +49,7 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
   }, [connection, onSave, formData, onClose, onConnect])
 
   return (
-    <div className="fixed right-0 top-12 bottom-0 w-96 bg-background border-l border-border shadow-lg z-50 flex flex-col">
+    <div className="fixed right-0 top-12 bottom-0 w-96 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
         <h2 className="text-lg font-semibold">
