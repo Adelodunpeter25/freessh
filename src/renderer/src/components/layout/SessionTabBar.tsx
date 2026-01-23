@@ -207,32 +207,31 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
           </TooltipTrigger>
           <TooltipContent>File Transfer</TooltipContent>
         </Tooltip>
-      </TooltipProvider>
       
-      {tabs.map((tab) => {
-        const sessionData = getSession(tab.sessionId)
-        const connectionHost = sessionData ? `${sessionData.connection.username}@${sessionData.connection.host}` : undefined
-        
-        return (
-          <SessionTab
-            key={tab.id}
-            id={tab.id}
-            sessionId={tab.sessionId}
-            title={tab.title}
-            connectionHost={connectionHost}
-            isActive={activeTabId === tab.id && !showHome && !showSFTP}
-            isPinned={tab.isPinned || false}
-            isRenaming={renamingTabId === tab.id}
-            onSelect={handleSelect}
-            onClose={handleClose}
-            onRename={handleRename}
-            onRenameSubmit={handleRenameSubmit}
-            onRenameCancel={handleRenameCancel}
-            onOpenSFTP={handleOpenSFTP}
-            onTogglePin={handleTogglePin}
-          />
-        )
-      })}
+        {tabs.map((tab) => {
+          const sessionData = getSession(tab.sessionId)
+          const connectionHost = sessionData ? `${sessionData.connection.username}@${sessionData.connection.host}` : undefined
+          
+          return (
+            <SessionTab
+              key={tab.id}
+              id={tab.id}
+              sessionId={tab.sessionId}
+              title={tab.title}
+              connectionHost={connectionHost}
+              isActive={activeTabId === tab.id && !showHome && !showSFTP}
+              isPinned={tab.isPinned || false}
+              isRenaming={renamingTabId === tab.id}
+              onSelect={handleSelect}
+              onClose={handleClose}
+              onRename={handleRename}
+              onRenameSubmit={handleRenameSubmit}
+              onRenameCancel={handleRenameCancel}
+              onOpenSFTP={handleOpenSFTP}
+              onTogglePin={handleTogglePin}
+            />
+          )
+        })}
       </TooltipProvider>
     </div>
   )
