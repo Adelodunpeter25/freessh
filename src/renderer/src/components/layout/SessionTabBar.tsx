@@ -233,6 +233,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
           />
         )
       })}
+      </TooltipProvider>
     </div>
   )
 }
