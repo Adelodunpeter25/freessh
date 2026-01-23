@@ -1,4 +1,5 @@
 import { app, Menu, BrowserWindow, shell } from 'electron'
+import { is } from '@electron-toolkit/utils'
 
 export function createMenu(): void {
   const isMac = process.platform === 'darwin'
@@ -77,7 +78,7 @@ export function createMenu(): void {
       label: 'View',
       submenu: [
         { role: 'reload' as const },
-        { role: 'toggleDevTools' as const },
+        ...(is.dev ? [{ role: 'toggleDevTools' as const }] : []),
         { type: 'separator' as const },
         { role: 'resetZoom' as const },
         { role: 'zoomIn' as const },
