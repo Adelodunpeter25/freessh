@@ -7,24 +7,20 @@
 .xterm-decoration-top {
   /* Active search result highlight */
   background-color: #ffffff !important;
-  border: 2px solid #d4d4d4 !important;
 }
 
 .xterm-decoration {
   /* Other search results highlight */
   background-color: #f5f5f5 !important;
-  border: 1px solid #e5e5e5 !important;
 }
 
 /* Dark theme adjustments */
 @media (prefers-color-scheme: dark) {
   .xterm-decoration {
     background-color: rgba(255, 255, 255, 0.2) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
   }
   
   .xterm-decoration-top {
     background-color: rgba(255, 255, 255, 0.4) !important;
-    border: 2px solid rgba(255, 255, 255, 0.6) !important;
   }
 }
