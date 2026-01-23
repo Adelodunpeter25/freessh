@@ -43,10 +43,6 @@
 - ✅ Can be disabled if needed
 - ✅ Transparent to user - works silently in background
 
-**Not needed:**
-- Connection status indicator - Not necessary, auto-reconnect handles it
-- Network interruption handling - Covered by auto-reconnect
-
 ### File Operations
 - Large file handling (>1GB) - memory optimization needed
 - Concurrent transfer limits (currently unlimited, could overwhelm system)
