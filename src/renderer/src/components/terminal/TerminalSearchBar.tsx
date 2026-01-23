@@ -14,7 +14,9 @@ export function TerminalSearchBar({ onSearch, onClose }: TerminalSearchBarProps)
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      onSearch(query, e.shiftKey ? 'prev' : 'next')
+      if (query) {
+        onSearch(query, e.shiftKey ? 'prev' : 'next')
+      }
     } else if (e.key === 'Escape') {
       onClose()
     }

@@ -43,30 +43,28 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
   }, [])
 
   return (
-    <div className="h-full w-full relative">
-      {showSearch && (
-        <TerminalSearchBar
-          onSearch={handleSearch}
-          onClose={() => setShowSearch(false)}
-        />
-      )}
-      <TerminalContextMenu
-        onCopy={actions.copy}
-        onPaste={actions.paste}
-        onSelectAll={actions.selectAll}
-        onClear={actions.clear}
-        onFind={actions.find}
-        onSplit={actions.split}
-      >
-        <div className="h-full w-full">
-          <TerminalPane
-            sessionId={sessionId}
-            onData={sendInput}
-            onResize={handleResize}
-            onReady={handleReady}
+    <TerminalContextMenu
+      onCopy={actions.copy}
+      onPaste={actions.paste}
+      onSelectAll={actions.selectAll}
+      onClear={actions.clear}
+      onFind={actions.find}
+      onSplit={actions.split}
+    >
+      <div className="h-full w-full relative">
+        {showSearch && (
+          <TerminalSearchBar
+            onSearch={handleSearch}
+            onClose={() => setShowSearch(false)}
           />
-        </div>
-      </TerminalContextMenu>
-    </div>
+        )}
+        <TerminalPane
+          sessionId={sessionId}
+          onData={sendInput}
+          onResize={handleResize}
+          onReady={handleReady}
+        />
+      </div>
+    </TerminalContextMenu>
   )
 }
