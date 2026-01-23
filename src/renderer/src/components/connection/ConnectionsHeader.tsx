@@ -20,7 +20,8 @@ export function ConnectionsHeader({
   onConnect,
   onOpenSFTP
 }: ConnectionsHeaderProps) {
-  const singleResult = filteredConnections.length === 1 ? filteredConnections[0] : null
+  const isSearching = searchQuery.trim().length > 0
+  const singleResult = isSearching && filteredConnections.length === 1 ? filteredConnections[0] : null
 
   return (
     <div className="flex flex-col gap-3 px-4 py-3 border-b bg-background/95">
