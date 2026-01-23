@@ -8,6 +8,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useMenuActions } from "@/hooks/useMenuActions";
 
 // Lazy load pages
 const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));
@@ -71,6 +72,25 @@ export function MainLayout() {
     },
     onOpenSettings: () => setShowSettings(true),
     onShowShortcuts: () => setShowShortcuts(true),
+  })
+
+  // Menu actions
+  useMenuActions({
+    onNewConnection: () => {
+      handleHomeClick()
+      setSidebarTab('connections')
+    },
+    onCloseTab: () => {
+      if (activeSessionTabId) {
+        useTabStore.getState().closeTab(activeSessionTabId)
+      }
+    },
+    onOpenSettings: () => setShowSettings(true),
+    onShowShortcuts: () => setShowShortcuts(true),
+    onCheckUpdates: () => {
+      // TODO: Implement update checker
+      console.log('Check for updates')
+    },
   })
 
   const renderHomeContent = () => {
