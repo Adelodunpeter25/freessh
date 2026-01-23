@@ -4,6 +4,7 @@ import { createWindow } from "./window";
 import { createMenu } from "./menu";
 import { setupMenuHandlers } from "./menuHandlers";
 import { setupFileSystemHandlers } from "./fs";
+import * as path from "path";
 
 app.setName("FreeSSH");
 
