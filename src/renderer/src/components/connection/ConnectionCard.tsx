@@ -42,6 +42,10 @@ export const ConnectionCard = memo(function ConnectionCard({ connection, selecte
           e.stopPropagation()
           if (!loading) onSelect(connection)
         }}
+        onContextMenu={(e) => {
+          e.stopPropagation()
+          if (!loading) onSelect(connection)
+        }}
         onDoubleClick={() => {
           if (!loading) onConnect(connection)
         }}
