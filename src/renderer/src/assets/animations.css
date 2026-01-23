@@ -42,4 +42,5 @@
 
 .animate-zoom-in {
   animation: zoomIn 0.25s ease-out;
+  transform-origin: center;
 }
