@@ -34,9 +34,18 @@
 ## Known Edge Cases
 
 ### Connection Management
-- Auto-reconnect on connection loss (currently just fails)
-- Connection status indicator in UI (show when connection is alive/dead)
-- Handle network interruptions gracefully
+**Status:** ✅ Implemented  
+**Auto-reconnect on connection loss:**
+- ✅ Exponential backoff utility (1s → 2s → 4s → 8s → 16s → 30s max)
+- ✅ Automatic reconnection on keepalive failure
+- ✅ Max 10 reconnect attempts
+- ✅ Callback hooks for status updates (optional)
+- ✅ Can be disabled if needed
+- ✅ Transparent to user - works silently in background
+
+**Not needed:**
+- Connection status indicator - Not necessary, auto-reconnect handles it
+- Network interruption handling - Covered by auto-reconnect
 
 ### File Operations
 - Large file handling (>1GB) - memory optimization needed
