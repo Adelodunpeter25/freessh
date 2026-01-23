@@ -31,24 +31,20 @@ export function SessionTabContextMenu({
     {
       label: 'Open SFTP',
       icon: <FolderSync className="w-4 h-4" />,
-      onClick: onOpenSFTP
-    },
-    {
-      type: 'separator'
+      onClick: onOpenSFTP,
+      separator: true
     },
     {
       label: isPinned ? 'Unpin Tab' : 'Pin Tab',
       icon: isPinned ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />,
-      onClick: onTogglePin
-    },
-    {
-      type: 'separator'
+      onClick: onTogglePin,
+      separator: true
     },
     {
       label: 'Close Tab',
       icon: <X className="w-4 h-4" />,
       onClick: onClose,
-      variant: 'destructive'
+      destructive: true
     }
   ]
 
