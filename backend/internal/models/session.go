@@ -17,4 +17,5 @@ type Session struct {
 	Status       SessionStatus `json:"status"`
 	ConnectedAt  time.Time     `json:"connected_at,omitempty"`
 	Error        string        `json:"error,omitempty"`
+	OSType       string        `json:"os_type,omitempty"`
 }

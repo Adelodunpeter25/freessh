@@ -130,3 +130,7 @@ func (c *Client) IsConnected() bool {
 func (c *Client) GetSSHClient() *ssh.Client {
 	return c.sshClient
 }
+
+func (c *Client) GetClient() *ssh.Client {
+	return c.sshClient
+}

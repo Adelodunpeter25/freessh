@@ -3,6 +3,7 @@ package session
 import (
 	"fmt"
 	"freessh-backend/internal/models"
+	"freessh-backend/internal/osdetect"
 	"freessh-backend/internal/ssh"
 	"freessh-backend/internal/terminal"
 	"time"
@@ -42,6 +43,14 @@ func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session
 		session.Status = models.SessionError
 		session.Error = err.Error()
 		return &session, err
+	}
+
+	// Detect OS type
+	osSession, err := sshClient.GetClient().NewSession()
+	if err == nil {
+		osType, _ := osdetect.DetectOS(osSession)
+		session.OSType = string(osType)
+		osSession.Close()
 	}
 
 	session.Status = models.SessionConnected
