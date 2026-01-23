@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useTabStore } from '@/stores/tabStore'
 
-const isMac = process.platform === 'darwin'
+const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
 
 const normalizeKey = (key: string): string => {
   return key.toLowerCase()
