@@ -4,9 +4,8 @@ import { useTabStore } from '@/stores'
 import { useUIStore } from '@/stores/uiStore'
 import { useSessionStore } from '@/stores/sessionStore'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { SessionTabContextMenu } from '@/components/contextmenu/SessionTabContextMenu'
+import { SessionTabInput } from './SessionTabInput'
 import { cn } from '@/lib/utils'
 
 interface SessionTabBarProps {
@@ -25,9 +24,12 @@ interface SessionTabProps {
   title: string
   isActive: boolean
   isPinned: boolean
+  isRenaming: boolean
   onSelect: (id: string) => void
   onClose: (id: string) => void
   onRename: (id: string) => void
+  onRenameSubmit: (id: string, newTitle: string) => void
+  onRenameCancel: () => void
   onOpenSFTP: (sessionId: string) => void
   onTogglePin: (id: string) => void
 }
@@ -38,9 +40,12 @@ const SessionTab = memo(function SessionTab({
   title, 
   isActive, 
   isPinned,
+  isRenaming,
   onSelect, 
   onClose,
   onRename,
+  onRenameSubmit,
+  onRenameCancel,
   onOpenSFTP,
   onTogglePin
 }: SessionTabProps) {
@@ -62,23 +67,33 @@ const SessionTab = memo(function SessionTab({
             : 'bg-white/5 dark:bg-white/5 border-white/10 text-muted-foreground hover:bg-white/10 hover:border-white/20'
         )}
         style={noDrag}
-        onClick={() => onSelect(id)}
+        onClick={() => !isRenaming && onSelect(id)}
       >
         {isPinned && <Pin className="h-3 w-3 shrink-0" />}
-        <span className="text-sm font-medium truncate max-w-[180px]">
-          {title}
-        </span>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-5 w-5 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 shrink-0"
-          onClick={(e) => {
-            e.stopPropagation()
-            onClose(id)
-          }}
-        >
-          <X className="h-3 w-3" />
-        </Button>
+        {isRenaming ? (
+          <SessionTabInput
+            value={title}
+            onSave={(newTitle) => onRenameSubmit(id, newTitle)}
+            onCancel={onRenameCancel}
+          />
+        ) : (
+          <span className="text-sm font-medium truncate max-w-[180px]">
+            {title}
+          </span>
+        )}
+        {!isPinned && !isRenaming && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 shrink-0"
+            onClick={(e) => {
+              e.stopPropagation()
+              onClose(id)
+            }}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
       </div>
     </SessionTabContextMenu>
   )
@@ -89,7 +104,6 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
   const openSFTP = useUIStore((state) => state.openSFTP)
   const sessions = useSessionStore((state) => state.sessions)
   const [renamingTabId, setRenamingTabId] = useState<string | null>(null)
-  const [newTabName, setNewTabName] = useState('')
 
   const handleSelect = useCallback((id: string) => {
     setActiveTab(id)
@@ -101,20 +115,17 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
   }, [removeTab])
 
   const handleRename = useCallback((id: string) => {
-    const tab = tabs.find(t => t.id === id)
-    if (tab) {
-      setNewTabName(tab.title)
-      setRenamingTabId(id)
-    }
-  }, [tabs])
+    setRenamingTabId(id)
+  }, [])
 
-  const handleRenameSubmit = useCallback(() => {
-    if (renamingTabId && newTabName.trim()) {
-      updateTabTitle(renamingTabId, newTabName.trim())
-      setRenamingTabId(null)
-      setNewTabName('')
-    }
-  }, [renamingTabId, newTabName, updateTabTitle])
+  const handleRenameSubmit = useCallback((id: string, newTitle: string) => {
+    updateTabTitle(id, newTitle)
+    setRenamingTabId(null)
+  }, [updateTabTitle])
+
+  const handleRenameCancel = useCallback(() => {
+    setRenamingTabId(null)
+  }, [])
 
   const handleOpenSFTP = useCallback((sessionId: string) => {
     const session = sessions.find(s => s.id === sessionId)
@@ -166,34 +177,16 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
           title={tab.title}
           isActive={activeTabId === tab.id && !showHome && !showSFTP}
           isPinned={tab.isPinned || false}
+          isRenaming={renamingTabId === tab.id}
           onSelect={handleSelect}
           onClose={handleClose}
           onRename={handleRename}
+          onRenameSubmit={handleRenameSubmit}
+          onRenameCancel={handleRenameCancel}
           onOpenSFTP={handleOpenSFTP}
           onTogglePin={handleTogglePin}
         />
       ))}
-
-      <Dialog open={!!renamingTabId} onOpenChange={() => setRenamingTabId(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Rename Tab</DialogTitle>
-          </DialogHeader>
-          <Input
-            value={newTabName}
-            onChange={(e) => setNewTabName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleRenameSubmit()}
-            placeholder="Tab name"
-            autoFocus
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRenamingTabId(null)}>
-              Cancel
-            </Button>
-            <Button onClick={handleRenameSubmit}>Rename</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   )
 }
