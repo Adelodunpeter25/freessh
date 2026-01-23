@@ -1,4 +1,4 @@
-import { Server, Search } from 'lucide-react'
+import { Server, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ConnectionConfig } from '@/types'
@@ -41,8 +41,16 @@ export function ConnectionsHeader({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Find a host or ssh user@hostname..."
-            className="pl-10 bg-muted/50"
+            className="pl-10 pr-10 bg-muted/50"
           />
+          {isSearching && (
+            <button
+              onClick={() => onSearchChange('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
         {singleResult && (
           <>
