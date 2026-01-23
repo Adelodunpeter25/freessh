@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Terminal as XTerm } from 'xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { useTerminalThemeStore } from '@/stores/terminalThemeStore'
+import { useTerminalFontStore } from '@/stores/terminalFontStore'
 import 'xterm/css/xterm.css'
 
 interface TerminalPaneProps {
@@ -18,6 +19,7 @@ export function TerminalPane({ sessionId, onData, onResize, onReady }: TerminalP
   const onDataRef = useRef(onData)
   const onResizeRef = useRef(onResize)
   const theme = useTerminalThemeStore((state) => state.getTheme())
+  const { fontFamily, fontSize, fontWeight } = useTerminalFontStore()
 
   onDataRef.current = onData
   onResizeRef.current = onResize
@@ -29,6 +31,25 @@ export function TerminalPane({ sessionId, onData, onResize, onReady }: TerminalP
     }
   }, [theme])
 
+  // Live font update
+  useEffect(() => {
+    if (xtermRef.current) {
+      xtermRef.current.options.fontFamily = fontFamily
+      xtermRef.current.options.fontSize = fontSize
+      xtermRef.current.options.fontWeight = fontWeight.toString()
+      
+      // Refit after font change
+      if (fitAddonRef.current) {
+        requestAnimationFrame(() => {
+          if (fitAddonRef.current && xtermRef.current) {
+            fitAddonRef.current.fit()
+            onResizeRef.current(xtermRef.current.cols, xtermRef.current.rows)
+          }
+        })
+      }
+    }
+  }, [fontFamily, fontSize, fontWeight])
+
   useEffect(() => {
     if (!terminalRef.current) return
 
@@ -38,8 +59,9 @@ export function TerminalPane({ sessionId, onData, onResize, onReady }: TerminalP
 
     const xterm = new XTerm({
       cursorBlink: true,
-      fontSize: 14,
-      fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+      fontSize,
+      fontFamily,
+      fontWeight: fontWeight.toString(),
       theme
     })
 

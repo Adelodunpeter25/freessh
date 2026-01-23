@@ -3,15 +3,22 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Slider } from '@/components/ui/slider'
-import { terminalFonts, fontSizes, fontWeights } from '@/utils/terminalFonts'
-import { useState } from 'react'
+import { terminalFonts, fontWeights } from '@/utils/terminalFonts'
+import { useTerminalFontStore } from '@/stores/terminalFontStore'
 
 interface TerminalFontSettingsProps {
   onBack: () => void
 }
 
 export function TerminalFontSettings({ onBack }: TerminalFontSettingsProps) {
-  const [fontSize, setFontSize] = useState(14)
+  const { fontFamily, fontSize, fontWeight, setFontFamily, setFontSize, setFontWeight } = useTerminalFontStore()
+
+  const handleFontFamilyChange = (name: string) => {
+    const font = terminalFonts.find(f => f.name === name)
+    if (font) setFontFamily(font.family)
+  }
+
+  const currentFontName = terminalFonts.find(f => f.family === fontFamily)?.name || 'JetBrains Mono'
 
   return (
     <div className="flex flex-col h-full">
@@ -25,7 +32,7 @@ export function TerminalFontSettings({ onBack }: TerminalFontSettingsProps) {
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         <div className="space-y-3">
           <Label>Font Family</Label>
-          <Select defaultValue="JetBrains Mono">
+          <Select value={currentFontName} onValueChange={handleFontFamilyChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -45,7 +52,7 @@ export function TerminalFontSettings({ onBack }: TerminalFontSettingsProps) {
             <span className="text-sm text-muted-foreground">{fontSize}px</span>
           </div>
           <Slider 
-            defaultValue={[14]} 
+            value={[fontSize]} 
             min={10} 
             max={24} 
             step={1}
@@ -55,7 +62,7 @@ export function TerminalFontSettings({ onBack }: TerminalFontSettingsProps) {
 
         <div className="space-y-3">
           <Label>Font Weight</Label>
-          <Select defaultValue="400">
+          <Select value={fontWeight.toString()} onValueChange={(v) => setFontWeight(Number(v))}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -71,7 +78,14 @@ export function TerminalFontSettings({ onBack }: TerminalFontSettingsProps) {
 
         <div className="space-y-3">
           <Label>Preview</Label>
-          <div className="p-4 rounded-lg bg-black text-white font-mono text-sm">
+          <div 
+            className="p-4 rounded-lg bg-black text-white"
+            style={{ 
+              fontFamily,
+              fontSize: `${fontSize}px`,
+              fontWeight
+            }}
+          >
             <div>$ ssh user@server.com</div>
             <div>Welcome to Ubuntu 22.04 LTS</div>
             <div>Last login: Fri Jan 23 12:00:00 2026</div>
