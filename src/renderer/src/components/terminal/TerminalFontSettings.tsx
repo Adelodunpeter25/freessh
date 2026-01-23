@@ -2,13 +2,17 @@ import { ChevronLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Slider } from '@/components/ui/slider'
 import { terminalFonts, fontSizes, fontWeights } from '@/utils/terminalFonts'
+import { useState } from 'react'
 
 interface TerminalFontSettingsProps {
   onBack: () => void
 }
 
 export function TerminalFontSettings({ onBack }: TerminalFontSettingsProps) {
+  const [fontSize, setFontSize] = useState(14)
+
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center gap-2 p-4 border-b border-border">
@@ -36,19 +40,17 @@ export function TerminalFontSettings({ onBack }: TerminalFontSettingsProps) {
         </div>
 
         <div className="space-y-3">
-          <Label>Font Size</Label>
-          <Select defaultValue="14">
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {fontSizes.map((size) => (
-                <SelectItem key={size} value={size.toString()}>
-                  {size}px
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex items-center justify-between">
+            <Label>Font Size</Label>
+            <span className="text-sm text-muted-foreground">{fontSize}px</span>
+          </div>
+          <Slider 
+            defaultValue={[14]} 
+            min={10} 
+            max={24} 
+            step={1}
+            onValueChange={(value) => setFontSize(value[0])}
+          />
         </div>
 
         <div className="space-y-3">
