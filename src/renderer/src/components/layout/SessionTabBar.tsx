@@ -94,6 +94,9 @@ const SessionTab = memo(function SessionTab({
             <X className="h-3 w-3" />
           </Button>
         )}
+        {isPinned && !isRenaming && (
+          <div className="h-5 w-5 shrink-0" />
+        )}
       </div>
     </SessionTabContextMenu>
   )
