@@ -1,5 +1,5 @@
 import { Monitor, Server } from 'lucide-react'
-import { AppleIcon, UbuntuIcon, DebianIcon, ArchIcon, RedHatIcon, FreeBSDIcon, LinuxIcon } from '@/components/icons/OSIcons'
+import { AppleIcon, UbuntuIcon, DebianIcon, ArchIcon, RedHatIcon, FreeBSDIcon, LinuxIcon } from '@/components/icons'
 
 export type OSType = 'ubuntu' | 'debian' | 'arch' | 'redhat' | 'centos' | 'fedora' | 'linux' | 'macos' | 'freebsd' | 'windows' | 'unknown'
 

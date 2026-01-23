@@ -1,0 +1,7 @@
+export { AppleIcon } from './AppleIcon'
+export { UbuntuIcon } from './UbuntuIcon'
+export { DebianIcon } from './DebianIcon'
+export { ArchIcon } from './ArchIcon'
+export { RedHatIcon } from './RedHatIcon'
+export { FreeBSDIcon } from './FreeBSDIcon'
+export { LinuxIcon } from './LinuxIcon'
