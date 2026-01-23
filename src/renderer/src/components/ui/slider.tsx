@@ -11,7 +11,7 @@ interface SliderProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 const Slider = forwardRef<HTMLInputElement, SliderProps>(
-  ({ className, defaultValue, value, onValueChange, min = 0, max = 100, step = 1, ...props }, ref) => {
+  (({ className, defaultValue, value, onValueChange, min = 0, max = 100, step = 1, ...props }, ref) => {
     const [internalValue, setInternalValue] = useState(defaultValue?.[0] || value?.[0] || 0)
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +40,7 @@ const Slider = forwardRef<HTMLInputElement, SliderProps>(
         {...props}
       />
     )
-  }
+  })
 )
 Slider.displayName = "Slider"
 
