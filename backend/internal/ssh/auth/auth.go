@@ -19,8 +19,6 @@ func NewProvider(config models.ConnectionConfig) Provider {
 			privateKey: config.PrivateKey,
 			passphrase: config.Passphrase,
 		}
-	case models.AuthKeyboardInteractive:
-		return &KeyboardAuth{password: config.Password}
 	default:
 		return &PasswordAuth{password: config.Password}
 	}

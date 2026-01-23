@@ -3,9 +3,8 @@ package models
 type AuthMethod string
 
 const (
-	AuthPassword          AuthMethod = "password"
-	AuthPublicKey         AuthMethod = "publickey"
-	AuthKeyboardInteractive AuthMethod = "keyboard-interactive"
+	AuthPassword  AuthMethod = "password"
+	AuthPublicKey AuthMethod = "publickey"
 )
 
 type ConnectionConfig struct {
