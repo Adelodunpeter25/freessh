@@ -4,6 +4,7 @@ import { TerminalSearchBar } from './TerminalSearchBar'
 import { TerminalContextMenu } from '@/components/contextmenu/TerminalContextMenu'
 import { useTerminal } from '@/hooks/useTerminal'
 import { useTerminalActions } from '@/hooks/useTerminalActions'
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { SearchAddon } from '@xterm/addon-search'
 import { Terminal as XTerm } from 'xterm'
 
@@ -41,6 +42,12 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
       }
     }
   }, [])
+
+  // Terminal keyboard shortcuts
+  useKeyboardShortcuts({
+    onClearTerminal: actions.clear,
+    onSearchTerminal: () => setShowSearch(true),
+  })
 
   return (
     <TerminalContextMenu
