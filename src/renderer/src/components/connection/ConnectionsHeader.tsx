@@ -1,7 +1,6 @@
 import { Server, Search } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ConnectionConfig } from '@/types'
 
 interface ConnectionsHeaderProps {
@@ -63,22 +62,15 @@ export function ConnectionsHeader({
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2">
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                onClick={onNewConnection}
-                variant="secondary" 
-                size="sm"
-                className="font-medium"
-              >
-                <Server className="h-4 w-4 mr-2" />
-                NEW CONNECTION
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Add new SSH connection</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button 
+          onClick={onNewConnection}
+          variant="secondary" 
+          size="sm"
+          className="font-medium"
+        >
+          <Server className="h-4 w-4 mr-2" />
+          NEW CONNECTION
+        </Button>
       </div>
     </div>
   )
