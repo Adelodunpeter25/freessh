@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { FilePanel } from "./FilePanel";
 import { RemotePanel } from "./RemotePanel";
 import { TransferQueue } from "./TransferQueue";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useSFTP } from "@/hooks/useSFTP";
 import { useLocalFiles } from "@/hooks/useLocalFiles";
 import { useFilePreview } from "@/hooks/useFilePreview";
@@ -13,6 +14,8 @@ export function SFTPBrowser() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [selectedRemote, setSelectedRemote] = useState<FileInfo | null>(null);
   const [selectedLocal, setSelectedLocal] = useState<FileInfo | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<{ file: FileInfo; isRemote: boolean } | null>(null);
 
   const sftp = useSFTP(sessionId);
   const local = useLocalFiles();
@@ -55,12 +58,26 @@ export function SFTPBrowser() {
     },
     onDeleteFile: () => {
       if (selectedRemote) {
-        sftp.deleteFile(selectedRemote.path)
+        setFileToDelete({ file: selectedRemote, isRemote: true })
+        setShowDeleteConfirm(true)
       } else if (selectedLocal) {
-        local.deleteFile(selectedLocal.path)
+        setFileToDelete({ file: selectedLocal, isRemote: false })
+        setShowDeleteConfirm(true)
       }
     },
   })
+
+  const handleConfirmDelete = async () => {
+    if (!fileToDelete) return
+    
+    if (fileToDelete.isRemote) {
+      await sftp.deleteFile(fileToDelete.file.path)
+    } else {
+      await local.deleteFile(fileToDelete.file.path)
+    }
+    
+    setFileToDelete(null)
+  }
 
   return (
     <FilePreviewProvider value={preview}>
@@ -111,6 +128,15 @@ export function SFTPBrowser() {
           <TransferQueue transfers={sftp.transfers} onCancel={sftp.cancelTransfer} onClearCompleted={sftp.clearCompleted} />
         )}
       </div>
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        title="Delete file"
+        description={fileToDelete ? `Are you sure you want to delete "${fileToDelete.file.name}"? This action cannot be undone.` : ''}
+        confirmText="Delete"
+        destructive
+        onConfirm={handleConfirmDelete}
+      />
     </FilePreviewProvider>
   );
 }
