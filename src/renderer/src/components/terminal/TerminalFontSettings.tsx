@@ -2,7 +2,6 @@ import { ChevronLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Slider } from '@/components/ui/slider'
 import { terminalFonts, fontSizes, fontWeights } from '@/utils/terminalFonts'
 
 interface TerminalFontSettingsProps {
@@ -37,11 +36,19 @@ export function TerminalFontSettings({ onBack }: TerminalFontSettingsProps) {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label>Font Size</Label>
-            <span className="text-sm text-muted-foreground">14px</span>
-          </div>
-          <Slider defaultValue={[14]} min={10} max={24} step={1} />
+          <Label>Font Size</Label>
+          <Select defaultValue="14">
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {fontSizes.map((size) => (
+                <SelectItem key={size} value={size.toString()}>
+                  {size}px
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="space-y-3">
