@@ -36,6 +36,7 @@ interface ShortcutHandlers {
   onSearchTerminal?: () => void
   onRefreshSFTP?: () => void
   onDeleteFile?: () => void
+  onShowShortcuts?: () => void
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true) {
@@ -87,6 +88,12 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
         case 'cmd+,':
           e.preventDefault()
           handlers.onOpenSettings?.()
+          break
+        
+        case 'cmd+?':
+        case 'cmd+shift+/':
+          e.preventDefault()
+          handlers.onShowShortcuts?.()
           break
         
         // Terminal
