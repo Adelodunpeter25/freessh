@@ -47,7 +47,7 @@ export function SessionTabInput({ value, onSave, onCancel }: SessionTabInputProp
       onChange={(e) => setInputValue(e.target.value)}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
-      className="h-6 px-2 py-0 text-sm w-[180px] bg-background/50"
+      className="h-6 px-2 py-0 text-sm w-32 bg-background/50"
       onClick={(e) => e.stopPropagation()}
     />
   )
