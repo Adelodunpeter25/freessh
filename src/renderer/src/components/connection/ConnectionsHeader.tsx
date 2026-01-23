@@ -72,7 +72,7 @@ export function ConnectionsHeader({
           onClick={onNewConnection}
           variant="secondary" 
           size="sm"
-          className="font-medium"
+          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all"
         >
           <Server className="h-4 w-4 mr-2" />
           NEW CONNECTION
