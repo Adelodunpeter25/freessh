@@ -114,7 +114,7 @@ const SessionTab = memo(function SessionTab({
 export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, onSessionClick }: SessionTabBarProps) {
   const { tabs, activeTabId, setActiveTab, removeTab, updateTabTitle, togglePinTab } = useTabStore()
   const openSFTP = useUIStore((state) => state.openSFTP)
-  const sessions = useSessionStore((state) => state.sessions)
+  const getSession = useSessionStore((state) => state.getSession)
   const [renamingTabId, setRenamingTabId] = useState<string | null>(null)
 
   const handleSelect = useCallback((id: string) => {
@@ -140,12 +140,12 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
   }, [])
 
   const handleOpenSFTP = useCallback((sessionId: string) => {
-    const session = sessions.find(s => s.id === sessionId)
-    if (session) {
-      openSFTP(session.connectionId)
+    const sessionData = getSession(sessionId)
+    if (sessionData) {
+      openSFTP(sessionData.connection.id)
       onSFTPClick()
     }
-  }, [sessions, openSFTP, onSFTPClick])
+  }, [getSession, openSFTP, onSFTPClick])
 
   const handleTogglePin = useCallback((id: string) => {
     togglePinTab(id)
