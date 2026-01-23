@@ -210,6 +210,8 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
         </div>
       </div>
       </form>
+      </div>
+      </form>
     </div>
   )
 }
