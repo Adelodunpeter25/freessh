@@ -22,12 +22,17 @@ export function ConnectionsPage() {
   const [editingConnection, setEditingConnection] = useState<ConnectionConfig | undefined>()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
 
-  const filteredConnections = connections.filter(conn => 
-    conn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conn.host.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conn.username.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const groups = Array.from(new Set(connections.map(c => c.group).filter(Boolean))) as string[]
+
+  const filteredConnections = connections
+    .filter(conn => 
+      conn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conn.host.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conn.username.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .filter(conn => selectedGroup === null || conn.group === selectedGroup)
 
   const handleSelect = useCallback((connection: ConnectionConfig | null) => {
     setSelectedId(connection?.id ?? null)
@@ -76,6 +81,9 @@ export function ConnectionsPage() {
         filteredConnections={filteredConnections}
         onConnect={handleConnect}
         onOpenSFTP={handleOpenSFTP}
+        groups={groups}
+        selectedGroup={selectedGroup}
+        onGroupSelect={setSelectedGroup}
       />
       <div className="flex-1 overflow-hidden">
         <ConnectionList

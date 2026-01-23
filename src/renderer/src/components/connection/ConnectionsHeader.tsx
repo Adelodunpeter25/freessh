@@ -10,6 +10,9 @@ interface ConnectionsHeaderProps {
   filteredConnections: ConnectionConfig[]
   onConnect: (connection: ConnectionConfig) => void
   onOpenSFTP: (connection: ConnectionConfig) => void
+  groups: string[]
+  selectedGroup: string | null
+  onGroupSelect: (group: string | null) => void
 }
 
 export function ConnectionsHeader({ 
@@ -18,7 +21,10 @@ export function ConnectionsHeader({
   onSearchChange,
   filteredConnections,
   onConnect,
-  onOpenSFTP
+  onOpenSFTP,
+  groups,
+  selectedGroup,
+  onGroupSelect
 }: ConnectionsHeaderProps) {
   const isSearching = searchQuery.trim().length > 0
   const singleResult = isSearching && filteredConnections.length === 1 ? filteredConnections[0] : null
@@ -71,6 +77,25 @@ export function ConnectionsHeader({
           <Server className="h-4 w-4 mr-2" />
           NEW CONNECTION
         </Button>
+
+        <Button
+          onClick={() => onGroupSelect(null)}
+          variant={selectedGroup === null ? "default" : "ghost"}
+          size="sm"
+        >
+          All
+        </Button>
+
+        {groups.map(group => (
+          <Button
+            key={group}
+            onClick={() => onGroupSelect(group)}
+            variant={selectedGroup === group ? "default" : "ghost"}
+            size="sm"
+          >
+            {group}
+          </Button>
+        ))}
       </div>
     </div>
   )
