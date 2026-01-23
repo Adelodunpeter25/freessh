@@ -1,32 +1,5 @@
 import { useEffect } from 'react'
-
-export interface KeyboardShortcuts {
-  // Navigation
-  'cmd+1'?: () => void
-  'cmd+2'?: () => void
-  'cmd+3'?: () => void
-  'cmd+4'?: () => void
-  'cmd+5'?: () => void
-  'cmd+6'?: () => void
-  'cmd+7'?: () => void
-  'cmd+8'?: () => void
-  'cmd+9'?: () => void
-  'cmd+t'?: () => void
-  'cmd+w'?: () => void
-  'cmd+,'?: () => void
-  
-  // Terminal
-  'cmd+l'?: () => void
-  'cmd+f'?: () => void
-  'cmd+c'?: () => void
-  'cmd+v'?: () => void
-  
-  // SFTP
-  'cmd+r'?: () => void
-  'delete'?: () => void
-  'backspace'?: () => void
-  'enter'?: () => void
-}
+import { useTabStore } from '@/stores/tabStore'
 
 const isMac = process.platform === 'darwin'
 
@@ -55,21 +28,98 @@ const buildShortcutKey = (e: KeyboardEvent): string => {
   return key
 }
 
-export function useKeyboardShortcuts(shortcuts: KeyboardShortcuts, enabled = true) {
+interface ShortcutHandlers {
+  onSwitchTab?: (index: number) => void
+  onNewConnection?: () => void
+  onCloseTab?: () => void
+  onOpenSettings?: () => void
+  onClearTerminal?: () => void
+  onSearchTerminal?: () => void
+  onRefreshSFTP?: () => void
+  onDeleteFile?: () => void
+  onOpenFile?: () => void
+}
+
+export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true) {
+  const tabs = useTabStore((state) => state.tabs)
+  const setActiveTab = useTabStore((state) => state.setActiveTab)
+  const closeTab = useTabStore((state) => state.closeTab)
+  const activeTabId = useTabStore((state) => state.activeTabId)
+
   useEffect(() => {
     if (!enabled) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const shortcutKey = buildShortcutKey(e)
-      const handler = shortcuts[shortcutKey as keyof KeyboardShortcuts]
       
-      if (handler) {
-        e.preventDefault()
-        handler()
+      // Navigation shortcuts
+      if (shortcutKey.match(/^cmd\+[1-9]$/)) {
+        const index = parseInt(shortcutKey.slice(-1)) - 1
+        if (tabs[index]) {
+          e.preventDefault()
+          setActiveTab(tabs[index].id)
+          handlers.onSwitchTab?.(index)
+        }
+        return
+      }
+
+      switch (shortcutKey) {
+        // Navigation
+        case 'cmd+t':
+          e.preventDefault()
+          handlers.onNewConnection?.()
+          break
+        
+        case 'cmd+w':
+          e.preventDefault()
+          if (activeTabId) {
+            closeTab(activeTabId)
+          }
+          handlers.onCloseTab?.()
+          break
+        
+        case 'cmd+,':
+          e.preventDefault()
+          handlers.onOpenSettings?.()
+          break
+        
+        // Terminal
+        case 'cmd+l':
+          e.preventDefault()
+          handlers.onClearTerminal?.()
+          break
+        
+        case 'cmd+f':
+          e.preventDefault()
+          handlers.onSearchTerminal?.()
+          break
+        
+        // SFTP
+        case 'cmd+r':
+          e.preventDefault()
+          handlers.onRefreshSFTP?.()
+          break
+        
+        case 'delete':
+        case 'backspace':
+          // Only if not in input field
+          if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+            e.preventDefault()
+            handlers.onDeleteFile?.()
+          }
+          break
+        
+        case 'enter':
+          // Only if not in input field
+          if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+            e.preventDefault()
+            handlers.onOpenFile?.()
+          }
+          break
       }
     }
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [shortcuts, enabled])
+  }, [handlers, enabled, tabs, setActiveTab, closeTab, activeTabId])
 }
