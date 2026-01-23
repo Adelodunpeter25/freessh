@@ -25,12 +25,12 @@ export function SessionTabContextMenu({
   const actions: ContextMenuAction[] = [
     {
       label: 'Rename Tab',
-      icon: Edit,
+      icon: <Edit className="w-4 h-4" />,
       onClick: onRename
     },
     {
       label: 'Open SFTP',
-      icon: FolderSync,
+      icon: <FolderSync className="w-4 h-4" />,
       onClick: onOpenSFTP
     },
     {
@@ -38,7 +38,7 @@ export function SessionTabContextMenu({
     },
     {
       label: isPinned ? 'Unpin Tab' : 'Pin Tab',
-      icon: isPinned ? PinOff : Pin,
+      icon: isPinned ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />,
       onClick: onTogglePin
     },
     {
@@ -46,7 +46,7 @@ export function SessionTabContextMenu({
     },
     {
       label: 'Close Tab',
-      icon: X,
+      icon: <X className="w-4 h-4" />,
       onClick: onClose,
       variant: 'destructive'
     }
