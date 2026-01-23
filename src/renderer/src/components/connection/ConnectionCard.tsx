@@ -26,7 +26,7 @@ export const ConnectionCard = memo(function ConnectionCard({ connection, selecte
       onDelete={() => onDelete(connection.id)}
     >
       <div
-        className={`group flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer shadow-sm hover:shadow-md ${
+        className={`group flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer shadow-sm hover:shadow-md select-none ${
           selected ? 'bg-muted border-muted' : 'bg-card border-border hover:bg-muted/50'
         }`}
         onClick={(e) => {
