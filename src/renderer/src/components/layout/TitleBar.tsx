@@ -1,6 +1,7 @@
 import { PanelRight } from 'lucide-react'
 import { SessionTabBar } from './SessionTabBar'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 
 interface TitleBarProps {
@@ -28,15 +29,22 @@ export function TitleBar({ showHome, showSFTP, showTerminal, sidebarOpen, onHome
       </div>
 
       {showTerminal && (
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          style={noDrag} 
-          onClick={onSidebarToggle}
-          className={cn(sidebarOpen && "bg-accent")}
-        >
-          <PanelRight className="h-4 w-4" />
-        </Button>
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                style={noDrag} 
+                onClick={onSidebarToggle}
+                className={cn(sidebarOpen && "bg-accent")}
+              >
+                <PanelRight className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Terminal Settings</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
     </div>
   )
