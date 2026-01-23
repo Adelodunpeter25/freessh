@@ -26,7 +26,34 @@ export function createMenu(): void {
         { type: 'separator' as const },
         { role: 'quit' as const }
       ]
-    }] : [])
+    }] : []),
+
+    // File menu
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'New Connection',
+          accelerator: 'CmdOrCtrl+T',
+          click: () => {
+            BrowserWindow.getFocusedWindow()?.webContents.send('menu:new-connection')
+          }
+        },
+        {
+          label: 'Close Tab',
+          accelerator: 'CmdOrCtrl+W',
+          click: () => {
+            BrowserWindow.getFocusedWindow()?.webContents.send('menu:close-tab')
+          }
+        },
+        { type: 'separator' as const },
+        {
+          label: 'Close Window',
+          accelerator: 'CmdOrCtrl+Shift+W',
+          role: 'close' as const
+        }
+      ]
+    }
   ]
 
   const menu = Menu.buildFromTemplate(template)
