@@ -75,23 +75,6 @@ export function TerminalFontSettings({ onBack }: TerminalFontSettingsProps) {
             </SelectContent>
           </Select>
         </div>
-
-        <div className="space-y-3">
-          <Label>Preview</Label>
-          <div 
-            className="p-4 rounded-lg bg-black text-white"
-            style={{ 
-              fontFamily,
-              fontSize: `${fontSize}px`,
-              fontWeight
-            }}
-          >
-            <div>The quick brown fox jumps over the lazy dog</div>
-            <div>0123456789 !@#$%^&*()_+-=[]&#123;&#125;|;:',./&lt;&gt;?</div>
-            <div>abcdefghijklmnopqrstuvwxyz</div>
-            <div>ABCDEFGHIJKLMNOPQRSTUVWXYZ</div>
-          </div>
-        </div>
       </div>
     </div>
   )
