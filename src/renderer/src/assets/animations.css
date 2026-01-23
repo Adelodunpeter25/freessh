@@ -31,7 +31,7 @@
 /* Zoom In */
 @keyframes zoomIn {
   from {
-    transform: scale(0.9);
+    transform: scale(0.95);
     opacity: 0;
   }
   to {
@@ -41,6 +41,5 @@
 }
 
 .animate-zoom-in {
-  animation: zoomIn 0.25s ease-out;
-  transform-origin: center;
+  animation: zoomIn 0.2s ease-out !important;
 }

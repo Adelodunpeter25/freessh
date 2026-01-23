@@ -38,7 +38,7 @@ export function PermissionModal({ open, onOpenChange, filename, currentMode, isD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg animate-zoom-in">
         <DialogHeader>
           <DialogTitle className="truncate">Edit Permissions: {filename}</DialogTitle>
         </DialogHeader>
