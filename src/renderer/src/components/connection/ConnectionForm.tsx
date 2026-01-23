@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { X, Eye, EyeOff, FolderOpen } from 'lucide-react'
 import { toast } from 'sonner'
 import { ConnectionConfig, AuthMethod } from '@/types'
@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
+import { useFormDirty } from '@/hooks/useFormDirty'
 
 interface ConnectionFormProps {
   connection?: ConnectionConfig
@@ -16,7 +18,7 @@ interface ConnectionFormProps {
 }
 
 export function ConnectionForm({ connection, onConnect, onSave, onClose }: ConnectionFormProps) {
-  const [formData, setFormData] = useState<Partial<ConnectionConfig>>(connection || {
+  const initialData = useMemo(() => connection || {
     id: crypto.randomUUID(),
     name: '',
     host: '',
@@ -26,10 +28,15 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
     password: '',
     private_key: '',
     passphrase: ''
-  })
+  }, [connection])
+
+  const [formData, setFormData] = useState<Partial<ConnectionConfig>>(initialData)
   const [showPassword, setShowPassword] = useState(false)
   const [showPassphrase, setShowPassphrase] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  const isDirty = useFormDirty(initialData, formData)
 
   const handleBrowseKey = useCallback(async () => {
     try {
@@ -42,6 +49,14 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
       toast.error('Failed to load key file')
     }
   }, [formData])
+
+  const handleClose = useCallback(() => {
+    if (isDirty) {
+      setShowConfirm(true)
+    } else {
+      onClose()
+    }
+  }, [isDirty, onClose])
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -61,6 +76,16 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
   }, [connection, onSave, formData, onClose, onConnect])
 
   return (
+    <>
+      <ConfirmDialog
+        open={showConfirm}
+        onOpenChange={setShowConfirm}
+        title="Discard changes?"
+        description="You have unsaved changes. Are you sure you want to discard them?"
+        onConfirm={onClose}
+        confirmText="Discard"
+        cancelText="Keep Editing"
+      />
     <div className="fixed right-0 top-12 bottom-0 w-96 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
@@ -70,7 +95,7 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
         <TooltipProvider delayDuration={150}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={onClose}>
+              <Button variant="ghost" size="icon" onClick={handleClose}>
                 <X className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
@@ -204,7 +229,7 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
             <Button type="submit" className="flex-1" loading={isConnecting}>
               {connection ? 'Save Changes' : 'Connect'}
             </Button>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isConnecting}>
+            <Button type="button" variant="outline" onClick={handleClose} disabled={isConnecting}>
               Cancel
             </Button>
           </div>
