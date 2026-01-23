@@ -71,10 +71,13 @@
 - Auto-start tunnels on connection
 
 ### Settings Page
-- Make settings sidebar functional (currently placeholder)
-- Theme customization
-- Default behaviors configuration
-- Performance tuning options
+**Status:** ✅ Implemented (Basic)
+**Description:** Settings page is now functional with theme toggle.  
+**Implementation:**
+- ✅ Settings page with proper layout
+- ✅ Theme toggle (Light/Dark/System)
+- ✅ Theme stored in Zustand store
+- ⏳ Additional settings to be added later (SSH defaults, performance tuning, etc.)
 
 ### Snippets/Scripts
 - Replace snippets sidebar with useful feature
