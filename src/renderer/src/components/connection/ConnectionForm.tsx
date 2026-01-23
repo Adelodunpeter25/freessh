@@ -119,7 +119,6 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
             <SelectContent>
               <SelectItem value="password">Password</SelectItem>
               <SelectItem value="publickey">Public Key</SelectItem>
-              <SelectItem value="keyboard-interactive">Keyboard Interactive</SelectItem>
             </SelectContent>
           </Select>
 
@@ -172,30 +171,12 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
               </div>
             </>
           )}
-
-          {formData.auth_method === 'keyboard-interactive' && (
-            <div className="relative">
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                placeholder="Password"
-                className="pr-10"
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full px-3"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-            </div>
-          )}
         </div>
+      </div>
 
-        <div className="flex gap-2 pt-4">
+      {/* Footer */}
+      <div className="p-4 border-t border-border bg-background">
+        <div className="flex gap-2">
           <Button type="submit" className="flex-1" loading={isConnecting}>
             {connection ? 'Save Changes' : 'Connect'}
           </Button>
@@ -203,6 +184,7 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
             Cancel
           </Button>
         </div>
+      </div>
       </form>
     </div>
   )
