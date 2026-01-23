@@ -1,9 +1,9 @@
 import { Moon, Sun, Monitor } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useTheme } from '@/hooks/useTheme'
+import { useThemeStore } from '@/stores/themeStore'
 
 export function ThemeSettings() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useThemeStore()
 
   const themes = [
     { value: 'light', icon: Sun, label: 'Light' },
