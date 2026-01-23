@@ -1,5 +1,5 @@
-import { Monitor, Server } from 'lucide-react'
-import { AppleIcon, UbuntuIcon, DebianIcon, ArchIcon, RedHatIcon, FreeBSDIcon, LinuxIcon } from '@/components/icons'
+import { Server } from 'lucide-react'
+import { AppleIcon, UbuntuIcon, DebianIcon, ArchIcon, RedHatIcon, FreeBSDIcon, LinuxIcon, WindowsIcon } from '@/components/icons'
 
 export type OSType = 'ubuntu' | 'debian' | 'arch' | 'redhat' | 'centos' | 'fedora' | 'linux' | 'macos' | 'freebsd' | 'windows' | 'unknown'
 
@@ -22,7 +22,7 @@ export const getOSIcon = (osType?: string) => {
     case 'freebsd':
       return FreeBSDIcon
     case 'windows':
-      return Monitor
+      return WindowsIcon
     default:
       return Server
   }
