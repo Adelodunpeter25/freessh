@@ -73,10 +73,10 @@ export function ConnectionsHeader({
                 className="font-medium"
               >
                 <Server className="h-4 w-4 mr-2" />
-                NEW HOST
+                NEW CONNECTION
               </Button>
             </TooltipTrigger>
-            <TooltipContent>New SSH connection</TooltipContent>
+            <TooltipContent>Add new SSH connection</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
