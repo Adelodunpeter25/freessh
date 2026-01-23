@@ -31,7 +31,7 @@ export const ConnectionCard = memo(function ConnectionCard({ connection, selecte
       onDelete={() => onDelete(connection.id)}
     >
       <div
-        className={`group flex items-center gap-4 p-4 rounded-xl border transition-all select-none ${
+        className={`group flex items-center gap-4 p-4 rounded-xl border transition-all select-none animate-scale-in ${
           loading
             ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)] cursor-wait'
             : selected 
