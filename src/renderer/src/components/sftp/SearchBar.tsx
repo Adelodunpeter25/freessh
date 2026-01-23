@@ -23,7 +23,7 @@ export function SearchBar({ value, onChange, onClear }: SearchBarProps) {
 
   if (!isOpen) {
     return (
-      <Button variant="ghost" size="icon" onClick={handleOpen}>
+      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleOpen}>
         <Search className="h-4 w-4" />
       </Button>
     )
@@ -36,7 +36,7 @@ export function SearchBar({ value, onChange, onClear }: SearchBarProps) {
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Search files..."
+          placeholder="Search files and folders..."
           className="pl-8 pr-8 h-9 w-64"
           autoFocus
         />
