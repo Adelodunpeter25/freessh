@@ -1,7 +1,12 @@
 import { useCallback } from 'react'
 import { Terminal as XTerm } from 'xterm'
 
-export const useTerminalActions = (xterm: XTerm | null) => {
+interface UseTerminalActionsOptions {
+  onFind?: () => void
+  onSplit?: () => void
+}
+
+export const useTerminalActions = (xterm: XTerm | null, options?: UseTerminalActionsOptions) => {
   const clear = useCallback(() => {
     if (xterm) {
       xterm.clear()
@@ -30,15 +35,13 @@ export const useTerminalActions = (xterm: XTerm | null) => {
     }
   }, [xterm])
 
-  const find = useCallback((query: string, direction: 'next' | 'prev' = 'next') => {
-    // Search addon will be passed separately
-    console.log('Find:', query, direction)
-  }, [])
+  const find = useCallback(() => {
+    options?.onFind?.()
+  }, [options])
 
   const split = useCallback(() => {
-    // TODO: Implement split terminal functionality
-    console.log('Split not implemented yet')
-  }, [])
+    options?.onSplit?.()
+  }, [options])
 
   return {
     clear,
