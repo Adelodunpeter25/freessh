@@ -71,7 +71,7 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-6">
         {/* General */}
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-foreground/80">General</h3>
+          <h3 className="text-sm font-medium text-foreground">General</h3>
           <Input
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -101,7 +101,7 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
 
         {/* Credentials */}
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-foreground/80">Credentials</h3>
+          <h3 className="text-sm font-medium text-foreground">Credentials</h3>
           <Input
             value={formData.username}
             onChange={(e) => setFormData({ ...formData, username: e.target.value })}
