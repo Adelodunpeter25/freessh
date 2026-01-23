@@ -17,14 +17,17 @@
 ## Authentication
 
 ### SSH Key File Selection
-**Status:** Not implemented  
-**Description:** Currently requires pasting private key content into textarea. Users should be able to browse and select key files.  
-**Implementation needed:**
-- UI: Add "Browse" button next to private key textarea in ConnectionForm
-- Frontend: Use Electron file dialog to select key file (e.g., ~/.ssh/id_rsa)
-- Backend: Read key file content and use for authentication
-- UX: Show selected file path, option to paste key directly still available
-- Validation: Check if file exists and is valid SSH key format
+**Status:** ✅ Implemented  
+**Description:** Users can browse and select SSH key files from their system.  
+**Implementation:**
+- ✅ "Browse Key File" button in ConnectionForm
+- ✅ Electron file dialog with .pem, .key, .pub filters
+- ✅ Automatic key content loading into textarea
+- ✅ Toast notification showing loaded file path
+- ✅ Users can still paste keys directly if preferred
+- ✅ Removed keyboard-interactive auth (simplified to Password and Public Key only)
+- ✅ Form split into smaller components for maintainability
+- ✅ Unsaved changes confirmation dialog
 
 ---
 
