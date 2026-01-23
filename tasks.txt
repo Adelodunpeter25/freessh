@@ -1,0 +1,5 @@
+ add tooltip to the add connection button and make it animate circle like make the + button animate on hover like maybe become circular
+ 
+ path autocomplete should accept tab so when i enter tab the first path should what should be entered do you understand do not do anything just give me feedback
+ 
+ you know on the connection card when i click it once it highlights can you change that highlight to be a round border glow
