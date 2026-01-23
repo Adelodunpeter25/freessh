@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { X, Eye, EyeOff } from 'lucide-react'
+import { X, Eye, EyeOff, FolderOpen } from 'lucide-react'
 import { toast } from 'sonner'
 import { ConnectionConfig, AuthMethod } from '@/types'
 import { Button } from '@/components/ui/button'
@@ -30,6 +30,18 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
   const [showPassword, setShowPassword] = useState(false)
   const [showPassphrase, setShowPassphrase] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
+
+  const handleBrowseKey = useCallback(async () => {
+    try {
+      const result = await window.electron.ipcRenderer.invoke('dialog:openFile')
+      if (result) {
+        setFormData({ ...formData, private_key: result.content })
+        toast.success(`Loaded key from ${result.path}`)
+      }
+    } catch (error) {
+      toast.error('Failed to load key file')
+    }
+  }, [formData])
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
@@ -145,12 +157,24 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
 
           {formData.auth_method === 'publickey' && (
             <>
-              <Textarea
-                value={formData.private_key}
-                onChange={(e) => setFormData({ ...formData, private_key: e.target.value })}
-                placeholder="Private Key"
-                rows={6}
-              />
+              <div className="space-y-2">
+                <Textarea
+                  value={formData.private_key}
+                  onChange={(e) => setFormData({ ...formData, private_key: e.target.value })}
+                  placeholder="Private Key"
+                  rows={6}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={handleBrowseKey}
+                >
+                  <FolderOpen className="h-4 w-4 mr-2" />
+                  Browse Key File
+                </Button>
+              </div>
               <div className="relative">
                 <Input
                   type={showPassphrase ? 'text' : 'password'}
