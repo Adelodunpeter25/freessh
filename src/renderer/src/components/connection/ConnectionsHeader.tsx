@@ -11,6 +11,7 @@ interface ConnectionsHeaderProps {
   onConnect: (connection: ConnectionConfig) => void
   onOpenSFTP: (connection: ConnectionConfig) => void
   groups: string[]
+  groupCounts: Record<string, number>
   selectedGroup: string | null
   onGroupSelect: (group: string | null) => void
 }
@@ -23,6 +24,7 @@ export function ConnectionsHeader({
   onConnect,
   onOpenSFTP,
   groups,
+  groupCounts,
   selectedGroup,
   onGroupSelect
 }: ConnectionsHeaderProps) {
@@ -93,7 +95,7 @@ export function ConnectionsHeader({
             variant={selectedGroup === group ? "default" : "ghost"}
             size="sm"
           >
-            {group}
+            {group} ({groupCounts[group]})
           </Button>
         ))}
       </div>

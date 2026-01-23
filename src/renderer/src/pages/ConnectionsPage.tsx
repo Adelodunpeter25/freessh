@@ -25,6 +25,11 @@ export function ConnectionsPage() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
 
   const groups = Array.from(new Set(connections.map(c => c.group).filter(Boolean))) as string[]
+  
+  const groupCounts = groups.reduce((acc, group) => {
+    acc[group] = connections.filter(c => c.group === group).length
+    return acc
+  }, {} as Record<string, number>)
 
   const filteredConnections = connections
     .filter(conn => 
@@ -82,6 +87,7 @@ export function ConnectionsPage() {
         onConnect={handleConnect}
         onOpenSFTP={handleOpenSFTP}
         groups={groups}
+        groupCounts={groupCounts}
         selectedGroup={selectedGroup}
         onGroupSelect={setSelectedGroup}
       />
