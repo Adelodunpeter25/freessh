@@ -1,5 +1,6 @@
 import { ConnectionCard } from './ConnectionCard'
 import { EmptyState } from '@/components/common/EmptyState'
+import { SearchEmptyState } from './SearchEmptyState'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { ConnectionConfig } from '@/types'
 import { Server } from 'lucide-react'
@@ -15,9 +16,10 @@ interface ConnectionListProps {
   onOpenSFTP: (connection: ConnectionConfig) => void
   onEdit: (connection: ConnectionConfig) => void
   onDelete: (id: string) => Promise<void>
+  isSearching?: boolean
 }
 
-export function ConnectionList({ connections, loading, selectedId, connectingId, onSelect, onConnect, onOpenSFTP, onEdit, onDelete }: ConnectionListProps) {
+export function ConnectionList({ connections, loading, selectedId, connectingId, onSelect, onConnect, onOpenSFTP, onEdit, onDelete, isSearching }: ConnectionListProps) {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -27,6 +29,9 @@ export function ConnectionList({ connections, loading, selectedId, connectingId,
   }
 
   if (connections.length === 0) {
+    if (isSearching) {
+      return <SearchEmptyState />
+    }
     return (
       <EmptyState
         icon={Server}

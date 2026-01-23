@@ -85,6 +85,7 @@ export function ConnectionsPage() {
           onOpenSFTP={handleOpenSFTP}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          isSearching={searchQuery.trim().length > 0}
         />
       </div>
 
