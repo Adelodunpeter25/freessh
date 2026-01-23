@@ -21,6 +21,13 @@ export function ConnectionsPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingConnection, setEditingConnection] = useState<ConnectionConfig | undefined>()
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredConnections = connections.filter(conn => 
+    conn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    conn.host.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    conn.username.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   const handleSelect = useCallback((connection: ConnectionConfig | null) => {
     setSelectedId(connection?.id ?? null)
@@ -62,10 +69,14 @@ export function ConnectionsPage() {
 
   return (
     <div className="h-full flex flex-col relative">
-      <ConnectionsHeader onNewConnection={() => setShowForm(true)} />
+      <ConnectionsHeader 
+        onNewConnection={() => setShowForm(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
       <div className="flex-1 overflow-hidden">
         <ConnectionList
-          connections={connections}
+          connections={filteredConnections}
           loading={loading}
           selectedId={selectedId}
           connectingId={connectingId}
