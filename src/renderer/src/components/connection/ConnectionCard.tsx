@@ -28,7 +28,7 @@ export const ConnectionCard = memo(function ConnectionCard({ connection, selecte
       <div
         className={`group flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer select-none ${
           selected 
-            ? 'bg-card border-primary shadow-[0_0_0_2px_hsl(var(--primary))]' 
+            ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)]' 
             : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md'
         }`}
         onClick={(e) => {
