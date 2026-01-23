@@ -1,7 +1,7 @@
-import * as React from "react"
+import { forwardRef, useState, ChangeEvent, InputHTMLAttributes } from "react"
 import { cn } from "@/lib/utils"
 
-interface SliderProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface SliderProps extends InputHTMLAttributes<HTMLInputElement> {
   defaultValue?: number[]
   value?: number[]
   onValueChange?: (value: number[]) => void
@@ -10,11 +10,11 @@ interface SliderProps extends React.InputHTMLAttributes<HTMLInputElement> {
   step?: number
 }
 
-const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
+const Slider = forwardRef<HTMLInputElement, SliderProps>(
   ({ className, defaultValue, value, onValueChange, min = 0, max = 100, step = 1, ...props }, ref) => {
-    const [internalValue, setInternalValue] = React.useState(defaultValue?.[0] || value?.[0] || 0)
+    const [internalValue, setInternalValue] = useState(defaultValue?.[0] || value?.[0] || 0)
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
       const newValue = Number(e.target.value)
       setInternalValue(newValue)
       onValueChange?([newValue])
