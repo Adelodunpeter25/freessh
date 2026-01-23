@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, memo } from 'react'
 import { Terminal as XTerm } from 'xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { SearchAddon } from '@xterm/addon-search'
@@ -13,7 +13,7 @@ interface TerminalPaneProps {
   onReady: (xterm: XTerm, searchAddon: SearchAddon) => void
 }
 
-export function TerminalPane({ sessionId, onData, onResize, onReady }: TerminalPaneProps) {
+export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onResize, onReady }: TerminalPaneProps) {
   const terminalRef = useRef<HTMLDivElement>(null)
   const xtermRef = useRef<XTerm | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
@@ -115,4 +115,4 @@ export function TerminalPane({ sessionId, onData, onResize, onReady }: TerminalP
       <div ref={terminalRef} className="h-full w-full" />
     </div>
   )
-}
+})

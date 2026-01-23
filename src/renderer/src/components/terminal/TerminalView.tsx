@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { TerminalPane } from './TerminalPane'
 import { TerminalSearchBar } from './TerminalSearchBar'
 import { TerminalContextMenu } from '@/components/contextmenu/TerminalContextMenu'
@@ -22,13 +22,17 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
     onSplit: () => console.log('Split not implemented')
   })
 
-  const handleReady = (xterm: XTerm, searchAddon: SearchAddon) => {
+  const handleReady = useCallback((xterm: XTerm, searchAddon: SearchAddon) => {
     setXterm(xterm)
     xtermRef.current = xterm
     searchAddonRef.current = searchAddon
-  }
+  }, [setXterm])
 
-  const handleSearch = (query: string, direction: 'next' | 'prev') => {
+  const handleResize = useCallback((cols: number, rows: number) => {
+    resize(rows, cols)
+  }, [resize])
+
+  const handleSearch = useCallback((query: string, direction: 'next' | 'prev') => {
     if (searchAddonRef.current && query) {
       if (direction === 'next') {
         searchAddonRef.current.findNext(query)
@@ -36,7 +40,7 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
         searchAddonRef.current.findPrevious(query)
       }
     }
-  }
+  }, [])
 
   return (
     <div className="h-full w-full relative">
@@ -58,7 +62,7 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
           <TerminalPane
             sessionId={sessionId}
             onData={sendInput}
-            onResize={(cols, rows) => resize(rows, cols)}
+            onResize={handleResize}
             onReady={handleReady}
           />
         </div>
