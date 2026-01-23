@@ -1,5 +1,5 @@
 import { useState, useEffect, ReactNode } from "react";
-import { ArrowLeft, FolderPlus, RefreshCw, Eye, EyeOff, MoreVertical } from "lucide-react";
+import { ArrowLeft, FolderPlus, RefreshCw, Eye, EyeOff, MoreVertical, CheckSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -23,6 +23,7 @@ interface FilePanelHeaderProps {
   onGoBack: () => void;
   onToggleHidden: () => void;
   onNewFolder: (name: string) => void;
+  onSelectAll?: () => void;
   fetchSuggestions: (path: string) => Promise<FileInfo[]>;
   children?: ReactNode;
 }
@@ -38,6 +39,7 @@ export function FilePanelHeader({
   onGoBack,
   onToggleHidden,
   onNewFolder,
+  onSelectAll,
   fetchSuggestions,
   children,
 }: FilePanelHeaderProps) {
@@ -81,13 +83,19 @@ export function FilePanelHeader({
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Actions</TooltipContent>
+                <TooltipContent>More Actions</TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setShowNewFolder(true)}>
                   <FolderPlus className="w-4 h-4 mr-2" />
                   New Folder
                 </DropdownMenuItem>
+                {onSelectAll && (
+                  <DropdownMenuItem onClick={onSelectAll}>
+                    <CheckSquare className="w-4 h-4 mr-2" />
+                    Select All
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={onToggleHidden}>
                   {showHidden ? (
                     <>
