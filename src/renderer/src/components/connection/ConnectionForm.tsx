@@ -70,7 +70,7 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
       {/* Form */}
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-6">
         {/* General */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <h3 className="text-sm font-medium text-foreground">General</h3>
           <Input
             value={formData.name}
@@ -100,7 +100,7 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
         </div>
 
         {/* Credentials */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           <h3 className="text-sm font-medium text-foreground">Credentials</h3>
           <Input
             value={formData.username}
