@@ -5,6 +5,7 @@ import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 // Lazy load pages
 const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));

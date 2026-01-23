@@ -16,7 +16,7 @@ export interface KeyboardShortcuts {
   'cmd+,'?: () => void
   
   // Terminal
-  'cmd+k'?: () => void
+  'cmd+l'?: () => void
   'cmd+f'?: () => void
   'cmd+c'?: () => void
   'cmd+v'?: () => void
