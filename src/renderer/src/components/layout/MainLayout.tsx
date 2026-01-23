@@ -3,6 +3,7 @@ import { TitleBar } from "./TitleBar";
 import { Sidebar } from "./Sidebar";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { KeyboardShortcutsDialog } from "@/components/common/KeyboardShortcutsDialog";
+import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
@@ -10,7 +11,6 @@ import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 // Lazy load pages
 const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));
-const SettingsPage = lazy(() => import("@/pages/SettingsPage").then(m => ({ default: m.SettingsPage })));
 const SFTPPage = lazy(() => import("@/pages/SFTPPage"));
 const TerminalView = lazy(() => import("@/components/terminal/TerminalView").then(m => ({ default: m.TerminalView })));
 const TerminalSettings = lazy(() => import("@/components/terminal/TerminalSettings").then(m => ({ default: m.TerminalSettings })));
@@ -23,6 +23,7 @@ export function MainLayout() {
   const [mainView, setMainView] = useState<MainView>("home");
   const [showTerminalSettings, setShowTerminalSettings] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const activeSessionTabId = useTabStore((state) => state.activeTabId);
   const tabs = useTabStore((state) => state.tabs);
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
@@ -68,10 +69,7 @@ export function MainLayout() {
       handleHomeClick()
       setSidebarTab('connections')
     },
-    onOpenSettings: () => {
-      handleHomeClick()
-      setSidebarTab('settings')
-    },
+    onOpenSettings: () => setShowSettings(true),
     onShowShortcuts: () => setShowShortcuts(true),
   })
 
@@ -85,8 +83,6 @@ export function MainLayout() {
             Snippets
           </div>
         );
-      case "settings":
-        return <SettingsPage />;
       default:
         return null;
     }
@@ -147,6 +143,9 @@ export function MainLayout() {
 
       {/* Keyboard Shortcuts Dialog */}
       <KeyboardShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />
+      
+      {/* Settings Dialog */}
+      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
     </div>
   );
 }
