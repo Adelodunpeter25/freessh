@@ -78,7 +78,11 @@ export function PathAutocomplete({
       return
     }
 
-    if (e.key === 'ArrowDown') {
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      const targetIndex = selectedIndex >= 0 ? selectedIndex : 0
+      selectSuggestion(suggestions[targetIndex])
+    } else if (e.key === 'ArrowDown') {
       e.preventDefault()
       setSelectedIndex(i => Math.min(i + 1, suggestions.length - 1))
     } else if (e.key === 'ArrowUp') {
