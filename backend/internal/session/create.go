@@ -46,7 +46,7 @@ func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session
 	}
 
 	// Detect OS type
-	osSession, err := sshClient.GetClient().NewSession()
+	osSession, err := sshClient.GetSSHClient().NewSession()
 	if err == nil {
 		osType, _ := osdetect.DetectOS(osSession)
 		session.OSType = string(osType)
