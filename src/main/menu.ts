@@ -87,13 +87,13 @@ export function createMenu(): void {
         {
           label: 'Documentation',
           click: async () => {
-            await shell.openExternal('https://github.com/yourusername/freessh')
+            await shell.openExternal('https://github.com/Adelodunpeter25/freessh')
           }
         },
         {
           label: 'Report Issue',
           click: async () => {
-            await shell.openExternal('https://github.com/yourusername/freessh/issues')
+            await shell.openExternal('https://github.com/Adelodunpeter25/freessh/issues')
           }
         }
       ]
