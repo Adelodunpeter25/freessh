@@ -3,10 +3,12 @@ import { X, Home, FolderSync, Pin } from 'lucide-react'
 import { useTabStore } from '@/stores'
 import { useUIStore } from '@/stores/uiStore'
 import { useSessionStore } from '@/stores/sessionStore'
+import { useOSTypeStore } from '@/stores/osTypeStore'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { SessionTabContextMenu } from '@/components/contextmenu/SessionTabContextMenu'
 import { SessionTabInput } from './SessionTabInput'
+import { getOSIcon } from '@/utils/osIcons'
 import { cn } from '@/lib/utils'
 
 interface SessionTabBarProps {
@@ -24,6 +26,7 @@ interface SessionTabProps {
   sessionId: string
   title: string
   connectionHost?: string
+  connectionId?: string
   isActive: boolean
   isPinned: boolean
   isRenaming: boolean
@@ -41,6 +44,7 @@ const SessionTab = memo(function SessionTab({
   sessionId,
   title,
   connectionHost,
+  connectionId,
   isActive, 
   isPinned,
   isRenaming,
@@ -52,6 +56,9 @@ const SessionTab = memo(function SessionTab({
   onOpenSFTP,
   onTogglePin
 }: SessionTabProps) {
+  const osType = useOSTypeStore((state) => state.getOSType(connectionId || ''))
+  const OSIcon = getOSIcon(osType)
+  
   return (
     <SessionTabContextMenu
       tabId={id}
@@ -72,6 +79,7 @@ const SessionTab = memo(function SessionTab({
         style={noDrag}
         onClick={() => !isRenaming && onSelect(id)}
       >
+        <OSIcon className="h-3.5 w-3.5 shrink-0" />
         {isPinned && <Pin className="h-3 w-3 shrink-0" />}
         {isRenaming ? (
           <div style={noDrag}>
@@ -207,6 +215,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
         {tabs.map((tab) => {
           const sessionData = getSession(tab.sessionId)
           const connectionHost = sessionData ? `${sessionData.connection.username}@${sessionData.connection.host}` : undefined
+          const connectionId = sessionData?.connection.id
           
           return (
             <SessionTab
@@ -215,6 +224,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               sessionId={tab.sessionId}
               title={tab.title}
               connectionHost={connectionHost}
+              connectionId={connectionId}
               isActive={activeTabId === tab.id && !showHome && !showSFTP}
               isPinned={tab.isPinned || false}
               isRenaming={renamingTabId === tab.id}

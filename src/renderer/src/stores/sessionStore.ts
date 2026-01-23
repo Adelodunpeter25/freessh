@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { Session, ConnectionConfig } from '../types'
+import { useOSTypeStore } from './osTypeStore'
 
 interface SessionWithConnection {
   session: Session
@@ -20,6 +21,11 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
   sessions: new Map(),
 
   addSession: (session, connection) => {
+    // Cache OS type if available
+    if (session.os_type) {
+      useOSTypeStore.getState().setOSType(connection.id, session.os_type)
+    }
+    
     set((state) => {
       const newSessions = new Map(state.sessions)
       newSessions.set(session.id, { session, connection })

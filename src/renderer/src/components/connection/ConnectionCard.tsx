@@ -1,9 +1,11 @@
 import { memo } from 'react'
-import { Server, Pencil, Loader2 } from 'lucide-react'
+import { Pencil, Loader2 } from 'lucide-react'
 import { ConnectionConfig } from '@/types'
 import { ConnectionCardContextMenu } from '@/components/contextmenu'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { useOSTypeStore } from '@/stores/osTypeStore'
+import { getOSIcon } from '@/utils/osIcons'
 
 interface ConnectionCardProps {
   connection: ConnectionConfig
@@ -17,6 +19,9 @@ interface ConnectionCardProps {
 }
 
 export const ConnectionCard = memo(function ConnectionCard({ connection, selected, loading, onSelect, onConnect, onOpenSFTP, onEdit, onDelete }: ConnectionCardProps) {
+  const osType = useOSTypeStore((state) => state.getOSType(connection.id))
+  const OSIcon = getOSIcon(osType)
+  
   return (
     <ConnectionCardContextMenu
       connection={connection}
@@ -45,7 +50,7 @@ export const ConnectionCard = memo(function ConnectionCard({ connection, selecte
           {loading ? (
             <Loader2 className="h-5 w-5 text-primary animate-spin" />
           ) : (
-            <Server className="h-5 w-5 text-primary" />
+            <OSIcon className="h-5 w-5 text-primary" />
           )}
         </div>
         

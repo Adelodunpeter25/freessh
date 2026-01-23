@@ -6,4 +6,5 @@ export interface Session {
   status: SessionStatus
   connected_at?: string
   error?: string
+  os_type?: string
 }
