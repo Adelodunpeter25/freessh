@@ -2,6 +2,7 @@ import { useMemo, useCallback } from "react";
 import { FileInfo } from "@/types";
 import { FileItem } from "./FileItem";
 import { FilePanelContextMenu } from "@/components/contextmenu";
+import { useFilePanelContext } from "@/contexts/FilePanelContext";
 import { formatDate } from "@/utils/formatDate";
 import { formatPermissions } from "@/utils/formatPermissions";
 import { formatFileSize } from "@/utils/formatFileSize";
@@ -10,33 +11,27 @@ interface FileListProps {
   files: FileInfo[];
   loading: boolean;
   showHidden: boolean;
-  selectedFile: FileInfo | null;
-  onSelectFile: (file: FileInfo | null) => void;
   onOpenFile: (file: FileInfo) => void;
-  onDeleteFile: (path: string) => void;
-  onRenameFile: (oldPath: string, newPath: string) => void;
-  onChmodFile: (path: string, mode: number) => Promise<void>;
-  onDragStart?: (file: FileInfo, e: React.DragEvent) => void;
   onNewFolder: () => void;
-  onRefresh: () => void;
-  isLocal?: boolean;
 }
 
 export function FileList({
   files,
   loading,
   showHidden,
-  selectedFile,
-  onSelectFile,
   onOpenFile,
-  onDeleteFile,
-  onRenameFile,
-  onChmodFile,
-  onDragStart,
   onNewFolder,
-  onRefresh,
-  isLocal,
 }: FileListProps) {
+  const {
+    selectedFile,
+    onSelectFile,
+    onDelete,
+    onRename,
+    onChmod,
+    onDragStart,
+    onRefresh,
+    isRemote,
+  } = useFilePanelContext();
   const sortedFiles = useMemo(() => {
     const filtered = showHidden ? files : files.filter(f => !f.name.startsWith('.'));
     // Pre-compute formatted values to avoid recalculating on every render
@@ -54,12 +49,12 @@ export function FileList({
 
   const handleRename = useCallback((filePath: string, newName: string) => {
     const newPath = filePath.replace(/[^/]+$/, newName);
-    onRenameFile(filePath, newPath);
-  }, [onRenameFile]);
+    onRename(filePath, newPath);
+  }, [onRename]);
 
   const handleDragStart = useCallback((file: FileInfo, e: React.DragEvent) => {
     e.dataTransfer.setData("application/json", JSON.stringify([file]));
-    onDragStart?.(file, e);
+    onDragStart?.(file);
   }, [onDragStart]);
 
   return (
@@ -79,9 +74,9 @@ export function FileList({
               selected={selectedFile?.path === file.path}
               onSelect={() => onSelectFile(file)}
               onOpen={() => onOpenFile(file)}
-              onDelete={() => onDeleteFile(file.path)}
+              onDelete={() => onDelete(file.path)}
               onRename={(newName) => handleRename(file.path, newName)}
-              onChmod={(mode) => onChmodFile(file.path, mode)}
+              onChmod={(mode) => onChmod(file.path, mode)}
               draggable
               onDragStart={(e) => handleDragStart(file, e)}
               formattedDate={file._formattedDate}

@@ -5,6 +5,7 @@ import { FileList } from "./FileList";
 import { FilePreview } from "./filepreview";
 import { DropZoneOverlay } from "@/components/common/DropZoneOverlay";
 import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
+import { FilePanelProvider } from "@/contexts/FilePanelContext";
 import { useDragDrop } from "@/hooks/useDragDrop";
 import { useSearch } from "@/hooks/useSearch";
 import { SearchBar } from "./SearchBar";
@@ -97,7 +98,25 @@ export function FilePanel({
     openFile({ name: path.split('/').pop() || '', path, is_dir: false, size: 0, mode: 0, mod_time: 0 }, isRemote);
   };
 
+  const contextValue = {
+    onDelete,
+    onRename,
+    onChmod,
+    onMkdir,
+    onNavigate,
+    onRefresh,
+    onDrop,
+    onDragStart,
+    selectedFile,
+    onSelectFile,
+    currentPath,
+    loading,
+    isRemote,
+    fetchSuggestions,
+  };
+
   return (
+    <FilePanelProvider value={contextValue}>
     <div className="relative flex flex-col h-full border rounded-lg bg-card" {...dragProps}>
       <DropZoneOverlay 
         visible={isDragOver} 
@@ -134,18 +153,11 @@ export function FilePanel({
           files={filteredFiles}
           loading={loading}
           showHidden={showHidden}
-          selectedFile={selectedFile}
-          onSelectFile={onSelectFile}
           onOpenFile={handleOpenFile}
-          onDeleteFile={onDelete}
-          onRenameFile={onRename}
-          onChmodFile={onChmod}
-          onDragStart={onDragStart}
           onNewFolder={() => {}}
-          onRefresh={onRefresh}
-          isLocal={!isRemote}
         />
       )}
     </div>
+    </FilePanelProvider>
   );
 }
