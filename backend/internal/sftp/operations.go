@@ -3,6 +3,7 @@ package sftp
 import (
 	"fmt"
 	"freessh-backend/internal/models"
+	"strings"
 )
 
 func (c *Client) List(path string) ([]models.FileInfo, error) {
@@ -82,7 +83,11 @@ func (c *Client) Remove(path string) error {
 
 	// Delete all contents first
 	for _, entry := range entries {
-		childPath := path + "/" + entry.Name()
+		childPath := path
+		if !strings.HasSuffix(path, "/") {
+			childPath += "/"
+		}
+		childPath += entry.Name()
 		if err := c.Remove(childPath); err != nil {
 			return err
 		}
