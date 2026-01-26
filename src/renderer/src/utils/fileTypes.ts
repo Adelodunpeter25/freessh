@@ -29,11 +29,26 @@ export function getLanguageFromFilename(filename: string): string {
     // Web
     html: 'html',
     css: 'css',
+    scss: 'scss',
+    sass: 'sass',
+    less: 'less',
     js: 'javascript',
+    jsx: 'javascript',
     ts: 'typescript',
+    tsx: 'typescript',
     
-    // Python
+    // Programming languages
     py: 'python',
+    rb: 'ruby',
+    pl: 'perl',
+    php: 'php',
+    go: 'go',
+    rs: 'rust',
+    java: 'java',
+    c: 'c',
+    cpp: 'cpp',
+    h: 'c',
+    hpp: 'cpp',
     
     // Markup
     md: 'markdown',
@@ -57,8 +72,8 @@ export function isTextFile(filename: string): boolean {
   const name = filename.toLowerCase()
   const textExts = [
     'txt', 'md', 'json', 'yaml', 'yml', 'toml', 'ini', 'conf', 'cfg',
-    'sh', 'bash', 'zsh', 'py', 'js', 'ts', 'html', 'css', 'xml',
-    'log', 'env', 'gitignore', 'dockerignore'
+    'sh', 'bash', 'zsh', 'py', 'js', 'jsx', 'ts', 'tsx', 'html', 'css', 'scss', 'sass', 'less', 'xml',
+    'log', 'env', 'gitignore', 'dockerignore', 'rb', 'pl', 'php', 'go', 'rs', 'java', 'c', 'cpp', 'h', 'hpp'
   ]
   return textExts.includes(ext) || filename.startsWith('.') || name === 'dockerfile' || name === 'makefile'
 }
