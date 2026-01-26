@@ -1,5 +1,4 @@
-import { isImageFile, isTextFile } from '@/utils/fileTypes'
-import { ImagePreview } from './ImagePreview'
+import { isTextFile } from '@/utils/fileTypes'
 import { CodeEditor } from './CodeEditor'
 
 interface FilePreviewProps {
@@ -17,10 +16,6 @@ export function FilePreview({ filename, content, blobUrl, isLoading, onSave }: F
         Loading...
       </div>
     )
-  }
-
-  if (isImageFile(filename) && blobUrl) {
-    return <ImagePreview src={blobUrl} filename={filename} />
   }
 
   if (isTextFile(filename) && content !== null) {
