@@ -5,7 +5,7 @@ import { FileList } from "./FileList";
 import { FilePreview } from "./filepreview";
 import { DropZoneOverlay } from "@/components/common/DropZoneOverlay";
 import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
-import { FilePanelProvider } from "@/contexts/FilePanelContext";
+import { useFilePanelContext } from "@/contexts/FilePanelContext";
 import { useDragDrop } from "@/hooks/useDragDrop";
 import { useSearch } from "@/hooks/useSearch";
 import { openFile as openFileUtil } from "@/utils/fileOpener";
@@ -14,46 +14,31 @@ import { SearchBar } from "./SearchBar";
 interface FilePanelProps {
   title: string;
   files: FileInfo[];
-  currentPath: string;
-  loading: boolean;
-  isRemote?: boolean;
-  sessionId?: string;
-  onNavigate: (path: string) => void;
-  onRefresh: () => void;
-  onDelete: (path: string) => Promise<void>;
-  onRename: (oldPath: string, newPath: string) => void;
-  onChmod: (path: string, mode: number) => Promise<void>;
-  onMkdir: (path: string) => void;
-  onDrop?: (files: FileInfo[], targetPath: string) => void;
-  onDragStart?: (file: FileInfo) => void;
-  onDownloadToTemp?: (remotePath: string, filename: string) => Promise<string>;
-  selectedFile: FileInfo | null;
-  onSelectFile: (file: FileInfo | null) => void;
-  transferActive?: boolean;
-  fetchSuggestions: (path: string) => Promise<FileInfo[]>;
 }
 
 export function FilePanel({
   title,
   files,
-  currentPath,
-  loading,
-  isRemote = false,
-  sessionId,
-  onNavigate,
-  onRefresh,
-  onDelete,
-  onRename,
-  onChmod,
-  onMkdir,
-  onDrop,
-  onDragStart,
-  onDownloadToTemp,
-  selectedFile,
-  onSelectFile,
-  fetchSuggestions,
 }: FilePanelProps) {
   const [showHidden, setShowHidden] = useState(false);
+  const { 
+    currentPath,
+    loading,
+    isRemote,
+    sessionId,
+    onNavigate,
+    onRefresh,
+    onDelete,
+    onRename,
+    onChmod,
+    onMkdir,
+    onDrop,
+    onDragStart,
+    onDownloadToTemp,
+    selectedFile,
+    onSelectFile,
+    fetchSuggestions,
+  } = useFilePanelContext();
   const { isDragOver, dragProps } = useDragDrop(onDrop, currentPath);
   const { query, setQuery, filteredFiles, clearSearch, isSearching } = useSearch(files);
   const { 
@@ -109,25 +94,7 @@ export function FilePanel({
     openFile({ name: path.split('/').pop() || '', path, is_dir: false, size: 0, mode: 0, mod_time: 0 }, isRemote);
   };
 
-  const contextValue = {
-    onDelete,
-    onRename,
-    onChmod,
-    onMkdir,
-    onNavigate,
-    onRefresh,
-    onDrop,
-    onDragStart,
-    selectedFile,
-    onSelectFile,
-    currentPath,
-    loading,
-    isRemote,
-    fetchSuggestions,
-  };
-
   return (
-    <FilePanelProvider value={contextValue}>
     <div className="relative flex flex-col h-full border rounded-lg bg-card" {...dragProps}>
       <DropZoneOverlay 
         visible={isDragOver} 
@@ -169,6 +136,5 @@ export function FilePanel({
         />
       )}
     </div>
-    </FilePanelProvider>
   );
 }

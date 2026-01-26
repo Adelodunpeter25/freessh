@@ -24,9 +24,14 @@ interface FilePanelContextValue {
   currentPath: string
   loading: boolean
   isRemote: boolean
+  sessionId?: string
+  transferActive?: boolean
   
   // Suggestions
   fetchSuggestions: (path: string) => Promise<FileInfo[]>
+  
+  // Remote file operations
+  onDownloadToTemp?: (remotePath: string, filename: string) => Promise<string>
 }
 
 const FilePanelContext = createContext<FilePanelContextValue | null>(null)

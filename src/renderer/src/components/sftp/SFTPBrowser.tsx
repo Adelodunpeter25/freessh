@@ -8,6 +8,7 @@ import { useLocalFiles } from "@/hooks/useLocalFiles";
 import { useFilePreview } from "@/hooks/useFilePreview";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { FilePreviewProvider } from "@/contexts/FilePreviewContext";
+import { FilePanelProvider } from "@/contexts/FilePanelContext";
 import { FileInfo } from "@/types";
 
 export function SFTPBrowser() {
@@ -79,29 +80,34 @@ export function SFTPBrowser() {
     setFileToDelete(null)
   }
 
+  const localContextValue = useMemo(() => ({
+    onDelete: local.deleteFile,
+    onRename: local.rename,
+    onChmod: local.chmod,
+    onMkdir: local.mkdir,
+    onNavigate: local.navigate,
+    onRefresh: local.refresh,
+    onDrop: handleDownloadDrop,
+    selectedFile: selectedLocal,
+    onSelectFile: setSelectedLocal,
+    currentPath: local.currentPath,
+    loading: local.loading,
+    isRemote: false,
+    transferActive,
+    fetchSuggestions: local.listPath,
+  }), [local, handleDownloadDrop, selectedLocal, transferActive]);
+
   return (
     <FilePreviewProvider value={preview}>
       <div className="flex flex-col h-full gap-4 overflow-hidden">
         <div className="flex flex-1 gap-4 overflow-hidden">
           <div className="flex-1 h-full overflow-hidden">
-            <FilePanel
-              title="Local Files"
-              files={local.files}
-              currentPath={local.currentPath}
-              loading={local.loading}
-              isRemote={false}
-              onNavigate={local.navigate}
-              onRefresh={local.refresh}
-              onDelete={local.deleteFile}
-              onRename={local.rename}
-              onChmod={local.chmod}
-              onMkdir={local.mkdir}
-              onDrop={handleDownloadDrop}
-              selectedFile={selectedLocal}
-              onSelectFile={setSelectedLocal}
-              transferActive={transferActive}
-              fetchSuggestions={local.listPath}
-            />
+            <FilePanelProvider value={localContextValue}>
+              <FilePanel
+                title="Local Files"
+                files={local.files}
+              />
+            </FilePanelProvider>
           </div>
           <div className="flex-1 h-full overflow-hidden">
             <RemotePanel

@@ -1,9 +1,10 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { FilePanel } from "./FilePanel";
 import { ConnectionSelector } from "./ConnectionSelector";
 import { FileInfo } from "@/types";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
+import { FilePanelProvider } from "@/contexts/FilePanelContext";
 import { LoadingOverlay } from "@/components/common/LoadingOverlay";
 
 interface RemotePanelProps {
@@ -58,6 +59,25 @@ export function RemotePanel({
     onSessionChange(newSessionId);
   }, [onSessionChange]);
 
+  const contextValue = useMemo(() => ({
+    onDelete,
+    onRename,
+    onChmod,
+    onMkdir,
+    onNavigate,
+    onRefresh,
+    onDrop,
+    selectedFile,
+    onSelectFile,
+    currentPath,
+    loading,
+    isRemote: true,
+    sessionId,
+    transferActive,
+    fetchSuggestions,
+    onDownloadToTemp,
+  }), [onDelete, onRename, onChmod, onMkdir, onNavigate, onRefresh, onDrop, selectedFile, onSelectFile, currentPath, loading, sessionId, transferActive, fetchSuggestions, onDownloadToTemp]);
+
   if (!sessionId) {
     return <ConnectionSelector onConnect={handleConnect} />;
   }
@@ -65,26 +85,12 @@ export function RemotePanel({
   return (
     <div className="relative h-full">
       <LoadingOverlay visible={previewLoading && isRemotePreview} message="Loading preview..." />
-      <FilePanel
-        title={`Remote Server: ${connectedConnection?.name || ""}`}
-        files={files}
-        currentPath={currentPath}
-        loading={loading}
-        isRemote={true}
-        sessionId={sessionId}
-        onNavigate={onNavigate}
-        onRefresh={onRefresh}
-        onDelete={onDelete}
-        onRename={onRename}
-        onChmod={onChmod}
-        onMkdir={onMkdir}
-        onDrop={onDrop}
-        onDownloadToTemp={onDownloadToTemp}
-        selectedFile={selectedFile}
-        onSelectFile={onSelectFile}
-        transferActive={transferActive}
-        fetchSuggestions={fetchSuggestions}
-      />
+      <FilePanelProvider value={contextValue}>
+        <FilePanel
+          title={`Remote Server: ${connectedConnection?.name || ""}`}
+          files={files}
+        />
+      </FilePanelProvider>
     </div>
   );
 }
