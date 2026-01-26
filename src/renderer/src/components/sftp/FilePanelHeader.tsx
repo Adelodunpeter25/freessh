@@ -137,6 +137,7 @@ export function FilePanelHeader({
             onChange={setPathInput}
             onNavigate={handlePathNavigate}
             fetchSuggestions={fetchSuggestions}
+            currentPath={currentPath}
             className="h-8 text-sm"
           />
         </div>

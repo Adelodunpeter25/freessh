@@ -9,6 +9,7 @@ interface PathAutocompleteProps {
   onChange: (value: string) => void
   onNavigate: (path: string, isFile: boolean) => void
   fetchSuggestions: (path: string) => Promise<FileInfo[]>
+  currentPath?: string
   className?: string
   placeholder?: string
 }
@@ -18,6 +19,7 @@ export function PathAutocomplete({
   onChange,
   onNavigate,
   fetchSuggestions,
+  currentPath = '/',
   className,
   placeholder = 'Path...'
 }: PathAutocompleteProps) {
@@ -29,12 +31,21 @@ export function PathAutocomplete({
 
   useEffect(() => {
     const loadSuggestions = async () => {
-      if (!value || !showSuggestions) {
+      if (!showSuggestions) {
         setSuggestions([])
         return
       }
-      const parentPath = value.endsWith('/') ? value.slice(0, -1) || '/' : getParentPath(value)
+      
+      // If value is empty or relative, use currentPath as base
+      const isAbsolutePath = value.startsWith('/')
+      const parentPath = !value || !isAbsolutePath
+        ? currentPath
+        : value.endsWith('/') 
+          ? value.slice(0, -1) || '/' 
+          : getParentPath(value)
+      
       const prefix = value.endsWith('/') ? '' : getBasename(value)
+      
       try {
         const files = await fetchSuggestions(parentPath)
         setSuggestions(filterSuggestions(files, prefix))
@@ -44,7 +55,7 @@ export function PathAutocomplete({
     }
     const timer = setTimeout(loadSuggestions, 150)
     return () => clearTimeout(timer)
-  }, [value, showSuggestions, fetchSuggestions])
+  }, [value, showSuggestions, fetchSuggestions, currentPath])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -57,7 +68,13 @@ export function PathAutocomplete({
   }, [])
 
   const selectSuggestion = useCallback((file: FileInfo) => {
-    const parentPath = value.endsWith('/') ? value.slice(0, -1) || '/' : getParentPath(value)
+    const isAbsolutePath = value.startsWith('/')
+    const parentPath = !value || !isAbsolutePath
+      ? currentPath
+      : value.endsWith('/')
+        ? value.slice(0, -1) || '/'
+        : getParentPath(value)
+    
     const newPath = buildFullPath(parentPath, file.name)
     onChange(newPath)
     setShowSuggestions(false)
@@ -67,7 +84,7 @@ export function PathAutocomplete({
     } else {
       onNavigate(newPath, true)
     }
-  }, [value, onChange, onNavigate])
+  }, [value, onChange, onNavigate, currentPath])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (!showSuggestions || suggestions.length === 0) {
