@@ -66,4 +66,9 @@ export function setupFileSystemHandlers(): void {
     const content = await fs.promises.readFile(filePath, 'utf-8')
     return { path: filePath, content }
   })
+
+  ipcMain.handle('shell:openPath', async (_event, filePath: string) => {
+    const { shell } = require('electron')
+    return shell.openPath(filePath)
+  })
 }

@@ -90,7 +90,12 @@ export function FilePanel({
         onNavigate(file.path);
       }, 50);
     } else {
-      openFile(file, isRemote);
+      // Open local files in default app, remote files in preview
+      if (isRemote) {
+        openFile(file, isRemote);
+      } else {
+        window.electron.ipcRenderer.invoke('shell:openPath', file.path);
+      }
     }
   }, [onNavigate, openFile, isRemote]);
 
