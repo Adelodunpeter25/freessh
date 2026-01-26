@@ -209,7 +209,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               <span className="text-sm font-medium">SFTP</span>
             </div>
           </TooltipTrigger>
-          <TooltipContent delayDuration={400}>File browser and transfer</TooltipContent>
+          <TooltipContent>File browser and transfer</TooltipContent>
         </Tooltip>
       
         {tabs.map((tab) => {
