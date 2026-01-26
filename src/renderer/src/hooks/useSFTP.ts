@@ -109,17 +109,20 @@ export const useSFTP = (sessionId: string | null) => {
   const deleteFile = useCallback(async (path: string) => {
     if (!sessionId) return
 
+    const file = files.find(f => f.path === path)
+    const itemType = file?.is_dir ? 'Folder' : 'File'
+
     try {
       await sftpService.delete(sessionId, path)
       await listFiles(currentPath)
-      toast.success('File deleted successfully')
+      toast.success(`${itemType} deleted successfully`)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Delete failed'
       setError(errorMessage)
       toast.error(errorMessage)
       throw err
     }
-  }, [sessionId, currentPath, listFiles])
+  }, [sessionId, currentPath, listFiles, files])
 
   const createDirectory = useCallback(async (path: string) => {
     if (!sessionId) return

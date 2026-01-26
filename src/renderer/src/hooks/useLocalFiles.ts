@@ -34,16 +34,19 @@ export function useLocalFiles() {
   }, [loadFiles, currentPath])
 
   const deleteFile = useCallback(async (path: string): Promise<void> => {
+    const file = files.find(f => f.path === path)
+    const itemType = file?.is_dir ? 'Folder' : 'File'
+    
     try {
       await window.electron.ipcRenderer.invoke('fs:delete', path)
       refresh()
-      toast.success('File deleted successfully')
+      toast.success(`${itemType} deleted successfully`)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Delete failed'
       toast.error(errorMessage)
       throw error
     }
-  }, [refresh])
+  }, [refresh, files])
 
   const rename = useCallback(async (oldPath: string, newPath: string) => {
     try {

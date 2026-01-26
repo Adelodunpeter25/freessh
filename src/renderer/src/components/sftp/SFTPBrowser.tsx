@@ -138,7 +138,7 @@ export function SFTPBrowser() {
       <ConfirmDialog
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
-        title="Delete file"
+        title={fileToDelete?.file.is_dir ? "Delete folder" : "Delete file"}
         description={fileToDelete ? `Are you sure you want to delete "${fileToDelete.file.name}"? This action cannot be undone.` : ''}
         confirmText="Delete"
         destructive

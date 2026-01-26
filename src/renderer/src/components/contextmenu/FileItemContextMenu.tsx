@@ -38,7 +38,7 @@ export function FileItemContextMenu({
       <ConfirmDialog
         open={showDeleteConfirm}
         onOpenChange={setShowDeleteConfirm}
-        title="Delete file"
+        title={file.is_dir ? "Delete folder" : "Delete file"}
         description={`Are you sure you want to delete "${file.name}"? This action cannot be undone.`}
         confirmText="Delete"
         destructive
