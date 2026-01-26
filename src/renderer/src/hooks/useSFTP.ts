@@ -210,9 +210,39 @@ export const useSFTP = (sessionId: string | null) => {
     if (!sessionId) throw new Error('No session')
     
     const tempDir = await window.electron.ipcRenderer.invoke('fs:getTempDir')
-    const tempPath = `${tempDir}/${filename}`
-    await sftpService.download(sessionId, remotePath, tempPath)
-    return tempPath
+    const path = await window.electron.ipcRenderer.invoke('path:join', tempDir, filename)
+    
+    let lastTransferId: string | null = null
+    const toastId = toast.loading(`Downloading ${filename}...`)
+    
+    try {
+      await sftpService.download(sessionId, remotePath, path, (progress) => {
+        lastTransferId = progress.transfer_id
+        setTransfers(prev => new Map(prev).set(progress.transfer_id, progress))
+        toast.loading(`Downloading ${filename}... ${progress.percentage}%`, { id: toastId })
+      })
+      
+      if (lastTransferId) {
+        setTransfers(prev => {
+          const next = new Map(prev)
+          next.delete(lastTransferId!)
+          return next
+        })
+      }
+      
+      toast.success(`Downloaded ${filename}`, { id: toastId })
+      return path
+    } catch (err) {
+      if (lastTransferId) {
+        setTransfers(prev => {
+          const next = new Map(prev)
+          next.delete(lastTransferId!)
+          return next
+        })
+      }
+      toast.error('Download failed', { id: toastId })
+      throw err
+    }
   }, [sessionId])
 
   return {

@@ -76,4 +76,9 @@ export function setupFileSystemHandlers(): void {
     const { app } = require('electron')
     return app.getPath('temp')
   })
+
+  ipcMain.handle('path:join', async (_event, ...paths: string[]) => {
+    const path = require('path')
+    return path.join(...paths)
+  })
 }
