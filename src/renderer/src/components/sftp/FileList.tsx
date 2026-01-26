@@ -41,11 +41,11 @@ export function FileList({
       return a.name.localeCompare(b.name);
     }).map(file => ({
       ...file,
-      _formattedDate: formatDate(file.mod_time, isLocal),
+      _formattedDate: formatDate(file.mod_time, !isRemote),
       _formattedPerms: formatPermissions(file.mode, file.is_dir),
       _formattedSize: file.is_dir ? '-' : formatFileSize(file.size)
     }));
-  }, [files, showHidden, isLocal]);
+  }, [files, showHidden, isRemote]);
 
   const handleRename = useCallback((filePath: string, newName: string) => {
     const newPath = filePath.replace(/[^/]+$/, newName);
