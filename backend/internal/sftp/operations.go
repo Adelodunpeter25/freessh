@@ -63,7 +63,33 @@ func (c *Client) Remove(path string) error {
 		return fmt.Errorf("SFTP not connected")
 	}
 
-	return c.sftpClient.Remove(path)
+	// Check if it's a directory
+	info, err := c.sftpClient.Stat(path)
+	if err != nil {
+		return fmt.Errorf("failed to stat: %w", err)
+	}
+
+	if !info.IsDir() {
+		// It's a file, just remove it
+		return c.sftpClient.Remove(path)
+	}
+
+	// It's a directory, recursively delete contents
+	entries, err := c.sftpClient.ReadDir(path)
+	if err != nil {
+		return fmt.Errorf("failed to read directory: %w", err)
+	}
+
+	// Delete all contents first
+	for _, entry := range entries {
+		childPath := path + "/" + entry.Name()
+		if err := c.Remove(childPath); err != nil {
+			return err
+		}
+	}
+
+	// Now delete the empty directory
+	return c.sftpClient.RemoveDirectory(path)
 }
 
 func (c *Client) RemoveDirectory(path string) error {
