@@ -23,6 +23,7 @@ interface RemotePanelProps {
   onSelectFile: (file: FileInfo | null) => void;
   transferActive?: boolean;
   fetchSuggestions: (path: string) => Promise<FileInfo[]>;
+  onDownloadToTemp?: (remotePath: string, filename: string) => Promise<string>;
 }
 
 export function RemotePanel({
@@ -42,6 +43,7 @@ export function RemotePanel({
   onSelectFile,
   transferActive = false,
   fetchSuggestions,
+  onDownloadToTemp,
 }: RemotePanelProps) {
   const connections = useConnectionStore((state) => state.connections);
   const [connectedConnectionId, setConnectedConnectionId] = useState<string>("");
@@ -69,6 +71,7 @@ export function RemotePanel({
         currentPath={currentPath}
         loading={loading}
         isRemote={true}
+        sessionId={sessionId}
         onNavigate={onNavigate}
         onRefresh={onRefresh}
         onDelete={onDelete}
@@ -76,6 +79,7 @@ export function RemotePanel({
         onChmod={onChmod}
         onMkdir={onMkdir}
         onDrop={onDrop}
+        onDownloadToTemp={onDownloadToTemp}
         selectedFile={selectedFile}
         onSelectFile={onSelectFile}
         transferActive={transferActive}

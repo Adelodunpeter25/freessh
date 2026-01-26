@@ -117,6 +117,7 @@ export function SFTPBrowser() {
               onChmod={sftp.chmod}
               onMkdir={sftp.createDirectory}
               onDrop={handleUploadDrop}
+              onDownloadToTemp={sftp.downloadToTemp}
               selectedFile={selectedRemote}
               onSelectFile={setSelectedRemote}
               transferActive={transferActive}
