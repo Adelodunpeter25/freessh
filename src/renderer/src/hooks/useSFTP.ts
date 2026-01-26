@@ -206,6 +206,15 @@ export const useSFTP = (sessionId: string | null) => {
     }
   }, [sessionId, currentPath, listFiles])
 
+  const downloadToTemp = useCallback(async (remotePath: string, filename: string): Promise<string> => {
+    if (!sessionId) throw new Error('No session')
+    
+    const tempDir = await window.electron.ipcRenderer.invoke('fs:getTempDir')
+    const tempPath = `${tempDir}/${filename}`
+    await sftpService.download(sessionId, remotePath, tempPath)
+    return tempPath
+  }, [sessionId])
+
   return {
     files,
     loading,
@@ -216,6 +225,7 @@ export const useSFTP = (sessionId: string | null) => {
     listPath,
     upload,
     download,
+    downloadToTemp,
     deleteFile,
     createDirectory,
     rename,

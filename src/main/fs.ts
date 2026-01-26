@@ -71,4 +71,9 @@ export function setupFileSystemHandlers(): void {
     const { shell } = require('electron')
     return shell.openPath(filePath)
   })
+
+  ipcMain.handle('fs:getTempDir', async () => {
+    const { app } = require('electron')
+    return app.getPath('temp')
+  })
 }

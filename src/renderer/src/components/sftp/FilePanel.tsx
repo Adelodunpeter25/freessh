@@ -8,6 +8,7 @@ import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
 import { FilePanelProvider } from "@/contexts/FilePanelContext";
 import { useDragDrop } from "@/hooks/useDragDrop";
 import { useSearch } from "@/hooks/useSearch";
+import { openFile as openFileUtil } from "@/utils/fileOpener";
 import { SearchBar } from "./SearchBar";
 
 interface FilePanelProps {
@@ -16,6 +17,7 @@ interface FilePanelProps {
   currentPath: string;
   loading: boolean;
   isRemote?: boolean;
+  sessionId?: string;
   onNavigate: (path: string) => void;
   onRefresh: () => void;
   onDelete: (path: string) => Promise<void>;
@@ -24,6 +26,7 @@ interface FilePanelProps {
   onMkdir: (path: string) => void;
   onDrop?: (files: FileInfo[], targetPath: string) => void;
   onDragStart?: (file: FileInfo) => void;
+  onDownloadToTemp?: (remotePath: string, filename: string) => Promise<string>;
   selectedFile: FileInfo | null;
   onSelectFile: (file: FileInfo | null) => void;
   transferActive?: boolean;
@@ -36,6 +39,7 @@ export function FilePanel({
   currentPath,
   loading,
   isRemote = false,
+  sessionId,
   onNavigate,
   onRefresh,
   onDelete,
@@ -44,6 +48,7 @@ export function FilePanel({
   onMkdir,
   onDrop,
   onDragStart,
+  onDownloadToTemp,
   selectedFile,
   onSelectFile,
   fetchSuggestions,
@@ -90,14 +95,15 @@ export function FilePanel({
         onNavigate(file.path);
       }, 50);
     } else {
-      // Open local files in default app, remote files in preview
-      if (isRemote) {
-        openFile(file, isRemote);
-      } else {
-        window.electron.ipcRenderer.invoke('shell:openPath', file.path);
-      }
+      openFileUtil({
+        file,
+        isRemote,
+        sessionId,
+        onOpenInEditor: (f) => openFile(f, isRemote),
+        onDownloadToTemp: onDownloadToTemp || (async () => ''),
+      });
     }
-  }, [onNavigate, openFile, isRemote]);
+  }, [onNavigate, openFile, isRemote, sessionId, onDownloadToTemp]);
 
   const handleOpenFilePath = (path: string) => {
     openFile({ name: path.split('/').pop() || '', path, is_dir: false, size: 0, mode: 0, mod_time: 0 }, isRemote);
