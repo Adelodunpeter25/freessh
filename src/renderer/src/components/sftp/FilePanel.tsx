@@ -21,6 +21,7 @@ export function FilePanel({
   files,
 }: FilePanelProps) {
   const [showHidden, setShowHidden] = useState(false);
+  const [showNewFolderDialog, setShowNewFolderDialog] = useState(false);
   const { 
     currentPath,
     loading,
@@ -113,6 +114,8 @@ export function FilePanel({
         onToggleHidden={() => setShowHidden(!showHidden)}
         onNewFolder={handleNewFolder}
         fetchSuggestions={fetchSuggestions}
+        showNewFolderDialog={showNewFolderDialog}
+        onShowNewFolderDialogChange={setShowNewFolderDialog}
       >
         <SearchBar value={query} onChange={setQuery} onClear={clearSearch} />
       </FilePanelHeader>
@@ -132,7 +135,7 @@ export function FilePanel({
           loading={loading}
           showHidden={showHidden}
           onOpenFile={handleOpenFile}
-          onNewFolder={() => {}}
+          onNewFolder={() => setShowNewFolderDialog(true)}
         />
       )}
     </div>

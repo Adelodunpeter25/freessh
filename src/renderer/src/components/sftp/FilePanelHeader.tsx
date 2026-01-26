@@ -26,6 +26,8 @@ interface FilePanelHeaderProps {
   onSelectAll?: () => void;
   fetchSuggestions: (path: string) => Promise<FileInfo[]>;
   children?: ReactNode;
+  showNewFolderDialog?: boolean;
+  onShowNewFolderDialogChange?: (show: boolean) => void;
 }
 
 export function FilePanelHeader({
@@ -42,10 +44,15 @@ export function FilePanelHeader({
   onSelectAll,
   fetchSuggestions,
   children,
+  showNewFolderDialog: externalShowNewFolder,
+  onShowNewFolderDialogChange,
 }: FilePanelHeaderProps) {
   const [pathInput, setPathInput] = useState(currentPath);
-  const [showNewFolder, setShowNewFolder] = useState(false);
+  const [internalShowNewFolder, setInternalShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+
+  const showNewFolder = externalShowNewFolder ?? internalShowNewFolder;
+  const setShowNewFolder = onShowNewFolderDialogChange ?? setInternalShowNewFolder;
 
   useEffect(() => {
     setPathInput(currentPath);
