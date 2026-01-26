@@ -62,3 +62,9 @@ export function isTextFile(filename: string): boolean {
   ]
   return textExts.includes(ext) || filename.startsWith('.') || name === 'dockerfile' || name === 'makefile'
 }
+
+export function shouldOpenInDefaultApp(filename: string): boolean {
+  // Text files and images open in built-in viewer
+  // Everything else opens in default app
+  return !isTextFile(filename) && !isImageFile(filename)
+}

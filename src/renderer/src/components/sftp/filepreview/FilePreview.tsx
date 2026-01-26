@@ -1,4 +1,4 @@
-import { isImageFile, isTextFile } from '@/utils/language'
+import { isImageFile, isTextFile } from '@/utils/fileTypes'
 import { ImagePreview } from './ImagePreview'
 import { CodeEditor } from './CodeEditor'
 

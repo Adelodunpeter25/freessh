@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from 'react'
 import { Loader2 } from 'lucide-react'
-import { getLanguageFromFilename } from '@/utils/language'
+import { getLanguageFromFilename } from '@/utils/fileTypes'
 import { FilePreviewHeader } from './FilePreviewHeader'
 import { monacoOptions, readOnlyOptions } from './config'
 

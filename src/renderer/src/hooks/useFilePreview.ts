@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { FileInfo } from '@/types'
-import { isImageFile, isTextFile } from '@/utils/language'
+import { isImageFile, isTextFile } from '@/utils/fileTypes'
 
 interface PreviewState {
   file: FileInfo
