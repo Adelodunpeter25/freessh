@@ -24,15 +24,12 @@ export const useKeyStorage = () => {
   }, [])
 
   const saveKey = useCallback(async (key: Omit<SSHKey, 'id' | 'createdAt'>, privateKey: string) => {
-    console.log('[useKeyStorage] saveKey called with:', { key, privateKeyLength: privateKey.length })
     try {
       const saved = await keyStorageService.save(key, privateKey)
-      console.log('[useKeyStorage] Key saved successfully:', saved)
       setKeys((prev) => [saved, ...prev])
       toast.success('SSH key saved')
       return saved
     } catch (err) {
-      console.error('[useKeyStorage] Failed to save key:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to save key'
       toast.error(errorMessage)
       throw err
@@ -65,10 +62,13 @@ export const useKeyStorage = () => {
   }, [])
 
   const exportKey = useCallback(async (keyId: string, connectionId: string) => {
+    console.log('[useKeyStorage] exportKey called:', { keyId, connectionId })
     try {
       await keyStorageService.exportToHost(keyId, connectionId)
+      console.log('[useKeyStorage] Export successful')
       toast.success('SSH key exported to host')
     } catch (err) {
+      console.error('[useKeyStorage] Export failed:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to export key'
       toast.error(errorMessage)
       throw err
