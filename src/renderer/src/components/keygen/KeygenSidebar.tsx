@@ -13,16 +13,18 @@ import { toast } from 'sonner'
 
 interface KeygenSidebarProps {
   onClose: () => void
-  onKeyGenerated?: (key: SSHKey, privateKey: string) => Promise<void>
+  onKeyGenerated?: (key: SSHKey, privateKey: string) => Promise<SSHKey>
   onKeyUpdated?: (key: SSHKey) => Promise<void>
+  onExportKey?: (key: SSHKey) => void
   editKey?: SSHKey
 }
 
-export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }: KeygenSidebarProps) {
+export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, onExportKey, editKey }: KeygenSidebarProps) {
   const [keyType, setKeyType] = useState<KeyType>(editKey?.algorithm as KeyType || 'rsa')
   const [keySize, setKeySize] = useState(editKey?.bits || 4096)
   const [name, setName] = useState(editKey?.name || '')
   const [saving, setSaving] = useState(false)
+  const [savedKey, setSavedKey] = useState<SSHKey | null>(null)
   const { loading, generatedKey, generateKey, clearGeneratedKey } = useKeygen()
 
   const isEditMode = !!editKey
@@ -37,6 +39,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
   const handleClose = () => {
     clearGeneratedKey()
     setName('')
+    setSavedKey(null)
     onClose()
   }
 
@@ -58,14 +61,20 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
           publicKey: generatedKey.public_key
         }
         
-        await onKeyGenerated(keyData as any, generatedKey.private_key)
-        handleClose()
+        const saved = await onKeyGenerated(keyData as any, generatedKey.private_key)
+        setSavedKey(saved)
       }
     } catch (error) {
       console.error('[KeygenSidebar] Save failed:', error)
       throw error
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleExport = () => {
+    if (savedKey && onExportKey) {
+      onExportKey(savedKey)
     }
   }
 
@@ -190,6 +199,15 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
               </Button>
               <Button variant="outline" onClick={handleClose} disabled={loading}>
                 Cancel
+              </Button>
+            </>
+          ) : savedKey ? (
+            <>
+              <Button className="flex-1" onClick={handleExport}>
+                Export to Host
+              </Button>
+              <Button variant="outline" onClick={handleClose}>
+                Done
               </Button>
             </>
           ) : (
