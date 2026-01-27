@@ -32,6 +32,7 @@ func NewServer() *Server {
 			handlers.NewPortForwardHandler(manager),
 			handlers.NewKeychainHandler(),
 			handlers.NewKeygenHandler(),
+			handlers.NewKeysHandler(),
 		},
 	}
 }

@@ -7,39 +7,49 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { useKeygen } from '@/hooks/useKeygen'
 import { KeyType } from '@/types/keygen'
+import { SSHKey } from '@/types/key'
 import { Copy } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface KeygenDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onKeyGenerated?: (privateKey: string, publicKey: string, fingerprint: string) => void
+  onKeyGenerated?: (key: SSHKey) => void
 }
 
 export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialogProps) {
   const [keyType, setKeyType] = useState<KeyType>('rsa')
   const [keySize, setKeySize] = useState(4096)
-  const [comment, setComment] = useState('')
+  const [name, setName] = useState('')
   const { loading, generatedKey, generateKey, clearGeneratedKey } = useKeygen()
 
   const handleGenerate = async () => {
     await generateKey({
       key_type: keyType,
-      key_size: keyType === 'rsa' ? keySize : undefined,
-      comment: comment || undefined
+      key_size: keyType === 'rsa' ? keySize : undefined
     })
   }
 
   const handleClose = () => {
     clearGeneratedKey()
+    setName('')
     onOpenChange(false)
   }
 
-  const handleUseKey = () => {
-    if (generatedKey && onKeyGenerated) {
-      onKeyGenerated(generatedKey.private_key, generatedKey.public_key, generatedKey.fingerprint)
+  const handleSave = () => {
+    if (generatedKey && onKeyGenerated && name.trim()) {
+      onKeyGenerated({
+        id: '',
+        name: name.trim(),
+        algorithm: keyType,
+        bits: keyType === 'rsa' ? keySize : undefined,
+        fingerprint: generatedKey.fingerprint,
+        publicKey: generatedKey.public_key,
+        createdAt: new Date()
+      })
+      toast.success('SSH key saved')
+      handleClose()
     }
-    handleClose()
   }
 
   const copyToClipboard = (text: string, label: string) => {
@@ -84,18 +94,18 @@ export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialo
                 </Select>
               </div>
             )}
-
-            <div className="space-y-2">
-              <Label>Comment (optional)</Label>
-              <Input
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="e.g., user@example.com"
-              />
-            </div>
           </div>
         ) : (
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Key Name</Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g., Personal Laptop"
+              />
+            </div>
+
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Fingerprint</Label>
@@ -155,11 +165,9 @@ export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialo
               <Button variant="outline" onClick={handleClose}>
                 Close
               </Button>
-              {onKeyGenerated && (
-                <Button onClick={handleUseKey}>
-                  Use This Key
-                </Button>
-              )}
+              <Button onClick={handleSave} disabled={!name.trim()}>
+                Save Key
+              </Button>
             </>
           )}
         </DialogFooter>

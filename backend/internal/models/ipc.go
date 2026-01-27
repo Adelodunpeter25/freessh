@@ -38,6 +38,11 @@ const (
 	// Key generation messages
 	MsgKeygenGenerate    MessageType = "keygen:generate"
 	MsgKeygenFingerprint MessageType = "keygen:fingerprint"
+
+	// Key storage messages
+	MsgKeyList   MessageType = "key:list"
+	MsgKeySave   MessageType = "key:save"
+	MsgKeyDelete MessageType = "key:delete"
 )
 
 type IPCMessage struct {
