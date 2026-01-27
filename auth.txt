@@ -1,0 +1,89 @@
+Correct approach
+1. Allow user to select private key (e.g., id_rsa)
+2. Optionally, allow a passphrase if the key is encrypted
+3. App can read the private key locally to authenticate with the server
+4. Public key is optional in the form, mostly for reference or copying to server
+UX Tip
+* Show something like:
+
+Private Key: [Select File] (required)
+Passphrase: [••••••] (optional)
+Public Key: [Select File] (optional, for reference only)
+* You can auto-generate the public key from the private key if needed (RSA allows this)
+
+Step 0: User clicks “Generate Key” in your GUI
+* Present a key generation form:
+Field	Default / Notes
+Algorithm	RSA, Ed25519, ECDSA (default RSA)
+Key size	4096 (strong)
+Comment / label	User email or description
+Passphrase	Optional, adds extra security
+	•	Button: “Generate Key Pair”
+
+Step 1: Generate the key pair in your app
+Behind the scenes, your app runs the equivalent of:
+
+ssh-keygen -t rsa -b 4096 -C "myemail@example.com" -f ~/.ssh/id_rsa
+* -t rsa → algorithm
+* -b 4096 → key length
+* -C "..." → comment
+* -f → output path
+Result:
+File	Purpose
+id_rsa	Private key → never shared, only kept locally / keychain
+id_rsa.pub	Public key → can be copied to server
+✅ Your app should store the private key reference securely (keychain), not in JSON.
+
+Step 2: Add the public key to the server
+Termius automates this in a GUI-friendly way:
+1. Show a button: “Copy to Server” or “Add Key to Server”
+2. Ask for server credentials (username/password or existing key)
+3. The app runs ssh-copy-id logic in the background:
+    * Connect to server
+    * Append the public key to ~/.ssh/authorized_keys
+    * Set correct permissions on ~/.ssh and authorized_keys
+4. Confirm success to user
+5. From now on, the private key can be used to log in without a password
+You don’t need the user to manually copy-paste the public key — Termius handles it automatically.
+
+Step 3: Connecting using the private key
+* User selects the connection card → clicks Connect
+* App uses private key from keychain to authenticate with server
+* Server verifies using public key → connection established
+UX-wise:
+* Show a locked key icon if key has passphrase
+* Prompt for passphrase only if required
+* Otherwise, login is instant
+
+Step 4: Optional features for polish
+* Allow key export for backup (show public + private, warn about private key)
+* Allow key deletion / regeneration from GUI
+* Show fingerprint of the public key for verification
+
+Flow Summary (GUI version of ssh-keygen + ssh-copy-id)
+1. User clicks Generate Key
+2. App generates private/public key pair (like ssh-keygen)
+3. App asks for server credentials → pushes public key to server
+4. Private key stored securely (keychain)
+5. User connects → passwordless authentication using private key
+
+Proposed future implementation steps (for later approval)
+Step 1: Refine connection auth UI
+Extend the connection editor (e.g. src/renderer/src/pages/ConnectionsPage.tsx and related components) to:
+Let users select a private key file (file picker) with optional passphrase.
+Optionally accept or display a public key field, derived automatically when possible.
+Step 2: In-app key generation workflow
+Add a "Generate Key" dialog in the renderer that:
+Exposes algorithm, key size, comment, passphrase options as described in auth.txt.
+Calls a backend API/IPC message to generate keys using Go’s crypto libraries (instead of shelling out to ssh-keygen), storing the result in a secure location.
+Step 3: Automated server key setup (ssh-copy-id style)
+Implement a backend IPC handler that, given server credentials and a public key, connects and appends the key to authorized_keys with correct permissions.
+Add a front-end flow "Add Key to Server" tied to the generated key.
+Step 4: Secure private key storage abstraction
+Design a storage abstraction in the backend that can:
+Reference keys by ID/label in the connection model.
+Use platform keychains where possible (Keychain on macOS, credential vaults on Windows/Linux) rather than plain files.
+Step 5: Key management UI
+Build a simple key manager page or dialog where users can:
+View available keys and their fingerprints.
+Export (with warnings), delete, or regenerate keys.
