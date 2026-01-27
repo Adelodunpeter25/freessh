@@ -89,12 +89,10 @@ export const keyStorageService = {
   },
 
   async exportToHost(keyId: string, connectionId: string): Promise<void> {
-    console.log('[keyStorageService] exportToHost called:', { keyId, connectionId })
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         backendService.off('key:export', handler)
         backendService.off('error', errorHandler)
-        console.error('[keyStorageService] Export timeout - no response from backend after 30s')
         reject(new Error('Export timeout - no response from backend'))
       }, 30000)
 
@@ -102,12 +100,9 @@ export const keyStorageService = {
         clearTimeout(timeout)
         backendService.off('key:export', handler)
         backendService.off('error', errorHandler)
-        console.log('[keyStorageService] Export response:', message)
         if (message.type === 'error') {
-          console.error('[keyStorageService] Export error:', message.data)
           reject(new Error(message.data))
         } else {
-          console.log('[keyStorageService] Export successful')
           resolve()
         }
       }
@@ -116,13 +111,11 @@ export const keyStorageService = {
         clearTimeout(timeout)
         backendService.off('key:export', handler)
         backendService.off('error', errorHandler)
-        console.error('[keyStorageService] Export error event:', error)
         reject(error)
       }
 
       backendService.on('key:export', handler)
       backendService.on('error', errorHandler)
-      console.log('[keyStorageService] Sending export request to backend')
       backendService.send({
         type: 'key:export',
         data: { key_id: keyId, connection_id: connectionId }

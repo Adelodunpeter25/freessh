@@ -62,13 +62,10 @@ export const useKeyStorage = () => {
   }, [])
 
   const exportKey = useCallback(async (keyId: string, connectionId: string) => {
-    console.log('[useKeyStorage] exportKey called:', { keyId, connectionId })
     try {
       await keyStorageService.exportToHost(keyId, connectionId)
-      console.log('[useKeyStorage] Export successful')
       toast.success('SSH key exported to host')
     } catch (err) {
-      console.error('[useKeyStorage] Export failed:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to export key'
       toast.error(errorMessage)
       throw err
