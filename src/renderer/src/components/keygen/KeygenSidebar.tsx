@@ -65,13 +65,12 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
           name: name.trim(),
           algorithm: keyType,
           bits: keyType === 'rsa' ? keySize : undefined,
-          publicKey: generatedKey.public_key,
-          createdAt: ''
+          publicKey: generatedKey.public_key
         }
         console.log('[KeygenSidebar] Saving new key:', keyData)
         console.log('[KeygenSidebar] Private key length:', generatedKey.private_key.length)
         
-        await onKeyGenerated(keyData, generatedKey.private_key)
+        await onKeyGenerated(keyData as any, generatedKey.private_key)
         console.log('[KeygenSidebar] Key saved successfully')
         handleClose()
       } else {
