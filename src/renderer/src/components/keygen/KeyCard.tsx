@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { Trash2, Key } from 'lucide-react'
+import { Pencil, Key } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { KeyCardContextMenu } from '@/components/contextmenu'
@@ -52,16 +52,16 @@ export const KeyCard = memo(function KeyCard({ fingerprint, comment, keyType, se
               <Button
                 variant="ghost"
                 size="icon"
-                className="opacity-0 group-hover:opacity-100 h-8 w-8 text-destructive"
+                className="opacity-0 group-hover:opacity-100 h-8 w-8"
                 onClick={(e) => {
                   e.stopPropagation()
-                  onDelete()
+                  console.log('Edit key')
                 }}
               >
-                <Trash2 className="h-4 w-4" />
+                <Pencil className="h-4 w-4" />
               </Button>
             </TooltipTrigger>
-            <TooltipContent>Delete key</TooltipContent>
+            <TooltipContent>Edit key</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
