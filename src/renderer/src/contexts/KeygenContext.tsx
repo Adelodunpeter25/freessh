@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react'
 import { useKeygen } from '@/hooks/useKeygen'
 import { KeyType, GeneratedKeyPair } from '@/types/keygen'
 import { SSHKey } from '@/types/key'
@@ -64,21 +64,21 @@ export function KeygenProvider({
   const isEditMode = !!editKey
   const isImportMode = !!importMode
 
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     await generateKey({
       key_type: keyType,
       key_size: keyType === 'rsa' ? keySize : undefined
     })
-  }
+  }, [keyType, keySize, generateKey])
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     clearGeneratedKey()
     setName('')
     setSavedKey(null)
     onClose()
-  }
+  }, [clearGeneratedKey, onClose])
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     setSaving(true)
     try {
       if (isEditMode && onKeyUpdated && name.trim()) {
@@ -109,9 +109,9 @@ export function KeygenProvider({
     } finally {
       setSaving(false)
     }
-  }
+  }, [isEditMode, isImportMode, name, privateKeyContent, passphrase, generatedKey, keyType, keySize, editKey, onKeyUpdated, onKeyImported, onKeyGenerated, handleClose])
 
-  const handleSelectFile = async () => {
+  const handleSelectFile = useCallback(async () => {
     try {
       const result = await window.electron.ipcRenderer.invoke('dialog:openFile')
       if (result && result.content) {
@@ -120,46 +120,64 @@ export function KeygenProvider({
     } catch (error) {
       console.error('Failed to open file:', error)
     }
-  }
+  }, [])
 
-  const handleExport = () => {
+  const handleExport = useCallback(() => {
     if (savedKey && onExportKey) {
       onExportKey(savedKey)
     }
-  }
+  }, [savedKey, onExportKey])
 
-  const copyToClipboard = (text: string, label: string) => {
+  const copyToClipboard = useCallback((text: string, label: string) => {
     navigator.clipboard.writeText(text)
     toast.success(`${label} copied to clipboard`)
-  }
+  }, [])
+
+  const value = useMemo(() => ({
+    keyType,
+    setKeyType,
+    keySize,
+    setKeySize,
+    name,
+    setName,
+    privateKeyContent,
+    setPrivateKeyContent,
+    passphrase,
+    setPassphrase,
+    saving,
+    savedKey,
+    loading,
+    generatedKey,
+    isEditMode,
+    isImportMode,
+    handleGenerate,
+    handleSave,
+    handleSelectFile,
+    handleExport,
+    handleClose,
+    copyToClipboard
+  }), [
+    keyType,
+    keySize,
+    name,
+    privateKeyContent,
+    passphrase,
+    saving,
+    savedKey,
+    loading,
+    generatedKey,
+    isEditMode,
+    isImportMode,
+    handleGenerate,
+    handleSave,
+    handleSelectFile,
+    handleExport,
+    handleClose,
+    copyToClipboard
+  ])
 
   return (
-    <KeygenContext.Provider
-      value={{
-        keyType,
-        setKeyType,
-        keySize,
-        setKeySize,
-        name,
-        setName,
-        privateKeyContent,
-        setPrivateKeyContent,
-        passphrase,
-        setPassphrase,
-        saving,
-        savedKey,
-        loading,
-        generatedKey,
-        isEditMode,
-        isImportMode,
-        handleGenerate,
-        handleSave,
-        handleSelectFile,
-        handleExport,
-        handleClose,
-        copyToClipboard
-      }}
-    >
+    <KeygenContext.Provider value={value}>
       {children}
     </KeygenContext.Provider>
   )
