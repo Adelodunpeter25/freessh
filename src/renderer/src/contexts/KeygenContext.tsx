@@ -67,13 +67,15 @@ export function KeygenProvider({
   const handleGenerate = useCallback(async () => {
     await generateKey({
       key_type: keyType,
-      key_size: keyType === 'rsa' ? keySize : undefined
+      key_size: keyType === 'rsa' ? keySize : undefined,
+      passphrase: passphrase || undefined
     })
-  }, [keyType, keySize, generateKey])
+  }, [keyType, keySize, passphrase, generateKey])
 
   const handleClose = useCallback(() => {
     clearGeneratedKey()
     setName('')
+    setPassphrase('')
     setSavedKey(null)
     onClose()
   }, [clearGeneratedKey, onClose])

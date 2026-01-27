@@ -99,6 +99,16 @@ export function KeygenForm() {
               </Select>
             </div>
           )}
+
+          <div className="space-y-2">
+            <Input
+              type="password"
+              value={passphrase}
+              onChange={(e) => setPassphrase(e.target.value)}
+              placeholder="Passphrase (optional)"
+            />
+          </div>
+          )}
         </>
       )}
 

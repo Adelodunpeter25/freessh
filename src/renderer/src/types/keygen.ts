@@ -4,6 +4,7 @@ export interface KeyGenerationOptions {
   key_type: KeyType
   key_size?: number
   comment?: string
+  passphrase?: string
 }
 
 export interface GeneratedKeyPair {
