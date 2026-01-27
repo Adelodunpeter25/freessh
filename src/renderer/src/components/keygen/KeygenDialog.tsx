@@ -79,34 +79,39 @@ export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Key Name (e.g., Personal Laptop)"
+            disabled={!!generatedKey}
           />
         </div>
 
-        <div className="space-y-2">
-          <Select value={keyType} onValueChange={(v) => setKeyType(v as KeyType)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Algorithm" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="rsa">RSA</SelectItem>
-              <SelectItem value="ed25519">Ed25519</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {!generatedKey && (
+          <>
+            <div className="space-y-2">
+              <Select value={keyType} onValueChange={(v) => setKeyType(v as KeyType)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Algorithm" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rsa">RSA</SelectItem>
+                  <SelectItem value="ed25519">Ed25519</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        {keyType === 'rsa' && (
-          <div className="space-y-2">
-            <Select value={keySize.toString()} onValueChange={(v) => setKeySize(Number(v))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Key Size" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="2048">2048 bits</SelectItem>
-                <SelectItem value="4096">4096 bits (recommended)</SelectItem>
-                <SelectItem value="8192">8192 bits</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {keyType === 'rsa' && (
+              <div className="space-y-2">
+                <Select value={keySize.toString()} onValueChange={(v) => setKeySize(Number(v))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Key Size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="2048">2048 bits</SelectItem>
+                    <SelectItem value="4096">4096 bits (recommended)</SelectItem>
+                    <SelectItem value="8192">8192 bits</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </>
         )}
 
         {generatedKey && (
