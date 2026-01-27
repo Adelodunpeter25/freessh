@@ -7,8 +7,7 @@ export interface ConnectionConfig {
   port: number
   username: string
   auth_method: AuthMethod
-  password?: string
   private_key?: string
-  passphrase?: string
   group?: string
 }
+

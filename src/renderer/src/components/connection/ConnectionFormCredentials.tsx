@@ -10,9 +10,20 @@ import { toast } from 'sonner'
 interface ConnectionFormCredentialsProps {
   formData: Partial<ConnectionConfig>
   onChange: (data: Partial<ConnectionConfig>) => void
+  password: string
+  onPasswordChange: (password: string) => void
+  passphrase: string
+  onPassphraseChange: (passphrase: string) => void
 }
 
-export function ConnectionFormCredentials({ formData, onChange }: ConnectionFormCredentialsProps) {
+export function ConnectionFormCredentials({ 
+  formData, 
+  onChange, 
+  password, 
+  onPasswordChange, 
+  passphrase, 
+  onPassphraseChange 
+}: ConnectionFormCredentialsProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [showPassphrase, setShowPassphrase] = useState(false)
 
@@ -55,8 +66,8 @@ export function ConnectionFormCredentials({ formData, onChange }: ConnectionForm
         <div className="relative">
           <Input
             type={showPassword ? 'text' : 'password'}
-            value={formData.password}
-            onChange={(e) => onChange({ ...formData, password: e.target.value })}
+            value={password}
+            onChange={(e) => onPasswordChange(e.target.value)}
             placeholder="Password"
             className="pr-10"
           />
@@ -95,8 +106,8 @@ export function ConnectionFormCredentials({ formData, onChange }: ConnectionForm
           <div className="relative">
             <Input
               type={showPassphrase ? 'text' : 'password'}
-              value={formData.passphrase}
-              onChange={(e) => onChange({ ...formData, passphrase: e.target.value })}
+              value={passphrase}
+              onChange={(e) => onPassphraseChange(e.target.value)}
               placeholder="Passphrase (optional)"
               className="pr-10"
             />

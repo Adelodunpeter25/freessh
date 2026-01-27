@@ -8,11 +8,12 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { useFormDirty } from '@/hooks/useFormDirty'
 import { ConnectionFormGeneral } from './ConnectionFormGeneral'
 import { ConnectionFormCredentials } from './ConnectionFormCredentials'
+import { keychainService } from '@/services/ipc/keychain'
 
 interface ConnectionFormProps {
   connection?: ConnectionConfig
-  onConnect: (config: ConnectionConfig) => void
-  onSave?: (config: ConnectionConfig) => void
+  onConnect: (config: ConnectionConfig, password?: string, passphrase?: string) => void
+  onSave?: (config: ConnectionConfig, password?: string, passphrase?: string) => void
   onClose: () => void
 }
 
@@ -24,12 +25,12 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
     port: 22,
     username: '',
     auth_method: 'password',
-    password: '',
-    private_key: '',
-    passphrase: ''
+    private_key: ''
   }, [connection])
 
   const [formData, setFormData] = useState<Partial<ConnectionConfig>>(initialData)
+  const [password, setPassword] = useState('')
+  const [passphrase, setPassphrase] = useState('')
   const [isConnecting, setIsConnecting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
 
@@ -47,18 +48,27 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
     e.preventDefault()
     setIsConnecting(true)
     try {
+      const config = formData as ConnectionConfig
+      
+      // Store credentials in keychain
+      if (config.auth_method === 'password' && password) {
+        await keychainService.setPassword(config.id, password)
+      } else if (config.auth_method === 'publickey' && passphrase) {
+        await keychainService.setPassword(config.id + ':passphrase', passphrase)
+      }
+      
       if (connection && onSave) {
-        await onSave(formData as ConnectionConfig)
+        await onSave(config, password, passphrase)
         onClose()
       } else {
-        await onConnect(formData as ConnectionConfig)
+        await onConnect(config, password, passphrase)
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Operation failed')
     } finally {
       setIsConnecting(false)
     }
-  }, [connection, onSave, formData, onClose, onConnect])
+  }, [connection, onSave, formData, password, passphrase, onClose, onConnect])
 
   return (
     <>
@@ -93,7 +103,14 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
       <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
         <div className="flex-1 overflow-y-auto p-4 space-y-6">
           <ConnectionFormGeneral formData={formData} onChange={setFormData} />
-          <ConnectionFormCredentials formData={formData} onChange={setFormData} />
+          <ConnectionFormCredentials 
+            formData={formData} 
+            onChange={setFormData}
+            password={password}
+            onPasswordChange={setPassword}
+            passphrase={passphrase}
+            onPassphraseChange={setPassphrase}
+          />
         </div>
 
         {/* Footer */}

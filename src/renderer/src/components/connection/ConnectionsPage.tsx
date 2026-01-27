@@ -25,7 +25,7 @@ export function ConnectionsPage() {
     setShowForm(true)
   }
 
-  const handleFormSave = async (config: ConnectionConfig) => {
+  const handleFormSave = async (config: ConnectionConfig, password?: string, passphrase?: string) => {
     try {
       await updateConnection(config)
       toast.success('Connection updated')
@@ -37,7 +37,7 @@ export function ConnectionsPage() {
     }
   }
 
-  const handleFormConnect = async (config: ConnectionConfig) => {
+  const handleFormConnect = async (config: ConnectionConfig, password?: string, passphrase?: string) => {
     try {
       await connectToSaved(config.id)
       setShowForm(false)
