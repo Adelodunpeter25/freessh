@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { keyStorageService } from '@/services/keyStorage'
+import { keyStorageService } from '@/services/storage/keyStorage'
 import { SSHKey } from '@/types/key'
 import { toast } from 'sonner'
 
