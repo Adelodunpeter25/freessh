@@ -1,5 +1,6 @@
 export { BaseContextMenu, ContextMenuSeparator } from './BaseContextMenu'
 export { ConnectionCardContextMenu } from './ConnectionCardContextMenu'
+export { KeyCardContextMenu } from './KeyCardContextMenu'
 export { FileItemContextMenu } from './FileItemContextMenu'
 export { FilePanelContextMenu } from './FilePanelContextMenu'
 export type { ContextMenuAction } from './BaseContextMenu'
