@@ -1,5 +1,5 @@
-import { backendService } from './ipc/backend'
-import { SSHKey } from '../types/key'
+import { backendService } from '../ipc/backend'
+import { SSHKey } from '../../types/key'
 
 export const keyStorageService = {
   async list(): Promise<SSHKey[]> {
