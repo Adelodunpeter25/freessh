@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"freessh-backend/internal/keychain"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
 	"freessh-backend/internal/ssh"
@@ -14,8 +13,9 @@ import (
 )
 
 type KeysHandler struct {
-	storage *storage.KeyStorage
-	manager *session.Manager
+	storage     *storage.KeyStorage
+	fileStorage *storage.KeyFileStorage
+	manager     *session.Manager
 }
 
 func NewKeysHandler(manager *session.Manager) *KeysHandler {
@@ -24,9 +24,15 @@ func NewKeysHandler(manager *session.Manager) *KeysHandler {
 		keyStorage = nil
 	}
 
+	fileStorage, err := storage.NewKeyFileStorage()
+	if err != nil {
+		fileStorage = nil
+	}
+
 	return &KeysHandler{
-		storage: keyStorage,
-		manager: manager,
+		storage:     keyStorage,
+		fileStorage: fileStorage,
+		manager:     manager,
 	}
 }
 
@@ -88,10 +94,11 @@ func (h *KeysHandler) handleSave(msg *models.IPCMessage, writer ResponseWriter) 
 		data.Key.CreatedAt = time.Now()
 	}
 
-	// Store private key in keychain
-	kc := keychain.New()
-	if err := kc.Set(data.Key.ID+":private_key", data.PrivateKey); err != nil {
-		return fmt.Errorf("failed to store private key: %w", err)
+	// Store private key in file
+	if h.fileStorage != nil {
+		if err := h.fileStorage.SavePrivateKey(data.Key.ID, data.PrivateKey); err != nil {
+			return fmt.Errorf("failed to store private key: %w", err)
+		}
 	}
 
 	if err := h.storage.Save(data.Key); err != nil {
@@ -113,6 +120,11 @@ func (h *KeysHandler) handleDelete(msg *models.IPCMessage, writer ResponseWriter
 	id, ok := dataMap["id"].(string)
 	if !ok {
 		return fmt.Errorf("key id required")
+	}
+
+	// Delete private key file
+	if h.fileStorage != nil {
+		_ = h.fileStorage.DeletePrivateKey(id) // Ignore error if file doesn't exist
 	}
 
 	if err := h.storage.Delete(id); err != nil {
@@ -167,11 +179,13 @@ func (h *KeysHandler) handleExport(msg *models.IPCMessage, writer ResponseWriter
 		return err
 	}
 
-	// Get private key from keychain
-	kc := keychain.New()
-	privateKey, err := kc.Get(keyID + ":private_key")
-	if err != nil {
-		return fmt.Errorf("private key not found in keychain: %w", err)
+	// Get private key from file storage
+	var privateKey string
+	if h.fileStorage != nil {
+		privateKey, err = h.fileStorage.GetPrivateKey(keyID)
+		if err != nil {
+			return fmt.Errorf("private key not found: %w", err)
+		}
 	}
 
 	// Get connection config
