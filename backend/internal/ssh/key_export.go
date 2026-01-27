@@ -18,7 +18,7 @@ func ExportKeyToConnection(config models.ConnectionConfig, publicKey string, gen
 
 	// Get credentials from keychain
 	if config.AuthMethod == "password" {
-		password, err := kc.Get(config.ID + ":password")
+		password, err := kc.Get(config.ID)
 		if err != nil || password == "" {
 			return fmt.Errorf("password not found in keychain - please save connection credentials first")
 		}
