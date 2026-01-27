@@ -5,7 +5,9 @@ import { ExportKeySidebar } from './ExportKeySidebar'
 import { KeyCard } from './KeyCard'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
+import { SearchEmptyState } from '@/components/connection/SearchEmptyState'
 import { useKeyStorage } from '@/hooks/useKeyStorage'
+import { useKeySearch } from '@/hooks/useKeySearch'
 import { SSHKey } from '@/types/key'
 
 export function KeygenList() {
@@ -16,6 +18,7 @@ export function KeygenList() {
   const [editKey, setEditKey] = useState<SSHKey | undefined>(undefined)
   const [exportKey, setExportKey] = useState<SSHKey | undefined>(undefined)
   const { keys, loading, saveKey, importKey, updateKey, deleteKey, exportKey: exportKeyToHost } = useKeyStorage()
+  const { searchQuery, setSearchQuery, filteredKeys, isSearching } = useKeySearch(keys)
 
   const handleKeyGenerated = async (key: SSHKey, privateKey: string) => {
     // Save key and return the saved result (with ID) for export flow
@@ -78,6 +81,9 @@ export function KeygenList() {
             setImportMode(true)
             setShowSidebar(true)
           }}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          resultCount={filteredKeys.length}
         />
       </div>
 
@@ -87,7 +93,11 @@ export function KeygenList() {
             <div className="col-span-full flex items-center justify-center h-64">
               <p className="text-muted-foreground">Loading keys...</p>
             </div>
-          ) : keys.length === 0 ? (
+          ) : isSearching && filteredKeys.length === 0 ? (
+            <div className="col-span-full">
+              <SearchEmptyState />
+            </div>
+          ) : filteredKeys.length === 0 ? (
             <div className="col-span-full flex flex-col items-center justify-center h-64 text-center">
               <p className="text-muted-foreground mb-4">
                 No SSH keys yet
@@ -97,7 +107,7 @@ export function KeygenList() {
               </p>
             </div>
           ) : (
-            keys.map((key) => (
+            filteredKeys.map((key) => (
               <KeyCard
                 key={key.id}
                 comment={key.name}
