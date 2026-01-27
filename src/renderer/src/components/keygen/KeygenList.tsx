@@ -1,47 +1,18 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { KeygenHeader } from './KeygenHeader'
 import { KeygenDialog } from './KeygenDialog'
 import { KeyCard } from './KeyCard'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { keyStorageService } from '../../services/keyStorage'
-import { SSHKey } from '../../types/key'
+import { useKeyStorage } from '@/hooks/useKeyStorage'
+import { SSHKey } from '@/types/key'
 
 export function KeygenList() {
   const [showDialog, setShowDialog] = useState(false)
-  const [keys, setKeys] = useState<SSHKey[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    loadKeys()
-  }, [])
-
-  const loadKeys = async () => {
-    try {
-      const data = await keyStorageService.list()
-      setKeys(data)
-    } catch (error) {
-      console.error('Failed to load keys:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const { keys, loading, saveKey, deleteKey } = useKeyStorage()
 
   const handleKeyGenerated = async (key: SSHKey) => {
-    try {
-      const saved = await keyStorageService.save(key)
-      setKeys([saved, ...keys])
-    } catch (error) {
-      console.error('Failed to save key:', error)
-    }
-  }
-
-  const handleDelete = async (id: string) => {
-    try {
-      await keyStorageService.delete(id)
-      setKeys(keys.filter((k) => k.id !== id))
-    } catch (error) {
-      console.error('Failed to delete key:', error)
-    }
+    await saveKey(key)
+    setShowDialog(false)
   }
 
   const handleCopy = (publicKey: string) => {
@@ -76,7 +47,7 @@ export function KeygenList() {
                 fingerprint={key.fingerprint}
                 comment={key.name}
                 keyType={key.algorithm === 'ed25519' ? 'Ed25519' : `RSA ${key.bits || 4096}`}
-                onDelete={() => handleDelete(key.id)}
+                onDelete={() => deleteKey(key.id)}
                 onCopy={() => handleCopy(key.publicKey)}
               />
             ))

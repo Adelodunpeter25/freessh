@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 interface KeygenDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onKeyGenerated?: (key: SSHKey) => void
+  onKeyGenerated?: (key: SSHKey) => Promise<void>
 }
 
 export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialogProps) {
@@ -36,9 +36,9 @@ export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialo
     onOpenChange(false)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (generatedKey && onKeyGenerated && name.trim()) {
-      onKeyGenerated({
+      await onKeyGenerated({
         id: '',
         name: name.trim(),
         algorithm: keyType,
@@ -47,7 +47,6 @@ export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialo
         publicKey: generatedKey.public_key,
         createdAt: new Date()
       })
-      toast.success('SSH key saved')
       handleClose()
     }
   }
