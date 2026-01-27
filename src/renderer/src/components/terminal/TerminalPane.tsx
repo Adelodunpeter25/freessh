@@ -65,6 +65,7 @@ export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onRe
       fontSize,
       fontFamily,
       fontWeight: fontWeight.toString(),
+      letterSpacing: 0,
       theme
     })
 
