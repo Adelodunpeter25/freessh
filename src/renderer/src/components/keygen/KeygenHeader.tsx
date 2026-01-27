@@ -24,14 +24,24 @@ export function KeygenHeader({ onGenerateKey, onImportKey, searchQuery, onSearch
       <div className="h-px bg-border" />
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
-        <Button onClick={onImportKey} variant="outline" className="flex-1">
-          <Upload className="w-4 h-4 mr-2" />
-          Import Key
+      <div className="flex items-center gap-2">
+        <Button 
+          onClick={onImportKey}
+          variant="secondary" 
+          size="sm"
+          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all"
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          IMPORT KEY
         </Button>
-        <Button onClick={onGenerateKey} className="flex-1">
-          <Plus className="w-4 h-4 mr-2" />
-          Generate Key
+        <Button 
+          onClick={onGenerateKey}
+          variant="secondary" 
+          size="sm"
+          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          GENERATE KEY
         </Button>
       </div>
     </div>
