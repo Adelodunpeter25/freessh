@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { KeygenHeader } from './KeygenHeader'
-import { KeygenSidebar } from './KeygenDialog'
+import { KeygenSidebar } from './KeygenSidebar'
 import { KeyCard } from './KeyCard'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useKeyStorage } from '@/hooks/useKeyStorage'

@@ -1,4 +1,4 @@
 export { KeygenList } from './KeygenList'
-export { KeygenSidebar } from './KeygenDialog'
+export { KeygenSidebar } from './KeygenSidebar'
 export { KeygenHeader } from './KeygenHeader'
 export { KeyCard } from './KeyCard'
