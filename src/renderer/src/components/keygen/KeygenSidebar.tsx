@@ -22,6 +22,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
   const [keyType, setKeyType] = useState<KeyType>(editKey?.algorithm as KeyType || 'rsa')
   const [keySize, setKeySize] = useState(editKey?.bits || 4096)
   const [name, setName] = useState(editKey?.name || '')
+  const [saving, setSaving] = useState(false)
   const { loading, generatedKey, generateKey, clearGeneratedKey } = useKeygen()
 
   const isEditMode = !!editKey
@@ -40,23 +41,28 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
   }
 
   const handleSave = async () => {
-    if (isEditMode && onKeyUpdated && name.trim()) {
-      await onKeyUpdated({
-        ...editKey,
-        name: name.trim()
-      })
-      handleClose()
-    } else if (generatedKey && onKeyGenerated && name.trim()) {
-      await onKeyGenerated({
-        id: '',
-        name: name.trim(),
-        algorithm: keyType,
-        bits: keyType === 'rsa' ? keySize : undefined,
-        fingerprint: generatedKey.fingerprint,
-        publicKey: generatedKey.public_key,
-        createdAt: new Date()
-      })
-      handleClose()
+    setSaving(true)
+    try {
+      if (isEditMode && onKeyUpdated && name.trim()) {
+        await onKeyUpdated({
+          ...editKey,
+          name: name.trim()
+        })
+        handleClose()
+      } else if (generatedKey && onKeyGenerated && name.trim()) {
+        await onKeyGenerated({
+          id: '',
+          name: name.trim(),
+          algorithm: keyType,
+          bits: keyType === 'rsa' ? keySize : undefined,
+          fingerprint: generatedKey.fingerprint,
+          publicKey: generatedKey.public_key,
+          createdAt: new Date()
+        })
+        handleClose()
+      }
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -181,10 +187,10 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
         <div className="flex gap-2">
           {isEditMode ? (
             <>
-              <Button className="flex-1" onClick={handleSave} disabled={!name.trim()}>
-                Save Changes
+              <Button className="flex-1" onClick={handleSave} disabled={!name.trim() || saving}>
+                {saving ? 'Saving...' : 'Save Changes'}
               </Button>
-              <Button variant="outline" onClick={handleClose}>
+              <Button variant="outline" onClick={handleClose} disabled={saving}>
                 Cancel
               </Button>
             </>
@@ -199,10 +205,10 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
             </>
           ) : (
             <>
-              <Button className="flex-1" onClick={handleSave}>
-                Save Key
+              <Button className="flex-1" onClick={handleSave} disabled={saving}>
+                {saving ? 'Saving...' : 'Save Key'}
               </Button>
-              <Button variant="outline" onClick={handleClose}>
+              <Button variant="outline" onClick={handleClose} disabled={saving}>
                 Close
               </Button>
             </>
