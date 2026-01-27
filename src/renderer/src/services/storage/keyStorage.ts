@@ -17,7 +17,7 @@ export const keyStorageService = {
     })
   },
 
-  async save(key: Omit<SSHKey, 'id' | 'createdAt'>): Promise<SSHKey> {
+  async save(key: Omit<SSHKey, 'id' | 'createdAt'>, privateKey: string): Promise<SSHKey> {
     return new Promise((resolve, reject) => {
       const handler = (message: any) => {
         backendService.off('key:save', handler)
@@ -30,7 +30,7 @@ export const keyStorageService = {
       backendService.on('key:save', handler)
       backendService.send({
         type: 'key:save',
-        data: key
+        data: { key, privateKey }
       })
     })
   },

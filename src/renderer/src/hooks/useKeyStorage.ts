@@ -23,9 +23,9 @@ export const useKeyStorage = () => {
     }
   }, [])
 
-  const saveKey = useCallback(async (key: Omit<SSHKey, 'id' | 'createdAt'>) => {
+  const saveKey = useCallback(async (key: Omit<SSHKey, 'id' | 'createdAt'>, privateKey: string) => {
     try {
-      const saved = await keyStorageService.save(key)
+      const saved = await keyStorageService.save(key, privateKey)
       setKeys((prev) => [saved, ...prev])
       toast.success('SSH key saved')
       return saved

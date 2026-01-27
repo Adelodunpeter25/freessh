@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"freessh-backend/internal/keychain"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
 	"freessh-backend/internal/ssh"
@@ -72,25 +73,34 @@ func (h *KeysHandler) handleSave(msg *models.IPCMessage, writer ResponseWriter) 
 		return fmt.Errorf("invalid data: %w", err)
 	}
 
-	var key models.SSHKey
-	if err := json.Unmarshal(jsonData, &key); err != nil {
+	var data struct {
+		Key        models.SSHKey `json:"key"`
+		PrivateKey string        `json:"privateKey"`
+	}
+	if err := json.Unmarshal(jsonData, &data); err != nil {
 		return fmt.Errorf("failed to parse key: %w", err)
 	}
 
-	if key.ID == "" {
-		key.ID = uuid.New().String()
+	if data.Key.ID == "" {
+		data.Key.ID = uuid.New().String()
 	}
-	if key.CreatedAt.IsZero() {
-		key.CreatedAt = time.Now()
+	if data.Key.CreatedAt.IsZero() {
+		data.Key.CreatedAt = time.Now()
 	}
 
-	if err := h.storage.Save(key); err != nil {
+	// Store private key in keychain
+	kc := keychain.New()
+	if err := kc.Set(data.Key.ID+":private_key", data.PrivateKey); err != nil {
+		return fmt.Errorf("failed to store private key: %w", err)
+	}
+
+	if err := h.storage.Save(data.Key); err != nil {
 		return err
 	}
 
 	return writer.WriteMessage(&models.IPCMessage{
 		Type: models.MsgKeySave,
-		Data: key,
+		Data: data.Key,
 	})
 }
 
@@ -157,6 +167,13 @@ func (h *KeysHandler) handleExport(msg *models.IPCMessage, writer ResponseWriter
 		return err
 	}
 
+	// Get private key from keychain
+	kc := keychain.New()
+	privateKey, err := kc.Get(keyID + ":private_key")
+	if err != nil {
+		return fmt.Errorf("private key not found in keychain: %w", err)
+	}
+
 	// Get connection config
 	config, err := h.manager.GetSavedConnection(connectionID)
 	if err != nil {
@@ -164,12 +181,12 @@ func (h *KeysHandler) handleExport(msg *models.IPCMessage, writer ResponseWriter
 	}
 
 	// Export key to the connection
-	if err := ssh.ExportKeyToConnection(*config, key.PublicKey); err != nil {
+	if err := ssh.ExportKeyToConnection(*config, key.PublicKey, privateKey); err != nil {
 		return err
 	}
 
 	return writer.WriteMessage(&models.IPCMessage{
 		Type: models.MsgKeyExport,
-		Data: map[string]string{"status": "exported", "key_id": keyID},
+		Data: map[string]string{"status": "exported", "key_id": keyID, "connection_id": connectionID},
 	})
 }

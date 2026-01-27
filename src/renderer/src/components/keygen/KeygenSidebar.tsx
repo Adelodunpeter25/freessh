@@ -13,7 +13,7 @@ import { toast } from 'sonner'
 
 interface KeygenSidebarProps {
   onClose: () => void
-  onKeyGenerated?: (key: SSHKey) => Promise<void>
+  onKeyGenerated?: (key: SSHKey, privateKey: string) => Promise<void>
   onKeyUpdated?: (key: SSHKey) => Promise<void>
   editKey?: SSHKey
 }
@@ -57,7 +57,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
           bits: keyType === 'rsa' ? keySize : undefined,
           publicKey: generatedKey.public_key,
           createdAt: new Date()
-        })
+        }, generatedKey.private_key)
         handleClose()
       }
     } finally {

@@ -16,8 +16,8 @@ export function KeygenList() {
   const [exportKey, setExportKey] = useState<SSHKey | undefined>(undefined)
   const { keys, loading, saveKey, updateKey, deleteKey, exportKey: exportKeyToHost } = useKeyStorage()
 
-  const handleKeyGenerated = async (key: SSHKey) => {
-    await saveKey(key)
+  const handleKeyGenerated = async (key: SSHKey, privateKey: string) => {
+    await saveKey(key, privateKey)
     setShowSidebar(false)
   }
 

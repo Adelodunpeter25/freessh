@@ -8,7 +8,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func ExportKeyToConnection(config models.ConnectionConfig, publicKey string) error {
+func ExportKeyToConnection(config models.ConnectionConfig, publicKey string, generatedPrivateKey string) error {
 	kc := keychain.New()
 	clientConfig := &ssh.ClientConfig{
 		User:            config.Username,
