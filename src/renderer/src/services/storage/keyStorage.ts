@@ -20,8 +20,17 @@ export const keyStorageService = {
   async save(key: Omit<SSHKey, 'id' | 'createdAt'>, privateKey: string): Promise<SSHKey> {
     console.log('[keyStorageService] save called with:', { key, privateKeyLength: privateKey.length })
     return new Promise((resolve, reject) => {
-      const handler = (message: any) => {
+      const timeout = setTimeout(() => {
         backendService.off('key:save', handler)
+        backendService.off('error', errorHandler)
+        console.error('[keyStorageService] Timeout - no response from backend after 10s')
+        reject(new Error('Request timeout - no response from backend'))
+      }, 10000)
+
+      const handler = (message: any) => {
+        clearTimeout(timeout)
+        backendService.off('key:save', handler)
+        backendService.off('error', errorHandler)
         console.log('[keyStorageService] Received response:', message)
         if (message.type === 'error') {
           console.error('[keyStorageService] Error response:', message.data)
@@ -31,7 +40,17 @@ export const keyStorageService = {
           resolve(message.data as SSHKey)
         }
       }
+
+      const errorHandler = (error: any) => {
+        clearTimeout(timeout)
+        backendService.off('key:save', handler)
+        backendService.off('error', errorHandler)
+        console.error('[keyStorageService] Error event:', error)
+        reject(error)
+      }
+
       backendService.on('key:save', handler)
+      backendService.on('error', errorHandler)
       const payload = { key, privateKey }
       console.log('[keyStorageService] Sending to backend:', payload)
       backendService.send({
