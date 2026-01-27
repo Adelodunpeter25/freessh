@@ -97,3 +97,15 @@ func (s *KeyStorage) Delete(id string) error {
 	delete(s.keys, id)
 	return s.save()
 }
+
+func (s *KeyStorage) Update(key models.SSHKey) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if _, exists := s.keys[key.ID]; !exists {
+		return fmt.Errorf("key not found: %s", key.ID)
+	}
+
+	s.keys[key.ID] = key
+	return s.save()
+}

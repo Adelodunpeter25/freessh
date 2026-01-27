@@ -42,7 +42,9 @@ const (
 	// Key storage messages
 	MsgKeyList   MessageType = "key:list"
 	MsgKeySave   MessageType = "key:save"
+	MsgKeyUpdate MessageType = "key:update"
 	MsgKeyDelete MessageType = "key:delete"
+	MsgKeyExport MessageType = "key:export"
 )
 
 type IPCMessage struct {
