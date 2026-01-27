@@ -84,6 +84,12 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {isEditMode && (
+          <p className="text-sm text-muted-foreground">
+            Only the key name can be edited. The key itself cannot be modified.
+          </p>
+        )}
+
         <div className="space-y-2">
           <Input
             value={name}
