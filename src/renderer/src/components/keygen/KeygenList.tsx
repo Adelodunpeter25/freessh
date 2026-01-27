@@ -10,15 +10,21 @@ import { SSHKey } from '@/types/key'
 
 export function KeygenList() {
   const [showSidebar, setShowSidebar] = useState(false)
+  const [importMode, setImportMode] = useState(false)
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null)
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null)
   const [editKey, setEditKey] = useState<SSHKey | undefined>(undefined)
   const [exportKey, setExportKey] = useState<SSHKey | undefined>(undefined)
-  const { keys, loading, saveKey, updateKey, deleteKey, exportKey: exportKeyToHost } = useKeyStorage()
+  const { keys, loading, saveKey, importKey, updateKey, deleteKey, exportKey: exportKeyToHost } = useKeyStorage()
 
   const handleKeyGenerated = async (key: SSHKey, privateKey: string) => {
     // Save key and return the saved result (with ID) for export flow
     const saved = await saveKey(key, privateKey)
+    return saved
+  }
+
+  const handleKeyImported = async (name: string, privateKey: string, passphrase?: string) => {
+    const saved = await importKey(name, privateKey, passphrase)
     return saved
   }
 
@@ -49,6 +55,7 @@ export function KeygenList() {
 
   const handleCloseSidebar = () => {
     setShowSidebar(false)
+    setImportMode(false)
     setEditKey(undefined)
   }
 
@@ -65,7 +72,13 @@ export function KeygenList() {
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b">
-        <KeygenHeader onGenerateKey={() => setShowSidebar(true)} />
+        <KeygenHeader 
+          onGenerateKey={() => setShowSidebar(true)} 
+          onImportKey={() => {
+            setImportMode(true)
+            setShowSidebar(true)
+          }}
+        />
       </div>
 
       <ScrollArea className="flex-1" onClick={() => setSelectedKeyId(null)}>
@@ -104,9 +117,11 @@ export function KeygenList() {
         <KeygenSidebar
           onClose={handleCloseSidebar}
           onKeyGenerated={handleKeyGenerated}
+          onKeyImported={handleKeyImported}
           onKeyUpdated={handleKeyUpdated}
           onExportKey={handleExportFromSidebar}
           editKey={editKey}
+          importMode={importMode}
         />
       )}
 

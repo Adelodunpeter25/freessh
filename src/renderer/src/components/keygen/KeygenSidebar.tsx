@@ -57,6 +57,10 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyImported, onKeyUpd
           name: name.trim()
         })
         handleClose()
+      } else if (isImportMode && onKeyImported && name.trim() && privateKeyContent) {
+        // Import existing key
+        const saved = await onKeyImported(name.trim(), privateKeyContent, passphrase || undefined)
+        setSavedKey(saved)
       } else if (generatedKey && onKeyGenerated && name.trim()) {
         const keyData = {
           id: '',
@@ -78,6 +82,17 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyImported, onKeyUpd
     }
   }
 
+  const handleSelectFile = async () => {
+    try {
+      const result = await window.electron.ipcRenderer.invoke('dialog:openFile')
+      if (result && result.content) {
+        setPrivateKeyContent(result.content)
+      }
+    } catch (error) {
+      console.error('Failed to open file:', error)
+    }
+  }
+
   const handleExport = () => {
     // Trigger parent to open export sidebar with this key
     if (savedKey && onExportKey) {
@@ -94,7 +109,9 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyImported, onKeyUpd
     <div className="fixed right-0 top-12 bottom-0 w-80 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
-        <h2 className="text-lg font-semibold">{isEditMode ? 'Edit SSH Key' : 'Generate SSH Key'}</h2>
+        <h2 className="text-lg font-semibold">
+          {isEditMode ? 'Edit SSH Key' : isImportMode ? 'Import SSH Key' : 'Generate SSH Key'}
+        </h2>
         <TooltipProvider delayDuration={150}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -115,6 +132,12 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyImported, onKeyUpd
           </p>
         )}
 
+        {isImportMode && (
+          <p className="text-sm text-muted-foreground">
+            Select your existing private key file. We'll extract the public key automatically.
+          </p>
+        )}
+
         <div className="space-y-2">
           <Input
             value={name}
@@ -123,7 +146,31 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyImported, onKeyUpd
           />
         </div>
 
-        {!isEditMode && !generatedKey && (
+        {isImportMode && (
+          <>
+            <div className="space-y-2">
+              <Button onClick={handleSelectFile} variant="outline" className="w-full">
+                {privateKeyContent ? 'Change File' : 'Select Private Key File'}
+              </Button>
+              {privateKeyContent && (
+                <p className="text-xs text-muted-foreground">
+                  Private key loaded ({privateKeyContent.length} bytes)
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Input
+                type="password"
+                value={passphrase}
+                onChange={(e) => setPassphrase(e.target.value)}
+                placeholder="Passphrase (optional)"
+              />
+            </div>
+          </>
+        )}
+
+        {!isEditMode && !isImportMode && !generatedKey && (
           <>
             <div className="space-y-2">
               <Select value={keyType} onValueChange={(v) => setKeyType(v as KeyType)}>
@@ -199,6 +246,26 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyImported, onKeyUpd
                 Cancel
               </Button>
             </>
+          ) : isImportMode ? (
+            savedKey ? (
+              <>
+                <Button className="flex-1" onClick={handleExport}>
+                  Export to Host
+                </Button>
+                <Button variant="outline" onClick={handleClose}>
+                  Done
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button className="flex-1" onClick={handleSave} disabled={!name.trim() || !privateKeyContent || saving}>
+                  {saving ? 'Importing...' : 'Import Key'}
+                </Button>
+                <Button variant="outline" onClick={handleClose} disabled={saving}>
+                  Cancel
+                </Button>
+              </>
+            )
           ) : !generatedKey ? (
             <>
               <Button className="flex-1" onClick={handleGenerate} disabled={loading || !name.trim()}>
