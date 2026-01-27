@@ -29,6 +29,11 @@ const (
 	MsgPortForwardCreate MessageType = "portforward:create"
 	MsgPortForwardStop   MessageType = "portforward:stop"
 	MsgPortForwardList   MessageType = "portforward:list"
+
+	// Keychain messages
+	MsgKeychainSet    MessageType = "keychain:set"
+	MsgKeychainGet    MessageType = "keychain:get"
+	MsgKeychainDelete MessageType = "keychain:delete"
 )
 
 type IPCMessage struct {
