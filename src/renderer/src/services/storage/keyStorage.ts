@@ -35,6 +35,24 @@ export const keyStorageService = {
     })
   },
 
+  async update(key: SSHKey): Promise<SSHKey> {
+    return new Promise((resolve, reject) => {
+      const handler = (message: any) => {
+        backendService.off('key:update', handler)
+        if (message.type === 'error') {
+          reject(new Error(message.data))
+        } else {
+          resolve(message.data as SSHKey)
+        }
+      }
+      backendService.on('key:update', handler)
+      backendService.send({
+        type: 'key:update',
+        data: key
+      })
+    })
+  },
+
   async delete(id: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const handler = (message: any) => {
@@ -49,6 +67,24 @@ export const keyStorageService = {
       backendService.send({
         type: 'key:delete',
         data: { id }
+      })
+    })
+  },
+
+  async exportToHost(keyId: string, sessionId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const handler = (message: any) => {
+        backendService.off('key:export', handler)
+        if (message.type === 'error') {
+          reject(new Error(message.data))
+        } else {
+          resolve()
+        }
+      }
+      backendService.on('key:export', handler)
+      backendService.send({
+        type: 'key:export',
+        data: { key_id: keyId, session_id: sessionId }
       })
     })
   }

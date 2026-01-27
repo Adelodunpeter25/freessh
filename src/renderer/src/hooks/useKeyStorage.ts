@@ -48,6 +48,30 @@ export const useKeyStorage = () => {
     }
   }, [])
 
+  const updateKey = useCallback(async (key: SSHKey) => {
+    try {
+      const updated = await keyStorageService.update(key)
+      setKeys((prev) => prev.map((k) => (k.id === updated.id ? updated : k)))
+      toast.success('SSH key updated')
+      return updated
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update key'
+      toast.error(errorMessage)
+      throw err
+    }
+  }, [])
+
+  const exportKey = useCallback(async (keyId: string, sessionId: string) => {
+    try {
+      await keyStorageService.exportToHost(keyId, sessionId)
+      toast.success('SSH key exported to host')
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to export key'
+      toast.error(errorMessage)
+      throw err
+    }
+  }, [])
+
   useEffect(() => {
     loadKeys()
   }, [loadKeys])
@@ -58,6 +82,8 @@ export const useKeyStorage = () => {
     error,
     loadKeys,
     saveKey,
-    deleteKey
+    updateKey,
+    deleteKey,
+    exportKey
   }
 }
