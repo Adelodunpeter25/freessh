@@ -1,24 +1,17 @@
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Copy, Trash2, Key } from 'lucide-react'
-import { toast } from 'sonner'
+import { Trash2, Key } from 'lucide-react'
 
 interface KeyCardProps {
   fingerprint: string
   comment?: string
   keyType: string
   onDelete: () => void
-  onCopy: () => void
 }
 
-export function KeyCard({ fingerprint, comment, keyType, onDelete, onCopy }: KeyCardProps) {
-  const copyFingerprint = () => {
-    navigator.clipboard.writeText(fingerprint)
-    toast.success('Fingerprint copied')
-  }
-
+export function KeyCard({ fingerprint, comment, keyType, onDelete }: KeyCardProps) {
   return (
-    <Card className="p-4 hover:bg-accent/50 transition-colors">
+    <Card className="group p-4 hover:bg-muted/50 transition-all cursor-pointer border-border hover:shadow-md">
       <div className="flex items-start gap-3">
         <div className="p-2 rounded-lg bg-primary/10">
           <Key className="w-5 h-5 text-primary" />
@@ -40,24 +33,17 @@ export function KeyCard({ fingerprint, comment, keyType, onDelete, onCopy }: Key
           </p>
         </div>
 
-        <div className="flex gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={copyFingerprint}
-          >
-            <Copy className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-destructive"
-            onClick={onDelete}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete()
+          }}
+        >
+          <Trash2 className="w-4 h-4" />
+        </Button>
       </div>
     </Card>
   )

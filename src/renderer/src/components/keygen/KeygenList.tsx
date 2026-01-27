@@ -3,11 +3,13 @@ import { KeygenHeader } from './KeygenHeader'
 import { KeygenSidebar } from './KeygenSidebar'
 import { KeyCard } from './KeyCard'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { useKeyStorage } from '@/hooks/useKeyStorage'
 import { SSHKey } from '@/types/key'
 
 export function KeygenList() {
   const [showSidebar, setShowSidebar] = useState(false)
+  const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null)
   const { keys, loading, saveKey, deleteKey } = useKeyStorage()
 
   const handleKeyGenerated = async (key: SSHKey) => {
@@ -15,8 +17,11 @@ export function KeygenList() {
     setShowSidebar(false)
   }
 
-  const handleCopy = (publicKey: string) => {
-    navigator.clipboard.writeText(publicKey)
+  const handleDeleteConfirm = async () => {
+    if (deleteKeyId) {
+      await deleteKey(deleteKeyId)
+      setDeleteKeyId(null)
+    }
   }
 
   return (
@@ -47,8 +52,7 @@ export function KeygenList() {
                 fingerprint={key.fingerprint}
                 comment={key.name}
                 keyType={key.algorithm === 'ed25519' ? 'Ed25519' : `RSA ${key.bits || 4096}`}
-                onDelete={() => deleteKey(key.id)}
-                onCopy={() => handleCopy(key.publicKey)}
+                onDelete={() => setDeleteKeyId(key.id)}
               />
             ))
           )}
@@ -61,6 +65,16 @@ export function KeygenList() {
           onKeyGenerated={handleKeyGenerated}
         />
       )}
+
+      <ConfirmDialog
+        open={!!deleteKeyId}
+        onOpenChange={(open) => !open && setDeleteKeyId(null)}
+        title="Delete SSH Key"
+        description="Are you sure you want to delete this SSH key? This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   )
 }
