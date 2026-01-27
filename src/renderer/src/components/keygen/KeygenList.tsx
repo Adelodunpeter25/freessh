@@ -35,13 +35,13 @@ export function KeygenList() {
       </div>
 
       <ScrollArea className="flex-1">
-        <div className="p-4 space-y-3">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6">
           {loading ? (
-            <div className="flex items-center justify-center h-64">
+            <div className="col-span-full flex items-center justify-center h-64">
               <p className="text-muted-foreground">Loading keys...</p>
             </div>
           ) : keys.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-64 text-center">
+            <div className="col-span-full flex flex-col items-center justify-center h-64 text-center">
               <p className="text-muted-foreground mb-4">
                 No SSH keys yet
               </p>
