@@ -18,19 +18,25 @@ export const keyStorageService = {
   },
 
   async save(key: Omit<SSHKey, 'id' | 'createdAt'>, privateKey: string): Promise<SSHKey> {
+    console.log('[keyStorageService] save called with:', { key, privateKeyLength: privateKey.length })
     return new Promise((resolve, reject) => {
       const handler = (message: any) => {
         backendService.off('key:save', handler)
+        console.log('[keyStorageService] Received response:', message)
         if (message.type === 'error') {
+          console.error('[keyStorageService] Error response:', message.data)
           reject(new Error(message.data))
         } else {
+          console.log('[keyStorageService] Success response:', message.data)
           resolve(message.data as SSHKey)
         }
       }
       backendService.on('key:save', handler)
+      const payload = { key, privateKey }
+      console.log('[keyStorageService] Sending to backend:', payload)
       backendService.send({
         type: 'key:save',
-        data: { key, privateKey }
+        data: payload
       })
     })
   },
