@@ -108,7 +108,6 @@ export function KeygenForm() {
               placeholder="Passphrase (optional)"
             />
           </div>
-          )}
         </>
       )}
 
