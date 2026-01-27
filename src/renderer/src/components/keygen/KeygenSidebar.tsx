@@ -55,7 +55,6 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
           name: name.trim(),
           algorithm: keyType,
           bits: keyType === 'rsa' ? keySize : undefined,
-          fingerprint: generatedKey.fingerprint,
           publicKey: generatedKey.public_key,
           createdAt: new Date()
         })
@@ -137,20 +136,6 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
 
         {generatedKey && (
           <>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Fingerprint</Label>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => copyToClipboard(generatedKey.fingerprint, 'Fingerprint')}
-                >
-                  <Copy className="w-4 h-4" />
-                </Button>
-              </div>
-              <Input value={generatedKey.fingerprint} readOnly />
-            </div>
-
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Public Key</Label>

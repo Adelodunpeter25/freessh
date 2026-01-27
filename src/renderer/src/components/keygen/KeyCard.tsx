@@ -5,7 +5,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { KeyCardContextMenu } from '@/components/contextmenu'
 
 interface KeyCardProps {
-  fingerprint: string
   comment?: string
   keyType: string
   selected: boolean
@@ -15,7 +14,7 @@ interface KeyCardProps {
   onExport: () => void
 }
 
-export const KeyCard = memo(function KeyCard({ fingerprint, comment, keyType, selected, onSelect, onEdit, onDelete, onExport }: KeyCardProps) {
+export const KeyCard = memo(function KeyCard({ comment, keyType, selected, onSelect, onEdit, onDelete, onExport }: KeyCardProps) {
   return (
     <KeyCardContextMenu
       onEdit={onEdit}

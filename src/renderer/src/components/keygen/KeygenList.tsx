@@ -80,7 +80,6 @@ export function KeygenList() {
             keys.map((key) => (
               <KeyCard
                 key={key.id}
-                fingerprint={key.fingerprint}
                 comment={key.name}
                 keyType={key.algorithm === 'ed25519' ? 'Ed25519' : `RSA ${key.bits || 4096}`}
                 selected={selectedKeyId === key.id}
