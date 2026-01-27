@@ -36,7 +36,7 @@ export const useTerminal = (sessionId: string | null) => {
 
   const resize = useCallback((rows: number, cols: number) => {
     if (sessionId) {
-      terminalService.resize(sessionId, rows, cols)
+      terminalService.resize(sessionId, cols, rows)
     }
   }, [sessionId])
 
