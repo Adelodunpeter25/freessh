@@ -56,7 +56,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
           algorithm: keyType,
           bits: keyType === 'rsa' ? keySize : undefined,
           publicKey: generatedKey.public_key,
-          createdAt: new Date()
+          createdAt: ''
         }, generatedKey.private_key)
         handleClose()
       }

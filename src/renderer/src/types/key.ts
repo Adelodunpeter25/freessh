@@ -4,5 +4,5 @@ export interface SSHKey {
   algorithm: string
   bits?: number
   publicKey: string
-  createdAt: Date
+  createdAt: string
 }
