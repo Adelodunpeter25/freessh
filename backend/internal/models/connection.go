@@ -14,8 +14,10 @@ type ConnectionConfig struct {
 	Port       int        `json:"port"`
 	Username   string     `json:"username"`
 	AuthMethod AuthMethod `json:"auth_method"`
-	Password   string     `json:"password,omitempty"`
 	PrivateKey string     `json:"private_key,omitempty"`
-	Passphrase string     `json:"passphrase,omitempty"`
 	Group      string     `json:"group,omitempty"`
+	
+	// Runtime-only fields (not persisted to JSON)
+	Password   string `json:"-"`
+	Passphrase string `json:"-"`
 }

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"freessh-backend/internal/keychain"
 	"freessh-backend/internal/models"

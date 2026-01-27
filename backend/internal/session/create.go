@@ -2,6 +2,7 @@ package session
 
 import (
 	"fmt"
+	"freessh-backend/internal/keychain"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/osdetect"
 	"freessh-backend/internal/ssh"
@@ -27,6 +28,21 @@ func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session
 				return nil, fmt.Errorf("failed to save connection: %w", err)
 			}
 		}
+	}
+
+	// Fetch credentials from keychain
+	kc := keychain.New()
+	if config.AuthMethod == models.AuthPassword {
+		password, err := kc.Get(config.ID)
+		if err != nil {
+			session.Status = models.SessionError
+			session.Error = "Password not found in keychain"
+			return &session, fmt.Errorf("password not found in keychain")
+		}
+		config.Password = password
+	} else if config.AuthMethod == models.AuthPublicKey && config.PrivateKey != "" {
+		passphrase, _ := kc.Get(config.ID + ":passphrase")
+		config.Passphrase = passphrase
 	}
 
 	sshClient := ssh.NewClient(config)
