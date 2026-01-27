@@ -17,11 +17,13 @@ export function KeygenList() {
   const { keys, loading, saveKey, updateKey, deleteKey, exportKey: exportKeyToHost } = useKeyStorage()
 
   const handleKeyGenerated = async (key: SSHKey, privateKey: string) => {
+    // Save key and return the saved result (with ID) for export flow
     const saved = await saveKey(key, privateKey)
     return saved
   }
 
   const handleExportFromSidebar = (key: SSHKey) => {
+    // Close keygen sidebar and open export sidebar with the saved key
     setShowSidebar(false)
     setExportKey(key)
   }

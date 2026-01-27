@@ -42,7 +42,7 @@ func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session
 		}
 		config.Password = password
 	} else if config.AuthMethod == models.AuthPublicKey {
-		// Load private key from file if KeyID is set
+		// Load private key from file if KeyID is set (for generated keys)
 		if config.KeyID != "" {
 			fileStorage, err := storage.NewKeyFileStorage()
 			if err != nil {
@@ -59,6 +59,7 @@ func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session
 			config.PrivateKey = privateKey
 		}
 		
+		// Get passphrase from keychain if key is encrypted
 		if config.PrivateKey != "" {
 			passphrase, _ := kc.Get(config.ID + ":passphrase")
 			config.Passphrase = passphrase

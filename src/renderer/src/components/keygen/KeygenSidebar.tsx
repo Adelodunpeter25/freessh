@@ -24,7 +24,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, onExportK
   const [keySize, setKeySize] = useState(editKey?.bits || 4096)
   const [name, setName] = useState(editKey?.name || '')
   const [saving, setSaving] = useState(false)
-  const [savedKey, setSavedKey] = useState<SSHKey | null>(null)
+  const [savedKey, setSavedKey] = useState<SSHKey | null>(null) // Store saved key to show export option
   const { loading, generatedKey, generateKey, clearGeneratedKey } = useKeygen()
 
   const isEditMode = !!editKey
@@ -61,6 +61,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, onExportK
           publicKey: generatedKey.public_key
         }
         
+        // Save key and store result to show export option
         const saved = await onKeyGenerated(keyData as any, generatedKey.private_key)
         setSavedKey(saved)
       }
@@ -73,6 +74,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, onExportK
   }
 
   const handleExport = () => {
+    // Trigger parent to open export sidebar with this key
     if (savedKey && onExportKey) {
       onExportKey(savedKey)
     }
