@@ -40,6 +40,7 @@ func (h *KeygenHandler) handleGenerate(msg *models.IPCMessage, writer ResponseWr
 	keyType, _ := dataMap["key_type"].(string)
 	keySize, _ := dataMap["key_size"].(float64)
 	comment, _ := dataMap["comment"].(string)
+	passphrase, _ := dataMap["passphrase"].(string)
 
 	if keyType == "" {
 		keyType = "rsa"
@@ -48,7 +49,7 @@ func (h *KeygenHandler) handleGenerate(msg *models.IPCMessage, writer ResponseWr
 		keySize = 4096
 	}
 
-	keyPair, err := keygen.GenerateKeyPair(keygen.KeyType(keyType), int(keySize), comment)
+	keyPair, err := keygen.GenerateKeyPair(keygen.KeyType(keyType), int(keySize), comment, passphrase)
 	if err != nil {
 		return err
 	}

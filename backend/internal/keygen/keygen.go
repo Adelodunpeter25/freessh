@@ -24,18 +24,18 @@ type KeyPair struct {
 	Fingerprint string
 }
 
-func GenerateKeyPair(keyType KeyType, keySize int, comment string) (*KeyPair, error) {
+func GenerateKeyPair(keyType KeyType, keySize int, comment string, passphrase string) (*KeyPair, error) {
 	switch keyType {
 	case KeyTypeRSA:
-		return generateRSA(keySize, comment)
+		return generateRSA(keySize, comment, passphrase)
 	case KeyTypeEd25519:
-		return generateEd25519(comment)
+		return generateEd25519(comment, passphrase)
 	default:
 		return nil, fmt.Errorf("unsupported key type: %s", keyType)
 	}
 }
 
-func generateRSA(bits int, comment string) (*KeyPair, error) {
+func generateRSA(bits int, comment string, passphrase string) (*KeyPair, error) {
 	if bits < 2048 {
 		bits = 2048
 	}
@@ -45,10 +45,23 @@ func generateRSA(bits int, comment string) (*KeyPair, error) {
 		return nil, fmt.Errorf("failed to generate RSA key: %w", err)
 	}
 
-	privateKeyPEM := pem.EncodeToMemory(&pem.Block{
+	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
+	
+	pemBlock := &pem.Block{
 		Type:  "RSA PRIVATE KEY",
-		Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
-	})
+		Bytes: privateKeyBytes,
+	}
+
+	// Encrypt private key if passphrase provided
+	if passphrase != "" {
+		encryptedBlock, err := x509.EncryptPEMBlock(rand.Reader, pemBlock.Type, pemBlock.Bytes, []byte(passphrase), x509.PEMCipherAES256)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encrypt private key: %w", err)
+		}
+		pemBlock = encryptedBlock
+	}
+
+	privateKeyPEM := pem.EncodeToMemory(pemBlock)
 
 	publicKey, err := ssh.NewPublicKey(&privateKey.PublicKey)
 	if err != nil {
@@ -69,7 +82,7 @@ func generateRSA(bits int, comment string) (*KeyPair, error) {
 	}, nil
 }
 
-func generateEd25519(comment string) (*KeyPair, error) {
+func generateEd25519(comment string, passphrase string) (*KeyPair, error) {
 	publicKey, privateKey, err := ed25519.GenerateKey(rand.Reader)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate Ed25519 key: %w", err)
@@ -80,10 +93,21 @@ func generateEd25519(comment string) (*KeyPair, error) {
 		return nil, fmt.Errorf("failed to marshal private key: %w", err)
 	}
 
-	privateKeyPEM := pem.EncodeToMemory(&pem.Block{
+	pemBlock := &pem.Block{
 		Type:  "PRIVATE KEY",
 		Bytes: privateKeyBytes,
-	})
+	}
+
+	// Encrypt private key if passphrase provided
+	if passphrase != "" {
+		encryptedBlock, err := x509.EncryptPEMBlock(rand.Reader, pemBlock.Type, pemBlock.Bytes, []byte(passphrase), x509.PEMCipherAES256)
+		if err != nil {
+			return nil, fmt.Errorf("failed to encrypt private key: %w", err)
+		}
+		pemBlock = encryptedBlock
+	}
+
+	privateKeyPEM := pem.EncodeToMemory(pemBlock)
 
 	sshPublicKey, err := ssh.NewPublicKey(publicKey)
 	if err != nil {
