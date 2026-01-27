@@ -31,6 +31,7 @@ func NewServer() *Server {
 			handlers.NewSFTPHandler(manager),
 			handlers.NewPortForwardHandler(manager),
 			handlers.NewKeychainHandler(),
+			handlers.NewKeygenHandler(),
 		},
 	}
 }

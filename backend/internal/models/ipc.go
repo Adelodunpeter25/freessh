@@ -34,6 +34,10 @@ const (
 	MsgKeychainSet    MessageType = "keychain:set"
 	MsgKeychainGet    MessageType = "keychain:get"
 	MsgKeychainDelete MessageType = "keychain:delete"
+
+	// Key generation messages
+	MsgKeygenGenerate    MessageType = "keygen:generate"
+	MsgKeygenFingerprint MessageType = "keygen:fingerprint"
 )
 
 type IPCMessage struct {
