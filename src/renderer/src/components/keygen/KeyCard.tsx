@@ -32,7 +32,7 @@ export const KeyCard = memo(function KeyCard({ fingerprint, comment, keyType, se
       <div className="flex-1 min-w-0">
         <h3 className="text-base font-semibold text-foreground truncate">{comment || 'Unnamed Key'}</h3>
         <p className="text-xs text-muted-foreground truncate">
-          {keyType} • {fingerprint}
+          {keyType}
         </p>
       </div>
 
