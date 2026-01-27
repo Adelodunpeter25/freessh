@@ -15,6 +15,7 @@ type ConnectionConfig struct {
 	Username   string     `json:"username"`
 	AuthMethod AuthMethod `json:"auth_method"`
 	PrivateKey string     `json:"private_key,omitempty"`
+	KeyID      string     `json:"key_id,omitempty"`
 	Group      string     `json:"group,omitempty"`
 	
 	// Runtime-only fields (not persisted to JSON)

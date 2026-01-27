@@ -199,6 +199,15 @@ func (h *KeysHandler) handleExport(msg *models.IPCMessage, writer ResponseWriter
 		return err
 	}
 
+	// Update connection to use this key for future authentication
+	config.AuthMethod = models.AuthPublicKey
+	config.KeyID = keyID
+	config.PrivateKey = "" // Clear any old key content
+	
+	if err := h.manager.GetStorage().Update(*config); err != nil {
+		return fmt.Errorf("failed to update connection: %w", err)
+	}
+
 	return writer.WriteMessage(&models.IPCMessage{
 		Type: models.MsgKeyExport,
 		Data: map[string]string{"status": "exported", "key_id": keyID, "connection_id": connectionID},

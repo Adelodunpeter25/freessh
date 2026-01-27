@@ -6,6 +6,7 @@ import (
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/osdetect"
 	"freessh-backend/internal/ssh"
+	"freessh-backend/internal/storage"
 	"freessh-backend/internal/terminal"
 	"time"
 
@@ -40,9 +41,28 @@ func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session
 			return &session, fmt.Errorf("password not found in keychain")
 		}
 		config.Password = password
-	} else if config.AuthMethod == models.AuthPublicKey && config.PrivateKey != "" {
-		passphrase, _ := kc.Get(config.ID + ":passphrase")
-		config.Passphrase = passphrase
+	} else if config.AuthMethod == models.AuthPublicKey {
+		// Load private key from file if KeyID is set
+		if config.KeyID != "" {
+			fileStorage, err := storage.NewKeyFileStorage()
+			if err != nil {
+				session.Status = models.SessionError
+				session.Error = "Failed to initialize key storage"
+				return &session, fmt.Errorf("failed to initialize key storage: %w", err)
+			}
+			privateKey, err := fileStorage.GetPrivateKey(config.KeyID)
+			if err != nil {
+				session.Status = models.SessionError
+				session.Error = "Failed to load private key"
+				return &session, fmt.Errorf("failed to load private key: %w", err)
+			}
+			config.PrivateKey = privateKey
+		}
+		
+		if config.PrivateKey != "" {
+			passphrase, _ := kc.Get(config.ID + ":passphrase")
+			config.Passphrase = passphrase
+		}
 	}
 
 	sshClient := ssh.NewClient(config)
