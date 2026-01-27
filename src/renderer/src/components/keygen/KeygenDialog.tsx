@@ -79,7 +79,6 @@ export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Key Name (e.g., Personal Laptop)"
-            disabled={!!generatedKey}
           />
         </div>
 
