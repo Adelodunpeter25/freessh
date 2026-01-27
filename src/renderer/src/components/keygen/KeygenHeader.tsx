@@ -36,9 +36,8 @@ export function KeygenHeader({ onGenerateKey, onImportKey, searchQuery, onSearch
         </Button>
         <Button 
           onClick={onGenerateKey}
-          variant="secondary" 
           size="sm"
-          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all"
+          className="font-medium bg-orange-500 hover:bg-orange-600 text-white hover:scale-105 transition-all"
         >
           <Plus className="h-4 w-4 mr-2" />
           GENERATE KEY
