@@ -11,11 +11,28 @@ export function KeygenList() {
   const [showSidebar, setShowSidebar] = useState(false)
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null)
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null)
-  const { keys, loading, saveKey, deleteKey } = useKeyStorage()
+  const [editKey, setEditKey] = useState<SSHKey | undefined>(undefined)
+  const { keys, loading, saveKey, updateKey, deleteKey } = useKeyStorage()
 
   const handleKeyGenerated = async (key: SSHKey) => {
     await saveKey(key)
     setShowSidebar(false)
+  }
+
+  const handleKeyUpdated = async (key: SSHKey) => {
+    await updateKey(key)
+    setShowSidebar(false)
+    setEditKey(undefined)
+  }
+
+  const handleEdit = (key: SSHKey) => {
+    setEditKey(key)
+    setShowSidebar(true)
+  }
+
+  const handleCloseSidebar = () => {
+    setShowSidebar(false)
+    setEditKey(undefined)
   }
 
   const handleDeleteConfirm = async () => {
@@ -58,6 +75,7 @@ export function KeygenList() {
                 keyType={key.algorithm === 'ed25519' ? 'Ed25519' : `RSA ${key.bits || 4096}`}
                 selected={selectedKeyId === key.id}
                 onSelect={() => setSelectedKeyId(key.id)}
+                onEdit={() => handleEdit(key)}
                 onDelete={() => setDeleteKeyId(key.id)}
               />
             ))
@@ -67,8 +85,10 @@ export function KeygenList() {
 
       {showSidebar && (
         <KeygenSidebar
-          onClose={() => setShowSidebar(false)}
+          onClose={handleCloseSidebar}
           onKeyGenerated={handleKeyGenerated}
+          onKeyUpdated={handleKeyUpdated}
+          editKey={editKey}
         />
       )}
 

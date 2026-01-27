@@ -10,13 +10,14 @@ interface KeyCardProps {
   keyType: string
   selected: boolean
   onSelect: () => void
+  onEdit: () => void
   onDelete: () => void
 }
 
-export const KeyCard = memo(function KeyCard({ fingerprint, comment, keyType, selected, onSelect, onDelete }: KeyCardProps) {
+export const KeyCard = memo(function KeyCard({ fingerprint, comment, keyType, selected, onSelect, onEdit, onDelete }: KeyCardProps) {
   return (
     <KeyCardContextMenu
-      onEdit={() => console.log('Edit key')}
+      onEdit={onEdit}
       onDelete={onDelete}
       onExport={() => console.log('Export to host')}
     >
@@ -55,7 +56,7 @@ export const KeyCard = memo(function KeyCard({ fingerprint, comment, keyType, se
                 className="opacity-0 group-hover:opacity-100 h-8 w-8"
                 onClick={(e) => {
                   e.stopPropagation()
-                  console.log('Edit key')
+                  onEdit()
                 }}
               >
                 <Pencil className="h-4 w-4" />

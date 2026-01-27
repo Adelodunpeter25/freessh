@@ -14,13 +14,17 @@ import { toast } from 'sonner'
 interface KeygenSidebarProps {
   onClose: () => void
   onKeyGenerated?: (key: SSHKey) => Promise<void>
+  onKeyUpdated?: (key: SSHKey) => Promise<void>
+  editKey?: SSHKey
 }
 
-export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
-  const [keyType, setKeyType] = useState<KeyType>('rsa')
-  const [keySize, setKeySize] = useState(4096)
-  const [name, setName] = useState('')
+export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }: KeygenSidebarProps) {
+  const [keyType, setKeyType] = useState<KeyType>(editKey?.algorithm as KeyType || 'rsa')
+  const [keySize, setKeySize] = useState(editKey?.bits || 4096)
+  const [name, setName] = useState(editKey?.name || '')
   const { loading, generatedKey, generateKey, clearGeneratedKey } = useKeygen()
+
+  const isEditMode = !!editKey
 
   const handleGenerate = async () => {
     await generateKey({
@@ -36,7 +40,13 @@ export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
   }
 
   const handleSave = async () => {
-    if (generatedKey && onKeyGenerated && name.trim()) {
+    if (isEditMode && onKeyUpdated && name.trim()) {
+      await onKeyUpdated({
+        ...editKey,
+        name: name.trim()
+      })
+      handleClose()
+    } else if (generatedKey && onKeyGenerated && name.trim()) {
       await onKeyGenerated({
         id: '',
         name: name.trim(),
@@ -59,7 +69,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
     <div className="fixed right-0 top-12 bottom-0 w-80 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
-        <h2 className="text-lg font-semibold">Generate SSH Key</h2>
+        <h2 className="text-lg font-semibold">{isEditMode ? 'Edit SSH Key' : 'Generate SSH Key'}</h2>
         <TooltipProvider delayDuration={150}>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -82,7 +92,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
           />
         </div>
 
-        {!generatedKey && (
+        {!isEditMode && !generatedKey && (
           <>
             <div className="space-y-2">
               <Select value={keyType} onValueChange={(v) => setKeyType(v as KeyType)}>
@@ -163,7 +173,16 @@ export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
       {/* Footer */}
       <div className="p-4 border-t border-border bg-background">
         <div className="flex gap-2">
-          {!generatedKey ? (
+          {isEditMode ? (
+            <>
+              <Button className="flex-1" onClick={handleSave} disabled={!name.trim()}>
+                Save Changes
+              </Button>
+              <Button variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+            </>
+          ) : !generatedKey ? (
             <>
               <Button className="flex-1" onClick={handleGenerate} disabled={loading || !name.trim()}>
                 {loading ? 'Generating...' : 'Generate'}
