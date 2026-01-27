@@ -147,9 +147,9 @@ func (h *KeysHandler) handleExport(msg *models.IPCMessage, writer ResponseWriter
 		return fmt.Errorf("key_id required")
 	}
 
-	sessionID, ok := dataMap["session_id"].(string)
+	connectionID, ok := dataMap["connection_id"].(string)
 	if !ok {
-		return fmt.Errorf("session_id required")
+		return fmt.Errorf("connection_id required")
 	}
 
 	key, err := h.storage.Get(keyID)
@@ -157,12 +157,14 @@ func (h *KeysHandler) handleExport(msg *models.IPCMessage, writer ResponseWriter
 		return err
 	}
 
-	sess, err := h.manager.GetSession(sessionID)
+	// Get connection config
+	config, err := h.manager.GetSavedConnection(connectionID)
 	if err != nil {
-		return err
+		return fmt.Errorf("connection not found: %w", err)
 	}
 
-	if err := ssh.ExportKeyToHost(sess.SSHClient, key.PublicKey); err != nil {
+	// Export key to the connection
+	if err := ssh.ExportKeyToConnection(*config, key.PublicKey); err != nil {
 		return err
 	}
 

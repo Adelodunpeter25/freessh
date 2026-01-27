@@ -36,8 +36,8 @@ export function KeygenList() {
     setExportKey(key)
   }
 
-  const handleExportToHost = async (keyId: string, sessionId: string) => {
-    await exportKeyToHost(keyId, sessionId)
+  const handleExportToHost = async (keyId: string, connectionId: string) => {
+    await exportKeyToHost(keyId, connectionId)
   }
 
   const handleCloseSidebar = () => {

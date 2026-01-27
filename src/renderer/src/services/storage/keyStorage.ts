@@ -71,7 +71,7 @@ export const keyStorageService = {
     })
   },
 
-  async exportToHost(keyId: string, sessionId: string): Promise<void> {
+  async exportToHost(keyId: string, connectionId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const handler = (message: any) => {
         backendService.off('key:export', handler)
@@ -84,7 +84,7 @@ export const keyStorageService = {
       backendService.on('key:export', handler)
       backendService.send({
         type: 'key:export',
-        data: { key_id: keyId, session_id: sessionId }
+        data: { key_id: keyId, connection_id: connectionId }
       })
     })
   }

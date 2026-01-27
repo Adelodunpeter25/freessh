@@ -10,7 +10,7 @@ interface ExportKeySidebarProps {
   keyId: string
   keyName: string
   onClose: () => void
-  onExport: (keyId: string, sessionId: string) => Promise<void>
+  onExport: (keyId: string, connectionId: string) => Promise<void>
 }
 
 export function ExportKeySidebar({ keyId, keyName, onClose, onExport }: ExportKeySidebarProps) {
