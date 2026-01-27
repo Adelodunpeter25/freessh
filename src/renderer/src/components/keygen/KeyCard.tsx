@@ -20,7 +20,10 @@ export const KeyCard = memo(function KeyCard({ fingerprint, comment, keyType, se
           ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)] cursor-pointer' 
           : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md cursor-pointer'
       }`}
-      onClick={onSelect}
+      onClick={(e) => {
+        e.stopPropagation()
+        onSelect()
+      }}
     >
       <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
         <Key className="h-5 w-5 text-primary" />

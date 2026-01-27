@@ -34,7 +34,7 @@ export function KeygenList() {
         <KeygenHeader onGenerateKey={() => setShowSidebar(true)} />
       </div>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1" onClick={() => setSelectedKeyId(null)}>
         <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6">
           {loading ? (
             <div className="col-span-full flex items-center justify-center h-64">
