@@ -14,20 +14,25 @@ import { toast } from 'sonner'
 interface KeygenSidebarProps {
   onClose: () => void
   onKeyGenerated?: (key: SSHKey, privateKey: string) => Promise<SSHKey>
+  onKeyImported?: (name: string, privateKey: string, passphrase?: string) => Promise<SSHKey>
   onKeyUpdated?: (key: SSHKey) => Promise<void>
   onExportKey?: (key: SSHKey) => void
   editKey?: SSHKey
+  importMode?: boolean
 }
 
-export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, onExportKey, editKey }: KeygenSidebarProps) {
+export function KeygenSidebar({ onClose, onKeyGenerated, onKeyImported, onKeyUpdated, onExportKey, editKey, importMode }: KeygenSidebarProps) {
   const [keyType, setKeyType] = useState<KeyType>(editKey?.algorithm as KeyType || 'rsa')
   const [keySize, setKeySize] = useState(editKey?.bits || 4096)
   const [name, setName] = useState(editKey?.name || '')
+  const [privateKeyContent, setPrivateKeyContent] = useState('')
+  const [passphrase, setPassphrase] = useState('')
   const [saving, setSaving] = useState(false)
   const [savedKey, setSavedKey] = useState<SSHKey | null>(null) // Store saved key to show export option
   const { loading, generatedKey, generateKey, clearGeneratedKey } = useKeygen()
 
   const isEditMode = !!editKey
+  const isImportMode = !!importMode
 
   const handleGenerate = async () => {
     await generateKey({

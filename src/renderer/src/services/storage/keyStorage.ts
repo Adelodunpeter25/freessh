@@ -52,6 +52,41 @@ export const keyStorageService = {
     })
   },
 
+  async import(name: string, privateKey: string, passphrase?: string): Promise<SSHKey> {
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        backendService.off('key:import', handler)
+        backendService.off('error', errorHandler)
+        reject(new Error('Request timeout - no response from backend'))
+      }, 10000)
+
+      const handler = (message: any) => {
+        clearTimeout(timeout)
+        backendService.off('key:import', handler)
+        backendService.off('error', errorHandler)
+        if (message.type === 'error') {
+          reject(new Error(message.data))
+        } else {
+          resolve(message.data as SSHKey)
+        }
+      }
+
+      const errorHandler = (error: any) => {
+        clearTimeout(timeout)
+        backendService.off('key:import', handler)
+        backendService.off('error', errorHandler)
+        reject(error)
+      }
+
+      backendService.on('key:import', handler)
+      backendService.on('error', errorHandler)
+      backendService.send({
+        type: 'key:import',
+        data: { name, privateKey, passphrase: passphrase || '' }
+      })
+    })
+  },
+
   async update(key: SSHKey): Promise<SSHKey> {
     return new Promise((resolve, reject) => {
       const handler = (message: any) => {

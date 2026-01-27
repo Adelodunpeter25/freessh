@@ -1,11 +1,12 @@
 import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { Plus, Upload } from 'lucide-react'
 
 interface KeygenHeaderProps {
   onGenerateKey: () => void
+  onImportKey: () => void
 }
 
-export function KeygenHeader({ onGenerateKey }: KeygenHeaderProps) {
+export function KeygenHeader({ onGenerateKey, onImportKey }: KeygenHeaderProps) {
   return (
     <div className="flex items-center justify-between">
       <div>
@@ -14,10 +15,16 @@ export function KeygenHeader({ onGenerateKey }: KeygenHeaderProps) {
           Manage your SSH keys
         </p>
       </div>
-      <Button onClick={onGenerateKey} size="sm">
-        <Plus className="w-4 h-4 mr-2" />
-        Generate Key
-      </Button>
+      <div className="flex gap-2">
+        <Button onClick={onImportKey} size="sm" variant="outline">
+          <Upload className="w-4 h-4 mr-2" />
+          Import Key
+        </Button>
+        <Button onClick={onGenerateKey} size="sm">
+          <Plus className="w-4 h-4 mr-2" />
+          Generate Key
+        </Button>
+      </div>
     </div>
   )
 }

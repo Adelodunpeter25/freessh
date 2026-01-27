@@ -36,6 +36,19 @@ export const useKeyStorage = () => {
     }
   }, [])
 
+  const importKey = useCallback(async (name: string, privateKey: string, passphrase?: string) => {
+    try {
+      const imported = await keyStorageService.import(name, privateKey, passphrase)
+      setKeys((prev) => [imported, ...prev])
+      toast.success('SSH key imported')
+      return imported
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to import key'
+      toast.error(errorMessage)
+      throw err
+    }
+  }, [])
+
   const deleteKey = useCallback(async (id: string) => {
     try {
       await keyStorageService.delete(id)
@@ -82,6 +95,7 @@ export const useKeyStorage = () => {
     error,
     loadKeys,
     saveKey,
+    importKey,
     updateKey,
     deleteKey,
     exportKey
