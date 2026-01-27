@@ -1,18 +1,18 @@
 import { useState } from 'react'
 import { KeygenHeader } from './KeygenHeader'
-import { KeygenDialog } from './KeygenDialog'
+import { KeygenSidebar } from './KeygenDialog'
 import { KeyCard } from './KeyCard'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useKeyStorage } from '@/hooks/useKeyStorage'
 import { SSHKey } from '@/types/key'
 
 export function KeygenList() {
-  const [showDialog, setShowDialog] = useState(false)
+  const [showSidebar, setShowSidebar] = useState(false)
   const { keys, loading, saveKey, deleteKey } = useKeyStorage()
 
   const handleKeyGenerated = async (key: SSHKey) => {
     await saveKey(key)
-    setShowDialog(false)
+    setShowSidebar(false)
   }
 
   const handleCopy = (publicKey: string) => {
@@ -22,7 +22,7 @@ export function KeygenList() {
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b">
-        <KeygenHeader onGenerateKey={() => setShowDialog(true)} />
+        <KeygenHeader onGenerateKey={() => setShowSidebar(true)} />
       </div>
 
       <ScrollArea className="flex-1">
@@ -55,11 +55,12 @@ export function KeygenList() {
         </div>
       </ScrollArea>
 
-      <KeygenDialog
-        open={showDialog}
-        onOpenChange={setShowDialog}
-        onKeyGenerated={handleKeyGenerated}
-      />
+      {showSidebar && (
+        <KeygenSidebar
+          onClose={() => setShowSidebar(false)}
+          onKeyGenerated={handleKeyGenerated}
+        />
+      )}
     </div>
   )
 }

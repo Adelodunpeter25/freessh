@@ -1,23 +1,22 @@
 import { useState } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { X, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useKeygen } from '@/hooks/useKeygen'
 import { KeyType } from '@/types/keygen'
 import { SSHKey } from '@/types/key'
-import { Copy } from 'lucide-react'
 import { toast } from 'sonner'
 
-interface KeygenDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
+interface KeygenSidebarProps {
+  onClose: () => void
   onKeyGenerated?: (key: SSHKey) => Promise<void>
 }
 
-export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialogProps) {
+export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
   const [keyType, setKeyType] = useState<KeyType>('rsa')
   const [keySize, setKeySize] = useState(4096)
   const [name, setName] = useState('')
@@ -33,7 +32,7 @@ export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialo
   const handleClose = () => {
     clearGeneratedKey()
     setName('')
-    onOpenChange(false)
+    onClose()
   }
 
   const handleSave = async () => {
@@ -57,14 +56,26 @@ export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialo
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Generate SSH Key</DialogTitle>
-        </DialogHeader>
+    <div className="fixed right-0 top-12 bottom-0 w-96 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-border">
+        <h2 className="text-lg font-semibold">Generate SSH Key</h2>
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={handleClose}>
+                <X className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Close</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
 
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {!generatedKey ? (
-          <div className="space-y-4">
+          <>
             <div className="space-y-2">
               <Label>Algorithm</Label>
               <Select value={keyType} onValueChange={(v) => setKeyType(v as KeyType)}>
@@ -93,9 +104,9 @@ export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialo
                 </Select>
               </div>
             )}
-          </div>
+          </>
         ) : (
-          <div className="space-y-4">
+          <>
             <div className="space-y-2">
               <Label>Key Name</Label>
               <Input
@@ -146,31 +157,34 @@ export function KeygenDialog({ open, onOpenChange, onKeyGenerated }: KeygenDialo
               </div>
               <Textarea value={generatedKey.private_key} readOnly rows={8} />
             </div>
-          </div>
+          </>
         )}
+      </div>
 
-        <DialogFooter>
+      {/* Footer */}
+      <div className="p-4 border-t border-border bg-background">
+        <div className="flex gap-2">
           {!generatedKey ? (
             <>
-              <Button variant="outline" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button onClick={handleGenerate} disabled={loading}>
+              <Button className="flex-1" onClick={handleGenerate} disabled={loading}>
                 {loading ? 'Generating...' : 'Generate'}
+              </Button>
+              <Button variant="outline" onClick={handleClose} disabled={loading}>
+                Cancel
               </Button>
             </>
           ) : (
             <>
+              <Button className="flex-1" onClick={handleSave} disabled={!name.trim()}>
+                Save Key
+              </Button>
               <Button variant="outline" onClick={handleClose}>
                 Close
               </Button>
-              <Button onClick={handleSave} disabled={!name.trim()}>
-                Save Key
-              </Button>
             </>
           )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </div>
   )
 }
