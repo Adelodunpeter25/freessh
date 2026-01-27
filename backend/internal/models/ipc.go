@@ -42,6 +42,7 @@ const (
 	// Key storage messages
 	MsgKeyList   MessageType = "key:list"
 	MsgKeySave   MessageType = "key:save"
+	MsgKeyImport MessageType = "key:import"
 	MsgKeyUpdate MessageType = "key:update"
 	MsgKeyDelete MessageType = "key:delete"
 	MsgKeyExport MessageType = "key:export"

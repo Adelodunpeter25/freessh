@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"freessh-backend/internal/keygen"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
 	"freessh-backend/internal/ssh"
@@ -38,7 +39,7 @@ func NewKeysHandler(manager *session.Manager) *KeysHandler {
 
 func (h *KeysHandler) CanHandle(msgType models.MessageType) bool {
 	switch msgType {
-	case models.MsgKeyList, models.MsgKeySave, models.MsgKeyUpdate, models.MsgKeyDelete, models.MsgKeyExport:
+	case models.MsgKeyList, models.MsgKeySave, models.MsgKeyImport, models.MsgKeyUpdate, models.MsgKeyDelete, models.MsgKeyExport:
 		return true
 	}
 	return false
@@ -54,6 +55,8 @@ func (h *KeysHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) erro
 		return h.handleList(writer)
 	case models.MsgKeySave:
 		return h.handleSave(msg, writer)
+	case models.MsgKeyImport:
+		return h.handleImport(msg, writer)
 	case models.MsgKeyUpdate:
 		return h.handleUpdate(msg, writer)
 	case models.MsgKeyDelete:
@@ -134,6 +137,55 @@ func (h *KeysHandler) handleDelete(msg *models.IPCMessage, writer ResponseWriter
 	return writer.WriteMessage(&models.IPCMessage{
 		Type: models.MsgKeyDelete,
 		Data: map[string]string{"status": "deleted", "id": id},
+	})
+}
+
+func (h *KeysHandler) handleImport(msg *models.IPCMessage, writer ResponseWriter) error {
+	jsonData, err := json.Marshal(msg.Data)
+	if err != nil {
+		return fmt.Errorf("invalid data: %w", err)
+	}
+
+	var data struct {
+		Name       string `json:"name"`
+		PrivateKey string `json:"privateKey"`
+		Passphrase string `json:"passphrase"`
+	}
+	if err := json.Unmarshal(jsonData, &data); err != nil {
+		return fmt.Errorf("failed to parse import data: %w", err)
+	}
+
+	// Parse private key and extract public key
+	result, err := keygen.ParsePrivateKey(data.PrivateKey, data.Passphrase)
+	if err != nil {
+		return fmt.Errorf("failed to parse private key: %w", err)
+	}
+
+	// Create key metadata
+	key := models.SSHKey{
+		ID:        uuid.New().String(),
+		Name:      data.Name,
+		Algorithm: result.Algorithm,
+		Bits:      result.Bits,
+		PublicKey: result.PublicKey,
+		CreatedAt: time.Now(),
+	}
+
+	// Store private key in file
+	if h.fileStorage != nil {
+		if err := h.fileStorage.SavePrivateKey(key.ID, data.PrivateKey); err != nil {
+			return fmt.Errorf("failed to store private key: %w", err)
+		}
+	}
+
+	// Save key metadata
+	if err := h.storage.Save(key); err != nil {
+		return err
+	}
+
+	return writer.WriteMessage(&models.IPCMessage{
+		Type: models.MsgKeyImport,
+		Data: key,
 	})
 }
 
