@@ -41,25 +41,45 @@ export function KeygenSidebar({ onClose, onKeyGenerated, onKeyUpdated, editKey }
   }
 
   const handleSave = async () => {
+    console.log('[KeygenSidebar] handleSave called', { 
+      isEditMode, 
+      hasGeneratedKey: !!generatedKey, 
+      name: name.trim(),
+      hasOnKeyGenerated: !!onKeyGenerated,
+      hasOnKeyUpdated: !!onKeyUpdated
+    })
+    
     setSaving(true)
     try {
       if (isEditMode && onKeyUpdated && name.trim()) {
+        console.log('[KeygenSidebar] Updating key:', editKey)
         await onKeyUpdated({
           ...editKey,
           name: name.trim()
         })
+        console.log('[KeygenSidebar] Key updated successfully')
         handleClose()
       } else if (generatedKey && onKeyGenerated && name.trim()) {
-        await onKeyGenerated({
+        const keyData = {
           id: '',
           name: name.trim(),
           algorithm: keyType,
           bits: keyType === 'rsa' ? keySize : undefined,
           publicKey: generatedKey.public_key,
           createdAt: ''
-        }, generatedKey.private_key)
+        }
+        console.log('[KeygenSidebar] Saving new key:', keyData)
+        console.log('[KeygenSidebar] Private key length:', generatedKey.private_key.length)
+        
+        await onKeyGenerated(keyData, generatedKey.private_key)
+        console.log('[KeygenSidebar] Key saved successfully')
         handleClose()
+      } else {
+        console.warn('[KeygenSidebar] Save conditions not met')
       }
+    } catch (error) {
+      console.error('[KeygenSidebar] Save failed:', error)
+      throw error
     } finally {
       setSaving(false)
     }

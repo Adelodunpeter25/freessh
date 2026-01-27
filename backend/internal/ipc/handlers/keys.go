@@ -68,49 +68,35 @@ func (h *KeysHandler) handleList(writer ResponseWriter) error {
 }
 
 func (h *KeysHandler) handleSave(msg *models.IPCMessage, writer ResponseWriter) error {
-	fmt.Println("[Keys] handleSave called")
 	jsonData, err := json.Marshal(msg.Data)
 	if err != nil {
-		fmt.Printf("[Keys] Failed to marshal data: %v\n", err)
 		return fmt.Errorf("invalid data: %w", err)
 	}
-	fmt.Printf("[Keys] Marshaled data: %s\n", string(jsonData))
 
 	var data struct {
 		Key        models.SSHKey `json:"key"`
 		PrivateKey string        `json:"privateKey"`
 	}
 	if err := json.Unmarshal(jsonData, &data); err != nil {
-		fmt.Printf("[Keys] Failed to unmarshal: %v\n", err)
 		return fmt.Errorf("failed to parse key: %w", err)
 	}
-	fmt.Printf("[Keys] Parsed key: %+v\n", data.Key)
-	fmt.Printf("[Keys] Private key length: %d\n", len(data.PrivateKey))
 
 	if data.Key.ID == "" {
 		data.Key.ID = uuid.New().String()
-		fmt.Printf("[Keys] Generated new ID: %s\n", data.Key.ID)
 	}
 	if data.Key.CreatedAt.IsZero() {
 		data.Key.CreatedAt = time.Now()
-		fmt.Printf("[Keys] Set createdAt: %v\n", data.Key.CreatedAt)
 	}
 
 	// Store private key in keychain
-	fmt.Println("[Keys] Storing private key in keychain...")
 	kc := keychain.New()
 	if err := kc.Set(data.Key.ID+":private_key", data.PrivateKey); err != nil {
-		fmt.Printf("[Keys] Failed to store in keychain: %v\n", err)
 		return fmt.Errorf("failed to store private key: %w", err)
 	}
-	fmt.Println("[Keys] Private key stored successfully")
 
-	fmt.Println("[Keys] Saving key to storage...")
 	if err := h.storage.Save(data.Key); err != nil {
-		fmt.Printf("[Keys] Failed to save to storage: %v\n", err)
 		return err
 	}
-	fmt.Println("[Keys] Key saved successfully")
 
 	return writer.WriteMessage(&models.IPCMessage{
 		Type: models.MsgKeySave,
