@@ -19,12 +19,11 @@ func ExportKeyToConnection(config models.ConnectionConfig, publicKey string, gen
 	// Get credentials from keychain
 	if config.AuthMethod == "password" {
 		password, err := kc.Get(config.ID + ":password")
-		if err == nil && password != "" {
-			clientConfig.Auth = []ssh.AuthMethod{
-				ssh.Password(password),
-			}
-		} else {
-			return fmt.Errorf("password not found in keychain")
+		if err != nil || password == "" {
+			return fmt.Errorf("password not found in keychain - please save connection credentials first")
+		}
+		clientConfig.Auth = []ssh.AuthMethod{
+			ssh.Password(password),
 		}
 	} else if config.AuthMethod == "key" && config.PrivateKey != "" {
 		passphrase, _ := kc.Get(config.ID + ":passphrase")
@@ -43,7 +42,7 @@ func ExportKeyToConnection(config models.ConnectionConfig, publicKey string, gen
 			ssh.PublicKeys(signer),
 		}
 	} else {
-		return fmt.Errorf("no valid authentication method")
+		return fmt.Errorf("no valid authentication method configured for this connection")
 	}
 
 	addr := fmt.Sprintf("%s:%d", config.Host, config.Port)
