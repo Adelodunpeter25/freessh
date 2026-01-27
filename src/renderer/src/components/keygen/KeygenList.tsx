@@ -10,6 +10,7 @@ import { SSHKey } from '@/types/key'
 export function KeygenList() {
   const [showSidebar, setShowSidebar] = useState(false)
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null)
+  const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null)
   const { keys, loading, saveKey, deleteKey } = useKeyStorage()
 
   const handleKeyGenerated = async (key: SSHKey) => {
@@ -21,6 +22,9 @@ export function KeygenList() {
     if (deleteKeyId) {
       await deleteKey(deleteKeyId)
       setDeleteKeyId(null)
+      if (selectedKeyId === deleteKeyId) {
+        setSelectedKeyId(null)
+      }
     }
   }
 
@@ -52,6 +56,8 @@ export function KeygenList() {
                 fingerprint={key.fingerprint}
                 comment={key.name}
                 keyType={key.algorithm === 'ed25519' ? 'Ed25519' : `RSA ${key.bits || 4096}`}
+                selected={selectedKeyId === key.id}
+                onSelect={() => setSelectedKeyId(key.id)}
                 onDelete={() => setDeleteKeyId(key.id)}
               />
             ))
