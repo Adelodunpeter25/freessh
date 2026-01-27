@@ -14,31 +14,25 @@ export function KeygenHeader({ onGenerateKey, onImportKey, searchQuery, onSearch
   return (
     <div className="flex flex-col gap-3">
       {/* Search Bar */}
-      <div className="flex items-center gap-2">
-        <KeySearchBar 
-          searchQuery={searchQuery}
-          onSearchChange={onSearchChange}
-          resultCount={resultCount}
-        />
-        <Button onClick={onImportKey} size="sm" variant="outline">
-          <Upload className="w-4 h-4 mr-2" />
-          Import
-        </Button>
-        <Button onClick={onGenerateKey} size="sm">
-          <Plus className="w-4 h-4 mr-2" />
-          Generate
-        </Button>
-      </div>
+      <KeySearchBar 
+        searchQuery={searchQuery}
+        onSearchChange={onSearchChange}
+        resultCount={resultCount}
+      />
 
       {/* Separator */}
       <div className="h-px bg-border" />
 
-      {/* Title */}
-      <div>
-        <h2 className="text-lg font-semibold">SSH Keys</h2>
-        <p className="text-sm text-muted-foreground">
-          Manage your SSH keys
-        </p>
+      {/* Action Buttons */}
+      <div className="flex gap-2">
+        <Button onClick={onImportKey} variant="outline" className="flex-1">
+          <Upload className="w-4 h-4 mr-2" />
+          Import Key
+        </Button>
+        <Button onClick={onGenerateKey} className="flex-1">
+          <Plus className="w-4 h-4 mr-2" />
+          Generate Key
+        </Button>
       </div>
     </div>
   )
