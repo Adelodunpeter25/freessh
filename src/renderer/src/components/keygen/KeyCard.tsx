@@ -12,14 +12,15 @@ interface KeyCardProps {
   onSelect: () => void
   onEdit: () => void
   onDelete: () => void
+  onExport: () => void
 }
 
-export const KeyCard = memo(function KeyCard({ fingerprint, comment, keyType, selected, onSelect, onEdit, onDelete }: KeyCardProps) {
+export const KeyCard = memo(function KeyCard({ fingerprint, comment, keyType, selected, onSelect, onEdit, onDelete, onExport }: KeyCardProps) {
   return (
     <KeyCardContextMenu
       onEdit={onEdit}
       onDelete={onDelete}
-      onExport={() => console.log('Export to host')}
+      onExport={onExport}
     >
       <div
         className={`group flex items-center gap-4 p-4 rounded-xl border transition-all select-none animate-scale-in ${

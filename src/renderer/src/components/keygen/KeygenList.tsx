@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { KeygenHeader } from './KeygenHeader'
 import { KeygenSidebar } from './KeygenSidebar'
+import { ExportKeySidebar } from './ExportKeySidebar'
 import { KeyCard } from './KeyCard'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
@@ -12,7 +13,8 @@ export function KeygenList() {
   const [deleteKeyId, setDeleteKeyId] = useState<string | null>(null)
   const [selectedKeyId, setSelectedKeyId] = useState<string | null>(null)
   const [editKey, setEditKey] = useState<SSHKey | undefined>(undefined)
-  const { keys, loading, saveKey, updateKey, deleteKey } = useKeyStorage()
+  const [exportKey, setExportKey] = useState<SSHKey | undefined>(undefined)
+  const { keys, loading, saveKey, updateKey, deleteKey, exportKey: exportKeyToHost } = useKeyStorage()
 
   const handleKeyGenerated = async (key: SSHKey) => {
     await saveKey(key)
@@ -28,6 +30,14 @@ export function KeygenList() {
   const handleEdit = (key: SSHKey) => {
     setEditKey(key)
     setShowSidebar(true)
+  }
+
+  const handleExport = (key: SSHKey) => {
+    setExportKey(key)
+  }
+
+  const handleExportToHost = async (keyId: string, sessionId: string) => {
+    await exportKeyToHost(keyId, sessionId)
   }
 
   const handleCloseSidebar = () => {
@@ -77,6 +87,7 @@ export function KeygenList() {
                 onSelect={() => setSelectedKeyId(key.id)}
                 onEdit={() => handleEdit(key)}
                 onDelete={() => setDeleteKeyId(key.id)}
+                onExport={() => handleExport(key)}
               />
             ))
           )}
@@ -89,6 +100,15 @@ export function KeygenList() {
           onKeyGenerated={handleKeyGenerated}
           onKeyUpdated={handleKeyUpdated}
           editKey={editKey}
+        />
+      )}
+
+      {exportKey && (
+        <ExportKeySidebar
+          keyId={exportKey.id}
+          keyName={exportKey.name}
+          onClose={() => setExportKey(undefined)}
+          onExport={handleExportToHost}
         />
       )}
 
