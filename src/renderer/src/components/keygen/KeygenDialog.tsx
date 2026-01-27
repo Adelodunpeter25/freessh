@@ -74,48 +74,43 @@ export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {!generatedKey ? (
-          <>
-            <div className="space-y-2">
-              <Label>Algorithm</Label>
-              <Select value={keyType} onValueChange={(v) => setKeyType(v as KeyType)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="rsa">RSA</SelectItem>
-                  <SelectItem value="ed25519">Ed25519</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+        <div className="space-y-2">
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Key Name (e.g., Personal Laptop)"
+          />
+        </div>
 
-            {keyType === 'rsa' && (
-              <div className="space-y-2">
-                <Label>Key Size</Label>
-                <Select value={keySize.toString()} onValueChange={(v) => setKeySize(Number(v))}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="2048">2048 bits</SelectItem>
-                    <SelectItem value="4096">4096 bits (recommended)</SelectItem>
-                    <SelectItem value="8192">8192 bits</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            <div className="space-y-2">
-              <Label>Key Name</Label>
-              <Input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g., Personal Laptop"
-              />
-            </div>
+        <div className="space-y-2">
+          <Select value={keyType} onValueChange={(v) => setKeyType(v as KeyType)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Algorithm" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="rsa">RSA</SelectItem>
+              <SelectItem value="ed25519">Ed25519</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
+        {keyType === 'rsa' && (
+          <div className="space-y-2">
+            <Select value={keySize.toString()} onValueChange={(v) => setKeySize(Number(v))}>
+              <SelectTrigger>
+                <SelectValue placeholder="Key Size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2048">2048 bits</SelectItem>
+                <SelectItem value="4096">4096 bits (recommended)</SelectItem>
+                <SelectItem value="8192">8192 bits</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {generatedKey && (
+          <>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Fingerprint</Label>
@@ -166,7 +161,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
         <div className="flex gap-2">
           {!generatedKey ? (
             <>
-              <Button className="flex-1" onClick={handleGenerate} disabled={loading}>
+              <Button className="flex-1" onClick={handleGenerate} disabled={loading || !name.trim()}>
                 {loading ? 'Generating...' : 'Generate'}
               </Button>
               <Button variant="outline" onClick={handleClose} disabled={loading}>
@@ -175,7 +170,7 @@ export function KeygenSidebar({ onClose, onKeyGenerated }: KeygenSidebarProps) {
             </>
           ) : (
             <>
-              <Button className="flex-1" onClick={handleSave} disabled={!name.trim()}>
+              <Button className="flex-1" onClick={handleSave}>
                 Save Key
               </Button>
               <Button variant="outline" onClick={handleClose}>
