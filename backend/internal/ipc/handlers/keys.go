@@ -195,7 +195,7 @@ func (h *KeysHandler) handleExport(msg *models.IPCMessage, writer ResponseWriter
 	}
 
 	// Export key to the connection
-	if err := ssh.ExportKeyToConnection(*config, key.PublicKey, privateKey); err != nil {
+	if err := ssh.ExportKeyToConnection(*config, key.PublicKey, privateKey, key.Name); err != nil {
 		return err
 	}
 
