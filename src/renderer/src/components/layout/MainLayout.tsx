@@ -17,8 +17,9 @@ const TerminalView = lazy(() => import("@/components/terminal/TerminalView").the
 const TerminalSettings = lazy(() => import("@/components/terminal/TerminalSettings").then(m => ({ default: m.TerminalSettings })));
 const KeygenList = lazy(() => import("@/components/keygen").then(m => ({ default: m.KeygenList })));
 const KnownHostsPage = lazy(() => import("@/pages/KnownHostsPage").then(m => ({ default: m.KnownHostsPage })));
+const PortForwardPage = lazy(() => import("@/pages/PortForwardPage").then(m => ({ default: m.PortForwardPage })));
 
-type SidebarTab = "connections" | "keys" | "known-hosts" | "settings";
+type SidebarTab = "connections" | "keys" | "known-hosts" | "port-forward" | "settings";
 type MainView = "home" | "sftp" | "terminal";
 
 export function MainLayout() {
@@ -103,6 +104,8 @@ export function MainLayout() {
         return <KeygenList />;
       case "known-hosts":
         return <KnownHostsPage />;
+      case "port-forward":
+        return <PortForwardPage sessionId={activeSessionTabId} />;
       default:
         return null;
     }
