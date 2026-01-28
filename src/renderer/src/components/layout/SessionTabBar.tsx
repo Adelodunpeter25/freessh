@@ -64,6 +64,7 @@ const SessionTab = memo(function SessionTab({
       tabId={id}
       tabTitle={title}
       isPinned={isPinned}
+      showSFTP={!!connectionId}
       onClose={() => onClose(id)}
       onRename={() => onRename(id)}
       onOpenSFTP={() => onOpenSFTP(sessionId)}

@@ -6,6 +6,7 @@ interface SessionTabContextMenuProps {
   tabId: string
   tabTitle: string
   isPinned: boolean
+  showSFTP?: boolean
   onClose: () => void
   onRename: () => void
   onOpenSFTP: () => void
@@ -17,6 +18,7 @@ export function SessionTabContextMenu({
   tabId,
   tabTitle,
   isPinned,
+  showSFTP = true,
   onClose,
   onRename,
   onOpenSFTP,
@@ -28,12 +30,12 @@ export function SessionTabContextMenu({
       icon: <Edit className="w-4 h-4" />,
       onClick: onRename
     },
-    {
+    ...(showSFTP ? [{
       label: 'Open SFTP',
       icon: <FolderSync className="w-4 h-4" />,
       onClick: onOpenSFTP,
       separator: true
-    },
+    }] : []),
     {
       label: isPinned ? 'Unpin Tab' : 'Pin Tab',
       icon: isPinned ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />,
