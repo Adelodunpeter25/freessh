@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { TunnelList, PortForwardSidebar } from '@/components/portforward'
 import { usePortForwardConfig } from '@/hooks/usePortForwardConfig'
 import { portForwardService } from '@/services/ipc/portforward'
@@ -12,6 +13,7 @@ import { toast } from 'sonner'
 export function PortForwardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [editConfig, setEditConfig] = useState<PortForwardConfig | undefined>()
+  const [deleteConfigId, setDeleteConfigId] = useState<string | null>(null)
   const [activeTunnels, setActiveTunnels] = useState<Map<string, TunnelInfo>>(new Map())
   
   const { configs, loading, createConfig, updateConfig, deleteConfig } = usePortForwardConfig()
@@ -87,13 +89,18 @@ export function PortForwardPage() {
     setSidebarOpen(true)
   }
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Delete this port forward configuration?')) {
-      if (activeTunnels.has(id)) {
-        await handleStop(id)
-      }
-      await deleteConfig(id)
+  const handleDeleteClick = (id: string) => {
+    setDeleteConfigId(id)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfigId) return
+    
+    if (activeTunnels.has(deleteConfigId)) {
+      await handleStop(deleteConfigId)
     }
+    await deleteConfig(deleteConfigId)
+    setDeleteConfigId(null)
   }
 
   const handleStart = async (id: string) => {
@@ -184,7 +191,7 @@ export function PortForwardPage() {
           onStart={handleStart}
           onStop={handleStop}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onDelete={handleDeleteClick}
         />
       </div>
 
@@ -197,6 +204,16 @@ export function PortForwardPage() {
         onSave={handleSave}
         connections={connections}
         editConfig={editConfig}
+      />
+
+      <ConfirmDialog
+        open={!!deleteConfigId}
+        onOpenChange={(open) => !open && setDeleteConfigId(null)}
+        title="Delete Port Forward"
+        description="Are you sure you want to delete this port forward configuration? This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
+        confirmText="Delete"
+        cancelText="Cancel"
       />
     </div>
   )
