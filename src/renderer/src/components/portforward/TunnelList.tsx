@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { PortForwardConfig } from '@/types'
 import { TunnelCard } from './TunnelCard'
 
@@ -13,6 +14,8 @@ interface TunnelListProps {
 }
 
 export function TunnelList({ configs, loading, activeTunnels, connections, onStart, onStop, onEdit, onDelete }: TunnelListProps) {
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -33,17 +36,21 @@ export function TunnelList({ configs, loading, activeTunnels, connections, onSta
   }
 
   return (
-    <div className="grid gap-4 p-6">
+    <div className="grid gap-4 p-6" onClick={() => setSelectedId(null)}>
       {configs.map((config) => (
         <TunnelCard
           key={config.id}
           config={config}
           connectionName={connections.get(config.connection_id)}
           isActive={activeTunnels.has(config.id)}
+          selected={selectedId === config.id}
           onStart={onStart}
           onStop={onStop}
           onEdit={onEdit}
           onDelete={onDelete}
+          onSelect={(id) => {
+            setSelectedId(id)
+          }}
         />
       ))}
     </div>

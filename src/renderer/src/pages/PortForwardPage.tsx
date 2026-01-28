@@ -79,7 +79,7 @@ function PortForwardPageContent() {
             Manage SSH port forwarding configurations
           </p>
         </div>
-        <Button onClick={handleNew} size="sm">
+        <Button onClick={handleNew} size="sm" className="transition-transform hover:scale-105">
           <Plus className="w-4 h-4 mr-2" />
           New Port Forward
         </Button>
