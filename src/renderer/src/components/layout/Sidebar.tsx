@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Server, FileText, Settings, Key, type LucideIcon } from 'lucide-react'
+import { Server, FileText, Settings, Key, Fingerprint, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-type SidebarTab = 'connections' | 'keys' | 'snippets'
+type SidebarTab = 'connections' | 'keys' | 'known-hosts' | 'snippets'
 
 interface SidebarProps {
   onTabChange?: (tab: SidebarTab) => void
@@ -14,6 +14,7 @@ export function Sidebar({ onTabChange }: SidebarProps) {
   const mainTabs = [
     { id: 'connections' as SidebarTab, icon: Server, label: 'Connections' },
     { id: 'keys' as SidebarTab, icon: Key, label: 'Keys' },
+    { id: 'known-hosts' as SidebarTab, icon: Fingerprint, label: 'Known Hosts' },
     { id: 'snippets' as SidebarTab, icon: FileText, label: 'Snippets' },
   ]
 

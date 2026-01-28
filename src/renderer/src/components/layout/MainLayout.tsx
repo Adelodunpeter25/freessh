@@ -16,8 +16,9 @@ const SFTPPage = lazy(() => import("@/pages/SFTPPage"));
 const TerminalView = lazy(() => import("@/components/terminal/TerminalView").then(m => ({ default: m.TerminalView })));
 const TerminalSettings = lazy(() => import("@/components/terminal/TerminalSettings").then(m => ({ default: m.TerminalSettings })));
 const KeygenList = lazy(() => import("@/components/keygen").then(m => ({ default: m.KeygenList })));
+const KnownHostsPage = lazy(() => import("@/pages/KnownHostsPage").then(m => ({ default: m.KnownHostsPage })));
 
-type SidebarTab = "connections" | "keys" | "snippets" | "settings";
+type SidebarTab = "connections" | "keys" | "known-hosts" | "snippets" | "settings";
 type MainView = "home" | "sftp" | "terminal";
 
 export function MainLayout() {
@@ -100,6 +101,8 @@ export function MainLayout() {
         return <ConnectionsPage />;
       case "keys":
         return <KeygenList />;
+      case "known-hosts":
+        return <KnownHostsPage />;
       case "snippets":
         return (
           <div className="flex items-center justify-center h-full text-muted-foreground">
