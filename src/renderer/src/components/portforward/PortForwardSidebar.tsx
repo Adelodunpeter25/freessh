@@ -48,7 +48,7 @@ export function PortForwardSidebar({ isOpen, onClose, onCreateLocal, onCreateRem
   }
 
   return (
-    <div className="fixed right-0 top-0 h-full w-96 bg-background border-l shadow-lg z-50 flex flex-col">
+    <div className="fixed right-0 top-12 bottom-0 w-80 bg-background border-l shadow-lg z-50 flex flex-col animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-lg font-semibold">Port Forwarding</h2>
@@ -130,7 +130,7 @@ export function PortForwardSidebar({ isOpen, onClose, onCreateLocal, onCreateRem
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t space-y-2">
+      <div className="p-4 border-t space-y-2 bg-background">
         <Button
           onClick={handleCreate}
           disabled={creating}
