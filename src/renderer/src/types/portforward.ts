@@ -25,3 +25,15 @@ export interface CreateTunnelRequest {
   config?: TunnelConfig
   remote?: RemoteTunnelConfig
 }
+
+export interface PortForwardConfig {
+  id: string
+  name: string
+  connection_id: string
+  type: 'local' | 'remote'
+  local_port: number
+  remote_host: string
+  remote_port: number
+  binding_address: string
+  auto_start: boolean
+}
