@@ -45,7 +45,6 @@ export function PortForwardPage() {
         try {
           const tunnels = await portForwardService.list(sessionId)
           tunnels.forEach(tunnel => {
-            // Find matching config by ports and type
             const config = configs.find(c => 
               c.connection_id === connectionId &&
               c.type === tunnel.type &&
@@ -90,7 +89,6 @@ export function PortForwardPage() {
 
   const handleDelete = async (id: string) => {
     if (confirm('Delete this port forward configuration?')) {
-      // Stop tunnel if active
       if (activeTunnels.has(id)) {
         await handleStop(id)
       }

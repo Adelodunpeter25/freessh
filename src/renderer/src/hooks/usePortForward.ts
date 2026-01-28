@@ -31,7 +31,7 @@ export const usePortForward = (sessionId: string | null) => {
   }, [sessionId, loadTunnels])
 
   const createLocalTunnel = useCallback(async (config: TunnelConfig) => {
-    if (!sessionId) return
+    if (!sessionId) throw new Error('No active session')
 
     setError(null)
     try {
@@ -46,7 +46,7 @@ export const usePortForward = (sessionId: string | null) => {
   }, [sessionId])
 
   const createRemoteTunnel = useCallback(async (config: RemoteTunnelConfig) => {
-    if (!sessionId) return
+    if (!sessionId) throw new Error('No active session')
 
     setError(null)
     try {
@@ -61,7 +61,7 @@ export const usePortForward = (sessionId: string | null) => {
   }, [sessionId])
 
   const stopTunnel = useCallback(async (tunnelId: string) => {
-    if (!sessionId) return
+    if (!sessionId) throw new Error('No active session')
 
     setError(null)
     try {
