@@ -1,5 +1,8 @@
 import { PortForwardConfig } from '@/types'
 import { TunnelCard } from './TunnelCard'
+import { EmptyState } from '@/components/common/EmptyState'
+import { LoadingSpinner } from '@/components/common/LoadingSpinner'
+import { Network } from 'lucide-react'
 
 interface TunnelListProps {
   configs: PortForwardConfig[]
@@ -19,19 +22,18 @@ export function TunnelList({ configs, loading, activeTunnels, connections, onSta
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-muted-foreground">Loading port forwards...</p>
+        <LoadingSpinner />
       </div>
     )
   }
 
   if (configs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
-        <p className="text-muted-foreground mb-2">No port forwards configured</p>
-        <p className="text-sm text-muted-foreground">
-          Create a port forward to tunnel through SSH connections
-        </p>
-      </div>
+      <EmptyState
+        icon={Network}
+        title="No port forwards configured"
+        description="Create a port forward to tunnel through SSH connections"
+      />
     )
   }
 
