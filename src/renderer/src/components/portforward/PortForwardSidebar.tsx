@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
 import { PortForwardConfig, ConnectionConfig } from '@/types'
 
 interface PortForwardSidebarProps {
@@ -188,14 +187,16 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
         )}
 
         <div className="flex items-center space-x-2">
-          <Checkbox
+          <input
+            type="checkbox"
             id="auto-start"
             checked={autoStart}
-            onCheckedChange={(checked) => setAutoStart(checked as boolean)}
+            onChange={(e) => setAutoStart(e.target.checked)}
+            className="w-4 h-4 rounded border-gray-300"
           />
           <label
             htmlFor="auto-start"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            className="text-sm font-medium leading-none cursor-pointer"
           >
             Auto-start with connection
           </label>
