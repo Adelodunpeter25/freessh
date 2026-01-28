@@ -1,14 +1,12 @@
-import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Trash2, Copy, Fingerprint } from 'lucide-react'
 import { KnownHost } from '@/types/knownHost'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
 
 interface KnownHostCardProps {
   host: KnownHost
-  selected?: boolean
-  onSelect?: () => void
+  selected: boolean
+  onSelect: () => void
   onRemove: (id: string) => void
 }
 
@@ -19,54 +17,48 @@ export function KnownHostCard({ host, selected, onSelect, onRemove }: KnownHostC
   }
 
   return (
-    <Card
-      className={cn(
-        'relative cursor-pointer transition-all duration-200 hover:shadow-md hover:scale-[1.02]',
-        selected && 'ring-2 ring-primary shadow-md'
-      )}
+    <div
+      className={`group flex items-center gap-4 p-4 rounded-xl border transition-all select-none animate-scale-in ${
+        selected 
+          ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)] cursor-pointer' 
+          : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md cursor-pointer'
+      }`}
       onClick={onSelect}
     >
-      <div className="p-4 space-y-3">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Fingerprint className="h-5 w-5 text-primary flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold truncate">{host.hostname}:{host.port}</h3>
-            </div>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => {
-              e.stopPropagation()
-              onRemove(host.id)
-            }}
-            className="text-destructive hover:text-destructive flex-shrink-0"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {/* Fingerprint */}
-        <div className="space-y-1">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">Fingerprint</p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation()
-                copyFingerprint()
-              }}
-              className="h-6 px-2"
-            >
-              <Copy className="h-3 w-3" />
-            </Button>
-          </div>
-          <p className="text-xs font-mono break-all text-muted-foreground">{host.fingerprint}</p>
-        </div>
+      <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+        <Fingerprint className="h-7 w-7 text-primary" />
       </div>
-    </Card>
+      
+      <div className="flex-1 min-w-0">
+        <h3 className="text-base font-semibold text-foreground truncate">{host.hostname}:{host.port}</h3>
+        <p className="text-xs text-muted-foreground truncate font-mono">
+          {host.fingerprint}
+        </p>
+      </div>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="opacity-0 group-hover:opacity-100 h-8 w-8 text-muted-foreground hover:text-foreground"
+        onClick={(e) => {
+          e.stopPropagation()
+          copyFingerprint()
+        }}
+      >
+        <Copy className="h-4 w-4" />
+      </Button>
+
+      <Button
+        variant="ghost"
+        size="icon"
+        className="opacity-0 group-hover:opacity-100 h-8 w-8 text-destructive hover:text-destructive"
+        onClick={(e) => {
+          e.stopPropagation()
+          onRemove(host.id)
+        }}
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
+    </div>
   )
 }
