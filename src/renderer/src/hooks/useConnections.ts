@@ -5,12 +5,18 @@ import { ConnectionConfig, Session } from "../types";
 import { useConnectionStore } from "../stores/connectionStore";
 import { useSessionStore } from "../stores/sessionStore";
 import { useTabStore } from "../stores/tabStore";
+import { HostKeyVerification } from "@/types/knownHost";
 
 export const useConnections = () => {
   const [connections, setConnections] = useState<ConnectionConfig[]>([]);
   const [loading, setLoading] = useState(false);
   const [connectingId, setConnectingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pendingVerification, setPendingVerification] = useState<HostKeyVerification | null>(null);
+  const [verificationResolver, setVerificationResolver] = useState<{
+    resolve: (value: boolean) => void;
+    reject: (reason?: any) => void;
+  } | null>(null);
 
   const addSession = useSessionStore((state) => state.addSession);
   const addTab = useTabStore((state) => state.addTab);
@@ -115,16 +121,35 @@ export const useConnections = () => {
     [connectAndOpen, loadConnections],
   );
 
+  const handleVerificationTrust = useCallback(() => {
+    if (verificationResolver) {
+      verificationResolver.resolve(true);
+      setPendingVerification(null);
+      setVerificationResolver(null);
+    }
+  }, [verificationResolver]);
+
+  const handleVerificationCancel = useCallback(() => {
+    if (verificationResolver) {
+      verificationResolver.reject(new Error('User cancelled host verification'));
+      setPendingVerification(null);
+      setVerificationResolver(null);
+    }
+  }, [verificationResolver]);
+
   return {
     connections,
     loading,
     connectingId,
     error,
+    pendingVerification,
     loadConnections,
     getConnection,
     deleteConnection,
     updateConnection,
     connectAndOpen,
     saveAndConnect,
+    handleVerificationTrust,
+    handleVerificationCancel,
   };
 };

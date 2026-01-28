@@ -3,6 +3,7 @@ import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
+import { HostKeyVerificationDialog } from '@/components/knownhosts'
 import { useConnections } from '@/hooks'
 import { useUIStore } from '@/stores/uiStore'
 import { ConnectionConfig } from '@/types'
@@ -12,10 +13,13 @@ export function ConnectionsPage() {
     connections, 
     loading, 
     connectingId,
+    pendingVerification,
     deleteConnection, 
     updateConnection, 
     connectAndOpen,
-    saveAndConnect 
+    saveAndConnect,
+    handleVerificationTrust,
+    handleVerificationCancel
   } = useConnections()
   const openSFTP = useUIStore((state) => state.openSFTP)
   const [showForm, setShowForm] = useState(false)
@@ -114,6 +118,15 @@ export function ConnectionsPage() {
           onConnect={handleFormConnect}
           onSave={handleFormSave}
           onClose={handleCloseForm}
+        />
+      )}
+
+      <HostKeyVerificationDialog
+        open={!!pendingVerification}
+        verification={pendingVerification}
+        onTrust={handleVerificationTrust}
+        onCancel={handleVerificationCancel}
+      />
         />
       )}
     </div>
