@@ -2,7 +2,6 @@ package localterminal
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"runtime"
@@ -13,13 +12,16 @@ import (
 
 type Terminal struct {
 	cmd    *exec.Cmd
-	ptmx   *os.File
+	pty    *PTY
+	io     *IO
 	mu     sync.Mutex
 	closed bool
 }
 
 func NewTerminal() *Terminal {
-	return &Terminal{}
+	return &Terminal{
+		pty: NewPTY(),
+	}
 }
 
 func (t *Terminal) Initialize(rows, cols int) error {
@@ -34,12 +36,11 @@ func (t *Terminal) Initialize(rows, cols int) error {
 	if err != nil {
 		return fmt.Errorf("failed to start pty: %w", err)
 	}
-	t.ptmx = ptmx
 
-	if err := pty.Setsize(ptmx, &pty.Winsize{
-		Rows: uint16(rows),
-		Cols: uint16(cols),
-	}); err != nil {
+	t.pty.SetFile(ptmx)
+	t.io = NewIO(ptmx)
+
+	if err := t.pty.SetSize(rows, cols); err != nil {
 		ptmx.Close()
 		return fmt.Errorf("failed to set pty size: %w", err)
 	}
@@ -51,29 +52,26 @@ func (t *Terminal) Write(data []byte) (int, error) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
-	if t.closed || t.ptmx == nil {
+	if t.closed || t.io == nil {
 		return 0, fmt.Errorf("terminal closed")
 	}
 
-	return t.ptmx.Write(data)
+	return t.io.Write(data)
 }
 
-func (t *Terminal) Read() io.Reader {
-	return t.ptmx
+func (t *Terminal) Read() *IO {
+	return t.io
 }
 
 func (t *Terminal) Resize(rows, cols int) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
-	if t.ptmx == nil {
+	if t.pty == nil {
 		return fmt.Errorf("terminal not initialized")
 	}
 
-	return pty.Setsize(t.ptmx, &pty.Winsize{
-		Rows: uint16(rows),
-		Cols: uint16(cols),
-	})
+	return t.pty.SetSize(rows, cols)
 }
 
 func (t *Terminal) Close() error {
@@ -86,8 +84,8 @@ func (t *Terminal) Close() error {
 
 	t.closed = true
 
-	if t.ptmx != nil {
-		t.ptmx.Close()
+	if t.pty != nil {
+		t.pty.Close()
 	}
 
 	if t.cmd != nil && t.cmd.Process != nil {

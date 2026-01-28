@@ -12,7 +12,8 @@ func (m *Manager) readOutput(as *ActiveSession) {
 }
 
 func (m *Manager) readLocalOutput(as *ActiveSession) {
-	reader := as.LocalTerminal.Read()
+	io := as.LocalTerminal.Read()
+	reader := io.Read()
 	go m.pipeOutput(as, reader)
 }
 
