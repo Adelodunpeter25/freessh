@@ -21,5 +21,27 @@ export const sessionService = {
         type: 'session_list'
       })
     })
+  },
+
+  connectLocal(): Promise<Session> {
+    return new Promise((resolve, reject) => {
+      const handler = (message: IPCMessage) => {
+        if (message.type === 'session_status') {
+          backendService.off('session_status')
+          const session = message.data as Session
+          if (session.status === 'error') {
+            reject(new Error(session.error || 'Failed to create local terminal'))
+          } else {
+            resolve(session)
+          }
+        }
+      }
+
+      backendService.on('session_status', handler)
+
+      backendService.send({
+        type: 'connect_local'
+      })
+    })
   }
 }

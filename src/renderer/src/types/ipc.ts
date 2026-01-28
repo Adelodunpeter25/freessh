@@ -1,5 +1,6 @@
 export type MessageType =
   | 'connect'
+  | 'connect_local'
   | 'disconnect'
   | 'input'
   | 'output'

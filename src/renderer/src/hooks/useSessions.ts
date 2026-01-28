@@ -22,6 +22,18 @@ export const useSessions = () => {
     }
   }, [])
 
+  const connectLocal = useCallback(async () => {
+    setError(null)
+    try {
+      const session = await sessionService.connectLocal()
+      return session
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create local terminal'
+      setError(errorMessage)
+      throw err
+    }
+  }, [])
+
   useEffect(() => {
     loadSessions()
   }, [loadSessions])
@@ -30,6 +42,7 @@ export const useSessions = () => {
     sessions,
     loading,
     error,
-    reload: loadSessions
+    reload: loadSessions,
+    connectLocal
   }
 }

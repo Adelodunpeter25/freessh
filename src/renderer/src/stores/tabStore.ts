@@ -14,6 +14,7 @@ interface TabStore {
   activeTabId: string | null
   
   addTab: (session: Session, connection: ConnectionConfig, type: 'terminal' | 'sftp') => void
+  addLocalTab: (session: Session) => void
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
@@ -31,6 +32,20 @@ export const useTabStore = create<TabStore>((set, get) => ({
       sessionId: session.id,
       title: connection.name || connection.host,
       type
+    }
+
+    set((state) => ({
+      tabs: [...state.tabs, newTab],
+      activeTabId: newTab.id
+    }))
+  },
+
+  addLocalTab: (session) => {
+    const newTab: Tab = {
+      id: `${session.id}-terminal`,
+      sessionId: session.id,
+      title: 'Local Terminal',
+      type: 'terminal'
     }
 
     set((state) => ({

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
+import { toast } from "sonner";
 import { TitleBar } from "./TitleBar";
 import { Sidebar } from "./Sidebar";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
@@ -7,8 +8,10 @@ import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
+import { useSessionStore } from "@/stores/sessionStore";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useMenuActions } from "@/hooks/useMenuActions";
+import { sessionService } from "@/services/ipc";
 
 // Lazy load pages
 const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));
