@@ -10,9 +10,10 @@ import { Terminal as XTerm } from 'xterm'
 
 interface TerminalViewProps {
   sessionId: string
+  isActive?: boolean
 }
 
-export function TerminalView({ sessionId }: TerminalViewProps) {
+export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) {
   const { sendInput, resize, setXterm } = useTerminal(sessionId)
   const [showSearch, setShowSearch] = useState(false)
   const searchAddonRef = useRef<SearchAddon | null>(null)
@@ -49,7 +50,7 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
   useKeyboardShortcuts({
     onClearTerminal: actions.clear,
     onSearchTerminal: () => setShowSearch(true),
-  })
+  }, isActive)
 
   return (
     <TerminalContextMenu
@@ -73,6 +74,7 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
           onData={sendInput}
           onResize={handleResize}
           onReady={handleReady}
+          isActive={isActive}
         />
       </div>
     </TerminalContextMenu>

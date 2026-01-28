@@ -12,9 +12,10 @@ interface TerminalPaneProps {
   onData: (data: string) => void
   onResize: (cols: number, rows: number) => void
   onReady: (xterm: XTerm, searchAddon: SearchAddon) => void
+  isActive?: boolean
 }
 
-export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onResize, onReady }: TerminalPaneProps) {
+export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onResize, onReady, isActive = true }: TerminalPaneProps) {
   const terminalRef = useRef<HTMLDivElement>(null)
   const xtermRef = useRef<XTerm | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
@@ -26,6 +27,18 @@ export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onRe
 
   onDataRef.current = onData
   onResizeRef.current = onResize
+
+  // Re-fit when becoming active
+  useEffect(() => {
+    if (isActive && xtermRef.current && fitAddonRef.current) {
+      requestAnimationFrame(() => {
+        if (fitAddonRef.current && xtermRef.current) {
+          fitAddonRef.current.fit()
+          onResizeRef.current(xtermRef.current.cols, xtermRef.current.rows)
+        }
+      })
+    }
+  }, [isActive])
 
   // Live theme update
   useEffect(() => {
@@ -39,8 +52,8 @@ export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onRe
     if (xtermRef.current) {
       xtermRef.current.options.fontFamily = fontFamily
       xtermRef.current.options.fontSize = fontSize
-      xtermRef.current.options.fontWeight = fontWeight.toString()
-      
+      xtermRef.current.options.fontWeight = fontWeight as any
+
       // Refit after font change
       if (fitAddonRef.current) {
         requestAnimationFrame(() => {
@@ -64,19 +77,19 @@ export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onRe
       cursorBlink: true,
       fontSize,
       fontFamily,
-      fontWeight: fontWeight.toString(),
+      fontWeight: fontWeight as any,
       letterSpacing: 0,
       theme
     })
 
     const fitAddon = new FitAddon()
     const searchAddon = new SearchAddon()
-    
+
     // Configure search decoration colors
     searchAddon.onDidChangeResults(() => {
       // Custom highlight colors applied via CSS
     })
-    
+
     xterm.loadAddon(fitAddon)
     xterm.loadAddon(searchAddon)
     xterm.open(terminalRef.current)

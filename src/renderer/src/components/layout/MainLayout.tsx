@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
-import { toast } from "sonner";
 import { TitleBar } from "./TitleBar";
 import { Sidebar } from "./Sidebar";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
@@ -8,10 +7,8 @@ import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
-import { useSessionStore } from "@/stores/sessionStore";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useMenuActions } from "@/hooks/useMenuActions";
-import { sessionService } from "@/services/ipc";
 
 // Lazy load pages
 const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));
@@ -156,7 +153,17 @@ export function MainLayout() {
       {/* Terminal view */}
       <div className={mainView === "terminal" ? "flex-1 overflow-hidden" : "hidden"}>
         <Suspense fallback={<div className="flex items-center justify-center h-full"><LoadingSpinner /></div>}>
-          {activeTab && <TerminalView sessionId={activeTab.sessionId} />}
+          {tabs.filter(t => t.type === 'terminal').map((tab) => (
+            <div
+              key={tab.id}
+              className={activeSessionTabId === tab.id ? "h-full w-full" : "hidden"}
+            >
+              <TerminalView
+                sessionId={tab.sessionId}
+                isActive={activeSessionTabId === tab.id && mainView === "terminal"}
+              />
+            </div>
+          ))}
         </Suspense>
       </div>
 
@@ -169,7 +176,7 @@ export function MainLayout() {
 
       {/* Keyboard Shortcuts Dialog */}
       <KeyboardShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />
-      
+
       {/* Settings Dialog */}
       <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
     </div>
