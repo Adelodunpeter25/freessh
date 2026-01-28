@@ -1,10 +1,11 @@
-import { Server, Search, X } from 'lucide-react'
+import { Server, Search, X, Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ConnectionConfig } from '@/types'
 
 interface ConnectionsHeaderProps {
   onNewConnection: () => void
+  onNewLocalTerminal: () => void
   searchQuery: string
   onSearchChange: (query: string) => void
   filteredConnections: ConnectionConfig[]
@@ -17,7 +18,8 @@ interface ConnectionsHeaderProps {
 }
 
 export function ConnectionsHeader({ 
-  onNewConnection, 
+  onNewConnection,
+  onNewLocalTerminal,
   searchQuery, 
   onSearchChange,
   filteredConnections,
@@ -86,6 +88,16 @@ export function ConnectionsHeader({
         >
           <Server className="h-4 w-4 mr-2" />
           NEW CONNECTION
+        </Button>
+
+        <Button 
+          onClick={onNewLocalTerminal}
+          variant="secondary" 
+          size="sm"
+          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all"
+        >
+          <Terminal className="h-4 w-4 mr-2" />
+          LOCAL TERMINAL
         </Button>
 
         <Button
