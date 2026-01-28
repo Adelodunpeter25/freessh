@@ -49,7 +49,13 @@ func (h *PortForwardHandler) handleCreate(msg *models.IPCMessage, writer Respons
 		return fmt.Errorf("failed to parse create tunnel request: %w", err)
 	}
 
-	tunnel, err := h.manager.CreateTunnel(msg.SessionID, req.Config)
+	var tunnel *models.TunnelInfo
+	if req.Type == "remote" {
+		tunnel, err = h.manager.CreateRemoteTunnel(msg.SessionID, req.Remote)
+	} else {
+		tunnel, err = h.manager.CreateLocalTunnel(msg.SessionID, req.Config)
+	}
+
 	if err != nil {
 		return err
 	}

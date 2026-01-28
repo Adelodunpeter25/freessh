@@ -1,4 +1,4 @@
-package portforward
+package local
 
 import (
 	"fmt"
@@ -7,6 +7,19 @@ import (
 
 	"golang.org/x/crypto/ssh"
 )
+
+type Tunnel struct {
+	ID         string
+	LocalPort  int
+	RemoteHost string
+	RemotePort int
+	Status     string
+	Error      string
+
+	listener  net.Listener
+	sshClient *ssh.Client
+	stopChan  chan struct{}
+}
 
 func NewTunnel(id string, localPort int, remoteHost string, remotePort int, sshClient *ssh.Client) *Tunnel {
 	return &Tunnel{
@@ -21,9 +34,6 @@ func NewTunnel(id string, localPort int, remoteHost string, remotePort int, sshC
 }
 
 func (t *Tunnel) Start() error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
 	if t.Status == "active" {
 		return fmt.Errorf("tunnel already active")
 	}
@@ -91,9 +101,6 @@ func (t *Tunnel) handleConnection(localConn net.Conn) {
 }
 
 func (t *Tunnel) Stop() error {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-
 	if t.Status != "active" {
 		return nil
 	}
@@ -109,7 +116,5 @@ func (t *Tunnel) Stop() error {
 }
 
 func (t *Tunnel) IsActive() bool {
-	t.mu.Lock()
-	defer t.mu.Unlock()
 	return t.Status == "active"
 }

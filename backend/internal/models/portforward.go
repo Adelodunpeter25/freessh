@@ -6,8 +6,15 @@ type TunnelConfig struct {
 	RemotePort int    `json:"remote_port"`
 }
 
+type RemoteTunnelConfig struct {
+	RemotePort int    `json:"remote_port"`
+	LocalHost  string `json:"local_host"`
+	LocalPort  int    `json:"local_port"`
+}
+
 type TunnelInfo struct {
 	ID         string `json:"id"`
+	Type       string `json:"type"` // "local" or "remote"
 	LocalPort  int    `json:"local_port"`
 	RemoteHost string `json:"remote_host"`
 	RemotePort int    `json:"remote_port"`
@@ -16,7 +23,9 @@ type TunnelInfo struct {
 }
 
 type CreateTunnelRequest struct {
-	Config TunnelConfig `json:"config"`
+	Type   string              `json:"type"` // "local" or "remote"
+	Config TunnelConfig        `json:"config,omitempty"`
+	Remote RemoteTunnelConfig  `json:"remote,omitempty"`
 }
 
 type StopTunnelRequest struct {
