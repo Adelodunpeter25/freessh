@@ -11,6 +11,11 @@ func (m *Manager) readOutput(as *ActiveSession) {
 	go m.pipeOutput(as, stderr)
 }
 
+func (m *Manager) readLocalOutput(as *ActiveSession) {
+	reader := as.LocalTerminal.Read()
+	go m.pipeOutput(as, reader)
+}
+
 func (m *Manager) pipeOutput(as *ActiveSession, reader io.Reader) {
 	buf := make([]byte, 4096)
 	for {

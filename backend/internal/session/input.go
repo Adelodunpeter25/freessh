@@ -6,7 +6,11 @@ func (m *Manager) SendInput(sessionID string, data []byte) error {
 		return err
 	}
 
-	_, err = session.Terminal.Write(data)
+	if session.LocalTerminal != nil {
+		_, err = session.LocalTerminal.Write(data)
+	} else {
+		_, err = session.Terminal.Write(data)
+	}
 	return err
 }
 
@@ -16,5 +20,8 @@ func (m *Manager) ResizeTerminal(sessionID string, rows, cols int) error {
 		return err
 	}
 
+	if session.LocalTerminal != nil {
+		return session.LocalTerminal.Resize(rows, cols)
+	}
 	return session.Terminal.Resize(rows, cols)
 }

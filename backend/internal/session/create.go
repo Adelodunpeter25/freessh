@@ -3,11 +3,13 @@ package session
 import (
 	"fmt"
 	"freessh-backend/internal/keychain"
+	"freessh-backend/internal/localterminal"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/osdetect"
 	"freessh-backend/internal/ssh"
 	"freessh-backend/internal/storage"
 	"freessh-backend/internal/terminal"
+	"runtime"
 	"time"
 
 	"github.com/google/uuid"
@@ -121,11 +123,43 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 
 	session.Status = models.SessionConnected
 	session.ConnectedAt = time.Now()
+	session.Type = models.SessionTypeSSH
 
 	activeSession := NewActiveSession(sessionID, sshClient, term, session)
 	m.AddSession(activeSession)
 
 	go m.readOutput(activeSession)
+
+	return &session, nil
+}
+
+func (m *Manager) CreateLocalSession() (*models.Session, error) {
+	sessionID := uuid.New().String()
+
+	session := models.Session{
+		ID:           sessionID,
+		ConnectionID: "local",
+		Type:         models.SessionTypeLocal,
+		Status:       models.SessionConnecting,
+	}
+
+	localTerm := localterminal.NewTerminal()
+	if err := localTerm.Initialize(24, 80); err != nil {
+		session.Status = models.SessionError
+		session.Error = err.Error()
+		return &session, err
+	}
+
+	// Detect OS type
+	osType := runtime.GOOS
+	session.OSType = osType
+	session.Status = models.SessionConnected
+	session.ConnectedAt = time.Now()
+
+	activeSession := NewLocalSession(sessionID, localTerm, session)
+	m.AddSession(activeSession)
+
+	go m.readLocalOutput(activeSession)
 
 	return &session, nil
 }

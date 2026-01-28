@@ -4,6 +4,7 @@ type MessageType string
 
 const (
 	MsgConnect       MessageType = "connect"
+	MsgConnectLocal  MessageType = "connect_local"
 	MsgDisconnect    MessageType = "disconnect"
 	MsgInput         MessageType = "input"
 	MsgOutput        MessageType = "output"

@@ -1,6 +1,7 @@
 package session
 
 import (
+	"freessh-backend/internal/localterminal"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/portforward"
 	"freessh-backend/internal/sftp"
@@ -12,6 +13,7 @@ type ActiveSession struct {
 	ID              string
 	SSHClient       *ssh.Client
 	Terminal        *terminal.Terminal
+	LocalTerminal   *localterminal.Terminal
 	SFTPClient      *sftp.Client
 	PortForwardMgr  *portforward.Manager
 	Session         models.Session
@@ -31,6 +33,17 @@ func NewActiveSession(id string, sshClient *ssh.Client, term *terminal.Terminal,
 		OutputChan:     make(chan []byte, 100),
 		ErrorChan:      make(chan error, 10),
 		stopChan:       make(chan struct{}),
+	}
+}
+
+func NewLocalSession(id string, localTerm *localterminal.Terminal, session models.Session) *ActiveSession {
+	return &ActiveSession{
+		ID:            id,
+		LocalTerminal: localTerm,
+		Session:       session,
+		OutputChan:    make(chan []byte, 100),
+		ErrorChan:     make(chan error, 10),
+		stopChan:      make(chan struct{}),
 	}
 }
 
