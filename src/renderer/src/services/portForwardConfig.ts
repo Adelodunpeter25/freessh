@@ -1,4 +1,4 @@
-import { backendService } from './backend'
+import { backendService } from './ipc/backend'
 import { PortForwardConfig, IPCMessage } from '@/types'
 
 export const portForwardConfigService = {
