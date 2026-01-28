@@ -23,6 +23,10 @@ export function TunnelCard({ config, connectionName, isActive, selected, onStart
           e.stopPropagation()
           onSelect(config.id)
         }}
+        onContextMenu={(e) => {
+          e.stopPropagation()
+          onSelect(config.id)
+        }}
         className={`group flex items-start gap-2 p-3 rounded-xl border transition-all select-none cursor-pointer animate-scale-in ${
           selected 
             ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)]' 
