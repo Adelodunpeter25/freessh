@@ -20,7 +20,7 @@ const noDrag = { WebkitAppRegion: 'no-drag' } as React.CSSProperties
 export function TitleBar({ showHome, showSFTP, showTerminal, sidebarOpen, onHomeClick, onSFTPClick, onSessionClick, onSidebarToggle }: TitleBarProps) {
   return (
     <div className="h-14 bg-background border-b border-border flex items-center px-4 select-none" style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}>
-      <div className="flex-1 flex items-center pl-16">
+      <div className="flex-1 flex items-center pl-16 overflow-hidden">
         <SessionTabBar showHome={showHome} showSFTP={showSFTP} onHomeClick={onHomeClick} onSFTPClick={onSFTPClick} onSessionClick={onSessionClick} />
       </div>
 
