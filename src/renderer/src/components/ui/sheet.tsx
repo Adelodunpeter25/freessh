@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
 import { Button } from './button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip'
 import { cn } from '@/lib/utils'
 
 interface SheetProps {
@@ -8,17 +9,10 @@ interface SheetProps {
   onClose: () => void
   title: string
   children: React.ReactNode
-  width?: 'sm' | 'md' | 'lg'
   className?: string
 }
 
-const widthClasses = {
-  sm: 'w-80',
-  md: 'w-96',
-  lg: 'w-[32rem]'
-}
-
-export function Sheet({ isOpen, onClose, title, children, width = 'sm', className }: SheetProps) {
+export function Sheet({ isOpen, onClose, title, children, className }: SheetProps) {
   useEffect(() => {
     if (!isOpen) return
 
@@ -36,15 +30,21 @@ export function Sheet({ isOpen, onClose, title, children, width = 'sm', classNam
 
   return (
     <div className={cn(
-      'fixed right-0 top-12 bottom-0 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in',
-      widthClasses[width],
+      'fixed right-0 top-12 bottom-0 w-96 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in',
       className
     )}>
       <div className="flex items-center justify-between p-4 border-b border-border">
         <h2 className="text-lg font-semibold">{title}</h2>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </Button>
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" onClick={onClose}>
+                <X className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Close</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
       {children}
     </div>

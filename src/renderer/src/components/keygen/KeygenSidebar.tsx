@@ -36,7 +36,7 @@ export function KeygenSidebar(props: KeygenSidebarProps) {
 
   return (
     <KeygenProvider {...props}>
-      <Sheet isOpen={isOpen} onClose={onClose} title={title} width="sm">
+      <Sheet isOpen={isOpen} onClose={onClose} title={title}>
         <KeygenSidebarContent />
       </Sheet>
     </KeygenProvider>

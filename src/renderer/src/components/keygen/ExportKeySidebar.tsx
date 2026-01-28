@@ -31,7 +31,7 @@ export function ExportKeySidebar({ keyId, keyName, isOpen, onClose, onExport }: 
   }
 
   return (
-    <Sheet isOpen={isOpen} onClose={onClose} title="Export SSH Key" width="sm">
+    <Sheet isOpen={isOpen} onClose={onClose} title="Export SSH Key">
       <div className="px-4 pt-2 pb-4 border-b">
         <p className="text-sm font-medium text-muted-foreground">{keyName}</p>
       </div>

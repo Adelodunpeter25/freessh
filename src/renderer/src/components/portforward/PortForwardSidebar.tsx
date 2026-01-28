@@ -69,7 +69,6 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
       isOpen={isOpen} 
       onClose={onClose} 
       title={editConfig ? 'Edit Port Forward' : 'New Port Forward'}
-      width="sm"
     >
       <div className="flex border-b">
         <button
