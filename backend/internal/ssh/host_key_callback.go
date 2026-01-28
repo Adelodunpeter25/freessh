@@ -104,14 +104,16 @@ func (v *HostKeyVerifier) CreateCallback(hostname string, port int, onVerificati
 			if err := onVerification(verification); err != nil {
 				return err
 			}
+			// If handler succeeded, trust the host
+			return v.TrustHost(hostname, port, key)
 		}
 
-		// If verification handler didn't error, trust the host
+		// If no handler, auto-trust new hosts
 		if verification.Status == "new" {
 			return v.TrustHost(hostname, port, key)
 		}
 
-		// For changed keys, return error (handler should have dealt with it)
+		// For changed keys without handler, return error
 		if err != nil {
 			return err
 		}

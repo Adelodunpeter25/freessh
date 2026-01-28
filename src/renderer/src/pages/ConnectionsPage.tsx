@@ -127,8 +127,6 @@ export function ConnectionsPage() {
         onTrust={handleVerificationTrust}
         onCancel={handleVerificationCancel}
       />
-        />
-      )}
     </div>
   )
 }
