@@ -51,7 +51,7 @@ export const useConnections = () => {
 
   useEffect(() => {
     loadConnections();
-  }, [loadConnections]);
+  }, []);
 
   const getConnection = useCallback(async (id: string) => {
     try {
