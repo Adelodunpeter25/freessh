@@ -9,6 +9,8 @@ export function KnownHostsList() {
   const [deleteHostId, setDeleteHostId] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
+  console.log('[KnownHostsList] Render - loading:', loading, 'hosts:', hosts)
+
   const handleDeleteConfirm = async () => {
     if (deleteHostId) {
       await removeHost(deleteHostId)
@@ -20,6 +22,7 @@ export function KnownHostsList() {
   }
 
   if (loading) {
+    console.log('[KnownHostsList] Showing loading state')
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-muted-foreground">Loading known hosts...</p>
@@ -28,6 +31,7 @@ export function KnownHostsList() {
   }
 
   if (hosts.length === 0) {
+    console.log('[KnownHostsList] Showing empty state')
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <p className="text-muted-foreground mb-2">No known hosts yet</p>
@@ -38,6 +42,7 @@ export function KnownHostsList() {
     )
   }
 
+  console.log('[KnownHostsList] Rendering hosts list')
   return (
     <>
       <div className="h-full" onClick={() => setSelectedId(null)}>
