@@ -6,7 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface KnownHostCardProps {
   host: KnownHost
   selected: boolean
-  onSelect: () => void
+  onSelect: (e: React.MouseEvent) => void
   onRemove: (id: string) => void
 }
 
@@ -25,7 +25,7 @@ export function KnownHostCard({ host, selected, onSelect, onRemove }: KnownHostC
       </div>
       
       <div className="flex-1 min-w-0">
-        <h3 className="text-base font-semibold text-foreground truncate">{host.hostname}:{host.port}</h3>
+        <h3 className="text-sm font-semibold text-foreground truncate">{host.hostname}:{host.port}</h3>
       </div>
 
       <TooltipProvider delayDuration={150}>

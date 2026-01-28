@@ -40,14 +40,17 @@ export function KnownHostsList() {
 
   return (
     <>
-      <ScrollArea className="h-full" onClick={() => setSelectedId(null)}>
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6">
+      <ScrollArea className="h-full">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6" onClick={() => setSelectedId(null)}>
           {hosts.map((host) => (
             <KnownHostCard
               key={host.id}
               host={host}
               selected={selectedId === host.id}
-              onSelect={() => setSelectedId(host.id)}
+              onSelect={(e) => {
+                e.stopPropagation()
+                setSelectedId(host.id)
+              }}
               onRemove={setDeleteHostId}
             />
           ))}
