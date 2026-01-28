@@ -1,4 +1,4 @@
-import { backendService } from './backend'
+import { backendService } from './ipc/backend'
 import { KnownHost } from '@/types/knownHost'
 
 export const knownHostsService = {
