@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { PortForwardConfig, ConnectionConfig } from '@/types'
-import { PortForwardHeader } from './PortForwardHeader'
+import { Sheet } from '@/components/ui/sheet'
 import { PortForwardForm } from './PortForwardForm'
 import { PortForwardFooter } from './PortForwardFooter'
 
@@ -45,8 +45,6 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
     }
   }, [editConfig, isOpen])
 
-  if (!isOpen) return null
-
   const handleSave = async () => {
     setSaving(true)
     try {
@@ -67,10 +65,12 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
   }
 
   return (
-    <div className="fixed right-0 top-12 bottom-0 w-80 bg-background border-l shadow-lg z-50 flex flex-col animate-fade-in">
-      <PortForwardHeader isEdit={!!editConfig} onClose={onClose} />
-
-      {/* Tabs */}
+    <Sheet 
+      isOpen={isOpen} 
+      onClose={onClose} 
+      title={editConfig ? 'Edit Port Forward' : 'New Port Forward'}
+      width="sm"
+    >
       <div className="flex border-b">
         <button
           onClick={() => setActiveTab('local')}
@@ -120,6 +120,6 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
         onSave={handleSave}
         onClose={onClose}
       />
-    </div>
+    </Sheet>
   )
 }
