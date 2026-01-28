@@ -40,10 +40,6 @@ func (v *HostKeyVerifier) VerifyHostKey(hostname string, port int, remote net.Ad
 
 	// Host is known - verify fingerprint
 	if knownHost.Fingerprint == fingerprint {
-		// Update last seen
-		knownHost.LastSeen = knownHost.LastSeen
-		v.storage.Update(knownHost)
-		
 		return &models.HostKeyVerification{
 			Status:      "known",
 			Hostname:    hostname,
@@ -66,7 +62,6 @@ func (v *HostKeyVerifier) VerifyHostKey(hostname string, port int, remote net.Ad
 
 func (v *HostKeyVerifier) TrustHost(hostname string, port int, key ssh.PublicKey) error {
 	fingerprint := ssh.FingerprintSHA256(key)
-	keyType := key.Type()
 	publicKeyStr := base64.StdEncoding.EncodeToString(key.Marshal())
 
 	// Check if already exists
@@ -74,7 +69,6 @@ func (v *HostKeyVerifier) TrustHost(hostname string, port int, key ssh.PublicKey
 	if existing != nil {
 		// Update existing
 		existing.Fingerprint = fingerprint
-		existing.KeyType = keyType
 		existing.PublicKey = publicKeyStr
 		return v.storage.Update(existing)
 	}
@@ -83,7 +77,6 @@ func (v *HostKeyVerifier) TrustHost(hostname string, port int, key ssh.PublicKey
 	host := &models.KnownHost{
 		Hostname:    hostname,
 		Port:        port,
-		KeyType:     keyType,
 		Fingerprint: fingerprint,
 		PublicKey:   publicKeyStr,
 	}

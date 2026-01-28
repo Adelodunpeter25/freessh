@@ -53,7 +53,6 @@ func (h *HostKeyVerificationHelper) CreateVerificationCallback(writer ResponseWr
 			host := &models.KnownHost{
 				Hostname:    verification.Hostname,
 				Port:        verification.Port,
-				KeyType:     verification.KeyType,
 				Fingerprint: verification.Fingerprint,
 				PublicKey:   "", // Will be set by TrustHost if needed
 			}

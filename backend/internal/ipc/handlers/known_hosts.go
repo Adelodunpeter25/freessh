@@ -84,7 +84,6 @@ func (h *KnownHostsHandler) handleTrust(msg *models.IPCMessage, writer ResponseW
 	hostname, _ := dataMap["hostname"].(string)
 	port, _ := dataMap["port"].(float64)
 	fingerprint, _ := dataMap["fingerprint"].(string)
-	keyType, _ := dataMap["keyType"].(string)
 	publicKey, _ := dataMap["publicKey"].(string)
 
 	if hostname == "" || port == 0 || fingerprint == "" {
@@ -94,7 +93,6 @@ func (h *KnownHostsHandler) handleTrust(msg *models.IPCMessage, writer ResponseW
 	host := &models.KnownHost{
 		Hostname:    hostname,
 		Port:        int(port),
-		KeyType:     keyType,
 		Fingerprint: fingerprint,
 		PublicKey:   publicKey,
 	}
@@ -150,7 +148,6 @@ func (h *KnownHostsHandler) handleImport(msg *models.IPCMessage, writer Response
 		}
 
 		// Parse public key
-		keyType := parts[1]
 		keyData := parts[2]
 
 		keyBytes, err := base64.StdEncoding.DecodeString(keyData)
@@ -173,7 +170,6 @@ func (h *KnownHostsHandler) handleImport(msg *models.IPCMessage, writer Response
 		host := &models.KnownHost{
 			Hostname:    hostname,
 			Port:        port,
-			KeyType:     keyType,
 			Fingerprint: fingerprint,
 			PublicKey:   keyData,
 		}

@@ -1,16 +1,11 @@
 package models
 
-import "time"
-
 type KnownHost struct {
 	ID          string    `json:"id"`
 	Hostname    string    `json:"hostname"`
 	Port        int       `json:"port"`
-	KeyType     string    `json:"keyType"`
 	Fingerprint string    `json:"fingerprint"`
 	PublicKey   string    `json:"publicKey"`
-	FirstSeen   time.Time `json:"firstSeen"`
-	LastSeen    time.Time `json:"lastSeen"`
 }
 
 type HostKeyVerification struct {

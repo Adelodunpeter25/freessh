@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"sync"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -114,10 +113,6 @@ func (s *KnownHostStorage) Add(host *models.KnownHost) error {
 	if host.ID == "" {
 		host.ID = uuid.New().String()
 	}
-	if host.FirstSeen.IsZero() {
-		host.FirstSeen = time.Now()
-	}
-	host.LastSeen = time.Now()
 
 	s.hosts[host.ID] = host
 	return s.save()
@@ -131,7 +126,6 @@ func (s *KnownHostStorage) Update(host *models.KnownHost) error {
 		return fmt.Errorf("host not found")
 	}
 
-	host.LastSeen = time.Now()
 	s.hosts[host.ID] = host
 	return s.save()
 }
