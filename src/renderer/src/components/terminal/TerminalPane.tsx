@@ -75,10 +75,12 @@ export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onRe
 
     const xterm = new XTerm({
       cursorBlink: true,
+      allowProposedApi: true,
       fontSize,
-      fontFamily,
+      fontFamily: fontFamily || 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
       fontWeight: fontWeight as any,
       letterSpacing: 0,
+      lineHeight: 1.1,
       theme
     })
 
