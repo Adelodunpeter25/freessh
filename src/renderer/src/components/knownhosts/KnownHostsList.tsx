@@ -2,10 +2,15 @@ import { useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { KnownHostCard } from './KnownHostCard'
-import { useKnownHosts } from '@/hooks/useKnownHosts'
+import { KnownHost } from '@/types/knownHost'
 
-export function KnownHostsList() {
-  const { hosts, loading, removeHost } = useKnownHosts()
+interface KnownHostsListProps {
+  hosts: KnownHost[]
+  loading: boolean
+  onRemove: (id: string) => Promise<void>
+}
+
+export function KnownHostsList({ hosts, loading, onRemove }: KnownHostsListProps) {
   const [deleteHostId, setDeleteHostId] = useState<string | null>(null)
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
@@ -13,7 +18,7 @@ export function KnownHostsList() {
 
   const handleDeleteConfirm = async () => {
     if (deleteHostId) {
-      await removeHost(deleteHostId)
+      await onRemove(deleteHostId)
       setDeleteHostId(null)
       if (selectedId === deleteHostId) {
         setSelectedId(null)

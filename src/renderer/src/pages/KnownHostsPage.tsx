@@ -4,7 +4,7 @@ import { KnownHostsList } from '@/components/knownhosts'
 import { useKnownHosts } from '@/hooks/useKnownHosts'
 
 export function KnownHostsPage() {
-  const { importFromSSH } = useKnownHosts()
+  const { hosts, loading, removeHost, importFromSSH } = useKnownHosts()
   const [importing, setImporting] = useState(false)
 
   const handleImport = async () => {
@@ -21,7 +21,7 @@ export function KnownHostsPage() {
       <div className="p-4 border-b">
         <KnownHostsHeader onImport={handleImport} importing={importing} />
       </div>
-      <KnownHostsList />
+      <KnownHostsList hosts={hosts} loading={loading} onRemove={removeHost} />
     </div>
   )
 }

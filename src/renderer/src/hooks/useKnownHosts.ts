@@ -7,6 +7,8 @@ export function useKnownHosts() {
   const [hosts, setHosts] = useState<KnownHost[]>([])
   const [loading, setLoading] = useState(true)
 
+  console.log('[useKnownHosts] Hook instance - loading:', loading, 'hosts:', hosts)
+
   const loadHosts = useCallback(async () => {
     console.log('[useKnownHosts] Starting loadHosts')
     setLoading(true)
