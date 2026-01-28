@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
+import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
 import { HostKeyVerificationDialog } from '@/components/knownhosts'
 import { useConnections } from '@/hooks'
 import { useSessions } from '@/hooks/useSessions'
@@ -126,6 +127,8 @@ export function ConnectionsPage() {
           isSearching={searchQuery.trim().length > 0}
         />
       </div>
+
+      <NewConnectionButton onClick={() => setShowForm(true)} />
 
       {showForm && (
         <ConnectionForm
