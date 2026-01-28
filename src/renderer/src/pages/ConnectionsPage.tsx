@@ -1,10 +1,15 @@
 import { useState, useCallback } from 'react'
+import { toast } from 'sonner'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
+import { NewLocalTerminalButton } from '@/components/connection/NewLocalTerminalButton'
 import { HostKeyVerificationDialog } from '@/components/knownhosts'
 import { useConnections } from '@/hooks'
+import { useSessions } from '@/hooks/useSessions'
+import { useTabStore } from '@/stores/tabStore'
+import { useSessionStore } from '@/stores/sessionStore'
 import { useUIStore } from '@/stores/uiStore'
 import { ConnectionConfig } from '@/types'
 
@@ -21,6 +26,9 @@ export function ConnectionsPage() {
     handleVerificationTrust,
     handleVerificationCancel
   } = useConnections()
+  const { connectLocal } = useSessions()
+  const addLocalTab = useTabStore((state) => state.addLocalTab)
+  const addSession = useSessionStore((state) => state.addSession)
   const openSFTP = useUIStore((state) => state.openSFTP)
   const [showForm, setShowForm] = useState(false)
   const [editingConnection, setEditingConnection] = useState<ConnectionConfig | undefined>()
@@ -81,6 +89,16 @@ export function ConnectionsPage() {
     setEditingConnection(undefined)
   }, [])
 
+  const handleNewLocalTerminal = useCallback(async () => {
+    try {
+      const session = await connectLocal()
+      addSession(session)
+      addLocalTab(session)
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to open local terminal')
+    }
+  }, [connectLocal, addSession, addLocalTab])
+
   return (
     <div className="h-full flex flex-col relative">
       <ConnectionsHeader 
@@ -111,6 +129,7 @@ export function ConnectionsPage() {
       </div>
 
       <NewConnectionButton onClick={() => setShowForm(true)} />
+      <NewLocalTerminalButton onClick={handleNewLocalTerminal} />
 
       {showForm && (
         <ConnectionForm
