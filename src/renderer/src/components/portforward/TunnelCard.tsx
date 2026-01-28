@@ -34,7 +34,7 @@ export function TunnelCard({ config, connectionName, isActive, selected, onStart
         }`}
       >
       {/* Type Icon */}
-      <div className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center font-bold text-base ${
+      <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center font-bold text-lg ${
         isActive 
           ? 'bg-green-500/20 text-green-500 ring-2 ring-green-500/30' 
           : 'bg-muted text-muted-foreground'

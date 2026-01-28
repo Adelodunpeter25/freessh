@@ -36,6 +36,7 @@ func (t *Tunnel) Start() error {
 	}
 
 	t.listener = listener
+	t.stopChan = make(chan struct{})
 	t.Status = "active"
 	t.Error = ""
 
