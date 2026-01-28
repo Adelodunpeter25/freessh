@@ -30,6 +30,13 @@ const (
 	MsgPortForwardStop   MessageType = "portforward:stop"
 	MsgPortForwardList   MessageType = "portforward:list"
 
+	// Port forwarding config messages
+	MsgPortForwardConfigList   MessageType = "portforward_config:list"
+	MsgPortForwardConfigGet    MessageType = "portforward_config:get"
+	MsgPortForwardConfigCreate MessageType = "portforward_config:create"
+	MsgPortForwardConfigUpdate MessageType = "portforward_config:update"
+	MsgPortForwardConfigDelete MessageType = "portforward_config:delete"
+
 	// Keychain messages
 	MsgKeychainSet    MessageType = "keychain:set"
 	MsgKeychainGet    MessageType = "keychain:get"

@@ -26,6 +26,12 @@ func NewServer() *Server {
 		log.Printf("Warning: Failed to initialize known hosts storage: %v", err)
 	}
 	
+	// Initialize port forward config storage
+	portForwardStorage, err := storage.NewPortForwardStorage()
+	if err != nil {
+		log.Printf("Warning: Failed to initialize port forward storage: %v", err)
+	}
+	
 	// Create shared verification helper
 	verificationHelper := handlers.NewHostKeyVerificationHelper()
 	
@@ -40,6 +46,7 @@ func NewServer() *Server {
 			handlers.NewConnectionHandler(manager, verificationHelper),
 			handlers.NewSFTPHandler(manager),
 			handlers.NewPortForwardHandler(manager),
+			handlers.NewPortForwardConfigHandler(portForwardStorage),
 			handlers.NewKeychainHandler(),
 			handlers.NewKeygenHandler(),
 			handlers.NewKeysHandler(manager),
