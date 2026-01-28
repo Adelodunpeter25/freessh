@@ -30,7 +30,7 @@ export function Sheet({ isOpen, onClose, title, children, className }: SheetProp
 
   return (
     <div className={cn(
-      'fixed right-0 top-12 bottom-0 w-96 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in',
+      'fixed right-0 top-12 bottom-0 w-80 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in',
       className
     )}>
       <div className="flex items-center justify-between p-4 border-b border-border">
