@@ -3,8 +3,10 @@ import { KnownHost } from '@/types/knownHost'
 
 export const knownHostsService = {
   async getAll(): Promise<KnownHost[]> {
+    console.log('[KnownHosts] Sending known_host:list request')
     return new Promise((resolve, reject) => {
       const handler = (message: any) => {
+        console.log('[KnownHosts] Received response:', message)
         backendService.off('known_host:list', handler)
         backendService.off('error', errorHandler)
         if (message.type === 'error') {
@@ -15,6 +17,7 @@ export const knownHostsService = {
       }
 
       const errorHandler = (error: any) => {
+        console.log('[KnownHosts] Received error:', error)
         backendService.off('known_host:list', handler)
         backendService.off('error', errorHandler)
         reject(error)

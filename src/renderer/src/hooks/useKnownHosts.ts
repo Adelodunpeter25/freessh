@@ -8,15 +8,18 @@ export function useKnownHosts() {
   const [loading, setLoading] = useState(true)
 
   const loadHosts = useCallback(async () => {
+    console.log('[useKnownHosts] Starting loadHosts')
     setLoading(true)
     try {
       const data = await knownHostsService.getAll()
+      console.log('[useKnownHosts] Loaded hosts:', data)
       setHosts(data)
     } catch (error) {
-      console.error('Failed to load known hosts:', error)
+      console.error('[useKnownHosts] Failed to load known hosts:', error)
       toast.error('Failed to load known hosts')
     } finally {
       setLoading(false)
+      console.log('[useKnownHosts] Loading complete')
     }
   }, [])
 
