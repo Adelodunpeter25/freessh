@@ -1,4 +1,4 @@
-import { ArrowRight, Pencil, Trash2, Play, Square } from 'lucide-react'
+import { ArrowRight, Play, Square } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { TunnelCardContextMenu } from '@/components/contextmenu/TunnelCardContextMenu'
 import { PortForwardConfig } from '@/types'
@@ -66,56 +66,24 @@ export function TunnelCard({ config, connectionName, isActive, selected, onStart
 
       {/* Actions */}
       <TooltipProvider delayDuration={150}>
-        <div className="flex items-center gap-0.5 flex-shrink-0 ml-1">
-          <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    isActive ? onStop(config.id) : onStart(config.id)
-                  }}
-                  className={`p-1.5 rounded transition-colors ${
-                    isActive
-                      ? 'hover:bg-red-500/10 hover:text-red-500'
-                      : 'hover:bg-green-500/10 hover:text-green-500'
-                  }`}
-                >
-                  {isActive ? <Square className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>{isActive ? 'Stop tunnel' : 'Start tunnel'}</TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onEdit(config)
-                  }}
-                  className="p-1.5 hover:bg-muted rounded transition-colors"
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Edit</TooltipContent>
-            </Tooltip>
-
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onDelete(config.id)
-                  }}
-                  className="p-1.5 hover:bg-destructive/10 hover:text-destructive rounded transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>Delete</TooltipContent>
-            </Tooltip>
-        </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                isActive ? onStop(config.id) : onStart(config.id)
+              }}
+              className={`p-1.5 rounded transition-colors ${
+                isActive
+                  ? 'hover:bg-red-500/10 hover:text-red-500'
+                  : 'hover:bg-green-500/10 hover:text-green-500'
+              }`}
+            >
+              {isActive ? <Square className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{isActive ? 'Stop tunnel' : 'Start tunnel'}</TooltipContent>
+        </Tooltip>
       </TooltipProvider>
     </div>
     </TunnelCardContextMenu>

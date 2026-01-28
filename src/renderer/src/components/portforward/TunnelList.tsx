@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { PortForwardConfig } from '@/types'
 import { TunnelCard } from './TunnelCard'
 
@@ -11,10 +10,11 @@ interface TunnelListProps {
   onStop: (id: string) => void
   onEdit: (config: PortForwardConfig) => void
   onDelete: (id: string) => void
+  selectedId: string | null
+  onSelect: (id: string | null) => void
 }
 
-export function TunnelList({ configs, loading, activeTunnels, connections, onStart, onStop, onEdit, onDelete }: TunnelListProps) {
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+export function TunnelList({ configs, loading, activeTunnels, connections, onStart, onStop, onEdit, onDelete, selectedId, onSelect }: TunnelListProps) {
 
   if (loading) {
     return (
@@ -36,7 +36,7 @@ export function TunnelList({ configs, loading, activeTunnels, connections, onSta
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 p-6" onClick={() => setSelectedId(null)}>
+    <div className="grid grid-cols-2 gap-4 p-6">
       {configs.map((config) => (
         <TunnelCard
           key={config.id}
@@ -48,9 +48,7 @@ export function TunnelList({ configs, loading, activeTunnels, connections, onSta
           onStop={onStop}
           onEdit={onEdit}
           onDelete={onDelete}
-          onSelect={(id) => {
-            setSelectedId(id)
-          }}
+          onSelect={(id) => onSelect(id)}
         />
       ))}
     </div>

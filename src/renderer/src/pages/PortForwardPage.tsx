@@ -14,6 +14,7 @@ function PortForwardPageContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [editConfig, setEditConfig] = useState<PortForwardConfig | undefined>();
   const [deleteConfigId, setDeleteConfigId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const {
     configs,
@@ -85,7 +86,7 @@ function PortForwardPageContent() {
         </Button>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" onClick={() => setSelectedId(null)}>
         <TunnelList
           configs={configs}
           loading={loading}
@@ -95,6 +96,8 @@ function PortForwardPageContent() {
           onStop={stopTunnel}
           onEdit={handleEdit}
           onDelete={handleDeleteClick}
+          selectedId={selectedId}
+          onSelect={setSelectedId}
         />
       </div>
 
