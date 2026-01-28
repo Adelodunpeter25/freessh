@@ -214,8 +214,8 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
       
         {tabs.map((tab) => {
           const sessionData = getSession(tab.sessionId)
-          const connectionHost = sessionData ? `${sessionData.connection.username}@${sessionData.connection.host}` : undefined
-          const connectionId = sessionData?.connection.id
+          const connectionHost = sessionData?.connection ? `${sessionData.connection.username}@${sessionData.connection.host}` : undefined
+          const connectionId = sessionData?.connection?.id
           
           return (
             <SessionTab
