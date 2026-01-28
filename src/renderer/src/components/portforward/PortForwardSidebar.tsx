@@ -1,49 +1,71 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Checkbox } from '@/components/ui/checkbox'
+import { PortForwardConfig, ConnectionConfig } from '@/types'
 
 interface PortForwardSidebarProps {
   isOpen: boolean
   onClose: () => void
-  onCreateLocal: (config: { localPort: number; remoteHost: string; remotePort: number }) => Promise<void>
-  onCreateRemote: (config: { remotePort: number; localHost: string; localPort: number }) => Promise<void>
+  onSave: (config: Omit<PortForwardConfig, 'id'>) => Promise<void>
+  connections: ConnectionConfig[]
+  editConfig?: PortForwardConfig
 }
 
-export function PortForwardSidebar({ isOpen, onClose, onCreateLocal, onCreateRemote }: PortForwardSidebarProps) {
+export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editConfig }: PortForwardSidebarProps) {
   const [activeTab, setActiveTab] = useState<'local' | 'remote'>('local')
+  const [name, setName] = useState('')
+  const [connectionId, setConnectionId] = useState('')
   const [localPort, setLocalPort] = useState('')
   const [remoteHost, setRemoteHost] = useState('')
   const [remotePort, setRemotePort] = useState('')
-  const [localHost, setLocalHost] = useState('')
-  const [creating, setCreating] = useState(false)
+  const [bindingAddress, setBindingAddress] = useState('localhost')
+  const [autoStart, setAutoStart] = useState(false)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (editConfig) {
+      setName(editConfig.name)
+      setConnectionId(editConfig.connection_id)
+      setActiveTab(editConfig.type)
+      setLocalPort(editConfig.local_port.toString())
+      setRemoteHost(editConfig.remote_host)
+      setRemotePort(editConfig.remote_port.toString())
+      setBindingAddress(editConfig.binding_address)
+      setAutoStart(editConfig.auto_start)
+    } else {
+      setName('')
+      setConnectionId('')
+      setLocalPort('')
+      setRemoteHost('')
+      setRemotePort('')
+      setBindingAddress('localhost')
+      setAutoStart(false)
+      setActiveTab('local')
+    }
+  }, [editConfig, isOpen])
 
   if (!isOpen) return null
 
-  const handleCreate = async () => {
-    setCreating(true)
+  const handleSave = async () => {
+    setSaving(true)
     try {
-      if (activeTab === 'local') {
-        await onCreateLocal({
-          localPort: parseInt(localPort),
-          remoteHost,
-          remotePort: parseInt(remotePort)
-        })
-        setLocalPort('')
-        setRemoteHost('')
-        setRemotePort('')
-      } else {
-        await onCreateRemote({
-          remotePort: parseInt(remotePort),
-          localHost,
-          localPort: parseInt(localPort)
-        })
-        setRemotePort('')
-        setLocalHost('')
-        setLocalPort('')
-      }
+      await onSave({
+        name,
+        connection_id: connectionId,
+        type: activeTab,
+        local_port: parseInt(localPort),
+        remote_host: remoteHost,
+        remote_port: parseInt(remotePort),
+        binding_address: bindingAddress,
+        auto_start: autoStart
+      })
+      onClose()
     } finally {
-      setCreating(false)
+      setSaving(false)
     }
   }
 
@@ -51,7 +73,7 @@ export function PortForwardSidebar({ isOpen, onClose, onCreateLocal, onCreateRem
     <div className="fixed right-0 top-12 bottom-0 w-80 bg-background border-l shadow-lg z-50 flex flex-col animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
-        <h2 className="text-lg font-semibold">Port Forwarding</h2>
+        <h2 className="text-lg font-semibold">{editConfig ? 'Edit' : 'New'} Port Forward</h2>
         <button
           onClick={onClose}
           className="p-1 hover:bg-muted rounded-md transition-colors"
@@ -86,8 +108,45 @@ export function PortForwardSidebar({ isOpen, onClose, onCreateLocal, onCreateRem
 
       {/* Form */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1.5">Name</Label>
+          <Input
+            placeholder="e.g. Production Database"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1.5">Connection</Label>
+          <Select value={connectionId} onValueChange={setConnectionId}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select connection" />
+            </SelectTrigger>
+            <SelectContent>
+              {connections.map((conn) => (
+                <SelectItem key={conn.id} value={conn.id}>
+                  {conn.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {activeTab === 'local' ? (
           <>
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1.5">Binding Address</Label>
+              <Select value={bindingAddress} onValueChange={setBindingAddress}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="localhost">localhost</SelectItem>
+                  <SelectItem value="0.0.0.0">0.0.0.0 (all interfaces)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Input
               type="number"
               placeholder="Local Port"
@@ -116,8 +175,8 @@ export function PortForwardSidebar({ isOpen, onClose, onCreateLocal, onCreateRem
             />
             <Input
               placeholder="Local Host"
-              value={localHost}
-              onChange={(e) => setLocalHost(e.target.value)}
+              value={remoteHost}
+              onChange={(e) => setRemoteHost(e.target.value)}
             />
             <Input
               type="number"
@@ -127,16 +186,30 @@ export function PortForwardSidebar({ isOpen, onClose, onCreateLocal, onCreateRem
             />
           </>
         )}
+
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="auto-start"
+            checked={autoStart}
+            onCheckedChange={(checked) => setAutoStart(checked as boolean)}
+          />
+          <label
+            htmlFor="auto-start"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Auto-start with connection
+          </label>
+        </div>
       </div>
 
       {/* Footer */}
       <div className="p-4 border-t space-y-2 bg-background">
         <Button
-          onClick={handleCreate}
-          disabled={creating}
+          onClick={handleSave}
+          disabled={saving || !name || !connectionId}
           className="w-full"
         >
-          {creating ? 'Creating...' : 'Create Tunnel'}
+          {saving ? 'Saving...' : editConfig ? 'Save Changes' : 'Create'}
         </Button>
         <Button
           onClick={onClose}
@@ -148,4 +221,6 @@ export function PortForwardSidebar({ isOpen, onClose, onCreateLocal, onCreateRem
       </div>
     </div>
   )
+}
+
 }
