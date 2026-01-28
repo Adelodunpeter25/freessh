@@ -116,7 +116,7 @@ export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onRe
       xtermRef.current = null
       fitAddonRef.current = null
     }
-  }, [sessionId, onReady])
+  }, [onReady])
 
   return (
     <div className="h-full w-full" style={{ backgroundColor: theme.background }}>
