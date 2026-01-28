@@ -125,6 +125,7 @@ export function KeygenList() {
 
       {showSidebar && (
         <KeygenSidebar
+          isOpen={showSidebar}
           onClose={handleCloseSidebar}
           onKeyGenerated={handleKeyGenerated}
           onKeyImported={handleKeyImported}
