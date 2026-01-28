@@ -52,6 +52,7 @@ const (
 	MsgKnownHostRemove MessageType = "known_host:remove"
 	MsgKnownHostTrust  MessageType = "known_host:trust"
 	MsgHostKeyVerify   MessageType = "host_key:verify"
+	MsgHostKeyVerifyResponse MessageType = "host_key:verify_response"
 )
 
 type IPCMessage struct {

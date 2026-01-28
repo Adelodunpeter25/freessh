@@ -156,21 +156,37 @@ export const useConnections = () => {
   );
 
   const handleVerificationTrust = useCallback(() => {
-    if (verificationResolver) {
-      verificationResolver.resolve(true);
+    if (pendingVerification) {
+      // Send trust response to backend
+      backendService.send({
+        type: 'host_key:verify_response',
+        data: {
+          hostname: pendingVerification.hostname,
+          port: pendingVerification.port,
+          trusted: true
+        }
+      });
     }
     setPendingVerification(null);
     setVerificationResolver(null);
-  }, [verificationResolver]);
+  }, [pendingVerification]);
 
   const handleVerificationCancel = useCallback(() => {
-    if (verificationResolver) {
-      verificationResolver.reject(new Error('User cancelled host verification'));
+    if (pendingVerification) {
+      // Send reject response to backend
+      backendService.send({
+        type: 'host_key:verify_response',
+        data: {
+          hostname: pendingVerification.hostname,
+          port: pendingVerification.port,
+          trusted: false
+        }
+      });
     }
     setPendingVerification(null);
     setVerificationResolver(null);
     setConnectingId(null);
-  }, [verificationResolver]);
+  }, [pendingVerification]);
 
   return {
     connections,
