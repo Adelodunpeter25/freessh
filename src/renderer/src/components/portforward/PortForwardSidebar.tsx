@@ -222,5 +222,3 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
     </div>
   )
 }
-
-}
