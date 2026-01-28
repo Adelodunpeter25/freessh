@@ -1,78 +1,19 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { TunnelList, PortForwardSidebar } from '@/components/portforward'
-import { usePortForwardConfig } from '@/hooks/usePortForwardConfig'
-import { portForwardService } from '@/services/ipc/portforward'
+import { PortForwardProvider, usePortForwardContext } from '@/contexts/PortForwardContext'
 import { useConnections } from '@/hooks/useConnections'
-import { useTabStore } from '@/stores/tabStore'
-import { PortForwardConfig, TunnelInfo } from '@/types'
-import { toast } from 'sonner'
+import { PortForwardConfig } from '@/types'
 
-export function PortForwardPage() {
+function PortForwardPageContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [editConfig, setEditConfig] = useState<PortForwardConfig | undefined>()
   const [deleteConfigId, setDeleteConfigId] = useState<string | null>(null)
-  const [activeTunnels, setActiveTunnels] = useState<Map<string, TunnelInfo>>(new Map())
   
-  const { configs, loading, createConfig, updateConfig, deleteConfig } = usePortForwardConfig()
-  const { connections } = useConnections()
-  const tabs = useTabStore((state) => state.tabs)
-  
-  // Get active session for each connection
-  const sessionMap = useMemo(() => {
-    const map = new Map<string, string>()
-    tabs.forEach(tab => {
-      if (tab.type === 'terminal' && tab.connectionId && tab.sessionId) {
-        map.set(tab.connectionId, tab.sessionId)
-      }
-    })
-    return map
-  }, [tabs])
-
-  // Map connection IDs to names
-  const connectionNames = useMemo(() => {
-    const map = new Map<string, string>()
-    connections.forEach(conn => map.set(conn.id, conn.name))
-    return map
-  }, [connections])
-
-  // Load active tunnels for all sessions
-  useEffect(() => {
-    const loadActiveTunnels = async () => {
-      const tunnelMap = new Map<string, TunnelInfo>()
-      
-      for (const [connectionId, sessionId] of sessionMap.entries()) {
-        try {
-          const tunnels = await portForwardService.list(sessionId)
-          tunnels.forEach(tunnel => {
-            const config = configs.find(c => 
-              c.connection_id === connectionId &&
-              c.type === tunnel.type &&
-              c.local_port === tunnel.local_port &&
-              c.remote_port === tunnel.remote_port
-            )
-            if (config) {
-              tunnelMap.set(config.id, tunnel)
-            }
-          })
-        } catch (error) {
-          console.error('Failed to load tunnels for session:', sessionId, error)
-        }
-      }
-      
-      setActiveTunnels(tunnelMap)
-    }
-
-    if (configs.length > 0 && sessionMap.size > 0) {
-      loadActiveTunnels()
-    }
-  }, [configs, sessionMap])
-
-  const activeTunnelIds = useMemo(() => {
-    return new Set(activeTunnels.keys())
-  }, [activeTunnels])
+  const { configs, loading, activeTunnels, connections, startTunnel, stopTunnel, createConfig, updateConfig, deleteConfig } = usePortForwardContext()
+  const { connections: connectionList } = useConnections()
 
   const handleSave = async (config: Omit<PortForwardConfig, 'id'>) => {
     if (editConfig) {
@@ -95,71 +36,8 @@ export function PortForwardPage() {
 
   const handleDeleteConfirm = async () => {
     if (!deleteConfigId) return
-    
-    if (activeTunnels.has(deleteConfigId)) {
-      await handleStop(deleteConfigId)
-    }
     await deleteConfig(deleteConfigId)
     setDeleteConfigId(null)
-  }
-
-  const handleStart = async (id: string) => {
-    const config = configs.find(c => c.id === id)
-    if (!config) return
-
-    const sessionId = sessionMap.get(config.connection_id)
-    if (!sessionId) {
-      toast.error('Connection is not active. Please connect first.')
-      return
-    }
-
-    try {
-      let tunnel: TunnelInfo
-      
-      if (config.type === 'local') {
-        tunnel = await portForwardService.createLocal(sessionId, {
-          local_port: config.local_port,
-          remote_host: config.remote_host,
-          remote_port: config.remote_port
-        })
-      } else {
-        tunnel = await portForwardService.createRemote(sessionId, {
-          remote_port: config.remote_port,
-          local_host: config.remote_host,
-          local_port: config.local_port
-        })
-      }
-      
-      setActiveTunnels(prev => new Map(prev).set(id, tunnel))
-      toast.success('Tunnel started')
-    } catch (error) {
-      toast.error('Failed to start tunnel')
-      console.error(error)
-    }
-  }
-
-  const handleStop = async (id: string) => {
-    const tunnel = activeTunnels.get(id)
-    if (!tunnel) return
-
-    const config = configs.find(c => c.id === id)
-    if (!config) return
-
-    const sessionId = sessionMap.get(config.connection_id)
-    if (!sessionId) return
-
-    try {
-      await portForwardService.stop(sessionId, tunnel.id)
-      setActiveTunnels(prev => {
-        const next = new Map(prev)
-        next.delete(id)
-        return next
-      })
-      toast.success('Tunnel stopped')
-    } catch (error) {
-      toast.error('Failed to stop tunnel')
-      console.error(error)
-    }
   }
 
   const handleNew = () => {
@@ -186,10 +64,10 @@ export function PortForwardPage() {
         <TunnelList
           configs={configs}
           loading={loading}
-          activeTunnels={activeTunnelIds}
-          connections={connectionNames}
-          onStart={handleStart}
-          onStop={handleStop}
+          activeTunnels={activeTunnels}
+          connections={connections}
+          onStart={startTunnel}
+          onStop={stopTunnel}
           onEdit={handleEdit}
           onDelete={handleDeleteClick}
         />
@@ -202,7 +80,7 @@ export function PortForwardPage() {
           setEditConfig(undefined)
         }}
         onSave={handleSave}
-        connections={connections}
+        connections={connectionList}
         editConfig={editConfig}
       />
 
@@ -216,5 +94,13 @@ export function PortForwardPage() {
         cancelText="Cancel"
       />
     </div>
+  )
+}
+
+export function PortForwardPage() {
+  return (
+    <PortForwardProvider>
+      <PortForwardPageContent />
+    </PortForwardProvider>
   )
 }
