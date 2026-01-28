@@ -26,15 +26,18 @@ func NewServer() *Server {
 		log.Printf("Warning: Failed to initialize known hosts storage: %v", err)
 	}
 	
+	// Create shared verification helper
+	verificationHelper := handlers.NewHostKeyVerificationHelper()
+	
 	return &Server{
 		reader:          NewReader(),
 		writer:          NewWriter(),
 		terminalHandler: terminalHandler,
 		handlers: []handlers.Handler{
-			handlers.NewSSHHandler(manager),
+			handlers.NewSSHHandler(manager, verificationHelper),
 			terminalHandler,
 			handlers.NewSessionHandler(manager),
-			handlers.NewConnectionHandler(manager),
+			handlers.NewConnectionHandler(manager, verificationHelper),
 			handlers.NewSFTPHandler(manager),
 			handlers.NewPortForwardHandler(manager),
 			handlers.NewKeychainHandler(),

@@ -12,10 +12,10 @@ type SSHHandler struct {
 	verificationHelper *HostKeyVerificationHelper
 }
 
-func NewSSHHandler(manager *session.Manager) *SSHHandler {
+func NewSSHHandler(manager *session.Manager, verificationHelper *HostKeyVerificationHelper) *SSHHandler {
 	return &SSHHandler{
 		manager:            manager,
-		verificationHelper: NewHostKeyVerificationHelper(),
+		verificationHelper: verificationHelper,
 	}
 }
 

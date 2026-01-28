@@ -12,10 +12,10 @@ type ConnectionHandler struct {
 	verificationHelper *HostKeyVerificationHelper
 }
 
-func NewConnectionHandler(manager *session.Manager) *ConnectionHandler {
+func NewConnectionHandler(manager *session.Manager, verificationHelper *HostKeyVerificationHelper) *ConnectionHandler {
 	return &ConnectionHandler{
 		manager:          manager,
-		verificationHelper: NewHostKeyVerificationHelper(),
+		verificationHelper: verificationHelper,
 	}
 }
 
