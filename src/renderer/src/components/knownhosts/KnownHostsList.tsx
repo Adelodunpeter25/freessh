@@ -40,22 +40,24 @@ export function KnownHostsList() {
 
   return (
     <>
-      <ScrollArea className="h-full">
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6" onClick={() => setSelectedId(null)}>
-          {hosts.map((host) => (
-            <KnownHostCard
-              key={host.id}
-              host={host}
-              selected={selectedId === host.id}
-              onSelect={(e) => {
-                e.stopPropagation()
-                setSelectedId(host.id)
-              }}
-              onRemove={setDeleteHostId}
-            />
-          ))}
-        </div>
-      </ScrollArea>
+      <div className="h-full" onClick={() => setSelectedId(null)}>
+        <ScrollArea className="h-full">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6">
+            {hosts.map((host) => (
+              <KnownHostCard
+                key={host.id}
+                host={host}
+                selected={selectedId === host.id}
+                onSelect={(e) => {
+                  e.stopPropagation()
+                  setSelectedId(host.id)
+                }}
+                onRemove={setDeleteHostId}
+              />
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
 
       <ConfirmDialog
         open={!!deleteHostId}

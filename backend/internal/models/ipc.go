@@ -51,6 +51,7 @@ const (
 	MsgKnownHostList   MessageType = "known_host:list"
 	MsgKnownHostRemove MessageType = "known_host:remove"
 	MsgKnownHostTrust  MessageType = "known_host:trust"
+	MsgKnownHostImport MessageType = "known_host:import"
 	MsgHostKeyVerify   MessageType = "host_key:verify"
 	MsgHostKeyVerifyResponse MessageType = "host_key:verify_response"
 )
