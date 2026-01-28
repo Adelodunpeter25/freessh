@@ -19,7 +19,7 @@ export function KnownHostsHeader({ onImport, importing }: KnownHostsHeaderProps)
         onClick={onImport} 
         size="sm" 
         disabled={importing}
-        className="hover:bg-gray-700"
+        className="transition-transform hover:scale-105"
       >
         <Upload className="w-4 h-4 mr-2" />
         {importing ? 'Importing...' : 'Import'}
