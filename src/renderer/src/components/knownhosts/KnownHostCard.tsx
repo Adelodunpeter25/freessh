@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button'
-import { Trash2, Copy, Fingerprint } from 'lucide-react'
+import { Trash2, Fingerprint } from 'lucide-react'
 import { KnownHost } from '@/types/knownHost'
-import { toast } from 'sonner'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface KnownHostCardProps {
   host: KnownHost
@@ -11,11 +11,6 @@ interface KnownHostCardProps {
 }
 
 export function KnownHostCard({ host, selected, onSelect, onRemove }: KnownHostCardProps) {
-  const copyFingerprint = () => {
-    navigator.clipboard.writeText(host.fingerprint)
-    toast.success('Fingerprint copied to clipboard')
-  }
-
   return (
     <div
       className={`group flex items-center gap-4 p-4 rounded-xl border transition-all select-none animate-scale-in ${
@@ -31,34 +26,29 @@ export function KnownHostCard({ host, selected, onSelect, onRemove }: KnownHostC
       
       <div className="flex-1 min-w-0">
         <h3 className="text-base font-semibold text-foreground truncate">{host.hostname}:{host.port}</h3>
-        <p className="text-xs text-muted-foreground truncate font-mono">
-          {host.fingerprint}
+        <p className="text-xs text-muted-foreground truncate">
+          Trusted host
         </p>
       </div>
 
-      <Button
-        variant="ghost"
-        size="icon"
-        className="opacity-0 group-hover:opacity-100 h-8 w-8 text-muted-foreground hover:text-foreground"
-        onClick={(e) => {
-          e.stopPropagation()
-          copyFingerprint()
-        }}
-      >
-        <Copy className="h-4 w-4" />
-      </Button>
-
-      <Button
-        variant="ghost"
-        size="icon"
-        className="opacity-0 group-hover:opacity-100 h-8 w-8 text-destructive hover:text-destructive"
-        onClick={(e) => {
-          e.stopPropagation()
-          onRemove(host.id)
-        }}
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      <TooltipProvider delayDuration={150}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="opacity-0 group-hover:opacity-100 h-8 w-8 text-destructive hover:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation()
+                onRemove(host.id)
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Remove host</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   )
 }
