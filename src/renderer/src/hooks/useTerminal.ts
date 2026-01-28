@@ -34,9 +34,11 @@ export const useTerminal = (sessionId: string | null) => {
     }
   }, [sessionId])
 
-  const resize = useCallback((rows: number, cols: number) => {
+  // Note: cols and rows match xterm.cols/xterm.rows
+  // We forward them to the backend as rows, cols in that order.
+  const resize = useCallback((cols: number, rows: number) => {
     if (sessionId) {
-      terminalService.resize(sessionId, cols, rows)
+      terminalService.resize(sessionId, rows, cols)
     }
   }, [sessionId])
 

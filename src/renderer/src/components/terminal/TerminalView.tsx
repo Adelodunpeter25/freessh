@@ -29,8 +29,10 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
     searchAddonRef.current = searchAddon
   }, [setXterm])
 
+  // cols and rows are passed through unchanged; useTerminal.resize
+  // knows that the first argument is cols and second is rows.
   const handleResize = useCallback((cols: number, rows: number) => {
-    resize(rows, cols)
+    resize(cols, rows)
   }, [resize])
 
   const handleSearch = useCallback((query: string, direction: 'next' | 'prev') => {
