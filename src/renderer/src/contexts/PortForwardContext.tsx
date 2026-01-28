@@ -55,6 +55,8 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
     const config = configs.find(c => c.id === configId)
     if (!config) return
 
+    console.log('Starting tunnel for config:', { configId, connectionId: config.connection_id, type: config.type })
+
     try {
       let tunnel: TunnelInfo
       
@@ -72,6 +74,7 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
         })
       }
       
+      console.log('Tunnel created:', tunnel)
       setActiveTunnelMap(prev => new Map(prev).set(configId, tunnel))
       toast.success('Tunnel started')
     } catch (error) {
@@ -82,10 +85,18 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
 
   const stopTunnel = useCallback(async (configId: string) => {
     const tunnel = activeTunnelMap.get(configId)
-    if (!tunnel) return
+    if (!tunnel) {
+      console.log('No tunnel found for config:', configId)
+      return
+    }
 
     const config = configs.find(c => c.id === configId)
-    if (!config) return
+    if (!config) {
+      console.log('No config found for id:', configId)
+      return
+    }
+
+    console.log('Stopping tunnel:', { configId, tunnelId: tunnel.id, connectionId: config.connection_id })
 
     try {
       await portForwardService.stop(config.connection_id, tunnel.id)
