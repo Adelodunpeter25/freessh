@@ -7,6 +7,7 @@ interface ConnectionsContextValue {
   filteredConnections: ConnectionConfig[]
   loading: boolean
   connectingId: string | null
+  localTerminalLoading: boolean
   selectedId: string | null
   searchQuery: string
   selectedGroup: string | null

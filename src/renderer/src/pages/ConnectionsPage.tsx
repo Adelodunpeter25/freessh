@@ -35,6 +35,7 @@ export function ConnectionsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
+  const [localTerminalLoading, setLocalTerminalLoading] = useState(false)
 
   const groups = Array.from(new Set(connections.map(c => c.group).filter(Boolean))) as string[]
   
@@ -90,12 +91,15 @@ export function ConnectionsPage() {
   }, [])
 
   const handleNewLocalTerminal = useCallback(async () => {
+    setLocalTerminalLoading(true)
     try {
       const session = await connectLocal()
       addSession(session)
       addLocalTab(session)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Failed to open local terminal')
+    } finally {
+      setLocalTerminalLoading(false)
     }
   }, [connectLocal, addSession, addLocalTab])
 
@@ -104,6 +108,7 @@ export function ConnectionsPage() {
     filteredConnections,
     loading,
     connectingId,
+    localTerminalLoading,
     selectedId,
     searchQuery,
     selectedGroup,
@@ -126,6 +131,7 @@ export function ConnectionsPage() {
     filteredConnections,
     loading,
     connectingId,
+    localTerminalLoading,
     selectedId,
     searchQuery,
     selectedGroup,
