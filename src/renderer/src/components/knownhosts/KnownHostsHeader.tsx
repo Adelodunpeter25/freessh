@@ -15,9 +15,14 @@ export function KnownHostsHeader({ onImport, importing }: KnownHostsHeaderProps)
           Manage trusted SSH host fingerprints
         </p>
       </div>
-      <Button onClick={onImport} size="sm" disabled={importing}>
+      <Button 
+        onClick={onImport} 
+        size="sm" 
+        disabled={importing}
+        className="hover:bg-gray-700"
+      >
         <Upload className="w-4 h-4 mr-2" />
-        {importing ? 'Importing...' : 'Import from SSH'}
+        {importing ? 'Importing...' : 'Import'}
       </Button>
     </div>
   )
