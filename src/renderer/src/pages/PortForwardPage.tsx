@@ -1,53 +1,86 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { TunnelList, PortForwardSidebar } from '@/components/portforward'
+import { usePortForwardConfig } from '@/hooks/usePortForwardConfig'
 import { usePortForward } from '@/hooks/usePortForward'
+import { useConnections } from '@/hooks/useConnections'
+import { useTabStore } from '@/stores/tabStore'
+import { PortForwardConfig } from '@/types'
 import { toast } from 'sonner'
 
-interface PortForwardPageProps {
-  sessionId: string | null
-}
-
-export function PortForwardPage({ sessionId }: PortForwardPageProps) {
+export function PortForwardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { tunnels, loading, createLocalTunnel, createRemoteTunnel, stopTunnel } = usePortForward(sessionId)
+  const [editConfig, setEditConfig] = useState<PortForwardConfig | undefined>()
+  
+  const { configs, loading, createConfig, updateConfig, deleteConfig } = usePortForwardConfig()
+  const { connections } = useConnections()
+  const tabs = useTabStore((state) => state.tabs)
+  
+  // Get active session for each connection
+  const sessionMap = useMemo(() => {
+    const map = new Map<string, string>()
+    tabs.forEach(tab => {
+      if (tab.type === 'terminal' && tab.connectionId && tab.sessionId) {
+        map.set(tab.connectionId, tab.sessionId)
+      }
+    })
+    return map
+  }, [tabs])
 
-  const handleCreateLocal = async (config: { localPort: number; remoteHost: string; remotePort: number }) => {
-    try {
-      await createLocalTunnel({
-        local_port: config.localPort,
-        remote_host: config.remoteHost,
-        remote_port: config.remotePort
-      })
-      toast.success('Local tunnel created')
-      setSidebarOpen(false)
-    } catch (error) {
-      toast.error('Failed to create tunnel')
+  // Track active tunnels (simplified - would need to query backend)
+  const activeTunnels = useMemo(() => new Set<string>(), [])
+
+  // Map connection IDs to names
+  const connectionNames = useMemo(() => {
+    const map = new Map<string, string>()
+    connections.forEach(conn => map.set(conn.id, conn.name))
+    return map
+  }, [connections])
+
+  const handleSave = async (config: Omit<PortForwardConfig, 'id'>) => {
+    if (editConfig) {
+      await updateConfig({ ...config, id: editConfig.id })
+    } else {
+      await createConfig(config)
+    }
+    setSidebarOpen(false)
+    setEditConfig(undefined)
+  }
+
+  const handleEdit = (config: PortForwardConfig) => {
+    setEditConfig(config)
+    setSidebarOpen(true)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (confirm('Delete this port forward configuration?')) {
+      await deleteConfig(id)
     }
   }
 
-  const handleCreateRemote = async (config: { remotePort: number; localHost: string; localPort: number }) => {
-    try {
-      await createRemoteTunnel({
-        remote_port: config.remotePort,
-        local_host: config.localHost,
-        local_port: config.localPort
-      })
-      toast.success('Remote tunnel created')
-      setSidebarOpen(false)
-    } catch (error) {
-      toast.error('Failed to create tunnel')
+  const handleStart = async (id: string) => {
+    const config = configs.find(c => c.id === id)
+    if (!config) return
+
+    const sessionId = sessionMap.get(config.connection_id)
+    if (!sessionId) {
+      toast.error('Connection is not active. Please connect first.')
+      return
     }
+
+    // TODO: Start tunnel using portForwardService
+    toast.info('Starting tunnel...')
   }
 
   const handleStop = async (id: string) => {
-    try {
-      await stopTunnel(id)
-      toast.success('Tunnel stopped')
-    } catch (error) {
-      toast.error('Failed to stop tunnel')
-    }
+    // TODO: Stop tunnel using portForwardService
+    toast.info('Stopping tunnel...')
+  }
+
+  const handleNew = () => {
+    setEditConfig(undefined)
+    setSidebarOpen(true)
   }
 
   return (
@@ -56,24 +89,37 @@ export function PortForwardPage({ sessionId }: PortForwardPageProps) {
         <div>
           <h2 className="text-lg font-semibold">Port Forwarding</h2>
           <p className="text-sm text-muted-foreground">
-            Manage SSH port forwarding tunnels
+            Manage SSH port forwarding configurations
           </p>
         </div>
-        <Button onClick={() => setSidebarOpen(true)} size="sm">
+        <Button onClick={handleNew} size="sm">
           <Plus className="w-4 h-4 mr-2" />
-          New Tunnel
+          New Port Forward
         </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        <TunnelList tunnels={tunnels} loading={loading} onStop={handleStop} />
+        <TunnelList
+          configs={configs}
+          loading={loading}
+          activeTunnels={activeTunnels}
+          connections={connectionNames}
+          onStart={handleStart}
+          onStop={handleStop}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       </div>
 
       <PortForwardSidebar
         isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        onCreateLocal={handleCreateLocal}
-        onCreateRemote={handleCreateRemote}
+        onClose={() => {
+          setSidebarOpen(false)
+          setEditConfig(undefined)
+        }}
+        onSave={handleSave}
+        connections={connections}
+        editConfig={editConfig}
       />
     </div>
   )

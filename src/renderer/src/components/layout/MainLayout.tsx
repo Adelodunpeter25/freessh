@@ -105,7 +105,7 @@ export function MainLayout() {
       case "known-hosts":
         return <KnownHostsPage />;
       case "port-forward":
-        return <PortForwardPage sessionId={activeSessionTabId} />;
+        return <PortForwardPage />;
       default:
         return null;
     }
