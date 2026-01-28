@@ -7,21 +7,16 @@ export function useKnownHosts() {
   const [hosts, setHosts] = useState<KnownHost[]>([])
   const [loading, setLoading] = useState(true)
 
-  console.log('[useKnownHosts] Hook instance - loading:', loading, 'hosts:', hosts)
-
   const loadHosts = useCallback(async () => {
-    console.log('[useKnownHosts] Starting loadHosts')
     setLoading(true)
     try {
       const data = await knownHostsService.getAll()
-      console.log('[useKnownHosts] Loaded hosts:', data)
       setHosts(data)
     } catch (error) {
-      console.error('[useKnownHosts] Failed to load known hosts:', error)
+      console.error('Failed to load known hosts:', error)
       toast.error('Failed to load known hosts')
     } finally {
       setLoading(false)
-      console.log('[useKnownHosts] Loading complete')
     }
   }, [])
 
@@ -50,7 +45,6 @@ export function useKnownHosts() {
   }, [loadHosts])
 
   useEffect(() => {
-    console.log('[useKnownHosts] useEffect triggered')
     loadHosts()
   }, [])
 
