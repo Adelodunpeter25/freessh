@@ -4,13 +4,13 @@ import { useOSTypeStore } from './osTypeStore'
 
 interface SessionWithConnection {
   session: Session
-  connection: ConnectionConfig
+  connection?: ConnectionConfig
 }
 
 interface SessionStore {
   sessions: Map<string, SessionWithConnection>
   
-  addSession: (session: Session, connection: ConnectionConfig) => void
+  addSession: (session: Session, connection?: ConnectionConfig) => void
   removeSession: (sessionId: string) => void
   updateSession: (sessionId: string, updates: Partial<Session>) => void
   getSession: (sessionId: string) => SessionWithConnection | undefined
@@ -22,7 +22,7 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
 
   addSession: (session, connection) => {
     // Cache OS type if available
-    if (session.os_type) {
+    if (session.os_type && connection) {
       useOSTypeStore.getState().setOSType(connection.id, session.os_type)
     }
     
