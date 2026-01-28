@@ -48,8 +48,9 @@ export function useKnownHosts() {
   }, [loadHosts])
 
   useEffect(() => {
+    console.log('[useKnownHosts] useEffect triggered')
     loadHosts()
-  }, [loadHosts])
+  }, [])
 
   return {
     hosts,
