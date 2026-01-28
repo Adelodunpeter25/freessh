@@ -139,6 +139,7 @@ export function KeygenList() {
         <ExportKeySidebar
           keyId={exportKey.id}
           keyName={exportKey.name}
+          isOpen={!!exportKey}
           onClose={() => setExportKey(undefined)}
           onExport={handleExportToHost}
         />

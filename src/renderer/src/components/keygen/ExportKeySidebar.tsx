@@ -1,19 +1,19 @@
 import { useState } from 'react'
-import { X, Server } from 'lucide-react'
+import { Server } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Sheet } from '@/components/ui/sheet'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useConnections } from '@/hooks'
-import { ConnectionConfig } from '@/types'
 
 interface ExportKeySidebarProps {
   keyId: string
   keyName: string
+  isOpen: boolean
   onClose: () => void
   onExport: (keyId: string, connectionId: string) => Promise<void>
 }
 
-export function ExportKeySidebar({ keyId, keyName, onClose, onExport }: ExportKeySidebarProps) {
+export function ExportKeySidebar({ keyId, keyName, isOpen, onClose, onExport }: ExportKeySidebarProps) {
   const { connections, loading } = useConnections()
   const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
@@ -31,26 +31,11 @@ export function ExportKeySidebar({ keyId, keyName, onClose, onExport }: ExportKe
   }
 
   return (
-    <div className="fixed right-0 top-12 bottom-0 w-80 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        <div>
-          <h2 className="text-lg font-semibold">Export SSH Key</h2>
-          <p className="text-sm text-muted-foreground">{keyName}</p>
-        </div>
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Close</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+    <Sheet isOpen={isOpen} onClose={onClose} title="Export SSH Key" width="sm">
+      <div className="px-4 pt-2 pb-4 border-b">
+        <p className="text-sm font-medium text-muted-foreground">{keyName}</p>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-hidden flex flex-col">
         <div className="p-4 border-b">
           <p className="text-sm text-muted-foreground">
@@ -97,7 +82,6 @@ export function ExportKeySidebar({ keyId, keyName, onClose, onExport }: ExportKe
         </ScrollArea>
       </div>
 
-      {/* Footer */}
       <div className="p-4 border-t border-border bg-background">
         <div className="flex gap-2">
           <Button
@@ -112,6 +96,6 @@ export function ExportKeySidebar({ keyId, keyName, onClose, onExport }: ExportKe
           </Button>
         </div>
       </div>
-    </div>
+    </Sheet>
   )
 }
