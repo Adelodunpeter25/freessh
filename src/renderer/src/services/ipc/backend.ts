@@ -29,6 +29,10 @@ class BackendService {
         sessionHandler(message)
         return
       }
+
+      // If message has session_id, don't fall back to global handler
+      // to avoid delivering terminal output to multiple listeners
+      return
     }
 
     const handler = this.messageHandlers.get(message.type)

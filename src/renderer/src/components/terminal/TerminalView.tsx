@@ -68,6 +68,7 @@ export function TerminalView({ sessionId }: TerminalViewProps) {
           />
         )}
         <TerminalPane
+          key={sessionId}
           sessionId={sessionId}
           onData={sendInput}
           onResize={handleResize}
