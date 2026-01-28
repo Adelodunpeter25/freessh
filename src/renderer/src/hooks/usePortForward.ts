@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react'
 import { portForwardService } from '@/services/ipc/portforward'
-import { TunnelConfig, TunnelInfo } from '@/types'
+import { TunnelConfig, RemoteTunnelConfig, TunnelInfo } from '@/types'
 
 export const usePortForward = (sessionId: string | null) => {
   const [tunnels, setTunnels] = useState<TunnelInfo[]>([])
@@ -30,12 +30,27 @@ export const usePortForward = (sessionId: string | null) => {
     }
   }, [sessionId, loadTunnels])
 
-  const createTunnel = useCallback(async (config: TunnelConfig) => {
+  const createLocalTunnel = useCallback(async (config: TunnelConfig) => {
     if (!sessionId) return
 
     setError(null)
     try {
-      const tunnel = await portForwardService.create(sessionId, config)
+      const tunnel = await portForwardService.createLocal(sessionId, config)
+      setTunnels(prev => [...prev, tunnel])
+      return tunnel
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create tunnel'
+      setError(errorMessage)
+      throw err
+    }
+  }, [sessionId])
+
+  const createRemoteTunnel = useCallback(async (config: RemoteTunnelConfig) => {
+    if (!sessionId) return
+
+    setError(null)
+    try {
+      const tunnel = await portForwardService.createRemote(sessionId, config)
       setTunnels(prev => [...prev, tunnel])
       return tunnel
     } catch (err) {
@@ -63,7 +78,8 @@ export const usePortForward = (sessionId: string | null) => {
     tunnels,
     loading,
     error,
-    createTunnel,
+    createLocalTunnel,
+    createRemoteTunnel,
     stopTunnel,
     refresh: loadTunnels
   }
