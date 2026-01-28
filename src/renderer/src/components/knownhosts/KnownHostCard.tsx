@@ -26,9 +26,6 @@ export function KnownHostCard({ host, selected, onSelect, onRemove }: KnownHostC
       
       <div className="flex-1 min-w-0">
         <h3 className="text-base font-semibold text-foreground truncate">{host.hostname}:{host.port}</h3>
-        <p className="text-xs text-muted-foreground truncate">
-          Trusted host
-        </p>
       </div>
 
       <TooltipProvider delayDuration={150}>
