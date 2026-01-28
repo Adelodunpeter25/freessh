@@ -1,9 +1,8 @@
 import { useState, useCallback, useMemo } from 'react'
-import { X } from 'lucide-react'
 import { toast } from 'sonner'
 import { ConnectionConfig } from '@/types'
 import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Sheet } from '@/components/ui/sheet'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { useFormDirty } from '@/hooks/useFormDirty'
 import { ConnectionFormGeneral } from './ConnectionFormGeneral'
@@ -11,13 +10,14 @@ import { ConnectionFormCredentials } from './ConnectionFormCredentials'
 import { keychainService } from '@/services/ipc/keychain'
 
 interface ConnectionFormProps {
+  isOpen: boolean
   connection?: ConnectionConfig
   onConnect: (config: ConnectionConfig, password?: string, passphrase?: string) => void
   onSave?: (config: ConnectionConfig, password?: string, passphrase?: string) => void
   onClose: () => void
 }
 
-export function ConnectionForm({ connection, onConnect, onSave, onClose }: ConnectionFormProps) {
+export function ConnectionForm({ isOpen, connection, onConnect, onSave, onClose }: ConnectionFormProps) {
   const initialData = useMemo(() => connection || {
     id: crypto.randomUUID(),
     name: '',
@@ -81,51 +81,37 @@ export function ConnectionForm({ connection, onConnect, onSave, onClose }: Conne
         confirmText="Discard"
         cancelText="Keep Editing"
       />
-    <div className="fixed right-0 top-12 bottom-0 w-96 bg-background border-l border-border shadow-lg z-50 flex flex-col animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
-        <h2 className="text-lg font-semibold">
-          {connection ? 'Edit Connection' : 'New Connection'}
-        </h2>
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={handleClose}>
-                <X className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Close</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </div>
-
-      {/* Form */}
-      <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          <ConnectionFormGeneral formData={formData} onChange={setFormData} />
-          <ConnectionFormCredentials 
-            formData={formData} 
-            onChange={setFormData}
-            password={password}
-            onPasswordChange={setPassword}
-            passphrase={passphrase}
-            onPassphraseChange={setPassphrase}
-          />
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-border bg-background">
-          <div className="flex gap-2">
-            <Button type="submit" className="flex-1" loading={isConnecting}>
-              {connection ? 'Save Changes' : 'Connect'}
-            </Button>
-            <Button type="button" variant="outline" onClick={handleClose} disabled={isConnecting}>
-              Cancel
-            </Button>
+      <Sheet 
+        isOpen={isOpen} 
+        onClose={handleClose} 
+        title={connection ? 'Edit Connection' : 'New Connection'}
+        width="md"
+      >
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            <ConnectionFormGeneral formData={formData} onChange={setFormData} />
+            <ConnectionFormCredentials 
+              formData={formData} 
+              onChange={setFormData}
+              password={password}
+              onPasswordChange={setPassword}
+              passphrase={passphrase}
+              onPassphraseChange={setPassphrase}
+            />
           </div>
-        </div>
-      </form>
-    </div>
+
+          <div className="p-4 border-t border-border bg-background">
+            <div className="flex gap-2">
+              <Button type="submit" className="flex-1" loading={isConnecting}>
+                {connection ? 'Save Changes' : 'Connect'}
+              </Button>
+              <Button type="button" variant="outline" onClick={handleClose} disabled={isConnecting}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </form>
+      </Sheet>
     </>
   )
 }

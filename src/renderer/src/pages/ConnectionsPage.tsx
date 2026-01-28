@@ -114,6 +114,7 @@ export function ConnectionsPage() {
 
       {showForm && (
         <ConnectionForm
+          isOpen={showForm}
           connection={editingConnection}
           onConnect={handleFormConnect}
           onSave={handleFormSave}
