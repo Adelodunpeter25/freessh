@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { PortForwardConfig, ConnectionConfig } from '@/types'
+import { PortForwardHeader } from './PortForwardHeader'
+import { PortForwardForm } from './PortForwardForm'
+import { PortForwardFooter } from './PortForwardFooter'
 
 interface PortForwardSidebarProps {
   isOpen: boolean
@@ -70,16 +68,7 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
 
   return (
     <div className="fixed right-0 top-12 bottom-0 w-80 bg-background border-l shadow-lg z-50 flex flex-col animate-fade-in">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <h2 className="text-lg font-semibold">{editConfig ? 'Edit' : 'New'} Port Forward</h2>
-        <button
-          onClick={onClose}
-          className="p-1 hover:bg-muted rounded-md transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-      </div>
+      <PortForwardHeader isEdit={!!editConfig} onClose={onClose} />
 
       {/* Tabs */}
       <div className="flex border-b">
@@ -105,121 +94,33 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
         </button>
       </div>
 
-      {/* Form */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <div>
-          <Label className="text-xs text-muted-foreground mb-1.5">Name</Label>
-          <Input
-            placeholder="e.g. Production Database"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
+      <PortForwardForm
+        activeTab={activeTab}
+        name={name}
+        connectionId={connectionId}
+        localPort={localPort}
+        remoteHost={remoteHost}
+        remotePort={remotePort}
+        bindingAddress={bindingAddress}
+        autoStart={autoStart}
+        connections={connections}
+        onNameChange={setName}
+        onConnectionChange={setConnectionId}
+        onLocalPortChange={setLocalPort}
+        onRemoteHostChange={setRemoteHost}
+        onRemotePortChange={setRemotePort}
+        onBindingAddressChange={setBindingAddress}
+        onAutoStartChange={setAutoStart}
+      />
 
-        <div>
-          <Label className="text-xs text-muted-foreground mb-1.5">Connection</Label>
-          <Select value={connectionId} onValueChange={setConnectionId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select connection" />
-            </SelectTrigger>
-            <SelectContent>
-              {connections.map((conn) => (
-                <SelectItem key={conn.id} value={conn.id}>
-                  {conn.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {activeTab === 'local' ? (
-          <>
-            <div>
-              <Label className="text-xs text-muted-foreground mb-1.5">Binding Address</Label>
-              <Select value={bindingAddress} onValueChange={setBindingAddress}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="localhost">localhost</SelectItem>
-                  <SelectItem value="0.0.0.0">0.0.0.0 (all interfaces)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <Input
-              type="number"
-              placeholder="Local Port"
-              value={localPort}
-              onChange={(e) => setLocalPort(e.target.value)}
-            />
-            <Input
-              placeholder="Remote Host"
-              value={remoteHost}
-              onChange={(e) => setRemoteHost(e.target.value)}
-            />
-            <Input
-              type="number"
-              placeholder="Remote Port"
-              value={remotePort}
-              onChange={(e) => setRemotePort(e.target.value)}
-            />
-          </>
-        ) : (
-          <>
-            <Input
-              type="number"
-              placeholder="Remote Port"
-              value={remotePort}
-              onChange={(e) => setRemotePort(e.target.value)}
-            />
-            <Input
-              placeholder="Local Host"
-              value={remoteHost}
-              onChange={(e) => setRemoteHost(e.target.value)}
-            />
-            <Input
-              type="number"
-              placeholder="Local Port"
-              value={localPort}
-              onChange={(e) => setLocalPort(e.target.value)}
-            />
-          </>
-        )}
-
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="auto-start"
-            checked={autoStart}
-            onChange={(e) => setAutoStart(e.target.checked)}
-            className="w-4 h-4 rounded border-gray-300"
-          />
-          <label
-            htmlFor="auto-start"
-            className="text-sm font-medium leading-none cursor-pointer"
-          >
-            Auto-start with connection
-          </label>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="p-4 border-t space-y-2 bg-background">
-        <Button
-          onClick={handleSave}
-          disabled={saving || !name || !connectionId}
-          className="w-full"
-        >
-          {saving ? 'Saving...' : editConfig ? 'Save Changes' : 'Create'}
-        </Button>
-        <Button
-          onClick={onClose}
-          variant="outline"
-          className="w-full"
-        >
-          Cancel
-        </Button>
-      </div>
+      <PortForwardFooter
+        saving={saving}
+        isEdit={!!editConfig}
+        canSave={!!name && !!connectionId}
+        onSave={handleSave}
+        onClose={onClose}
+      />
     </div>
   )
+}
 }

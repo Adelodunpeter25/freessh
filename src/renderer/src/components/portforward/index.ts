@@ -1,3 +1,6 @@
 export { PortForwardSidebar } from './PortForwardSidebar'
+export { PortForwardHeader } from './PortForwardHeader'
+export { PortForwardForm } from './PortForwardForm'
+export { PortForwardFooter } from './PortForwardFooter'
 export { TunnelList } from './TunnelList'
 export { TunnelCard } from './TunnelCard'
