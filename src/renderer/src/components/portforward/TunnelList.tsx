@@ -36,7 +36,7 @@ export function TunnelList({ configs, loading, activeTunnels, connections, onSta
   }
 
   return (
-    <div className="grid gap-4 p-6" onClick={() => setSelectedId(null)}>
+    <div className="grid grid-cols-2 gap-4 p-6" onClick={() => setSelectedId(null)}>
       {configs.map((config) => (
         <TunnelCard
           key={config.id}
