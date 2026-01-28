@@ -11,21 +11,6 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type Tunnel interface {
-	Start() error
-	Stop() error
-	IsActive() bool
-}
-
-type TunnelWrapper struct {
-	ID         string
-	Type       string // "local" or "remote"
-	LocalPort  int
-	RemoteHost string
-	RemotePort int
-	Tunnel     Tunnel
-}
-
 type Manager struct {
 	tunnels map[string]*TunnelWrapper
 	mu      sync.RWMutex

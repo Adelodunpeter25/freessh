@@ -8,19 +8,6 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type Tunnel struct {
-	ID         string
-	RemotePort int
-	LocalHost  string
-	LocalPort  int
-	Status     string
-	Error      string
-
-	sshClient *ssh.Client
-	listener  net.Listener
-	stopChan  chan struct{}
-}
-
 func NewTunnel(id string, remotePort int, localHost string, localPort int, sshClient *ssh.Client) *Tunnel {
 	return &Tunnel{
 		ID:         id,
@@ -34,6 +21,9 @@ func NewTunnel(id string, remotePort int, localHost string, localPort int, sshCl
 }
 
 func (t *Tunnel) Start() error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	if t.Status == "active" {
 		return fmt.Errorf("tunnel already active")
 	}
@@ -101,6 +91,9 @@ func (t *Tunnel) handleConnection(remoteConn net.Conn) {
 }
 
 func (t *Tunnel) Stop() error {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+
 	if t.Status != "active" {
 		return nil
 	}
@@ -116,5 +109,7 @@ func (t *Tunnel) Stop() error {
 }
 
 func (t *Tunnel) IsActive() bool {
+	t.mu.Lock()
+	defer t.mu.Unlock()
 	return t.Status == "active"
 }
