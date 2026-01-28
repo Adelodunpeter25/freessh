@@ -1,5 +1,6 @@
 import { ArrowRight, Pencil, Trash2, Play, Square } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { TunnelCardContextMenu } from '@/components/contextmenu/TunnelCardContextMenu'
 import { PortForwardConfig } from '@/types'
 
 interface TunnelCardProps {
@@ -16,14 +17,18 @@ interface TunnelCardProps {
 
 export function TunnelCard({ config, connectionName, isActive, selected, onStart, onStop, onEdit, onDelete, onSelect }: TunnelCardProps) {
   return (
-    <div 
-      onClick={() => onSelect(config.id)}
-      className={`group flex items-start gap-2 p-3 rounded-xl border transition-all select-none cursor-pointer animate-scale-in ${
-        selected 
-          ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)]' 
-          : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md'
-      }`}
-    >
+    <TunnelCardContextMenu config={config} onEdit={onEdit} onDelete={onDelete}>
+      <div 
+        onClick={(e) => {
+          e.stopPropagation()
+          onSelect(config.id)
+        }}
+        className={`group flex items-start gap-2 p-3 rounded-xl border transition-all select-none cursor-pointer animate-scale-in ${
+          selected 
+            ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)]' 
+            : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md'
+        }`}
+      >
       {/* Type Icon */}
       <div className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center font-bold text-base ${
         isActive 
@@ -109,5 +114,6 @@ export function TunnelCard({ config, connectionName, isActive, selected, onStart
         </div>
       </TooltipProvider>
     </div>
+    </TunnelCardContextMenu>
   )
 }
