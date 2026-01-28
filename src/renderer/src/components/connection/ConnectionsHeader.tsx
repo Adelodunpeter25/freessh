@@ -72,7 +72,7 @@ export function ConnectionsHeader() {
           onClick={onNewConnection}
           variant="secondary" 
           size="sm"
-          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all"
+          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all shrink-0"
         >
           <Server className="h-4 w-4 mr-2" />
           NEW CONNECTION
@@ -82,30 +82,35 @@ export function ConnectionsHeader() {
           onClick={onNewLocalTerminal}
           variant="secondary" 
           size="sm"
-          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all"
+          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all shrink-0"
         >
           <Terminal className="h-4 w-4 mr-2" />
           LOCAL TERMINAL
         </Button>
 
-        <Button
-          onClick={() => onGroupSelect(null)}
-          variant={selectedGroup === null ? "default" : "ghost"}
-          size="sm"
-        >
-          All
-        </Button>
-
-        {groups.map(group => (
+        {/* Scrollable Groups */}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
           <Button
-            key={group}
-            onClick={() => onGroupSelect(group)}
-            variant={selectedGroup === group ? "default" : "ghost"}
+            onClick={() => onGroupSelect(null)}
+            variant={selectedGroup === null ? "default" : "ghost"}
             size="sm"
+            className="shrink-0"
           >
-            {group} ({groupCounts[group]})
+            All
           </Button>
-        ))}
+
+          {groups.map(group => (
+            <Button
+              key={group}
+              onClick={() => onGroupSelect(group)}
+              variant={selectedGroup === group ? "default" : "ghost"}
+              size="sm"
+              className="shrink-0"
+            >
+              {group} ({groupCounts[group]})
+            </Button>
+          ))}
+        </div>
       </div>
     </div>
   )
