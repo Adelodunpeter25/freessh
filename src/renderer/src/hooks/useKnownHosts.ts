@@ -31,6 +31,19 @@ export function useKnownHosts() {
     }
   }, [])
 
+  const importFromSSH = useCallback(async () => {
+    try {
+      const count = await knownHostsService.importFromSSH()
+      await loadHosts()
+      toast.success(`Imported ${count} host${count !== 1 ? 's' : ''} from SSH`)
+      return count
+    } catch (error) {
+      console.error('Failed to import hosts:', error)
+      toast.error('Failed to import hosts from SSH')
+      throw error
+    }
+  }, [loadHosts])
+
   useEffect(() => {
     loadHosts()
   }, [loadHosts])
@@ -39,6 +52,7 @@ export function useKnownHosts() {
     hosts,
     loading,
     removeHost,
+    importFromSSH,
     reload: loadHosts
   }
 }

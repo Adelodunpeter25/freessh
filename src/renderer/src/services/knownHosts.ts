@@ -84,5 +84,33 @@ export const knownHostsService = {
         data: { hostname, port, fingerprint, keyType, publicKey }
       })
     })
+  },
+
+  async importFromSSH(): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const handler = (message: any) => {
+        backendService.off('known_host:import', handler)
+        backendService.off('error', errorHandler)
+        if (message.type === 'error') {
+          reject(new Error(message.data))
+        } else {
+          resolve(message.data.count || 0)
+        }
+      }
+
+      const errorHandler = (error: any) => {
+        backendService.off('known_host:import', handler)
+        backendService.off('error', errorHandler)
+        reject(error)
+      }
+
+      backendService.on('known_host:import', handler)
+      backendService.on('error', errorHandler)
+
+      backendService.send({
+        type: 'known_host:import',
+        data: {}
+      })
+    })
   }
 }
