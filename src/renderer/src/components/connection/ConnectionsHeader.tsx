@@ -87,7 +87,7 @@ export function ConnectionsHeader() {
           className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all shrink-0"
         >
           {localTerminalLoading ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
           ) : (
             <Terminal className="h-4 w-4 mr-2" />
           )}
