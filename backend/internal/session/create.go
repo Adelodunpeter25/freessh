@@ -14,6 +14,10 @@ import (
 )
 
 func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session, error) {
+	return m.CreateSessionWithVerification(config, nil)
+}
+
+func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, verificationCallback func(*models.HostKeyVerification) error) (*models.Session, error) {
 	sessionID := uuid.New().String()
 	
 	session := models.Session{
@@ -80,10 +84,14 @@ func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session
 	
 	// Set up host key verification callback
 	callback := verifier.CreateCallback(config.Host, config.Port, func(verification *models.HostKeyVerification) error {
-		// For now, auto-trust new hosts (we'll add frontend prompts later)
-		// Changed hosts will still error out
+		// If verification callback provided, use it
+		if verificationCallback != nil {
+			return verificationCallback(verification)
+		}
+		
+		// Otherwise auto-trust new hosts
 		if verification.Status == "new" {
-			return nil // Auto-trust
+			return nil
 		}
 		return fmt.Errorf("host key verification failed")
 	})

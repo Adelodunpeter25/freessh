@@ -43,7 +43,21 @@ func (h *SSHHandler) handleConnect(msg *models.IPCMessage, writer ResponseWriter
 		return fmt.Errorf("failed to parse connect request: %w", err)
 	}
 
-	session, err := h.manager.CreateSession(req.Config)
+	// Create verification callback that sends events to frontend
+	verificationCallback := func(verification *models.HostKeyVerification) error {
+		// Send verification request to frontend
+		if err := writer.WriteMessage(&models.IPCMessage{
+			Type: models.MsgHostKeyVerify,
+			Data: verification,
+		}); err != nil {
+			return err
+		}
+
+		// For now, auto-approve (TODO: wait for frontend response)
+		return nil
+	}
+
+	session, err := h.manager.CreateSessionWithVerification(req.Config, verificationCallback)
 	if err != nil {
 		return err
 	}

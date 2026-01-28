@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import { connectionService } from "../services/ipc";
+import { backendService } from "../services/ipc/backend";
 import { ConnectionConfig, Session } from "../types";
 import { useConnectionStore } from "../stores/connectionStore";
 import { useSessionStore } from "../stores/sessionStore";
@@ -20,6 +21,39 @@ export const useConnections = () => {
 
   const addSession = useSessionStore((state) => state.addSession);
   const addTab = useTabStore((state) => state.addTab);
+
+  // Listen for host key verification events
+  useEffect(() => {
+    const handleVerification = (message: any) => {
+      const verification = message.data as HostKeyVerification;
+      setPendingVerification(verification);
+    };
+
+    backendService.on('host_key:verify', handleVerification);
+
+    return () => {
+      backendService.off('host_key:verify', handleVerification);
+    };
+  }, []);
+
+  // Listen for host key verification events
+  useEffect(() => {
+    const handleVerification = (verification: HostKeyVerification) => {
+      setPendingVerification(verification);
+      
+      // Create a promise that will be resolved by user action
+      return new Promise<boolean>((resolve, reject) => {
+        setVerificationResolver({ resolve, reject });
+      });
+    };
+
+    // TODO: Wire up backend event listener when backend sends verification events
+    // backendService.on('host_key:verify', handleVerification);
+
+    return () => {
+      // backendService.off('host_key:verify', handleVerification);
+    };
+  }, []);
 
   const loadConnections = useCallback(async () => {
     setLoading(true);
@@ -124,17 +158,18 @@ export const useConnections = () => {
   const handleVerificationTrust = useCallback(() => {
     if (verificationResolver) {
       verificationResolver.resolve(true);
-      setPendingVerification(null);
-      setVerificationResolver(null);
     }
+    setPendingVerification(null);
+    setVerificationResolver(null);
   }, [verificationResolver]);
 
   const handleVerificationCancel = useCallback(() => {
     if (verificationResolver) {
       verificationResolver.reject(new Error('User cancelled host verification'));
-      setPendingVerification(null);
-      setVerificationResolver(null);
     }
+    setPendingVerification(null);
+    setVerificationResolver(null);
+    setConnectingId(null);
   }, [verificationResolver]);
 
   return {
