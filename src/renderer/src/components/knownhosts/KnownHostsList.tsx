@@ -1,9 +1,19 @@
+import { useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { KnownHostCard } from './KnownHostCard'
 import { useKnownHosts } from '@/hooks/useKnownHosts'
 
 export function KnownHostsList() {
   const { hosts, loading, removeHost } = useKnownHosts()
+  const [deleteHostId, setDeleteHostId] = useState<string | null>(null)
+
+  const handleDeleteConfirm = async () => {
+    if (deleteHostId) {
+      await removeHost(deleteHostId)
+      setDeleteHostId(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -25,12 +35,24 @@ export function KnownHostsList() {
   }
 
   return (
-    <ScrollArea className="h-full">
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6">
-        {hosts.map((host) => (
-          <KnownHostCard key={host.id} host={host} onRemove={removeHost} />
-        ))}
-      </div>
-    </ScrollArea>
+    <>
+      <ScrollArea className="h-full">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6">
+          {hosts.map((host) => (
+            <KnownHostCard key={host.id} host={host} onRemove={setDeleteHostId} />
+          ))}
+        </div>
+      </ScrollArea>
+
+      <ConfirmDialog
+        open={!!deleteHostId}
+        onOpenChange={(open) => !open && setDeleteHostId(null)}
+        title="Remove Known Host"
+        description="Are you sure you want to remove this host? You will be prompted to verify the fingerprint on your next connection."
+        onConfirm={handleDeleteConfirm}
+        confirmText="Remove"
+        cancelText="Cancel"
+      />
+    </>
   )
 }
