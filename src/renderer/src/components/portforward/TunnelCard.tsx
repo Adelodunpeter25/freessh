@@ -27,7 +27,7 @@ export function TunnelCard({ config, connectionName, isActive, selected, onStart
           e.stopPropagation()
           onSelect(config.id)
         }}
-        className={`group flex items-start gap-2 p-3 rounded-xl border transition-all select-none cursor-pointer animate-scale-in ${
+        className={`group flex items-center gap-2 p-3 rounded-xl border transition-all select-none cursor-pointer animate-scale-in ${
           selected 
             ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)]' 
             : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md'
