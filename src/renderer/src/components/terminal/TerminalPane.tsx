@@ -12,10 +12,18 @@ interface TerminalPaneProps {
   onData: (data: string) => void
   onResize: (cols: number, rows: number) => void
   onReady: (xterm: XTerm, searchAddon: SearchAddon) => void
+  onSearchResults?: (results: { resultIndex: number, resultCount: number } | null) => void
   isActive?: boolean
 }
 
-export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onResize, onReady, isActive = true }: TerminalPaneProps) {
+export const TerminalPane = memo(function TerminalPane({
+  sessionId,
+  onData,
+  onResize,
+  onReady,
+  onSearchResults,
+  isActive = true
+}: TerminalPaneProps) {
   const terminalRef = useRef<HTMLDivElement>(null)
   const xtermRef = useRef<XTerm | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
@@ -88,8 +96,17 @@ export const TerminalPane = memo(function TerminalPane({ sessionId, onData, onRe
     const searchAddon = new SearchAddon()
 
     // Configure search decoration colors
-    searchAddon.onDidChangeResults(() => {
-      // Custom highlight colors applied via CSS
+    searchAddon.onDidChangeResults((results) => {
+      if (onSearchResults) {
+        if (!results) {
+          onSearchResults(null)
+        } else {
+          onSearchResults({
+            resultIndex: results.resultIndex,
+            resultCount: results.resultCount
+          })
+        }
+      }
     })
 
     xterm.loadAddon(fitAddon)

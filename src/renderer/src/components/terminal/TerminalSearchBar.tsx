@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button'
 interface TerminalSearchBarProps {
   onSearch: (query: string, direction: 'next' | 'prev') => void
   onClose: () => void
+  results?: { index: number, total: number } | null
 }
 
-export function TerminalSearchBar({ onSearch, onClose }: TerminalSearchBarProps) {
+export function TerminalSearchBar({ onSearch, onClose, results }: TerminalSearchBarProps) {
   const [query, setQuery] = useState('')
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -37,6 +38,16 @@ export function TerminalSearchBar({ onSearch, onClose }: TerminalSearchBarProps)
         className="h-8 w-48"
         autoFocus
       />
+      {query && results && results.total > 0 && (
+        <span className="text-xs text-muted-foreground px-2 whitespace-nowrap">
+          {results.index + 1} of {results.total}
+        </span>
+      )}
+      {query && results && results.total === 0 && (
+        <span className="text-xs text-destructive px-2 whitespace-nowrap">
+          No results
+        </span>
+      )}
       <Button
         variant="ghost"
         size="icon"

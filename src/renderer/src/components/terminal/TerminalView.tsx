@@ -16,6 +16,7 @@ interface TerminalViewProps {
 export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) {
   const { sendInput, resize, setXterm } = useTerminal(sessionId)
   const [showSearch, setShowSearch] = useState(false)
+  const [searchResults, setSearchResults] = useState<{ index: number, total: number } | null>(null)
   const searchAddonRef = useRef<SearchAddon | null>(null)
   const xtermRef = useRef<XTerm | null>(null)
 
@@ -23,6 +24,17 @@ export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) 
     onFind: () => setShowSearch(true),
     onSplit: () => console.log('Split not implemented')
   })
+
+  const handleSearchResults = useCallback((results: { resultIndex: number, resultCount: number } | null) => {
+    if (!results) {
+      setSearchResults(null)
+    } else {
+      setSearchResults({
+        index: results.resultIndex,
+        total: results.resultCount
+      })
+    }
+  }, [])
 
   const handleReady = useCallback((xterm: XTerm, searchAddon: SearchAddon) => {
     setXterm(xterm)
@@ -66,6 +78,7 @@ export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) 
           <TerminalSearchBar
             onSearch={handleSearch}
             onClose={() => setShowSearch(false)}
+            results={searchResults}
           />
         )}
         <TerminalPane
@@ -74,6 +87,7 @@ export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) 
           onData={sendInput}
           onResize={handleResize}
           onReady={handleReady}
+          onSearchResults={handleSearchResults}
           isActive={isActive}
         />
       </div>
