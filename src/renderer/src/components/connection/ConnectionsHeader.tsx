@@ -1,35 +1,23 @@
 import { Server, Search, X, Terminal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { ConnectionConfig } from '@/types'
+import { useConnectionsContext } from '@/contexts/ConnectionsContext'
 
-interface ConnectionsHeaderProps {
-  onNewConnection: () => void
-  onNewLocalTerminal: () => void
-  searchQuery: string
-  onSearchChange: (query: string) => void
-  filteredConnections: ConnectionConfig[]
-  onConnect: (connection: ConnectionConfig) => void
-  onOpenSFTP: (connection: ConnectionConfig) => void
-  groups: string[]
-  groupCounts: Record<string, number>
-  selectedGroup: string | null
-  onGroupSelect: (group: string | null) => void
-}
+export function ConnectionsHeader() {
+  const {
+    searchQuery,
+    onSearchChange,
+    filteredConnections,
+    onConnect,
+    onOpenSFTP,
+    groups,
+    groupCounts,
+    selectedGroup,
+    onGroupSelect,
+    onNewConnection,
+    onNewLocalTerminal,
+  } = useConnectionsContext()
 
-export function ConnectionsHeader({ 
-  onNewConnection,
-  onNewLocalTerminal,
-  searchQuery, 
-  onSearchChange,
-  filteredConnections,
-  onConnect,
-  onOpenSFTP,
-  groups,
-  groupCounts,
-  selectedGroup,
-  onGroupSelect
-}: ConnectionsHeaderProps) {
   const isSearching = searchQuery.trim().length > 0
   const singleResult = isSearching && filteredConnections.length === 1 ? filteredConnections[0] : null
 

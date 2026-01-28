@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { toast } from 'sonner'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
 import { HostKeyVerificationDialog } from '@/components/knownhosts'
+import { ConnectionsProvider } from '@/contexts/ConnectionsContext'
 import { useConnections } from '@/hooks'
 import { useSessions } from '@/hooks/useSessions'
 import { useTabStore } from '@/stores/tabStore'
@@ -98,54 +99,76 @@ export function ConnectionsPage() {
     }
   }, [connectLocal, addSession, addLocalTab])
 
+  const contextValue = useMemo(() => ({
+    connections,
+    filteredConnections,
+    loading,
+    connectingId,
+    selectedId,
+    searchQuery,
+    selectedGroup,
+    groups,
+    groupCounts,
+    pendingVerification,
+    onSelect: handleSelect,
+    onConnect: handleConnect,
+    onOpenSFTP: handleOpenSFTP,
+    onEdit: handleEdit,
+    onDelete: handleDelete,
+    onSearchChange: setSearchQuery,
+    onGroupSelect: setSelectedGroup,
+    onNewConnection: () => setShowForm(true),
+    onNewLocalTerminal: handleNewLocalTerminal,
+    onVerificationTrust: handleVerificationTrust,
+    onVerificationCancel: handleVerificationCancel,
+  }), [
+    connections,
+    filteredConnections,
+    loading,
+    connectingId,
+    selectedId,
+    searchQuery,
+    selectedGroup,
+    groups,
+    groupCounts,
+    pendingVerification,
+    handleSelect,
+    handleConnect,
+    handleOpenSFTP,
+    handleEdit,
+    handleDelete,
+    handleNewLocalTerminal,
+    handleVerificationTrust,
+    handleVerificationCancel,
+  ])
+
   return (
-    <div className="h-full flex flex-col relative">
-      <ConnectionsHeader 
-        onNewConnection={() => setShowForm(true)}
-        onNewLocalTerminal={handleNewLocalTerminal}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        filteredConnections={filteredConnections}
-        onConnect={handleConnect}
-        onOpenSFTP={handleOpenSFTP}
-        groups={groups}
-        groupCounts={groupCounts}
-        selectedGroup={selectedGroup}
-        onGroupSelect={setSelectedGroup}
-      />
-      <div className="flex-1 overflow-hidden">
-        <ConnectionList
-          connections={filteredConnections}
-          loading={loading}
-          selectedId={selectedId}
-          connectingId={connectingId}
-          onSelect={handleSelect}
-          onConnect={handleConnect}
-          onOpenSFTP={handleOpenSFTP}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          isSearching={searchQuery.trim().length > 0}
+    <ConnectionsProvider value={contextValue}>
+      <div className="h-full flex flex-col relative">
+        <ConnectionsHeader />
+        <div className="flex-1 overflow-hidden">
+          <ConnectionList />
+        </div>
+
+        <NewConnectionButton onClick={() => setShowForm(true)} />
+
+        {showForm && (
+          <ConnectionForm
+            isOpen={showForm}
+            connection={editingConnection}
+            onConnect={handleFormConnect}
+            onSave={handleFormSave}
+            onClose={handleCloseForm}
+          />
+        )}
+
+        <HostKeyVerificationDialog
+          open={!!pendingVerification}
+          verification={pendingVerification}
+          onTrust={handleVerificationTrust}
+          onCancel={handleVerificationCancel}
         />
       </div>
-
-      <NewConnectionButton onClick={() => setShowForm(true)} />
-
-      {showForm && (
-        <ConnectionForm
-          isOpen={showForm}
-          connection={editingConnection}
-          onConnect={handleFormConnect}
-          onSave={handleFormSave}
-          onClose={handleCloseForm}
-        />
-      )}
-
-      <HostKeyVerificationDialog
-        open={!!pendingVerification}
-        verification={pendingVerification}
-        onTrust={handleVerificationTrust}
-        onCancel={handleVerificationCancel}
-      />
-    </div>
+    </ConnectionsProvider>
   )
 }
