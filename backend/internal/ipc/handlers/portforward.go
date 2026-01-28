@@ -49,11 +49,17 @@ func (h *PortForwardHandler) handleCreate(msg *models.IPCMessage, writer Respons
 		return fmt.Errorf("failed to parse create tunnel request: %w", err)
 	}
 
+	// Get or create session for this connection
+	session, err := h.manager.GetOrCreateSession(req.ConnectionID)
+	if err != nil {
+		return fmt.Errorf("failed to get session: %w", err)
+	}
+
 	var tunnel *models.TunnelInfo
 	if req.Type == "remote" {
-		tunnel, err = h.manager.CreateRemoteTunnel(msg.SessionID, req.Remote)
+		tunnel, err = h.manager.CreateRemoteTunnel(session.ID, req.Remote)
 	} else {
-		tunnel, err = h.manager.CreateLocalTunnel(msg.SessionID, req.Config)
+		tunnel, err = h.manager.CreateLocalTunnel(session.ID, req.Config)
 	}
 
 	if err != nil {
@@ -61,9 +67,8 @@ func (h *PortForwardHandler) handleCreate(msg *models.IPCMessage, writer Respons
 	}
 
 	return writer.WriteMessage(&models.IPCMessage{
-		Type:      models.MsgPortForwardCreate,
-		SessionID: msg.SessionID,
-		Data:      tunnel,
+		Type: models.MsgPortForwardCreate,
+		Data: tunnel,
 	})
 }
 
@@ -78,14 +83,19 @@ func (h *PortForwardHandler) handleStop(msg *models.IPCMessage, writer ResponseW
 		return fmt.Errorf("failed to parse stop tunnel request: %w", err)
 	}
 
-	if err := h.manager.StopTunnel(msg.SessionID, req.TunnelID); err != nil {
+	// Get session for this connection
+	session, err := h.manager.GetOrCreateSession(req.ConnectionID)
+	if err != nil {
+		return fmt.Errorf("failed to get session: %w", err)
+	}
+
+	if err := h.manager.StopTunnel(session.ID, req.TunnelID); err != nil {
 		return err
 	}
 
 	return writer.WriteMessage(&models.IPCMessage{
-		Type:      models.MsgPortForwardStop,
-		SessionID: msg.SessionID,
-		Data:      map[string]string{"status": "stopped", "tunnel_id": req.TunnelID},
+		Type: models.MsgPortForwardStop,
+		Data: map[string]string{"status": "stopped", "tunnel_id": req.TunnelID},
 	})
 }
 

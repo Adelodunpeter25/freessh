@@ -2,10 +2,10 @@ import { backendService } from './backend'
 import { TunnelConfig, RemoteTunnelConfig, TunnelInfo, CreateTunnelRequest, IPCMessage } from '@/types'
 
 export const portForwardService = {
-  createLocal(sessionId: string, config: TunnelConfig): Promise<TunnelInfo> {
+  createLocal(connectionId: string, config: TunnelConfig): Promise<TunnelInfo> {
     return new Promise((resolve, reject) => {
       const handler = (message: IPCMessage) => {
-        if (message.session_id === sessionId && message.type === 'portforward:create') {
+        if (message.type === 'portforward:create') {
           backendService.off('portforward:create')
           backendService.off('error')
           resolve(message.data as TunnelInfo)
@@ -21,16 +21,15 @@ export const portForwardService = {
 
       backendService.send({
         type: 'portforward:create',
-        session_id: sessionId,
-        data: { type: 'local', config } as CreateTunnelRequest
+        data: { type: 'local', connection_id: connectionId, config } as CreateTunnelRequest
       })
     })
   },
 
-  createRemote(sessionId: string, config: RemoteTunnelConfig): Promise<TunnelInfo> {
+  createRemote(connectionId: string, config: RemoteTunnelConfig): Promise<TunnelInfo> {
     return new Promise((resolve, reject) => {
       const handler = (message: IPCMessage) => {
-        if (message.session_id === sessionId && message.type === 'portforward:create') {
+        if (message.type === 'portforward:create') {
           backendService.off('portforward:create')
           backendService.off('error')
           resolve(message.data as TunnelInfo)
@@ -46,16 +45,15 @@ export const portForwardService = {
 
       backendService.send({
         type: 'portforward:create',
-        session_id: sessionId,
-        data: { type: 'remote', remote: config } as CreateTunnelRequest
+        data: { type: 'remote', connection_id: connectionId, remote: config } as CreateTunnelRequest
       })
     })
   },
 
-  stop(sessionId: string, tunnelId: string): Promise<void> {
+  stop(connectionId: string, tunnelId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const handler = (message: IPCMessage) => {
-        if (message.session_id === sessionId && message.type === 'portforward:stop') {
+        if (message.type === 'portforward:stop') {
           backendService.off('portforward:stop')
           backendService.off('error')
           resolve()
@@ -71,8 +69,7 @@ export const portForwardService = {
 
       backendService.send({
         type: 'portforward:stop',
-        session_id: sessionId,
-        data: { tunnel_id: tunnelId }
+        data: { connection_id: connectionId, tunnel_id: tunnelId }
       })
     })
   },

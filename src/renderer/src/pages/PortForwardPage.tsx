@@ -1,58 +1,74 @@
-import { useState } from 'react'
-import { Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { ConfirmDialog } from '@/components/common/ConfirmDialog'
-import { TunnelList, PortForwardSidebar } from '@/components/portforward'
-import { PortForwardProvider, usePortForwardContext } from '@/contexts/PortForwardContext'
-import { useConnections } from '@/hooks/useConnections'
-import { PortForwardConfig } from '@/types'
+import { useState, useCallback } from "react";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
+import { TunnelList, PortForwardSidebar } from "@/components/portforward";
+import {
+  PortForwardProvider,
+  usePortForwardContext,
+} from "@/contexts/PortForwardContext";
+import { useConnections } from "@/hooks/useConnections";
+import { PortForwardConfig } from "@/types";
 
 function PortForwardPageContent() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [editConfig, setEditConfig] = useState<PortForwardConfig | undefined>()
-  const [deleteConfigId, setDeleteConfigId] = useState<string | null>(null)
-  
-  const { configs, loading, activeTunnels, connections, startTunnel, stopTunnel, createConfig, updateConfig, deleteConfig } = usePortForwardContext()
-  const { connections: connectionList } = useConnections()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [editConfig, setEditConfig] = useState<PortForwardConfig | undefined>();
+  const [deleteConfigId, setDeleteConfigId] = useState<string | null>(null);
 
-  const handleSave = useCallback(async (config: Omit<PortForwardConfig, 'id'>) => {
-    if (editConfig) {
-      await updateConfig({ ...config, id: editConfig.id })
-    } else {
-      await createConfig(config)
-    }
-    setSidebarOpen(false)
-    setEditConfig(undefined)
-  }, [editConfig, updateConfig, createConfig])
+  const {
+    configs,
+    loading,
+    activeTunnels,
+    connections,
+    startTunnel,
+    stopTunnel,
+    createConfig,
+    updateConfig,
+    deleteConfig,
+  } = usePortForwardContext();
+  const { connections: connectionList } = useConnections();
+
+  const handleSave = useCallback(
+    async (config: Omit<PortForwardConfig, "id">) => {
+      if (editConfig) {
+        await updateConfig({ ...config, id: editConfig.id });
+      } else {
+        await createConfig(config);
+      }
+      setSidebarOpen(false);
+      setEditConfig(undefined);
+    },
+    [editConfig, updateConfig, createConfig],
+  );
 
   const handleEdit = useCallback((config: PortForwardConfig) => {
-    setEditConfig(config)
-    setSidebarOpen(true)
-  }, [])
+    setEditConfig(config);
+    setSidebarOpen(true);
+  }, []);
 
   const handleDeleteClick = useCallback((id: string) => {
-    setDeleteConfigId(id)
-  }, [])
+    setDeleteConfigId(id);
+  }, []);
 
   const handleDeleteConfirm = useCallback(async () => {
-    if (!deleteConfigId) return
-    await deleteConfig(deleteConfigId)
-    setDeleteConfigId(null)
-  }, [deleteConfigId, deleteConfig])
+    if (!deleteConfigId) return;
+    await deleteConfig(deleteConfigId);
+    setDeleteConfigId(null);
+  }, [deleteConfigId, deleteConfig]);
 
   const handleNew = useCallback(() => {
-    setEditConfig(undefined)
-    setSidebarOpen(true)
-  }, [])
+    setEditConfig(undefined);
+    setSidebarOpen(true);
+  }, []);
 
   const handleCloseSidebar = useCallback(() => {
-    setSidebarOpen(false)
-    setEditConfig(undefined)
-  }, [])
+    setSidebarOpen(false);
+    setEditConfig(undefined);
+  }, []);
 
   const handleDialogClose = useCallback((open: boolean) => {
-    if (!open) setDeleteConfigId(null)
-  }, [])
+    if (!open) setDeleteConfigId(null);
+  }, []);
 
   return (
     <div className="h-full flex flex-col">
@@ -100,7 +116,7 @@ function PortForwardPageContent() {
         cancelText="Cancel"
       />
     </div>
-  )
+  );
 }
 
 export function PortForwardPage() {
@@ -108,5 +124,5 @@ export function PortForwardPage() {
     <PortForwardProvider>
       <PortForwardPageContent />
     </PortForwardProvider>
-  )
+  );
 }

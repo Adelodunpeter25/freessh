@@ -22,6 +22,7 @@ export interface TunnelInfo {
 
 export interface CreateTunnelRequest {
   type: 'local' | 'remote'
+  connection_id: string
   config?: TunnelConfig
   remote?: RemoteTunnelConfig
 }

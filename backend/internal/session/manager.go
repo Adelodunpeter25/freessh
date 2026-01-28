@@ -64,3 +64,39 @@ func (m *Manager) GetAllSessions() []*ActiveSession {
 func (m *Manager) GetStorage() *storage.ConnectionStorage {
 	return m.storage
 }
+
+func (m *Manager) GetOrCreateSession(connectionID string) (*ActiveSession, error) {
+	// Check if session already exists for this connection
+	m.mu.RLock()
+	for _, session := range m.sessions {
+		if session.Session.ConnectionID == connectionID {
+			m.mu.RUnlock()
+			return session, nil
+		}
+	}
+	m.mu.RUnlock()
+
+	// Get connection config
+	if m.storage == nil {
+		return nil, fmt.Errorf("connection storage not available")
+	}
+
+	conn, err := m.storage.Get(connectionID)
+	if err != nil {
+		return nil, fmt.Errorf("connection not found: %w", err)
+	}
+
+	// Create new session
+	sessionModel, err := m.CreateSession(*conn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create session: %w", err)
+	}
+
+	// Get the active session
+	activeSession, err := m.GetSession(sessionModel.ID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get active session: %w", err)
+	}
+
+	return activeSession, nil
+}

@@ -23,11 +23,13 @@ type TunnelInfo struct {
 }
 
 type CreateTunnelRequest struct {
-	Type   string              `json:"type"` // "local" or "remote"
-	Config TunnelConfig        `json:"config,omitempty"`
-	Remote RemoteTunnelConfig  `json:"remote,omitempty"`
+	Type         string              `json:"type"` // "local" or "remote"
+	ConnectionID string              `json:"connection_id"`
+	Config       TunnelConfig        `json:"config,omitempty"`
+	Remote       RemoteTunnelConfig  `json:"remote,omitempty"`
 }
 
 type StopTunnelRequest struct {
-	TunnelID string `json:"tunnel_id"`
+	ConnectionID string `json:"connection_id"`
+	TunnelID     string `json:"tunnel_id"`
 }
