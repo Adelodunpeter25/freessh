@@ -15,7 +15,7 @@ function PortForwardPageContent() {
   const { configs, loading, activeTunnels, connections, startTunnel, stopTunnel, createConfig, updateConfig, deleteConfig } = usePortForwardContext()
   const { connections: connectionList } = useConnections()
 
-  const handleSave = async (config: Omit<PortForwardConfig, 'id'>) => {
+  const handleSave = useCallback(async (config: Omit<PortForwardConfig, 'id'>) => {
     if (editConfig) {
       await updateConfig({ ...config, id: editConfig.id })
     } else {
@@ -23,27 +23,36 @@ function PortForwardPageContent() {
     }
     setSidebarOpen(false)
     setEditConfig(undefined)
-  }
+  }, [editConfig, updateConfig, createConfig])
 
-  const handleEdit = (config: PortForwardConfig) => {
+  const handleEdit = useCallback((config: PortForwardConfig) => {
     setEditConfig(config)
     setSidebarOpen(true)
-  }
+  }, [])
 
-  const handleDeleteClick = (id: string) => {
+  const handleDeleteClick = useCallback((id: string) => {
     setDeleteConfigId(id)
-  }
+  }, [])
 
-  const handleDeleteConfirm = async () => {
+  const handleDeleteConfirm = useCallback(async () => {
     if (!deleteConfigId) return
     await deleteConfig(deleteConfigId)
     setDeleteConfigId(null)
-  }
+  }, [deleteConfigId, deleteConfig])
 
-  const handleNew = () => {
+  const handleNew = useCallback(() => {
     setEditConfig(undefined)
     setSidebarOpen(true)
-  }
+  }, [])
+
+  const handleCloseSidebar = useCallback(() => {
+    setSidebarOpen(false)
+    setEditConfig(undefined)
+  }, [])
+
+  const handleDialogClose = useCallback((open: boolean) => {
+    if (!open) setDeleteConfigId(null)
+  }, [])
 
   return (
     <div className="h-full flex flex-col">
@@ -75,10 +84,7 @@ function PortForwardPageContent() {
 
       <PortForwardSidebar
         isOpen={sidebarOpen}
-        onClose={() => {
-          setSidebarOpen(false)
-          setEditConfig(undefined)
-        }}
+        onClose={handleCloseSidebar}
         onSave={handleSave}
         connections={connectionList}
         editConfig={editConfig}
@@ -86,7 +92,7 @@ function PortForwardPageContent() {
 
       <ConfirmDialog
         open={!!deleteConfigId}
-        onOpenChange={(open) => !open && setDeleteConfigId(null)}
+        onOpenChange={handleDialogClose}
         title="Delete Port Forward"
         description="Are you sure you want to delete this port forward configuration? This action cannot be undone."
         onConfirm={handleDeleteConfirm}

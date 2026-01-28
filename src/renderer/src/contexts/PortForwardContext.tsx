@@ -172,7 +172,7 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
     return connectionNames.get(connectionId)
   }, [connectionNames])
 
-  const value: PortForwardContextValue = {
+  const value: PortForwardContextValue = useMemo(() => ({
     configs,
     loading,
     activeTunnels,
@@ -183,7 +183,7 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
     updateConfig,
     deleteConfig,
     getConnectionName
-  }
+  }), [configs, loading, activeTunnels, connectionNames, startTunnel, stopTunnel, createConfig, updateConfig, deleteConfig, getConnectionName])
 
   return (
     <PortForwardContext.Provider value={value}>
