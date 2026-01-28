@@ -3,18 +3,22 @@ package handlers
 import (
 	"fmt"
 	"freessh-backend/internal/models"
+	"freessh-backend/internal/storage"
 	"sync"
 	"time"
 )
 
 type HostKeyVerificationHelper struct {
 	verificationChannels map[string]chan bool
+	knownHostStorage     *storage.KnownHostStorage
 	mu                   sync.Mutex
 }
 
 func NewHostKeyVerificationHelper() *HostKeyVerificationHelper {
+	knownHostStorage, _ := storage.NewKnownHostStorage()
 	return &HostKeyVerificationHelper{
 		verificationChannels: make(map[string]chan bool),
+		knownHostStorage:     knownHostStorage,
 	}
 }
 
@@ -45,7 +49,15 @@ func (h *HostKeyVerificationHelper) CreateVerificationCallback(writer ResponseWr
 			if !trusted {
 				return fmt.Errorf("user rejected host key")
 			}
-			return nil
+			// User approved - save the host
+			host := &models.KnownHost{
+				Hostname:    verification.Hostname,
+				Port:        verification.Port,
+				KeyType:     verification.KeyType,
+				Fingerprint: verification.Fingerprint,
+				PublicKey:   "", // Will be set by TrustHost if needed
+			}
+			return h.knownHostStorage.Add(host)
 		case <-time.After(60 * time.Second):
 			return fmt.Errorf("host key verification timeout")
 		}
