@@ -58,7 +58,7 @@ export const knownHostsService = {
     })
   },
 
-  async trust(hostname: string, port: number, fingerprint: string, keyType: string, publicKey: string): Promise<void> {
+  async trust(hostname: string, port: number, fingerprint: string, publicKey: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const handler = (message: any) => {
         backendService.off('known_host:trust', handler)
@@ -81,7 +81,7 @@ export const knownHostsService = {
 
       backendService.send({
         type: 'known_host:trust',
-        data: { hostname, port, fingerprint, keyType, publicKey }
+        data: { hostname, port, fingerprint, publicKey }
       })
     })
   },
