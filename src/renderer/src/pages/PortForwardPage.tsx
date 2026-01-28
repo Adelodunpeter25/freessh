@@ -28,6 +28,8 @@ function PortForwardPageContent() {
   } = usePortForwardContext();
   const { connections: connectionList } = useConnections();
 
+  console.log('[PortForwardPage] connectionList:', connectionList)
+
   const handleSave = useCallback(
     async (config: Omit<PortForwardConfig, "id">) => {
       if (editConfig) {
