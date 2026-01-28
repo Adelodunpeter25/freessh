@@ -14,10 +14,6 @@ export const useConnections = () => {
   const [connectingId, setConnectingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pendingVerification, setPendingVerification] = useState<HostKeyVerification | null>(null);
-  const [verificationResolver, setVerificationResolver] = useState<{
-    resolve: (value: boolean) => void;
-    reject: (reason?: any) => void;
-  } | null>(null);
 
   const addSession = useSessionStore((state) => state.addSession);
   const addTab = useTabStore((state) => state.addTab);
@@ -33,25 +29,6 @@ export const useConnections = () => {
 
     return () => {
       backendService.off('host_key:verify', handleVerification);
-    };
-  }, []);
-
-  // Listen for host key verification events
-  useEffect(() => {
-    const handleVerification = (verification: HostKeyVerification) => {
-      setPendingVerification(verification);
-      
-      // Create a promise that will be resolved by user action
-      return new Promise<boolean>((resolve, reject) => {
-        setVerificationResolver({ resolve, reject });
-      });
-    };
-
-    // TODO: Wire up backend event listener when backend sends verification events
-    // backendService.on('host_key:verify', handleVerification);
-
-    return () => {
-      // backendService.off('host_key:verify', handleVerification);
     };
   }, []);
 
@@ -168,7 +145,6 @@ export const useConnections = () => {
       });
     }
     setPendingVerification(null);
-    setVerificationResolver(null);
   }, [pendingVerification]);
 
   const handleVerificationCancel = useCallback(() => {
@@ -184,7 +160,6 @@ export const useConnections = () => {
       });
     }
     setPendingVerification(null);
-    setVerificationResolver(null);
     setConnectingId(null);
   }, [pendingVerification]);
 
