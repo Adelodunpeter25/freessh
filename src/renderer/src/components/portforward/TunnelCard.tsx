@@ -22,7 +22,7 @@ export function TunnelCard({ config, connectionName, isActive, selected, onStart
         selected ? 'border-primary ring-2 ring-primary/20' : 'hover:border-primary/50'
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className="flex items-start gap-1.5">
         {/* Type Icon */}
         <div className={`flex-shrink-0 w-9 h-9 rounded-lg flex items-center justify-center font-bold text-base ${
           isActive 
@@ -56,7 +56,7 @@ export function TunnelCard({ config, connectionName, isActive, selected, onStart
 
         {/* Actions */}
         <TooltipProvider delayDuration={150}>
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+          <div className="flex items-center gap-0.5 flex-shrink-0 ml-1">
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
