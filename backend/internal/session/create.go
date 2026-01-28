@@ -66,7 +66,28 @@ func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session
 		}
 	}
 
+	// Initialize host key verification
+	knownHostStorage, err := storage.NewKnownHostStorage()
+	if err != nil {
+		session.Status = models.SessionError
+		session.Error = "Failed to initialize known hosts storage"
+		return &session, fmt.Errorf("failed to initialize known hosts storage: %w", err)
+	}
+
+	verifier := ssh.NewHostKeyVerifier(knownHostStorage)
+	
 	sshClient := ssh.NewClient(config)
+	
+	// Set up host key verification callback
+	callback := verifier.CreateCallback(config.Host, config.Port, func(verification *models.HostKeyVerification) error {
+		// For now, auto-trust new hosts (we'll add frontend prompts later)
+		// Changed hosts will still error out
+		if verification.Status == "new" {
+			return nil // Auto-trust
+		}
+		return fmt.Errorf("host key verification failed")
+	})
+	sshClient.SetHostKeyCallback(callback)
 	
 	if err := sshClient.Connect(); err != nil {
 		session.Status = models.SessionError
