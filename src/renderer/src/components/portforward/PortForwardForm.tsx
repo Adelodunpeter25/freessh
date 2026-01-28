@@ -43,21 +43,7 @@ export function PortForwardForm({
   console.log('[PortForwardForm] connections:', connections)
   
   return (
-  remotePort,
-  bindingAddress,
-  autoStart,
-  connections,
-  onNameChange,
-  onConnectionChange,
-  onLocalPortChange,
-  onRemoteHostChange,
-  onRemotePortChange,
-  onBindingAddressChange,
-  onAutoStartChange
-}: PortForwardFormProps) {
-  return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4">
-      <div>
         <Label className="text-xs text-muted-foreground mb-1.5">Name</Label>
         <Input
           placeholder="e.g. Production Database"
