@@ -5,6 +5,7 @@ import (
 	"freessh-backend/internal/ipc/handlers"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
+	"freessh-backend/internal/storage"
 	"log"
 )
 
@@ -18,6 +19,12 @@ type Server struct {
 func NewServer() *Server {
 	manager := session.NewManager()
 	terminalHandler := handlers.NewTerminalHandler(manager)
+	
+	// Initialize known hosts storage
+	knownHostStorage, err := storage.NewKnownHostStorage()
+	if err != nil {
+		log.Printf("Warning: Failed to initialize known hosts storage: %v", err)
+	}
 	
 	return &Server{
 		reader:          NewReader(),
@@ -33,6 +40,7 @@ func NewServer() *Server {
 			handlers.NewKeychainHandler(),
 			handlers.NewKeygenHandler(),
 			handlers.NewKeysHandler(manager),
+			handlers.NewKnownHostsHandler(knownHostStorage),
 		},
 	}
 }

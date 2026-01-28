@@ -46,6 +46,12 @@ const (
 	MsgKeyUpdate MessageType = "key:update"
 	MsgKeyDelete MessageType = "key:delete"
 	MsgKeyExport MessageType = "key:export"
+
+	// Known hosts messages
+	MsgKnownHostList   MessageType = "known_host:list"
+	MsgKnownHostRemove MessageType = "known_host:remove"
+	MsgKnownHostTrust  MessageType = "known_host:trust"
+	MsgHostKeyVerify   MessageType = "host_key:verify"
 )
 
 type IPCMessage struct {

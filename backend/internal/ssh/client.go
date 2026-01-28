@@ -24,13 +24,19 @@ type Client struct {
 	onReconnecting   func(attempt int)
 	onReconnected    func()
 	onReconnectFailed func(err error)
+	hostKeyCallback  ssh.HostKeyCallback
 }
 
 func NewClient(connConfig models.ConnectionConfig) *Client {
 	return &Client{
 		config:           connConfig,
 		reconnectEnabled: true,
+		hostKeyCallback:  ssh.InsecureIgnoreHostKey(), // Default to insecure for now
 	}
+}
+
+func (c *Client) SetHostKeyCallback(callback ssh.HostKeyCallback) {
+	c.hostKeyCallback = callback
 }
 
 func (c *Client) SetReconnectCallbacks(onReconnecting func(int), onReconnected func(), onFailed func(error)) {
@@ -53,7 +59,7 @@ func (c *Client) Connect() error {
 	c.sshConfig = &ssh.ClientConfig{
 		User:            c.config.Username,
 		Auth:            []ssh.AuthMethod{authMethod},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		HostKeyCallback: c.hostKeyCallback,
 		Timeout:         config.DefaultTimeout,
 	}
 
