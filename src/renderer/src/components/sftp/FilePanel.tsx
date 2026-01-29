@@ -6,8 +6,8 @@ import { FilePreview } from "./filepreview";
 import { DropZoneOverlay } from "@/components/common/DropZoneOverlay";
 import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
 import { useFilePanelContext } from "@/contexts/FilePanelContext";
-import { useDragDrop } from "@/hooks/useDragDrop";
-import { useSearch } from "@/hooks/useSearch";
+import { useDragDrop } from "@/hooks";
+import { useSearch } from "@/hooks";
 import { openFile as openFileUtil } from "@/utils/fileOpener";
 import { SearchBar } from "./SearchBar";
 
