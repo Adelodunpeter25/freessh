@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
-import { sftpService } from '../services/ipc'
-import { FileInfo, TransferProgress } from '../types'
+import { sftpService } from '../../services/ipc'
+import { FileInfo, TransferProgress } from '../../types'
 
 export const useSFTP = (sessionId: string | null) => {
   const [files, setFiles] = useState<FileInfo[]>([])
