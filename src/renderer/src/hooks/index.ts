@@ -1,7 +1,6 @@
 export { useBackend } from './useBackend'
 export { useSSH } from './useSSH'
-export { useTerminal } from './useTerminal'
-export { useSessions } from './useSessions'
+export { useTerminal, useTerminalActions, useSessions } from './terminal'
 export { useConnections } from './connections'
 export { useSFTP, useLocalFiles, useFilePreview } from './sftp'
 export { useKeyStorage, useKeygen, useKeySearch, useKnownHosts } from './keys'

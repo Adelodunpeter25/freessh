@@ -1,6 +1,6 @@
 import { useCallback, useRef, useEffect } from 'react'
-import { terminalService } from '../services/ipc'
-import { backendService } from '../services/ipc/backend'
+import { terminalService } from '../../services/ipc'
+import { backendService } from '../../services/ipc/backend'
 
 export const useTerminal = (sessionId: string | null) => {
   const xtermRef = useRef<any>(null)

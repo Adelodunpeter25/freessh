@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
-import { sessionService } from '../services/ipc'
-import { Session } from '../types'
+import { sessionService } from '../../services/ipc'
+import { Session } from '../../types'
 
 export const useSessions = () => {
   const [sessions, setSessions] = useState<Session[]>([])
