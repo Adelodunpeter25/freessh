@@ -102,15 +102,6 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
           Dynamic
         </button>
       </div>
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
-            activeTab === 'dynamic'
-              ? 'text-primary border-b-2 border-primary'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          Dynamic
-        </button>
-      </div>
 
       <PortForwardForm
         activeTab={activeTab}
