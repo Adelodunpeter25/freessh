@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import { groupService } from '@/services/ipc'
 import { Group } from '@/types'
@@ -6,9 +6,16 @@ import { Group } from '@/types'
 export function useGroups() {
   const [groups, setGroups] = useState<Group[]>([])
   const [loading, setLoading] = useState(false)
+  const loadingRef = useRef(false)
 
   const loadGroups = useCallback(async () => {
+    if (loadingRef.current) {
+      console.log('[useGroups] Already loading, skipping')
+      return
+    }
+    
     console.log('[useGroups] loadGroups called')
+    loadingRef.current = true
     setLoading(true)
     try {
       const data = await groupService.list()
@@ -19,6 +26,7 @@ export function useGroups() {
       toast.error(error instanceof Error ? error.message : 'Failed to load groups')
     } finally {
       console.log('[useGroups] loadGroups complete')
+      loadingRef.current = false
       setLoading(false)
     }
   }, [])
