@@ -50,10 +50,12 @@
 - Verify file integrity after transfer (checksums)
 
 ### Terminal
-- Handle terminal resize during active session
-- Copy/paste support improvements
-- Search in terminal output
-- Terminal session logging to file
+**Status:** ✅ Implemented  
+**Implementation:**
+- ✅ Handle terminal resize during active session
+- ✅ Copy/paste support improvements
+- ✅ Search in terminal output (live search with result count and navigation)
+- ⏳ Terminal session logging to file (not yet implemented)
 
 ### SFTP Browser
 - Bulk operations (select multiple files for delete/download)
