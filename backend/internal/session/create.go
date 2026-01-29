@@ -9,6 +9,7 @@ import (
 	"freessh-backend/internal/ssh"
 	"freessh-backend/internal/storage"
 	"freessh-backend/internal/terminal"
+	"os"
 	"runtime"
 	"time"
 
@@ -163,9 +164,22 @@ func (m *Manager) CreateLocalSession() (*models.Session, error) {
 	session.ConnectedAt = time.Now()
 
 	activeSession := NewLocalSession(sessionID, localTerm, session)
+	// Set config for logging with hostname or "Local Terminal"
+	hostname, _ := os.Hostname()
+	if hostname == "" {
+		hostname = "Local-Terminal"
+	}
+	activeSession.Config = models.ConnectionConfig{
+		Name: hostname,
+	}
 	m.AddSession(activeSession)
 
 	go m.readLocalOutput(activeSession)
+
+	// Auto-start logging if enabled
+	if m.logSettings != nil && m.logSettings.GetAutoLogging() {
+		m.StartLogging(sessionID)
+	}
 
 	return &session, nil
 }
