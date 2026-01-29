@@ -73,7 +73,7 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
       <div className="flex border-b">
         <button
           onClick={() => setActiveTab('local')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+          className={`flex-1 px-4 py-2.5 text-xs font-medium transition-colors ${
             activeTab === 'local'
               ? 'text-primary border-b-2 border-primary'
               : 'text-muted-foreground hover:text-foreground'
@@ -83,7 +83,7 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
         </button>
         <button
           onClick={() => setActiveTab('remote')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+          className={`flex-1 px-4 py-2.5 text-xs font-medium transition-colors ${
             activeTab === 'remote'
               ? 'text-primary border-b-2 border-primary'
               : 'text-muted-foreground hover:text-foreground'
@@ -93,6 +93,15 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
         </button>
         <button
           onClick={() => setActiveTab('dynamic')}
+          className={`flex-1 px-4 py-2.5 text-xs font-medium transition-colors ${
+            activeTab === 'dynamic'
+              ? 'text-primary border-b-2 border-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Dynamic
+        </button>
+      </div>
           className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
             activeTab === 'dynamic'
               ? 'text-primary border-b-2 border-primary'

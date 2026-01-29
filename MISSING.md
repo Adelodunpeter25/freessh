@@ -88,7 +88,11 @@
 - ✅ List active tunnels
 - ✅ Create/Edit/Delete port forwarding configurations
 - ✅ Support for local and remote port forwarding
+- ✅ Support for dynamic port forwarding (SOCKS proxy)
 - ✅ Tunnel status monitoring and management
+- ✅ Connection tracking and cleanup on disconnect
+- ✅ Auto-start tunnels on session creation
+- ✅ Binding address configuration (localhost/0.0.0.0)
 
 ### Settings Page
 **Status:** ✅ Implemented  
@@ -115,16 +119,6 @@
 ---
 
 ## Planned Features
-
-### Dynamic Port Forwarding (SOCKS Proxy)
-**Status:** Not implemented  
-**Description:** Create a SOCKS proxy through SSH tunnel for routing all traffic.  
-**Use case:** Browse internet through remote server, bypass firewalls, access region-locked content.  
-**Implementation needed:**
-- Backend: Add SOCKS proxy support using `ssh -D` equivalent
-- UI: Add "Dynamic" option to port forwarding form
-- Config: Local port for SOCKS proxy
-- Status: Show active SOCKS proxy with port number
 
 ### Export/Import Connections
 **Status:** Not implemented  
