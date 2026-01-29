@@ -20,6 +20,7 @@ type ActiveSession struct {
 	SFTPClient      *sftp.Client
 	PortForwardMgr  *portforward.Manager
 	Session         models.Session
+	Config          models.ConnectionConfig
 	OutputChan      chan []byte
 	ErrorChan       chan error
 	stopChan        chan struct{}

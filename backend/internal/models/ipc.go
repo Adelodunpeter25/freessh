@@ -18,6 +18,11 @@ const (
 	MsgTerminalStopLogging   MessageType = "terminal:stop_logging"
 	MsgTerminalLoggingStatus MessageType = "terminal:logging_status"
 	
+	// Log messages
+	MsgLogList   MessageType = "log:list"
+	MsgLogRead   MessageType = "log:read"
+	MsgLogDelete MessageType = "log:delete"
+	
 	// SFTP messages
 	MsgSFTPList      MessageType = "sftp:list"
 	MsgSFTPUpload    MessageType = "sftp:upload"

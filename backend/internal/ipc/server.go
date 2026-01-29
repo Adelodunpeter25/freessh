@@ -58,6 +58,7 @@ func NewServer() *Server {
 			handlers.NewKeysHandler(manager),
 			handlers.NewKnownHostsHandler(knownHostStorage),
 			handlers.NewGroupHandler(groupStorage, manager.GetConnectionStorage()),
+			handlers.NewLogHandler(),
 		},
 	}
 }

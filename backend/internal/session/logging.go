@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 )
@@ -49,11 +50,15 @@ func (m *Manager) StartLogging(sessionID string) (string, error) {
 	}
 
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
-	sessionPrefix := sessionID
-	if len(sessionID) > 8 {
-		sessionPrefix = sessionID[:8]
+	connectionName := session.Config.Name
+	if connectionName == "" {
+		connectionName = "unknown"
 	}
-	filename := fmt.Sprintf("session_%s_%s.log", sessionPrefix, timestamp)
+	// Sanitize connection name for filename
+	connectionName = strings.ReplaceAll(connectionName, " ", "-")
+	connectionName = strings.ReplaceAll(connectionName, "/", "-")
+	
+	filename := fmt.Sprintf("%s_%s.log", connectionName, timestamp)
 	logPath := filepath.Join(logsDir, filename)
 
 	file, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
