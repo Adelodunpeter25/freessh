@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/creack/pty"
 )
@@ -89,7 +90,23 @@ func (t *Terminal) Close() error {
 	}
 
 	if t.cmd != nil && t.cmd.Process != nil {
-		t.cmd.Process.Kill()
+		// Try graceful shutdown first
+		t.cmd.Process.Signal(os.Interrupt)
+		
+		// Wait for process to exit (with timeout)
+		done := make(chan error, 1)
+		go func() {
+			done <- t.cmd.Wait()
+		}()
+		
+		select {
+		case <-done:
+			// Process exited gracefully
+		case <-time.After(2 * time.Second):
+			// Timeout - force kill
+			t.cmd.Process.Kill()
+			t.cmd.Wait() // Reap zombie
+		}
 	}
 
 	return nil
