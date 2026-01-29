@@ -32,6 +32,12 @@ func NewServer() *Server {
 		log.Printf("Warning: Failed to initialize port forward storage: %v", err)
 	}
 	
+	// Initialize group storage
+	groupStorage, err := storage.NewGroupStorage()
+	if err != nil {
+		log.Printf("Warning: Failed to initialize group storage: %v", err)
+	}
+	
 	// Create shared verification helper
 	verificationHelper := handlers.NewHostKeyVerificationHelper()
 	
@@ -51,6 +57,7 @@ func NewServer() *Server {
 			handlers.NewKeygenHandler(),
 			handlers.NewKeysHandler(manager),
 			handlers.NewKnownHostsHandler(knownHostStorage),
+			handlers.NewGroupHandler(groupStorage, manager.GetConnectionStorage()),
 		},
 	}
 }

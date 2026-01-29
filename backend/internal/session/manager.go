@@ -25,6 +25,10 @@ func NewManager() *Manager {
 	}
 }
 
+func (m *Manager) GetConnectionStorage() *storage.ConnectionStorage {
+	return m.storage
+}
+
 func (m *Manager) AddSession(session *ActiveSession) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

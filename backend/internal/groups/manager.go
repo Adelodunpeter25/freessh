@@ -80,10 +80,7 @@ func (m *Manager) List() ([]models.Group, error) {
 	groups := m.groupStorage.List()
 	
 	// Get all connections
-	connections, err := m.connectionStorage.List()
-	if err != nil {
-		return groups, nil // Return groups without counts
-	}
+	connections := m.connectionStorage.List()
 
 	// Count connections per group name
 	counts := make(map[string]int)

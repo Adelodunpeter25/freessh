@@ -62,6 +62,12 @@ const (
 	MsgKnownHostImport MessageType = "known_host:import"
 	MsgHostKeyVerify   MessageType = "host_key:verify"
 	MsgHostKeyVerifyResponse MessageType = "host_key:verify_response"
+
+	// Group messages
+	MsgGroupList   MessageType = "group:list"
+	MsgGroupCreate MessageType = "group:create"
+	MsgGroupRename MessageType = "group:rename"
+	MsgGroupDelete MessageType = "group:delete"
 )
 
 type IPCMessage struct {
