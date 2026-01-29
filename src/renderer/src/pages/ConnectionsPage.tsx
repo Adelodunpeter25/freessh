@@ -144,7 +144,7 @@ export function ConnectionsPage() {
                   )}
                 </Button>
                 <h2 className="text-sm font-semibold text-foreground">
-                  Connections ({connections.length})
+                  Connections
                 </h2>
                 <Badge variant="secondary">{connections.length}</Badge>
               </div>

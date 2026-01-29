@@ -3,6 +3,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { GroupList } from './GroupList'
 import { Group } from '@/types'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 
 interface GroupsSectionProps {
@@ -57,8 +58,9 @@ export function GroupsSection({
             )}
           </Button>
           <h2 className="text-sm font-semibold text-foreground">
-            Groups ({groups.length})
+            Groups
           </h2>
+          <Badge variant="secondary">{groups.length}</Badge>
         </div>
 
         {!collapsed && (
