@@ -3,7 +3,6 @@ package session
 import (
 	"context"
 	"io"
-	"time"
 )
 
 func (m *Manager) readOutput(as *ActiveSession) {
@@ -54,10 +53,6 @@ func (m *Manager) pipeOutput(ctx context.Context, as *ActiveSession, reader io.R
 				if err != nil {
 					if err != io.EOF {
 						as.ErrorChan <- err
-						// Trigger reconnection if SSH client supports it
-						if as.SSHClient != nil {
-							go as.SSHClient.HandleDisconnect()
-						}
 					}
 					return
 				}
