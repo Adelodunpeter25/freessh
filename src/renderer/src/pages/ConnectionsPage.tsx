@@ -1,5 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
-import { toast } from 'sonner'
+import { useState, useMemo } from 'react'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
@@ -8,241 +7,127 @@ import { GroupsSection, GroupSidebar } from '@/components/groups'
 import { HostKeyVerificationDialog } from '@/components/knownhosts'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ConnectionsProvider } from '@/contexts/ConnectionsContext'
-import { useConnections, useGroups } from '@/hooks'
-import { useSessions } from '@/hooks/useSessions'
-import { useTabStore } from '@/stores/tabStore'
-import { useSessionStore } from '@/stores/sessionStore'
-import { useUIStore } from '@/stores/uiStore'
-import { ConnectionConfig, Group } from '@/types'
+import { useConnections } from '@/hooks'
+import {
+  useConnectionHandlers,
+  useGroupHandlers,
+  useLocalTerminal,
+  useConnectionFilters,
+} from '@/hooks/connections'
 
 export function ConnectionsPage() {
-  const { 
-    connections, 
-    loading, 
-    connectingId,
-    pendingVerification,
-    deleteConnection, 
-    updateConnection, 
-    connectAndOpen,
-    saveAndConnect,
-    handleVerificationTrust,
-    handleVerificationCancel
-  } = useConnections()
-  const { groups, createGroup, renameGroup, deleteGroup } = useGroups()
-  const { connectLocal } = useSessions()
-  const addLocalTab = useTabStore((state) => state.addLocalTab)
-  const addSession = useSessionStore((state) => state.addSession)
-  const openSFTP = useUIStore((state) => state.openSFTP)
-  const [showForm, setShowForm] = useState(false)
-  const [editingConnection, setEditingConnection] = useState<ConnectionConfig | undefined>()
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
-  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
-  const [localTerminalLoading, setLocalTerminalLoading] = useState(false)
-  const [showGroupSidebar, setShowGroupSidebar] = useState(false)
-  const [editingGroup, setEditingGroup] = useState<Group | undefined>()
-  const [groupToDelete, setGroupToDelete] = useState<{ id: string; name: string } | null>(null)
-
-  const groupNames = Array.from(new Set(connections.map(c => c.group).filter(Boolean))) as string[]
-  
-  const groupCounts = groupNames.reduce((acc, group) => {
-    acc[group] = connections.filter(c => c.group === group).length
-    return acc
-  }, {} as Record<string, number>)
-
-  const filteredConnections = connections
-    .filter(conn => 
-      conn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conn.host.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conn.username.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .filter(conn => selectedGroup === null || conn.group === selectedGroup)
-
-  const handleSelect = useCallback((connection: ConnectionConfig | null) => {
-    setSelectedId(connection?.id ?? null)
-  }, [])
-
-  const handleConnect = useCallback(async (connection: ConnectionConfig) => {
-    await connectAndOpen(connection)
-  }, [connectAndOpen])
-
-  const handleOpenSFTP = useCallback((connection: ConnectionConfig) => {
-    openSFTP(connection.id)
-  }, [openSFTP])
-
-  const handleEdit = useCallback((connection: ConnectionConfig) => {
-    setEditingConnection(connection)
-    setShowForm(true)
-  }, [])
-
-  const handleFormConnect = useCallback(async (config: ConnectionConfig) => {
-    await saveAndConnect(config)
-    setShowForm(false)
-    setEditingConnection(undefined)
-  }, [saveAndConnect])
-
-  const handleFormSave = useCallback(async (config: ConnectionConfig) => {
-    await updateConnection(config)
-    setShowForm(false)
-    setEditingConnection(undefined)
-  }, [updateConnection])
-
-  const handleDelete = useCallback(async (id: string) => {
-    await deleteConnection(id)
-  }, [deleteConnection])
-
-  const handleCloseForm = useCallback(() => {
-    setShowForm(false)
-    setEditingConnection(undefined)
-  }, [])
-
-  const handleNewLocalTerminal = useCallback(async () => {
-    setLocalTerminalLoading(true)
-    try {
-      const session = await connectLocal()
-      addSession(session)
-      addLocalTab(session)
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to open local terminal')
-    } finally {
-      setLocalTerminalLoading(false)
-    }
-  }, [connectLocal, addSession, addLocalTab])
-
-  const handleSelectGroup = useCallback((group: Group | null) => {
-    setSelectedGroupId(group?.id ?? null)
-    setSelectedGroup(group?.name ?? null)
-  }, [])
-
-  const handleEditGroup = useCallback((group: Group) => {
-    setEditingGroup(group)
-    setShowGroupSidebar(true)
-  }, [])
-
-  const handleDeleteGroup = useCallback((id: string) => {
-    const group = groups.find(g => g.id === id)
-    if (group) {
-      setGroupToDelete({ id: group.id, name: group.name })
-    }
-  }, [groups])
-
-  const handleConfirmDeleteGroup = useCallback(async () => {
-    if (groupToDelete) {
-      await deleteGroup(groupToDelete.id)
-      if (selectedGroupId === groupToDelete.id) {
-        setSelectedGroupId(null)
-        setSelectedGroup(null)
-      }
-      setGroupToDelete(null)
-    }
-  }, [groupToDelete, deleteGroup, selectedGroupId])
-
-  const handleNewGroup = useCallback(() => {
-    setEditingGroup(undefined)
-    setShowGroupSidebar(true)
-  }, [])
-
-  const handleSaveGroup = useCallback(async (name: string) => {
-    if (editingGroup) {
-      await renameGroup(editingGroup.id, name)
-    } else {
-      await createGroup(name)
-    }
-  }, [editingGroup, renameGroup, createGroup])
-
-  const handleCloseGroupSidebar = useCallback(() => {
-    setShowGroupSidebar(false)
-    setEditingGroup(undefined)
-  }, [])
-
-  const contextValue = useMemo(() => ({
+  const {
     connections,
-    filteredConnections,
     loading,
     connectingId,
-    localTerminalLoading,
-    selectedId,
-    searchQuery,
-    selectedGroup,
-    groups: groupNames,
-    groupCounts,
     pendingVerification,
-    onSelect: handleSelect,
-    onConnect: handleConnect,
-    onOpenSFTP: handleOpenSFTP,
-    onEdit: handleEdit,
-    onDelete: handleDelete,
-    onSearchChange: setSearchQuery,
-    onGroupSelect: setSelectedGroup,
-    onNewConnection: () => setShowForm(true),
-    onNewLocalTerminal: handleNewLocalTerminal,
-    onNewGroup: handleNewGroup,
-    onVerificationTrust: handleVerificationTrust,
-    onVerificationCancel: handleVerificationCancel,
-  }), [
-    connections,
-    filteredConnections,
-    loading,
-    connectingId,
-    localTerminalLoading,
-    selectedId,
-    searchQuery,
-    selectedGroup,
-    groupNames,
-    groupCounts,
-    pendingVerification,
-    handleSelect,
-    handleConnect,
-    handleOpenSFTP,
-    handleEdit,
-    handleDelete,
-    handleNewLocalTerminal,
-    handleNewGroup,
     handleVerificationTrust,
     handleVerificationCancel,
-  ])
+  } = useConnections()
+
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const connectionHandlers = useConnectionHandlers()
+  const groupHandlers = useGroupHandlers()
+  const localTerminal = useLocalTerminal()
+  const { filteredConnections, groupNames, groupCounts } = useConnectionFilters(
+    connections,
+    searchQuery,
+    groupHandlers.selectedGroup
+  )
+
+  const contextValue = useMemo(
+    () => ({
+      connections,
+      filteredConnections,
+      loading,
+      connectingId,
+      localTerminalLoading: localTerminal.localTerminalLoading,
+      selectedId: connectionHandlers.selectedId,
+      searchQuery,
+      selectedGroup: groupHandlers.selectedGroup,
+      groups: groupNames,
+      groupCounts,
+      pendingVerification,
+      onSelect: connectionHandlers.handleSelect,
+      onConnect: connectionHandlers.handleConnect,
+      onOpenSFTP: connectionHandlers.handleOpenSFTP,
+      onEdit: connectionHandlers.handleEdit,
+      onDelete: connectionHandlers.handleDelete,
+      onSearchChange: setSearchQuery,
+      onGroupSelect: groupHandlers.handleSelectGroup,
+      onNewConnection: connectionHandlers.handleNewConnection,
+      onNewLocalTerminal: localTerminal.handleNewLocalTerminal,
+      onNewGroup: groupHandlers.handleNewGroup,
+      onVerificationTrust: handleVerificationTrust,
+      onVerificationCancel: handleVerificationCancel,
+    }),
+    [
+      connections,
+      filteredConnections,
+      loading,
+      connectingId,
+      localTerminal.localTerminalLoading,
+      connectionHandlers.selectedId,
+      searchQuery,
+      groupHandlers.selectedGroup,
+      groupNames,
+      groupCounts,
+      pendingVerification,
+      connectionHandlers.handleSelect,
+      connectionHandlers.handleConnect,
+      connectionHandlers.handleOpenSFTP,
+      connectionHandlers.handleEdit,
+      connectionHandlers.handleDelete,
+      groupHandlers.handleSelectGroup,
+      connectionHandlers.handleNewConnection,
+      localTerminal.handleNewLocalTerminal,
+      groupHandlers.handleNewGroup,
+      handleVerificationTrust,
+      handleVerificationCancel,
+    ]
+  )
 
   return (
     <ConnectionsProvider value={contextValue}>
       <div className="h-full flex flex-col relative">
         <ConnectionsHeader />
         <GroupsSection
-          groups={groups}
-          selectedGroupId={selectedGroupId}
-          onSelectGroup={handleSelectGroup}
-          onEditGroup={handleEditGroup}
-          onDeleteGroup={handleDeleteGroup}
+          groups={groupHandlers.groups}
+          selectedGroupId={groupHandlers.selectedGroupId}
+          onSelectGroup={groupHandlers.handleSelectGroup}
+          onEditGroup={groupHandlers.handleEditGroup}
+          onDeleteGroup={groupHandlers.handleDeleteGroup}
         />
         <div className="flex-1 overflow-hidden">
           <ConnectionList />
         </div>
 
-        <NewConnectionButton onClick={() => setShowForm(true)} />
+        <NewConnectionButton onClick={connectionHandlers.handleNewConnection} />
 
-        {showForm && (
+        {connectionHandlers.showForm && (
           <ConnectionForm
-            isOpen={showForm}
-            connection={editingConnection}
-            onConnect={handleFormConnect}
-            onSave={handleFormSave}
-            onClose={handleCloseForm}
+            isOpen={connectionHandlers.showForm}
+            connection={connectionHandlers.editingConnection}
+            onConnect={connectionHandlers.handleFormConnect}
+            onSave={connectionHandlers.handleFormSave}
+            onClose={connectionHandlers.handleCloseForm}
           />
         )}
 
         <GroupSidebar
-          isOpen={showGroupSidebar}
-          onClose={handleCloseGroupSidebar}
-          group={editingGroup}
-          onSave={handleSaveGroup}
+          isOpen={groupHandlers.showGroupSidebar}
+          onClose={groupHandlers.handleCloseGroupSidebar}
+          group={groupHandlers.editingGroup}
+          onSave={groupHandlers.handleSaveGroup}
         />
 
         <ConfirmDialog
-          open={!!groupToDelete}
-          onOpenChange={(open) => !open && setGroupToDelete(null)}
+          open={!!groupHandlers.groupToDelete}
+          onOpenChange={(open) => !open && groupHandlers.handleDeleteGroup}
           title="Delete group"
-          description={`Are you sure you want to delete "${groupToDelete?.name}"? Connections in this group will not be deleted.`}
-          onConfirm={handleConfirmDeleteGroup}
+          description={`Are you sure you want to delete "${groupHandlers.groupToDelete?.name}"? Connections in this group will not be deleted.`}
+          onConfirm={groupHandlers.handleConfirmDeleteGroup}
           confirmText="Delete"
           destructive
         />
