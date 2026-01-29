@@ -3,14 +3,17 @@ import { TableCell, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Trash2 } from 'lucide-react'
 import { formatDate } from '@/utils/formatDate'
+import { cn } from '@/lib/utils'
 
 interface LogCardProps {
   log: LogEntry
+  isSelected: boolean
+  onSelect: () => void
   onDelete: () => void
   onOpen: () => void
 }
 
-export function LogCard({ log, onDelete, onOpen }: LogCardProps) {
+export function LogCard({ log, isSelected, onSelect, onDelete, onOpen }: LogCardProps) {
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
@@ -21,16 +24,21 @@ export function LogCard({ log, onDelete, onOpen }: LogCardProps) {
 
   return (
     <TableRow
-      className="cursor-pointer hover:bg-accent"
+      className={cn(
+        "cursor-pointer transition-colors",
+        isSelected ? "bg-accent" : "hover:bg-muted/50"
+      )}
+      onClick={onSelect}
       onDoubleClick={onOpen}
     >
       <TableCell className="font-medium">{log.connection_name}</TableCell>
-      <TableCell>{formatDate(timestamp, true)}</TableCell>
-      <TableCell>{formatSize(log.size)}</TableCell>
+      <TableCell className="text-muted-foreground">{formatDate(timestamp, true)}</TableCell>
+      <TableCell className="text-muted-foreground">{formatSize(log.size)}</TableCell>
       <TableCell>
         <Button
           variant="ghost"
           size="icon"
+          className="h-8 w-8"
           onClick={(e) => {
             e.stopPropagation()
             onDelete()

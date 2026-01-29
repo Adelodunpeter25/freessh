@@ -12,6 +12,7 @@ interface LogListProps {
 
 export function LogList({ logs, onDelete, onOpen }: LogListProps) {
   const [deleteLog, setDeleteLog] = useState<LogEntry | null>(null)
+  const [selectedLog, setSelectedLog] = useState<string | null>(null)
 
   const handleDelete = () => {
     if (deleteLog) {
@@ -31,26 +32,30 @@ export function LogList({ logs, onDelete, onOpen }: LogListProps) {
 
   return (
     <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>File Size</TableHead>
-            <TableHead className="w-20">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {logs.map((log) => (
-            <LogCard
-              key={log.filename}
-              log={log}
-              onDelete={() => setDeleteLog(log)}
-              onOpen={() => onOpen(log)}
-            />
-          ))}
-        </TableBody>
-      </Table>
+      <div className="border rounded-lg overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50 hover:bg-muted/50">
+              <TableHead className="font-semibold">Name</TableHead>
+              <TableHead className="font-semibold">Date</TableHead>
+              <TableHead className="font-semibold">File Size</TableHead>
+              <TableHead className="font-semibold w-20">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {logs.map((log) => (
+              <LogCard
+                key={log.filename}
+                log={log}
+                isSelected={selectedLog === log.filename}
+                onSelect={() => setSelectedLog(log.filename)}
+                onDelete={() => setDeleteLog(log)}
+                onOpen={() => onOpen(log)}
+              />
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <ConfirmDialog
         open={!!deleteLog}
