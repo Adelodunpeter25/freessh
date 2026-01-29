@@ -49,6 +49,10 @@ export type MessageType =
   | 'known_host:import'
   | 'host_key:verify'
   | 'host_key:verify_response'
+  | 'group:list'
+  | 'group:create'
+  | 'group:rename'
+  | 'group:delete'
 
 export interface IPCMessage {
   type: MessageType
