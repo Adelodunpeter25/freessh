@@ -51,14 +51,11 @@ export function LogViewer({ content }: LogViewerProps) {
 
     // Show read-only toast on actual keyboard input (not modifier keys)
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log('Key pressed:', e.key, 'Target:', e.target) // Debug
       // Only ignore pure modifier keys
       const modifierKeys = ['Control', 'Alt', 'Meta', 'Shift', 'CapsLock', 'Tab', 'Escape', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']
       if (modifierKeys.includes(e.key)) {
-        console.log('Ignored modifier key') // Debug
         return
       }
-      console.log('Showing toast') // Debug
       toast.info('Read-only', { duration: 1500 })
     }
     document.addEventListener('keydown', handleKeyDown, true) // Use capture phase
