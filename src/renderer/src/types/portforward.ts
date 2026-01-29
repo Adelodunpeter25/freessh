@@ -12,11 +12,21 @@ export interface RemoteTunnelConfig {
   binding_address: string
 }
 
+export interface DynamicTunnelConfig {
+  local_port: number
+  binding_address: string
+}
+
+export interface DynamicTunnelConfig {
+  local_port: number
+  binding_address: string
+}
+
 export interface TunnelInfo {
   id: string
   connection_id: string
   name: string
-  type: 'local' | 'remote'
+  type: 'local' | 'remote' | 'dynamic'
   local_port: number
   remote_host: string
   remote_port: number
@@ -25,18 +35,19 @@ export interface TunnelInfo {
 }
 
 export interface CreateTunnelRequest {
-  type: 'local' | 'remote'
+  type: 'local' | 'remote' | 'dynamic'
   connection_id: string
   name: string
   config?: TunnelConfig
   remote?: RemoteTunnelConfig
+  dynamic?: DynamicTunnelConfig
 }
 
 export interface PortForwardConfig {
   id: string
   name: string
   connection_id: string
-  type: 'local' | 'remote'
+  type: 'local' | 'remote' | 'dynamic'
   local_port: number
   remote_host: string
   remote_port: number

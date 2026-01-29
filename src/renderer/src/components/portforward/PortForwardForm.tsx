@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ConnectionConfig } from '@/types'
 
 interface PortForwardFormProps {
-  activeTab: 'local' | 'remote'
+  activeTab: 'local' | 'remote' | 'dynamic'
   name: string
   connectionId: string
   localPort: string
@@ -103,7 +103,7 @@ export function PortForwardForm({
             onChange={(e) => onRemotePortChange(e.target.value)}
           />
         </>
-      ) : (
+      ) : activeTab === 'remote' ? (
         <>
           <Input
             type="number"
@@ -122,6 +122,30 @@ export function PortForwardForm({
             value={localPort}
             onChange={(e) => onLocalPortChange(e.target.value)}
           />
+        </>
+      ) : (
+        <>
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1.5">Binding Address</Label>
+            <Select value={bindingAddress} onValueChange={onBindingAddressChange}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="localhost">localhost</SelectItem>
+                <SelectItem value="0.0.0.0">0.0.0.0 (all interfaces)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Input
+            type="number"
+            placeholder="Local Port (SOCKS Proxy)"
+            value={localPort}
+            onChange={(e) => onLocalPortChange(e.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">
+            Creates a SOCKS5 proxy on the local port. Configure your browser or apps to use localhost:{localPort || 'PORT'} as SOCKS proxy.
+          </p>
         </>
       )}
 

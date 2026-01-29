@@ -68,10 +68,15 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
           remote_port: config.remote_port,
           binding_address: config.binding_address
         })
-      } else {
+      } else if (config.type === 'remote') {
         tunnel = await portForwardService.createRemote(config.connection_id, config.name, {
           remote_port: config.remote_port,
           local_host: config.remote_host,
+          local_port: config.local_port,
+          binding_address: config.binding_address
+        })
+      } else {
+        tunnel = await portForwardService.createDynamic(config.connection_id, config.name, {
           local_port: config.local_port,
           binding_address: config.binding_address
         })

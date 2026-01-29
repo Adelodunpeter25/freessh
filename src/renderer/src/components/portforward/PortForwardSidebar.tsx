@@ -13,7 +13,7 @@ interface PortForwardSidebarProps {
 }
 
 export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editConfig }: PortForwardSidebarProps) {
-  const [activeTab, setActiveTab] = useState<'local' | 'remote'>('local')
+  const [activeTab, setActiveTab] = useState<'local' | 'remote' | 'dynamic'>('local')
   const [name, setName] = useState('')
   const [connectionId, setConnectionId] = useState('')
   const [localPort, setLocalPort] = useState('')
@@ -90,6 +90,16 @@ export function PortForwardSidebar({ isOpen, onClose, onSave, connections, editC
           }`}
         >
           Remote
+        </button>
+        <button
+          onClick={() => setActiveTab('dynamic')}
+          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors ${
+            activeTab === 'dynamic'
+              ? 'text-primary border-b-2 border-primary'
+              : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          Dynamic
         </button>
       </div>
 

@@ -1,5 +1,5 @@
 import { backendService } from './backend'
-import { TunnelConfig, RemoteTunnelConfig, TunnelInfo, CreateTunnelRequest, IPCMessage } from '@/types'
+import { TunnelConfig, RemoteTunnelConfig, DynamicTunnelConfig, TunnelInfo, CreateTunnelRequest, IPCMessage } from '@/types'
 
 export const portForwardService = {
   createLocal(connectionId: string, name: string, config: TunnelConfig): Promise<TunnelInfo> {
@@ -46,6 +46,30 @@ export const portForwardService = {
       backendService.send({
         type: 'portforward:create',
         data: { type: 'remote', connection_id: connectionId, name, remote: config } as CreateTunnelRequest
+      })
+    })
+  },
+
+  createDynamic(connectionId: string, name: string, config: DynamicTunnelConfig): Promise<TunnelInfo> {
+    return new Promise((resolve, reject) => {
+      const handler = (message: IPCMessage) => {
+        if (message.type === 'portforward:create') {
+          backendService.off('portforward:create')
+          backendService.off('error')
+          resolve(message.data as TunnelInfo)
+        } else if (message.type === 'error') {
+          backendService.off('portforward:create')
+          backendService.off('error')
+          reject(new Error(message.data.error))
+        }
+      }
+
+      backendService.on('portforward:create', handler)
+      backendService.on('error', handler)
+
+      backendService.send({
+        type: 'portforward:create',
+        data: { type: 'dynamic', connection_id: connectionId, name, dynamic: config } as CreateTunnelRequest
       })
     })
   },

@@ -39,7 +39,7 @@ export function TunnelCard({ config, connectionName, isActive, selected, onStart
           ? 'bg-green-500/20 text-green-500 ring-2 ring-green-500/30' 
           : 'bg-muted text-muted-foreground'
       }`}>
-        {config.type === 'local' ? 'L' : 'R'}
+        {config.type === 'local' ? 'L' : config.type === 'remote' ? 'R' : 'D'}
       </div>
 
       {/* Content */}
@@ -54,12 +54,14 @@ export function TunnelCard({ config, connectionName, isActive, selected, onStart
               <ArrowRight className="w-3 h-3 text-muted-foreground flex-shrink-0" />
               <span className="truncate">{config.remote_host}:{config.remote_port}</span>
             </>
-          ) : (
+          ) : config.type === 'remote' ? (
             <>
               <span className="truncate">remote:{config.remote_port}</span>
               <ArrowRight className="w-3 h-3 text-muted-foreground flex-shrink-0" />
               <span className="truncate">{config.remote_host}:{config.local_port}</span>
             </>
+          ) : (
+            <span className="truncate">SOCKS {config.binding_address}:{config.local_port}</span>
           )}
         </div>
       </div>
