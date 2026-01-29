@@ -13,18 +13,21 @@ type RemoteTunnelConfig struct {
 }
 
 type TunnelInfo struct {
-	ID         string `json:"id"`
-	Type       string `json:"type"` // "local" or "remote"
-	LocalPort  int    `json:"local_port"`
-	RemoteHost string `json:"remote_host"`
-	RemotePort int    `json:"remote_port"`
-	Status     string `json:"status"` // active, stopped, error
-	Error      string `json:"error,omitempty"`
+	ID           string `json:"id"`
+	ConnectionID string `json:"connection_id"`
+	Name         string `json:"name"`
+	Type         string `json:"type"` // "local" or "remote"
+	LocalPort    int    `json:"local_port"`
+	RemoteHost   string `json:"remote_host"`
+	RemotePort   int    `json:"remote_port"`
+	Status       string `json:"status"` // active, stopped, error
+	Error        string `json:"error,omitempty"`
 }
 
 type CreateTunnelRequest struct {
 	Type         string              `json:"type"` // "local" or "remote"
 	ConnectionID string              `json:"connection_id"`
+	Name         string              `json:"name"`
 	Config       TunnelConfig        `json:"config,omitempty"`
 	Remote       RemoteTunnelConfig  `json:"remote,omitempty"`
 }

@@ -7,10 +7,12 @@ type Tunnel interface {
 }
 
 type TunnelWrapper struct {
-	ID         string
-	Type       string // "local" or "remote"
-	LocalPort  int
-	RemoteHost string
-	RemotePort int
-	Tunnel     Tunnel
+	ID           string
+	ConnectionID string
+	Name         string
+	Type         string // "local" or "remote"
+	LocalPort    int
+	RemoteHost   string
+	RemotePort   int
+	Tunnel       Tunnel
 }

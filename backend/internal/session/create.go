@@ -136,6 +136,9 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 		m.StartLogging(sessionID)
 	}
 
+	// Auto-start port forwards
+	m.AutoStartPortForwards(sessionID, config.ID)
+
 	return &session, nil
 }
 

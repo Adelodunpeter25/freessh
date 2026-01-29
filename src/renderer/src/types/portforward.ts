@@ -12,6 +12,8 @@ export interface RemoteTunnelConfig {
 
 export interface TunnelInfo {
   id: string
+  connection_id: string
+  name: string
   type: 'local' | 'remote'
   local_port: number
   remote_host: string
@@ -23,6 +25,7 @@ export interface TunnelInfo {
 export interface CreateTunnelRequest {
   type: 'local' | 'remote'
   connection_id: string
+  name: string
   config?: TunnelConfig
   remote?: RemoteTunnelConfig
 }

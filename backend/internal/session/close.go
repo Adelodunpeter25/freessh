@@ -19,6 +19,11 @@ func (m *Manager) CloseSession(sessionID string) error {
 		m.StopLogging(sessionID)
 	}
 	
+	// Stop all port forwarding tunnels
+	if session.PortForwardMgr != nil {
+		session.PortForwardMgr.StopAll()
+	}
+	
 	// Close SFTP client
 	if session.SFTPClient != nil {
 		session.SFTPClient.Close()

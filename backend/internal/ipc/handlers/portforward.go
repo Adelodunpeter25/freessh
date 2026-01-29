@@ -57,9 +57,9 @@ func (h *PortForwardHandler) handleCreate(msg *models.IPCMessage, writer Respons
 
 	var tunnel *models.TunnelInfo
 	if req.Type == "remote" {
-		tunnel, err = h.manager.CreateRemoteTunnel(session.ID, req.Remote)
+		tunnel, err = h.manager.CreateRemoteTunnel(session.ID, req.ConnectionID, req.Name, req.Remote)
 	} else {
-		tunnel, err = h.manager.CreateLocalTunnel(session.ID, req.Config)
+		tunnel, err = h.manager.CreateLocalTunnel(session.ID, req.ConnectionID, req.Name, req.Config)
 	}
 
 	if err != nil {

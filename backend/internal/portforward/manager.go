@@ -22,7 +22,7 @@ func NewManager() *Manager {
 	}
 }
 
-func (m *Manager) CreateLocalTunnel(config models.TunnelConfig, sshClient *ssh.Client) (*models.TunnelInfo, error) {
+func (m *Manager) CreateLocalTunnel(connectionID, name string, config models.TunnelConfig, sshClient *ssh.Client) (*models.TunnelInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -34,25 +34,29 @@ func (m *Manager) CreateLocalTunnel(config models.TunnelConfig, sshClient *ssh.C
 	}
 
 	m.tunnels[id] = &TunnelWrapper{
-		ID:         id,
-		Type:       "local",
-		LocalPort:  config.LocalPort,
-		RemoteHost: config.RemoteHost,
-		RemotePort: config.RemotePort,
-		Tunnel:     tunnel,
+		ID:           id,
+		ConnectionID: connectionID,
+		Name:         name,
+		Type:         "local",
+		LocalPort:    config.LocalPort,
+		RemoteHost:   config.RemoteHost,
+		RemotePort:   config.RemotePort,
+		Tunnel:       tunnel,
 	}
 
 	return &models.TunnelInfo{
-		ID:         id,
-		Type:       "local",
-		LocalPort:  config.LocalPort,
-		RemoteHost: config.RemoteHost,
-		RemotePort: config.RemotePort,
-		Status:     "active",
+		ID:           id,
+		ConnectionID: connectionID,
+		Name:         name,
+		Type:         "local",
+		LocalPort:    config.LocalPort,
+		RemoteHost:   config.RemoteHost,
+		RemotePort:   config.RemotePort,
+		Status:       "active",
 	}, nil
 }
 
-func (m *Manager) CreateRemoteTunnel(config models.RemoteTunnelConfig, sshClient *ssh.Client) (*models.TunnelInfo, error) {
+func (m *Manager) CreateRemoteTunnel(connectionID, name string, config models.RemoteTunnelConfig, sshClient *ssh.Client) (*models.TunnelInfo, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -64,21 +68,25 @@ func (m *Manager) CreateRemoteTunnel(config models.RemoteTunnelConfig, sshClient
 	}
 
 	m.tunnels[id] = &TunnelWrapper{
-		ID:         id,
-		Type:       "remote",
-		LocalPort:  config.LocalPort,
-		RemoteHost: config.LocalHost,
-		RemotePort: config.RemotePort,
-		Tunnel:     tunnel,
+		ID:           id,
+		ConnectionID: connectionID,
+		Name:         name,
+		Type:         "remote",
+		LocalPort:    config.LocalPort,
+		RemoteHost:   config.LocalHost,
+		RemotePort:   config.RemotePort,
+		Tunnel:       tunnel,
 	}
 
 	return &models.TunnelInfo{
-		ID:         id,
-		Type:       "remote",
-		LocalPort:  config.LocalPort,
-		RemoteHost: config.LocalHost,
-		RemotePort: config.RemotePort,
-		Status:     "active",
+		ID:           id,
+		ConnectionID: connectionID,
+		Name:         name,
+		Type:         "remote",
+		LocalPort:    config.LocalPort,
+		RemoteHost:   config.LocalHost,
+		RemotePort:   config.RemotePort,
+		Status:       "active",
 	}, nil
 }
 
@@ -111,12 +119,44 @@ func (m *Manager) ListTunnels() []models.TunnelInfo {
 		}
 
 		tunnels = append(tunnels, models.TunnelInfo{
-			ID:         wrapper.ID,
-			Type:       wrapper.Type,
-			LocalPort:  wrapper.LocalPort,
-			RemoteHost: wrapper.RemoteHost,
-			RemotePort: wrapper.RemotePort,
-			Status:     status,
+			ID:           wrapper.ID,
+			ConnectionID: wrapper.ConnectionID,
+			Name:         wrapper.Name,
+			Type:         wrapper.Type,
+			LocalPort:    wrapper.LocalPort,
+			RemoteHost:   wrapper.RemoteHost,
+			RemotePort:   wrapper.RemotePort,
+			Status:       status,
+		})
+	}
+
+	return tunnels
+}
+
+func (m *Manager) ListTunnelsByConnection(connectionID string) []models.TunnelInfo {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	tunnels := make([]models.TunnelInfo, 0)
+	for _, wrapper := range m.tunnels {
+		if wrapper.ConnectionID != connectionID {
+			continue
+		}
+
+		status := "stopped"
+		if wrapper.Tunnel.IsActive() {
+			status = "active"
+		}
+
+		tunnels = append(tunnels, models.TunnelInfo{
+			ID:           wrapper.ID,
+			ConnectionID: wrapper.ConnectionID,
+			Name:         wrapper.Name,
+			Type:         wrapper.Type,
+			LocalPort:    wrapper.LocalPort,
+			RemoteHost:   wrapper.RemoteHost,
+			RemotePort:   wrapper.RemotePort,
+			Status:       status,
 		})
 	}
 
