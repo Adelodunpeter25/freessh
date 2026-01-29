@@ -19,6 +19,7 @@ const KeygenList = lazy(() => import("@/components/keygen").then(m => ({ default
 const KnownHostsPage = lazy(() => import("@/pages/KnownHostsPage").then(m => ({ default: m.KnownHostsPage })));
 const PortForwardPage = lazy(() => import("@/pages/PortForwardPage").then(m => ({ default: m.PortForwardPage })));
 const LogsPage = lazy(() => import("@/pages/LogsPage").then(m => ({ default: m.LogsPage })));
+const LogViewer = lazy(() => import("@/components/logs").then(m => ({ default: m.LogViewer })));
 
 type SidebarTab = "connections" | "keys" | "known-hosts" | "port-forward" | "logs" | "settings";
 type MainView = "home" | "sftp" | "terminal";
@@ -162,13 +163,7 @@ export function MainLayout() {
               className={activeSessionTabId === tab.id ? "h-full w-full" : "hidden"}
             >
               {tab.type === 'log' ? (
-                <div className="h-full w-full p-4">
-                  <div className="h-full border rounded-lg overflow-hidden">
-                    <div className="h-full bg-[#1e1e1e] text-[#d4d4d4] p-4 overflow-auto font-mono text-sm whitespace-pre-wrap">
-                      {tab.logContent}
-                    </div>
-                  </div>
-                </div>
+                <LogViewer content={tab.logContent || ''} />
               ) : (
                 <TerminalView
                   sessionId={tab.sessionId}
