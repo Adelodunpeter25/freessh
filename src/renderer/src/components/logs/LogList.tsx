@@ -31,7 +31,7 @@ export function LogList({ logs, onDelete, onOpen }: LogListProps) {
 
   return (
     <>
-      <div className="border rounded-lg overflow-hidden">
+      <div className="border rounded-lg overflow-hidden select-none">
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50 hover:bg-muted/50">
