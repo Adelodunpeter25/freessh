@@ -40,7 +40,7 @@ export function ConnectionHeaderButton({
           <Button
             variant="secondary"
             size="sm"
-            className="px-2 rounded-l-none border-l border-secondary-foreground/20 hover:bg-secondary/80 hover:scale-105 transition-all"
+            className="px-2 rounded-l-none border-l border-secondary-foreground/20 hover:bg-secondary/80 hover:scale-105 transition-all focus-visible:ring-0 focus-visible:ring-offset-0"
           >
             {open ? (
               <ChevronUp className="h-4 w-4" />
@@ -49,7 +49,7 @@ export function ConnectionHeaderButton({
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" side="right">
+        <DropdownMenuContent align="end" side="bottom" sideOffset={4}>
           <DropdownMenuItem 
             onClick={onNewLocalTerminal}
             disabled={localTerminalLoading}
