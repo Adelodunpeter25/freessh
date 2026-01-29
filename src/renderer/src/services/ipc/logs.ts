@@ -32,5 +32,16 @@ export const logService = {
       type: 'log:delete',
       data: { filename }
     })
+  },
+
+  deleteAll(): Promise<void> {
+    return new Promise((resolve) => {
+      const handler = () => {
+        backendService.off('log:delete_all')
+        resolve()
+      }
+      backendService.on('log:delete_all', handler)
+      backendService.send({ type: 'log:delete_all' })
+    })
   }
 }

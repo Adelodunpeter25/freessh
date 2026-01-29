@@ -29,9 +29,19 @@ export function useLogs() {
     }
   }
 
+  const deleteAllLogs = async () => {
+    try {
+      await logService.deleteAll()
+      setLogs([])
+      toast.success('All logs deleted')
+    } catch (error) {
+      toast.error('Failed to delete logs')
+    }
+  }
+
   useEffect(() => {
     loadLogs()
   }, [])
 
-  return { logs, loading, loadLogs, deleteLog }
+  return { logs, loading, loadLogs, deleteLog, deleteAllLogs }
 }
