@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Terminal } from 'xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { useThemeStore } from '@/stores/themeStore'
@@ -12,6 +12,7 @@ export function LogViewer({ content }: LogViewerProps) {
   const terminalRef = useRef<HTMLDivElement>(null)
   const xtermRef = useRef<Terminal | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
+  const [showReadOnly, setShowReadOnly] = useState(false)
   const theme = useThemeStore((state) => state.theme)
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -35,9 +36,12 @@ export function LogViewer({ content }: LogViewerProps) {
     const fitAddon = new FitAddon()
     terminal.loadAddon(fitAddon)
     terminal.open(terminalRef.current)
-    fitAddon.fit()
-
-    terminal.write(content)
+    
+    // Delay fit to ensure container has dimensions
+    setTimeout(() => {
+      fitAddon.fit()
+      terminal.write(content)
+    }, 0)
 
     xtermRef.current = terminal
     fitAddonRef.current = fitAddon
@@ -45,11 +49,28 @@ export function LogViewer({ content }: LogViewerProps) {
     const handleResize = () => fitAddon.fit()
     window.addEventListener('resize', handleResize)
 
+    // Show read-only message on keyboard input
+    const handleKeyDown = () => {
+      setShowReadOnly(true)
+      setTimeout(() => setShowReadOnly(false), 2000)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+
     return () => {
       window.removeEventListener('resize', handleResize)
+      window.removeEventListener('keydown', handleKeyDown)
       terminal.dispose()
     }
   }, [content, isDark])
 
-  return <div ref={terminalRef} className="h-full w-full" />
+  return (
+    <div className="relative h-full w-full">
+      <div ref={terminalRef} className="h-full w-full" />
+      {showReadOnly && (
+        <div className="absolute top-4 right-4 bg-muted text-muted-foreground px-3 py-1.5 rounded-md text-sm font-medium shadow-lg">
+          Read-only
+        </div>
+      )}
+    </div>
+  )
 }
