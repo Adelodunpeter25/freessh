@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
+import { EmptyState } from '@/components/common/EmptyState'
 import { KnownHostCard } from './KnownHostCard'
 import { KnownHost } from '@/types/knownHost'
+import { Shield } from 'lucide-react'
 
 interface KnownHostsListProps {
   hosts: KnownHost[]
@@ -34,12 +36,11 @@ export function KnownHostsList({ hosts, loading, onRemove }: KnownHostsListProps
 
   if (hosts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-64 text-center">
-        <p className="text-muted-foreground mb-2">No known hosts yet</p>
-        <p className="text-sm text-muted-foreground">
-          Host fingerprints will be saved when you connect to servers
-        </p>
-      </div>
+      <EmptyState
+        icon={Shield}
+        title="No known hosts"
+        description="Host fingerprints will be saved when you connect to servers"
+      />
     )
   }
 
