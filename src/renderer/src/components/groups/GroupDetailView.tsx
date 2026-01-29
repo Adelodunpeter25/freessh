@@ -85,7 +85,7 @@ export function GroupDetailView({
             </Button>
             <Breadcrumb
               items={[
-                { label: 'Connections', href: '#' },
+                { label: 'Connections', onClick: onBack },
                 { label: group.name },
               ]}
             />

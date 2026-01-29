@@ -1,9 +1,8 @@
 import { ChevronRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
 
 interface BreadcrumbItem {
   label: string
-  href?: string
+  onClick?: () => void
 }
 
 interface BreadcrumbProps {
@@ -15,13 +14,13 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
     <nav className="flex items-center gap-2 text-sm text-muted-foreground">
       {items.map((item, index) => (
         <div key={index} className="flex items-center gap-2">
-          {item.href ? (
-            <Link
-              to={item.href}
+          {item.onClick ? (
+            <button
+              onClick={item.onClick}
               className="hover:text-foreground transition-colors"
             >
               {item.label}
-            </Link>
+            </button>
           ) : (
             <span className="text-foreground font-medium">{item.label}</span>
           )}

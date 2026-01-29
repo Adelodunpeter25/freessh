@@ -1,11 +1,13 @@
 import { Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { ConnectionHeaderButton } from './ConnectionHeaderButton'
 import { useConnectionsContext } from '@/contexts/ConnectionsContext'
 
 export function ConnectionsHeader() {
   const {
+    connections,
     searchQuery,
     onSearchChange,
     filteredConnections,
@@ -22,6 +24,12 @@ export function ConnectionsHeader() {
 
   return (
     <div className="flex flex-col px-4 py-3 border-b bg-background/95">
+      {/* Title with Badge */}
+      <div className="flex items-center gap-2 mb-3">
+        <h2 className="text-lg font-semibold">Connections</h2>
+        <Badge variant="secondary">{connections.length}</Badge>
+      </div>
+
       {/* Search Bar */}
       <div className="flex items-center gap-2 pb-3">
         <div className="relative flex-1">
