@@ -33,18 +33,23 @@ export const useConnections = () => {
   }, []);
 
   const loadConnections = useCallback(async () => {
+    console.log('[useConnections] loadConnections called, setting loading=true')
     setLoading(true);
     setError(null);
 
     try {
+      console.log('[useConnections] Calling connectionService.list()')
       const data = await connectionService.list();
+      console.log('[useConnections] Got connections:', data.length)
       setConnections(data);
       useConnectionStore.getState().setConnections(data);
     } catch (err) {
+      console.error('[useConnections] Error loading connections:', err)
       const errorMessage =
         err instanceof Error ? err.message : "Failed to load connections";
       setError(errorMessage);
     } finally {
+      console.log('[useConnections] loadConnections complete, setting loading=false')
       setLoading(false);
     }
   }, []);
