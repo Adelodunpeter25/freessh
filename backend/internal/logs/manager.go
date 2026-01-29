@@ -102,6 +102,31 @@ func (m *Manager) DeleteLog(filename string) error {
 	return nil
 }
 
+func (m *Manager) DeleteAllLogs() error {
+	dir, err := getLogsDir()
+	if err != nil {
+		return err
+	}
+
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return fmt.Errorf("failed to read logs directory: %w", err)
+	}
+
+	for _, file := range files {
+		if file.IsDir() || !strings.HasSuffix(file.Name(), ".log") {
+			continue
+		}
+
+		path := filepath.Join(dir, file.Name())
+		if err := os.Remove(path); err != nil {
+			return fmt.Errorf("failed to delete log file %s: %w", file.Name(), err)
+		}
+	}
+
+	return nil
+}
+
 func (m *Manager) parseLogFilename(filename string) LogEntry {
 	// Format: connectionname_2006-01-02_15-04-05.log
 	name := strings.TrimSuffix(filename, ".log")

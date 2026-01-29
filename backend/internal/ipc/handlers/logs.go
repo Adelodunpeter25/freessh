@@ -20,7 +20,8 @@ func NewLogHandler() *LogHandler {
 func (h *LogHandler) CanHandle(msgType models.MessageType) bool {
 	return msgType == models.MsgLogList ||
 		msgType == models.MsgLogRead ||
-		msgType == models.MsgLogDelete
+		msgType == models.MsgLogDelete ||
+		msgType == models.MsgLogDeleteAll
 }
 
 func (h *LogHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) error {
@@ -31,6 +32,8 @@ func (h *LogHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) error
 		return h.handleRead(msg, writer)
 	case models.MsgLogDelete:
 		return h.handleDelete(msg, writer)
+	case models.MsgLogDeleteAll:
+		return h.handleDeleteAll(writer)
 	default:
 		return fmt.Errorf("unsupported message type: %s", msg.Type)
 	}
@@ -96,6 +99,19 @@ func (h *LogHandler) handleDelete(msg *models.IPCMessage, writer ResponseWriter)
 		Type: models.MsgLogDelete,
 		Data: map[string]string{
 			"filename": req.Filename,
+		},
+	})
+}
+
+func (h *LogHandler) handleDeleteAll(writer ResponseWriter) error {
+	if err := h.manager.DeleteAllLogs(); err != nil {
+		return err
+	}
+
+	return writer.WriteMessage(&models.IPCMessage{
+		Type: models.MsgLogDeleteAll,
+		Data: map[string]string{
+			"status": "success",
 		},
 	})
 }

@@ -19,9 +19,10 @@ const (
 	MsgTerminalLoggingStatus MessageType = "terminal:logging_status"
 	
 	// Log messages
-	MsgLogList   MessageType = "log:list"
-	MsgLogRead   MessageType = "log:read"
-	MsgLogDelete MessageType = "log:delete"
+	MsgLogList      MessageType = "log:list"
+	MsgLogRead      MessageType = "log:read"
+	MsgLogDelete    MessageType = "log:delete"
+	MsgLogDeleteAll MessageType = "log:delete_all"
 	
 	// Log settings messages
 	MsgLogSettingsGet    MessageType = "log_settings:get"
