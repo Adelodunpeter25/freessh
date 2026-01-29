@@ -6,14 +6,9 @@ const TIMEOUT = 5000 // 5 seconds
 export const groupService = {
   list(): Promise<Group[]> {
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        backendService.off('group:list')
-        reject(new Error('Request timeout'))
-      }, TIMEOUT)
-
       const handler = (message: any) => {
         clearTimeout(timeout)
-        backendService.off('group:list')
+        backendService.off('group:list', handler)
         
         if (message.type === 'error') {
           reject(new Error(message.data?.error || 'Failed to list groups'))
@@ -28,6 +23,12 @@ export const groupService = {
       }
 
       backendService.on('group:list', handler)
+
+      const timeout = setTimeout(() => {
+        backendService.off('group:list', handler)
+        reject(new Error('Request timeout'))
+      }, TIMEOUT)
+
       backendService.send({
         type: 'group:list',
         data: {}
@@ -37,14 +38,9 @@ export const groupService = {
 
   create(name: string): Promise<Group> {
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        backendService.off('group:create')
-        reject(new Error('Request timeout'))
-      }, TIMEOUT)
-
       const handler = (message: any) => {
         clearTimeout(timeout)
-        backendService.off('group:create')
+        backendService.off('group:create', handler)
         
         if (message.type === 'error') {
           reject(new Error(message.data?.error || 'Failed to create group'))
@@ -59,6 +55,12 @@ export const groupService = {
       }
 
       backendService.on('group:create', handler)
+
+      const timeout = setTimeout(() => {
+        backendService.off('group:create', handler)
+        reject(new Error('Request timeout'))
+      }, TIMEOUT)
+
       backendService.send({
         type: 'group:create',
         data: { name }
@@ -68,14 +70,9 @@ export const groupService = {
 
   rename(id: string, newName: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        backendService.off('group:rename')
-        reject(new Error('Request timeout'))
-      }, TIMEOUT)
-
       const handler = (message: any) => {
         clearTimeout(timeout)
-        backendService.off('group:rename')
+        backendService.off('group:rename', handler)
         
         if (message.type === 'error') {
           reject(new Error(message.data?.error || 'Failed to rename group'))
@@ -90,6 +87,12 @@ export const groupService = {
       }
 
       backendService.on('group:rename', handler)
+
+      const timeout = setTimeout(() => {
+        backendService.off('group:rename', handler)
+        reject(new Error('Request timeout'))
+      }, TIMEOUT)
+
       backendService.send({
         type: 'group:rename',
         data: { id, new_name: newName }
@@ -99,14 +102,9 @@ export const groupService = {
 
   delete(id: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        backendService.off('group:delete')
-        reject(new Error('Request timeout'))
-      }, TIMEOUT)
-
       const handler = (message: any) => {
         clearTimeout(timeout)
-        backendService.off('group:delete')
+        backendService.off('group:delete', handler)
         
         if (message.type === 'error') {
           reject(new Error(message.data?.error || 'Failed to delete group'))
@@ -121,6 +119,12 @@ export const groupService = {
       }
 
       backendService.on('group:delete', handler)
+
+      const timeout = setTimeout(() => {
+        backendService.off('group:delete', handler)
+        reject(new Error('Request timeout'))
+      }, TIMEOUT)
+
       backendService.send({
         type: 'group:delete',
         data: { id }
