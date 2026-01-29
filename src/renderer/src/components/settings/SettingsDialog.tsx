@@ -1,4 +1,5 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ThemeSettings } from './ThemeSettings'
 import { LogSettings } from './LogSettings'
 
@@ -15,10 +16,20 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           <DialogTitle>Settings</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-8 mt-4">
-          <ThemeSettings />
-          <LogSettings />
-        </div>
+        <Tabs defaultValue="theme" className="mt-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="theme">Theme</TabsTrigger>
+            <TabsTrigger value="logs">Logs</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="theme" className="mt-6">
+            <ThemeSettings />
+          </TabsContent>
+          
+          <TabsContent value="logs" className="mt-6">
+            <LogSettings />
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   )
