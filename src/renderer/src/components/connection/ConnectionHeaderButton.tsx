@@ -24,7 +24,7 @@ export function ConnectionHeaderButton({
         onClick={onNewConnection}
         variant="secondary" 
         size="sm"
-        className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all rounded-r-none"
+        className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all rounded-r-none border-r-0"
       >
         <Server className="h-4 w-4 mr-2" />
         NEW CONNECTION
@@ -35,7 +35,7 @@ export function ConnectionHeaderButton({
           <Button
             variant="secondary"
             size="sm"
-            className="px-2 rounded-l-none border-l border-border/50"
+            className="px-2 rounded-l-none border-l border-secondary-foreground/20 hover:bg-secondary/80 hover:scale-105 transition-all"
           >
             <ChevronDown className="h-4 w-4" />
           </Button>
@@ -44,13 +44,14 @@ export function ConnectionHeaderButton({
           <DropdownMenuItem 
             onClick={onNewLocalTerminal}
             disabled={localTerminalLoading}
+            className="font-medium"
           >
             {localTerminalLoading ? (
               <Loader2 className="h-4 w-4 mr-2 animate-spin" />
             ) : (
               <Terminal className="h-4 w-4 mr-2" />
             )}
-            Local Terminal
+            LOCAL TERMINAL
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
