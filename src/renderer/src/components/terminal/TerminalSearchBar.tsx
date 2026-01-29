@@ -12,6 +12,8 @@ interface TerminalSearchBarProps {
 export function TerminalSearchBar({ onSearch, onClose, results }: TerminalSearchBarProps) {
   const [query, setQuery] = useState('')
 
+  console.log('SearchBar results:', results, 'query:', query)
+
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value
     setQuery(newQuery)

@@ -97,6 +97,7 @@ export const TerminalPane = memo(function TerminalPane({
 
     // Configure search decoration colors
     searchAddon.onDidChangeResults((results) => {
+      console.log('SearchAddon onDidChangeResults:', results)
       if (onSearchResults) {
         if (!results) {
           onSearchResults(null)
