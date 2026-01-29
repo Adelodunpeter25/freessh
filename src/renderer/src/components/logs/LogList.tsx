@@ -8,7 +8,7 @@ interface LogListProps {
 }
 
 export function LogList({ logs, onDelete, onOpen }: LogListProps) {
-  if (logs.length === 0) {
+  if (!logs || logs.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
         <p>No logs found</p>
