@@ -1,4 +1,4 @@
-import { useEffect, useRef, memo } from 'react'
+import { useEffect, useRef, memo, useCallback } from 'react'
 import { Terminal as XTerm } from 'xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { SearchAddon } from '@xterm/addon-search'
@@ -28,13 +28,17 @@ export const TerminalPane = memo(function TerminalPane({
   const xtermRef = useRef<XTerm | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
   const searchAddonRef = useRef<SearchAddon | null>(null)
-  const onDataRef = useRef(onData)
-  const onResizeRef = useRef(onResize)
   const theme = useTerminalThemeStore((state) => state.getTheme())
   const { fontFamily, fontSize, fontWeight } = useTerminalFontStore()
 
-  onDataRef.current = onData
-  onResizeRef.current = onResize
+  // Stable callbacks
+  const handleData = useCallback((data: string) => {
+    onData(data)
+  }, [onData])
+
+  const handleResize = useCallback((cols: number, rows: number) => {
+    onResize(cols, rows)
+  }, [onResize])
 
   // Re-fit when becoming active
   useEffect(() => {
@@ -42,11 +46,11 @@ export const TerminalPane = memo(function TerminalPane({
       requestAnimationFrame(() => {
         if (fitAddonRef.current && xtermRef.current) {
           fitAddonRef.current.fit()
-          onResizeRef.current(xtermRef.current.cols, xtermRef.current.rows)
+          handleResize(xtermRef.current.cols, xtermRef.current.rows)
         }
       })
     }
-  }, [isActive])
+  }, [isActive, handleResize])
 
   // Live theme update
   useEffect(() => {
@@ -67,19 +71,15 @@ export const TerminalPane = memo(function TerminalPane({
         requestAnimationFrame(() => {
           if (fitAddonRef.current && xtermRef.current) {
             fitAddonRef.current.fit()
-            onResizeRef.current(xtermRef.current.cols, xtermRef.current.rows)
+            handleResize(xtermRef.current.cols, xtermRef.current.rows)
           }
         })
       }
     }
-  }, [fontFamily, fontSize, fontWeight])
+  }, [fontFamily, fontSize, fontWeight, handleResize])
 
   useEffect(() => {
     if (!terminalRef.current) return
-
-    if (xtermRef.current) {
-      xtermRef.current.dispose()
-    }
 
     const xterm = new XTerm({
       cursorBlink: true,
@@ -122,33 +122,33 @@ export const TerminalPane = memo(function TerminalPane({
     requestAnimationFrame(() => {
       if (fitAddonRef.current && xtermRef.current) {
         fitAddonRef.current.fit()
-        onResizeRef.current(xtermRef.current.cols, xtermRef.current.rows)
+        handleResize(xtermRef.current.cols, xtermRef.current.rows)
       }
     })
 
-    xterm.onData((data) => onDataRef.current(data))
+    xterm.onData(handleData)
 
-    const handleResize = () => {
+    const resizeHandler = () => {
       requestAnimationFrame(() => {
         if (fitAddonRef.current && xtermRef.current) {
           fitAddonRef.current.fit()
-          onResizeRef.current(xtermRef.current.cols, xtermRef.current.rows)
+          handleResize(xtermRef.current.cols, xtermRef.current.rows)
         }
       })
     }
-    window.addEventListener('resize', handleResize)
+    window.addEventListener('resize', resizeHandler)
 
-    const resizeObserver = new ResizeObserver(handleResize)
+    const resizeObserver = new ResizeObserver(resizeHandler)
     resizeObserver.observe(terminalRef.current)
 
     return () => {
-      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('resize', resizeHandler)
       resizeObserver.disconnect()
       xterm.dispose()
       xtermRef.current = null
       fitAddonRef.current = null
     }
-  }, [onReady])
+  }, [onReady, handleData, handleResize, theme, fontSize, fontFamily, fontWeight])
 
   return (
     <div className="h-full w-full" style={{ backgroundColor: theme.background }}>
