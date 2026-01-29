@@ -130,3 +130,31 @@ func (s *ConnectionStorage) Update(config models.ConnectionConfig) error {
 
 	return s.save()
 }
+
+func (s *ConnectionStorage) UpdateGroupName(oldName, newName string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for id, conn := range s.connections {
+		if conn.Group == oldName {
+			conn.Group = newName
+			s.connections[id] = conn
+		}
+	}
+
+	return s.save()
+}
+
+func (s *ConnectionStorage) RemoveGroup(groupName string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	for id, conn := range s.connections {
+		if conn.Group == groupName {
+			conn.Group = ""
+			s.connections[id] = conn
+		}
+	}
+
+	return s.save()
+}
