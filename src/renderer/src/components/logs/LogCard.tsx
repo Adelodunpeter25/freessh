@@ -2,7 +2,7 @@ import { LogEntry } from '@/types/log'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { Trash2 } from 'lucide-react'
-import { formatDate } from '@/utils/formatDate'
+import { formatDateWithTime } from '@/utils/formatDate'
 
 interface LogCardProps {
   log: LogEntry
@@ -24,7 +24,7 @@ export function LogCard({ log, onDelete, onOpen }: LogCardProps) {
       className="cursor-pointer hover:bg-muted/50"
       onDoubleClick={onOpen}
     >
-      <TableCell className="text-muted-foreground">{formatDate(timestamp, true)}</TableCell>
+      <TableCell className="text-muted-foreground">{formatDateWithTime(timestamp, true)}</TableCell>
       <TableCell className="font-medium">{log.connection_name}</TableCell>
       <TableCell className="text-muted-foreground">{formatSize(log.size)}</TableCell>
       <TableCell>
