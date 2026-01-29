@@ -140,7 +140,7 @@ func (m *Manager) parseLogFilename(filename string) LogEntry {
 	if len(parts) >= 3 {
 		entry.ConnectionName = parts[0]
 		dateStr := parts[len(parts)-2] + "_" + parts[len(parts)-1]
-		if t, err := time.Parse("2006-01-02_15-04-05", dateStr); err == nil {
+		if t, err := time.ParseInLocation("2006-01-02_15-04-05", dateStr, time.Local); err == nil {
 			entry.Timestamp = t
 		}
 	}
