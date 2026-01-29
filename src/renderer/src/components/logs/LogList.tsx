@@ -35,8 +35,8 @@ export function LogList({ logs, onDelete, onOpen }: LogListProps) {
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50 hover:bg-muted/50">
-              <TableHead className="font-semibold">Name</TableHead>
               <TableHead className="font-semibold">Date</TableHead>
+              <TableHead className="font-semibold">Name</TableHead>
               <TableHead className="font-semibold">File Size</TableHead>
               <TableHead className="font-semibold w-20">Actions</TableHead>
             </TableRow>

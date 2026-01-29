@@ -24,8 +24,8 @@ export function LogCard({ log, onDelete, onOpen }: LogCardProps) {
       className="cursor-pointer hover:bg-muted/50"
       onDoubleClick={onOpen}
     >
-      <TableCell className="font-medium">{log.connection_name}</TableCell>
       <TableCell className="text-muted-foreground">{formatDate(timestamp, true)}</TableCell>
+      <TableCell className="font-medium">{log.connection_name}</TableCell>
       <TableCell className="text-muted-foreground">{formatSize(log.size)}</TableCell>
       <TableCell>
         <Button
