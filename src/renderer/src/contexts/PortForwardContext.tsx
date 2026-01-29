@@ -103,11 +103,20 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
   }, [configs])
 
   const stopTunnel = useCallback(async (configId: string) => {
+    console.log('[PortForward] Stopping tunnel for config:', configId)
     const tunnel = activeTunnelMap.get(configId)
-    if (!tunnel) return
+    if (!tunnel) {
+      console.log('[PortForward] No active tunnel found for config:', configId)
+      return
+    }
 
     const config = configs.find(c => c.id === configId)
-    if (!config) return
+    if (!config) {
+      console.log('[PortForward] Config not found:', configId)
+      return
+    }
+
+    console.log('[PortForward] Stopping tunnel:', tunnel.id, 'for connection:', config.connection_id)
 
     try {
       await portForwardService.stop(config.connection_id, tunnel.id)
@@ -116,10 +125,11 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
         next.delete(configId)
         return next
       })
+      console.log('[PortForward] Tunnel stopped successfully')
       toast.success('Tunnel stopped')
     } catch (error) {
+      console.error('[PortForward] Failed to stop tunnel:', error)
       toast.error('Failed to stop tunnel')
-      console.error(error)
     }
   }, [activeTunnelMap, configs])
 
