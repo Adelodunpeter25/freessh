@@ -1,31 +1,25 @@
-import { useLogs } from '@/hooks/logs'
-import { LogList } from '@/components/logs'
-import { LoadingSpinner } from '@/components/common/LoadingSpinner'
-import { useTabStore } from '@/stores/tabStore'
+import { useLogs } from "@/hooks/logs";
+import { LogList } from "@/components/logs";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { useTabStore } from "@/stores/tabStore";
 
 export function LogsPage() {
-  const { logs, loading, deleteLog } = useLogs()
-  const addLogTab = useTabStore((state) => state.addLogTab)
+  const { logs, loading, deleteLog } = useLogs();
+  const addLogTab = useTabStore((state) => state.addLogTab);
 
   const handleOpenLog = async (log: any) => {
-    const { logService } = await import('@/services/ipc')
-    const content = await logService.read(log.filename)
-    const timestamp = new Date(log.timestamp).toLocaleString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit' 
-    })
-    const title = `Log: ${log.connection_name} - ${timestamp}`
-    addLogTab(title, content)
-  }
+    const { logService } = await import("@/services/ipc");
+    const content = await logService.read(log.filename);
+    const title = `Log: ${log.connection_name}`;
+    addLogTab(title, content);
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
         <LoadingSpinner />
       </div>
-    )
+    );
   }
 
   return (
@@ -37,5 +31,5 @@ export function LogsPage() {
         <LogList logs={logs} onDelete={deleteLog} onOpen={handleOpenLog} />
       </div>
     </div>
-  )
+  );
 }

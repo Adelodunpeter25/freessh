@@ -41,9 +41,9 @@ export function LogViewer({ content }: LogViewerProps) {
     setTimeout(() => {
       fitAddon.fit()
       terminal.write(content)
-      // Scroll to top after writing content
-      terminal.scrollToTop()
-    }, 0)
+      // Force scroll to top
+      terminal.scrollLines(-terminal.buffer.active.length)
+    }, 10)
 
     xtermRef.current = terminal
     fitAddonRef.current = fitAddon

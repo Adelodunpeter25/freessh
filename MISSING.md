@@ -55,13 +55,12 @@
 - ✅ Handle terminal resize during active session
 - ✅ Copy/paste support improvements
 - ✅ Search in terminal output (live search with result count and navigation)
-- ⏳ Terminal session logging to file (not yet implemented)
+- ✅ Terminal session logging to file
 
 ### SFTP Browser
 - Bulk operations (select multiple files for delete/download)
 - File preview for more types (PDFs, videos)
 - Drag and drop between two remote panels
-- Bookmark frequently accessed remote paths
 
 ---
 
