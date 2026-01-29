@@ -18,7 +18,7 @@ func (m *Manager) readLocalOutput(as *ActiveSession) {
 }
 
 func (m *Manager) pipeOutput(as *ActiveSession, reader io.Reader) {
-	buf := make([]byte, 8192) // Increased from 4KB to 8KB for better throughput
+	buf := make([]byte, 8192)
 	for {
 		select {
 		case <-as.stopChan:
@@ -28,6 +28,10 @@ func (m *Manager) pipeOutput(as *ActiveSession, reader io.Reader) {
 			if err != nil {
 				if err != io.EOF {
 					as.ErrorChan <- err
+					// Trigger reconnection if SSH client supports it
+					if as.SSHClient != nil {
+						go as.SSHClient.HandleDisconnect()
+					}
 				}
 				return
 			}
