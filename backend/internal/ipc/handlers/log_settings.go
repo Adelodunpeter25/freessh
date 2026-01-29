@@ -4,14 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"freessh-backend/internal/models"
-	"freessh-backend/internal/storage"
+	"freessh-backend/internal/settings"
 )
 
 type LogSettingsHandler struct {
-	storage *storage.LogSettingsStorage
+	storage *settings.LogSettingsStorage
 }
 
-func NewLogSettingsHandler(storage *storage.LogSettingsStorage) *LogSettingsHandler {
+func NewLogSettingsHandler(storage *settings.LogSettingsStorage) *LogSettingsHandler {
 	return &LogSettingsHandler{
 		storage: storage,
 	}
@@ -46,17 +46,17 @@ func (h *LogSettingsHandler) handleUpdate(msg *models.IPCMessage, writer Respons
 		return fmt.Errorf("invalid settings data: %w", err)
 	}
 
-	var settings storage.LogSettings
-	if err := json.Unmarshal(jsonData, &settings); err != nil {
+	var logSettings settings.LogSettings
+	if err := json.Unmarshal(jsonData, &logSettings); err != nil {
 		return fmt.Errorf("failed to parse settings: %w", err)
 	}
 
-	if err := h.storage.Update(settings); err != nil {
+	if err := h.storage.Update(logSettings); err != nil {
 		return err
 	}
 
 	return writer.WriteMessage(&models.IPCMessage{
 		Type: models.MsgLogSettingsUpdate,
-		Data: settings,
+		Data: logSettings,
 	})
 }

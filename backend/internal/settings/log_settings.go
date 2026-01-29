@@ -1,6 +1,7 @@
-package storage
+package settings
 
 import (
+	"freessh-backend/internal/storage"
 	"sync"
 )
 
@@ -9,13 +10,13 @@ type LogSettings struct {
 }
 
 type LogSettingsStorage struct {
-	manager  *Manager
+	manager  *storage.Manager
 	settings LogSettings
 	mu       sync.RWMutex
 }
 
 func NewLogSettingsStorage() (*LogSettingsStorage, error) {
-	manager, err := NewManager("log_settings.json")
+	manager, err := storage.NewManager("log_settings.json")
 	if err != nil {
 		return nil, err
 	}

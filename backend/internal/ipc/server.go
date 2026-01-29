@@ -5,6 +5,7 @@ import (
 	"freessh-backend/internal/ipc/handlers"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
+	"freessh-backend/internal/settings"
 	"freessh-backend/internal/storage"
 	"log"
 )
@@ -39,7 +40,7 @@ func NewServer() *Server {
 	}
 	
 	// Initialize log settings storage
-	logSettingsStorage, err := storage.NewLogSettingsStorage()
+	logSettingsStorage, err := settings.NewLogSettingsStorage()
 	if err != nil {
 		log.Printf("Warning: Failed to initialize log settings storage: %v", err)
 	}
