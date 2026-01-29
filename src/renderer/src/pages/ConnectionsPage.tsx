@@ -4,6 +4,7 @@ import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
 import { GroupsSection, GroupSidebar } from '@/components/groups'
+import { GroupDetailView } from '@/components/groups/GroupDetailView'
 import { HostKeyVerificationDialog } from '@/components/knownhosts'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ConnectionsProvider } from '@/contexts/ConnectionsContext'
@@ -99,56 +100,71 @@ export function ConnectionsPage() {
 
   return (
     <ConnectionsProvider value={contextValue}>
-      <div className="h-full flex flex-col relative">
-        <ConnectionsHeader />
-        <GroupsSection
-          groups={groupHandlers.groups}
-          loading={groupHandlers.loading}
-          selectedGroupId={groupHandlers.selectedGroupId}
-          onSelectGroup={groupHandlers.handleSelectGroup}
-          onEditGroup={groupHandlers.handleEditGroup}
-          onDeleteGroup={groupHandlers.handleDeleteGroup}
+      {groupHandlers.openedGroup ? (
+        <GroupDetailView
+          group={groupHandlers.openedGroup}
+          connections={connections.filter(c => c.group === groupHandlers.openedGroup?.name)}
+          onBack={groupHandlers.handleCloseGroupDetail}
+          connectionHandlers={connectionHandlers}
+          loading={loading}
+          connectingId={connectingId}
+          pendingVerification={pendingVerification}
+          handleVerificationTrust={handleVerificationTrust}
+          handleVerificationCancel={handleVerificationCancel}
         />
-        <div className="flex-1 overflow-hidden">
-          <ConnectionList />
-        </div>
-
-        <NewConnectionButton onClick={connectionHandlers.handleNewConnection} />
-
-        {connectionHandlers.showForm && (
-          <ConnectionForm
-            isOpen={connectionHandlers.showForm}
-            connection={connectionHandlers.editingConnection}
-            onConnect={connectionHandlers.handleFormConnect}
-            onSave={connectionHandlers.handleFormSave}
-            onClose={connectionHandlers.handleCloseForm}
+      ) : (
+        <div className="h-full flex flex-col relative">
+          <ConnectionsHeader />
+          <GroupsSection
+            groups={groupHandlers.groups}
+            loading={groupHandlers.loading}
+            selectedGroupId={groupHandlers.selectedGroupId}
+            onSelectGroup={groupHandlers.handleSelectGroup}
+            onEditGroup={groupHandlers.handleEditGroup}
+            onDeleteGroup={groupHandlers.handleDeleteGroup}
+            onOpenGroup={groupHandlers.handleOpenGroup}
           />
-        )}
+          <div className="flex-1 overflow-hidden">
+            <ConnectionList />
+          </div>
 
-        <GroupSidebar
-          isOpen={groupHandlers.showGroupSidebar}
-          onClose={groupHandlers.handleCloseGroupSidebar}
-          group={groupHandlers.editingGroup}
-          onSave={groupHandlers.handleSaveGroup}
-        />
+          <NewConnectionButton onClick={connectionHandlers.handleNewConnection} />
 
-        <ConfirmDialog
-          open={!!groupHandlers.groupToDelete}
-          onOpenChange={(open) => !open && groupHandlers.handleCancelDeleteGroup()}
-          title="Delete group"
-          description={`Are you sure you want to delete "${groupHandlers.groupToDelete?.name}"? Connections in this group will not be deleted.`}
-          onConfirm={groupHandlers.handleConfirmDeleteGroup}
-          confirmText="Delete"
-          destructive
-        />
+          {connectionHandlers.showForm && (
+            <ConnectionForm
+              isOpen={connectionHandlers.showForm}
+              connection={connectionHandlers.editingConnection}
+              onConnect={connectionHandlers.handleFormConnect}
+              onSave={connectionHandlers.handleFormSave}
+              onClose={connectionHandlers.handleCloseForm}
+            />
+          )}
 
-        <HostKeyVerificationDialog
-          open={!!pendingVerification}
-          verification={pendingVerification}
-          onTrust={handleVerificationTrust}
-          onCancel={handleVerificationCancel}
-        />
-      </div>
+          <GroupSidebar
+            isOpen={groupHandlers.showGroupSidebar}
+            onClose={groupHandlers.handleCloseGroupSidebar}
+            group={groupHandlers.editingGroup}
+            onSave={groupHandlers.handleSaveGroup}
+          />
+
+          <ConfirmDialog
+            open={!!groupHandlers.groupToDelete}
+            onOpenChange={(open) => !open && groupHandlers.handleCancelDeleteGroup()}
+            title="Delete group"
+            description={`Are you sure you want to delete "${groupHandlers.groupToDelete?.name}"? Connections in this group will not be deleted.`}
+            onConfirm={groupHandlers.handleConfirmDeleteGroup}
+            confirmText="Delete"
+            destructive
+          />
+
+          <HostKeyVerificationDialog
+            open={!!pendingVerification}
+            verification={pendingVerification}
+            onTrust={handleVerificationTrust}
+            onCancel={handleVerificationCancel}
+          />
+        </div>
+      )}
     </ConnectionsProvider>
   )
 }

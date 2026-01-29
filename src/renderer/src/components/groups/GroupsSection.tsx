@@ -12,6 +12,7 @@ interface GroupsSectionProps {
   onSelectGroup: (group: Group | null) => void
   onEditGroup: (group: Group) => void
   onDeleteGroup: (id: string) => void
+  onOpenGroup: (group: Group) => void
 }
 
 export function GroupsSection({ 
@@ -20,7 +21,8 @@ export function GroupsSection({
   selectedGroupId, 
   onSelectGroup, 
   onEditGroup, 
-  onDeleteGroup 
+  onDeleteGroup,
+  onOpenGroup
 }: GroupsSectionProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -66,6 +68,7 @@ export function GroupsSection({
             onSelect={onSelectGroup}
             onEdit={onEditGroup}
             onDelete={onDeleteGroup}
+            onOpen={onOpenGroup}
           />
         )}
       </div>

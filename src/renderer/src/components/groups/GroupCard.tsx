@@ -11,6 +11,7 @@ interface GroupCardProps {
   onSelect: (group: Group | null) => void
   onEdit: (group: Group) => void
   onDelete: (id: string) => void
+  onOpen: (group: Group) => void
 }
 
 export const GroupCard = memo(function GroupCard({ 
@@ -18,7 +19,8 @@ export const GroupCard = memo(function GroupCard({
   selected, 
   onSelect, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onOpen
 }: GroupCardProps) {
   return (
     <GroupCardContextMenu
@@ -39,6 +41,9 @@ export const GroupCard = memo(function GroupCard({
         onContextMenu={(e) => {
           e.stopPropagation()
           onSelect(group)
+        }}
+        onDoubleClick={() => {
+          onOpen(group)
         }}
       >
         <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">

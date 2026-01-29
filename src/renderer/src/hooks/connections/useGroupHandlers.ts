@@ -9,6 +9,7 @@ export function useGroupHandlers() {
   const [groupToDelete, setGroupToDelete] = useState<{ id: string; name: string } | null>(null)
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
+  const [openedGroup, setOpenedGroup] = useState<Group | null>(null)
 
   const handleSelectGroup = useCallback((group: Group | null) => {
     setSelectedGroupId(group?.id ?? null)
@@ -60,6 +61,14 @@ export function useGroupHandlers() {
     setGroupToDelete(null)
   }, [])
 
+  const handleOpenGroup = useCallback((group: Group) => {
+    setOpenedGroup(group)
+  }, [])
+
+  const handleCloseGroupDetail = useCallback(() => {
+    setOpenedGroup(null)
+  }, [])
+
   return {
     groups,
     loading,
@@ -68,6 +77,7 @@ export function useGroupHandlers() {
     showGroupSidebar,
     editingGroup,
     groupToDelete,
+    openedGroup,
     handleSelectGroup,
     handleEditGroup,
     handleDeleteGroup,
@@ -76,5 +86,7 @@ export function useGroupHandlers() {
     handleSaveGroup,
     handleCloseGroupSidebar,
     handleCancelDeleteGroup,
+    handleOpenGroup,
+    handleCloseGroupDetail,
   }
 }

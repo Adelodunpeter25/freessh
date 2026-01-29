@@ -7,6 +7,7 @@ interface GroupListProps {
   onSelect: (group: Group | null) => void
   onEdit: (group: Group) => void
   onDelete: (id: string) => void
+  onOpen: (group: Group) => void
 }
 
 export function GroupList({ 
@@ -14,7 +15,8 @@ export function GroupList({
   selectedGroupId, 
   onSelect, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onOpen
 }: GroupListProps) {
   if (groups.length === 0) {
     return (
@@ -35,6 +37,7 @@ export function GroupList({
           onSelect={onSelect}
           onEdit={onEdit}
           onDelete={onDelete}
+          onOpen={onOpen}
         />
       ))}
     </div>
