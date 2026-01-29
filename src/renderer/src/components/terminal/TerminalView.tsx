@@ -50,10 +50,11 @@ export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) 
 
   const handleSearch = useCallback((query: string, direction: 'next' | 'prev') => {
     if (searchAddonRef.current && query) {
+      const options = { decorations: { activeMatchColorOverviewRuler: '#ff0000' } }
       if (direction === 'next') {
-        searchAddonRef.current.findNext(query, { incremental: false })
+        searchAddonRef.current.findNext(query, options)
       } else {
-        searchAddonRef.current.findPrevious(query, { incremental: false })
+        searchAddonRef.current.findPrevious(query, options)
       }
     }
   }, [])

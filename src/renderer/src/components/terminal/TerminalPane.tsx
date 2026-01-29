@@ -95,7 +95,11 @@ export const TerminalPane = memo(function TerminalPane({
     const fitAddon = new FitAddon()
     const searchAddon = new SearchAddon()
 
-    // Configure search decoration colors
+    xterm.loadAddon(fitAddon)
+    xterm.loadAddon(searchAddon)
+    xterm.open(terminalRef.current)
+
+    // Configure search decoration colors AFTER loading addon
     searchAddon.onDidChangeResults((results) => {
       console.log('SearchAddon onDidChangeResults:', results)
       if (onSearchResults) {
@@ -109,10 +113,6 @@ export const TerminalPane = memo(function TerminalPane({
         }
       }
     })
-
-    xterm.loadAddon(fitAddon)
-    xterm.loadAddon(searchAddon)
-    xterm.open(terminalRef.current)
 
     xtermRef.current = xterm
     fitAddonRef.current = fitAddon
