@@ -2,6 +2,7 @@ import { LogEntry } from '@/types/log'
 import { Card } from '@/components/ui/card'
 import { FileText, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { formatDate } from '@/utils/formatDate'
 
 interface LogCardProps {
   log: LogEntry
@@ -16,9 +17,7 @@ export function LogCard({ log, onDelete, onOpen }: LogCardProps) {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
-  const formatDate = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString()
-  }
+  const timestamp = new Date(log.timestamp).getTime()
 
   return (
     <Card
@@ -31,7 +30,7 @@ export function LogCard({ log, onDelete, onOpen }: LogCardProps) {
           <div className="flex-1">
             <h3 className="font-medium">{log.connection_name}</h3>
             <p className="text-sm text-muted-foreground">
-              {formatDate(log.timestamp)} • {formatSize(log.size)}
+              {formatDate(timestamp, true)} • {formatSize(log.size)}
             </p>
           </div>
         </div>

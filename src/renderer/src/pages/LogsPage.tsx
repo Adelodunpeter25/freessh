@@ -1,35 +1,20 @@
-import { useState } from 'react'
 import { useLogs } from '@/hooks/logs'
 import { LogList, LogViewer } from '@/components/logs'
-import { LogEntry } from '@/types/log'
-import { logService } from '@/services/ipc'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 
 export function LogsPage() {
-  const { logs, loading, deleteLog } = useLogs()
-  const [selectedLog, setSelectedLog] = useState<LogEntry | null>(null)
-  const [logContent, setLogContent] = useState<string>('')
-  const [loadingContent, setLoadingContent] = useState(false)
-
-  const handleOpenLog = async (log: LogEntry) => {
-    try {
-      setLoadingContent(true)
-      const content = await logService.read(log.filename)
-      setLogContent(content)
-      setSelectedLog(log)
-    } catch (error) {
-      console.error('Failed to load log content:', error)
-    } finally {
-      setLoadingContent(false)
-    }
-  }
-
-  const handleBack = () => {
-    setSelectedLog(null)
-    setLogContent('')
-  }
+  const { 
+    logs, 
+    loading, 
+    deleteLog, 
+    selectedLog, 
+    logContent, 
+    loadingContent, 
+    openLog, 
+    closeLog 
+  } = useLogs()
 
   if (loading) {
     return (
@@ -43,7 +28,7 @@ export function LogsPage() {
     return (
       <div className="flex flex-col h-full">
         <div className="flex items-center gap-2 p-4 border-b">
-          <Button variant="ghost" size="icon" onClick={handleBack}>
+          <Button variant="ghost" size="icon" onClick={closeLog}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <h2 className="font-semibold">{selectedLog.connection_name}</h2>
@@ -67,7 +52,7 @@ export function LogsPage() {
         <h2 className="text-lg font-semibold">Session Logs</h2>
       </div>
       <div className="flex-1 overflow-auto">
-        <LogList logs={logs} onDelete={deleteLog} onOpen={handleOpenLog} />
+        <LogList logs={logs} onDelete={deleteLog} onOpen={openLog} />
       </div>
     </div>
   )
