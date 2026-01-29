@@ -1,76 +1,26 @@
 /* Custom search highlight colors for xterm */
 .xterm .xterm-decoration-overview-ruler {
   /* Search result indicator on scrollbar */
-  background-color: #fbbf24 !important; /* Amber */
+  background-color: #a3a3a3 !important;
 }
 
 .xterm-decoration-top {
-  /* Active search result highlight - bright yellow */
-  background-color: #fde047 !important;
-  border: 1px solid #facc15 !important;
+  /* Active search result highlight */
+  background-color: #d4d4d4 !important;
 }
 
 .xterm-decoration {
-  /* Other search results highlight - softer yellow */
-  background-color: #fef3c7 !important;
+  /* Other search results highlight */
+  background-color: #a3a3a3 !important;
 }
 
 /* Dark theme adjustments */
 @media (prefers-color-scheme: dark) {
   .xterm-decoration {
-    /* Other results - amber with transparency */
-    background-color: rgba(251, 191, 36, 0.3) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
   }
   
   .xterm-decoration-top {
-    /* Active result - brighter amber */
-    background-color: rgba(251, 191, 36, 0.5) !important;
-    border: 1px solid rgba(251, 191, 36, 0.8) !important;
-  }
-  
-  .xterm .xterm-decoration-overview-ruler {
-    background-color: rgba(251, 191, 36, 0.6) !important;
+    background-color: rgba(255, 255, 255, 0.2) !important;
   }
 }
-
-/* Alternative color schemes (comment/uncomment to switch) */
-
-/* Blue theme
-.xterm-decoration-top {
-  background-color: #60a5fa !important;
-  border: 1px solid #3b82f6 !important;
-}
-.xterm-decoration {
-  background-color: #dbeafe !important;
-}
-*/
-
-/* Green theme
-.xterm-decoration-top {
-  background-color: #4ade80 !important;
-  border: 1px solid #22c55e !important;
-}
-.xterm-decoration {
-  background-color: #dcfce7 !important;
-}
-*/
-
-/* Orange theme
-.xterm-decoration-top {
-  background-color: #fb923c !important;
-  border: 1px solid #f97316 !important;
-}
-.xterm-decoration {
-  background-color: #ffedd5 !important;
-}
-*/
-
-/* Purple theme
-.xterm-decoration-top {
-  background-color: #a78bfa !important;
-  border: 1px solid #8b5cf6 !important;
-}
-.xterm-decoration {
-  background-color: #ede9fe !important;
-}
-*/
