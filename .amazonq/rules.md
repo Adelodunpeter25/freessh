@@ -137,7 +137,6 @@ git commit -m "Remove unused dependencies"
 ### Adding Dependencies
 - Evaluate necessity before adding
 - Check bundle size impact
-- Verify license compatibility
 - Keep dependencies up to date
 
 ### Removing Dependencies
@@ -159,19 +158,6 @@ git commit -m "Remove unused dependencies"
 - Test error cases
 - Test edge cases
 - Test with real SSH servers
-
-## Pull Request Guidelines
-
-### PR Description
-- Describe what changed
-- Explain why it changed
-- List any breaking changes
-- Include screenshots for UI changes
-
-### PR Size
-- Keep PRs focused and small
-- One feature or fix per PR
-- Split large changes into multiple PRs
 
 ## Branch Strategy
 

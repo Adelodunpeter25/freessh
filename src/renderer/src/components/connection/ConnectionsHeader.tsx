@@ -1,4 +1,4 @@
-import { Server, Search, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ConnectionHeaderButton } from './ConnectionHeaderButton'
@@ -11,10 +11,6 @@ export function ConnectionsHeader() {
     filteredConnections,
     onConnect,
     onOpenSFTP,
-    groups,
-    groupCounts,
-    selectedGroup,
-    onGroupSelect,
     onNewConnection,
     onNewLocalTerminal,
     onNewGroup,
@@ -77,30 +73,6 @@ export function ConnectionsHeader() {
           onNewGroup={onNewGroup}
           localTerminalLoading={localTerminalLoading}
         />
-
-        {/* Scrollable Groups */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
-          <Button
-            onClick={() => onGroupSelect(null)}
-            variant={selectedGroup === null ? "default" : "ghost"}
-            size="sm"
-            className="shrink-0"
-          >
-            All
-          </Button>
-
-          {groups.map(group => (
-            <Button
-              key={group}
-              onClick={() => onGroupSelect(group)}
-              variant={selectedGroup === group ? "default" : "ghost"}
-              size="sm"
-              className="shrink-0"
-            >
-              {group} ({groupCounts[group]})
-            </Button>
-          ))}
-        </div>
       </div>
     </div>
   )
