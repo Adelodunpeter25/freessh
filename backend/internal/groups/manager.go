@@ -79,18 +79,23 @@ func (m *Manager) Get(id string) (*models.Group, error) {
 func (m *Manager) List() ([]models.Group, error) {
 	groups := m.groupStorage.List()
 	
-	// Add connection counts
+	// Get all connections
 	connections, err := m.connectionStorage.List()
 	if err != nil {
 		return groups, nil // Return groups without counts
 	}
 
-	// Count connections per group
+	// Count connections per group name
 	counts := make(map[string]int)
 	for _, conn := range connections {
 		if conn.Group != "" {
 			counts[conn.Group]++
 		}
+	}
+
+	// Add counts to groups
+	for i := range groups {
+		groups[i].ConnectionCount = counts[groups[i].Name]
 	}
 
 	return groups, nil
