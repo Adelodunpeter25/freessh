@@ -1,4 +1,5 @@
 import { Input } from '@/components/ui/input'
+import { GroupSelect } from './GroupSelect'
 import { ConnectionConfig } from '@/types'
 
 interface ConnectionFormGeneralProps {
@@ -17,10 +18,9 @@ export function ConnectionFormGeneral({ formData, onChange }: ConnectionFormGene
         required
       />
 
-      <Input
-        value={formData.group || ''}
-        onChange={(e) => onChange({ ...formData, group: e.target.value || undefined })}
-        placeholder="Group (optional)"
+      <GroupSelect
+        value={formData.group}
+        onChange={(value) => onChange({ ...formData, group: value || undefined })}
       />
 
       <Input
