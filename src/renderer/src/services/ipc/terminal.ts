@@ -27,5 +27,19 @@ export const terminalService = {
 
   offOutput(sessionId: string): void {
     backendService.off(`output:${sessionId}`)
+  },
+
+  startLogging(sessionId: string): void {
+    backendService.send({
+      type: 'terminal:start_logging',
+      session_id: sessionId
+    })
+  },
+
+  stopLogging(sessionId: string): void {
+    backendService.send({
+      type: 'terminal:stop_logging',
+      session_id: sessionId
+    })
   }
 }

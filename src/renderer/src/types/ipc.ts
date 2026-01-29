@@ -8,6 +8,9 @@ export type MessageType =
   | 'error'
   | 'session_status'
   | 'session_list'
+  | 'terminal:start_logging'
+  | 'terminal:stop_logging'
+  | 'terminal:logging_status'
   | 'connection:list'
   | 'connection:get'
   | 'connection:delete'
@@ -75,4 +78,10 @@ export interface ResizeData {
 
 export interface ErrorResponse {
   error: string
+}
+
+export interface LoggingStatusResponse {
+  is_logging: boolean
+  file_path?: string
+  error?: string
 }
