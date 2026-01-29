@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
-import { settingsService } from '@/services/ipc'
-import { Settings } from '@/types/settings'
+import { logSettingsService } from '@/services/ipc'
+import { LogSettings } from '@/types/logSettings'
 import { toast } from 'sonner'
 
-export function useSettings() {
-  const [settings, setSettings] = useState<Settings>({ auto_logging: false })
+export function useLogSettings() {
+  const [settings, setSettings] = useState<LogSettings>({ auto_logging: false })
   const [loading, setLoading] = useState(true)
 
   const loadSettings = async () => {
     try {
       setLoading(true)
-      const data = await settingsService.get()
+      const data = await logSettingsService.get()
       setSettings(data)
     } catch (error) {
       toast.error('Failed to load settings')
@@ -19,9 +19,9 @@ export function useSettings() {
     }
   }
 
-  const updateSettings = (newSettings: Settings) => {
+  const updateSettings = (newSettings: LogSettings) => {
     setSettings(newSettings)
-    settingsService.update(newSettings)
+    logSettingsService.update(newSettings)
     toast.success('Settings updated')
   }
 

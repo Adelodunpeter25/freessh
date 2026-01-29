@@ -1,8 +1,8 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useSettings } from '@/hooks/settings'
+import { useLogSettings } from '@/hooks/logSettings'
 
 export function LogSettings() {
-  const { settings, loading, setAutoLogging } = useSettings()
+  const { settings, loading, setAutoLogging } = useLogSettings()
 
   if (loading) return null
 

@@ -8,5 +8,5 @@ export { groupService } from './group'
 export { portForwardConfigService } from './portForwardConfig'
 export { knownHostsService } from './knownHosts'
 export { logService } from './logs'
-export { settingsService } from './settings'
+export { logSettingsService } from './logSettings'
 
