@@ -54,6 +54,8 @@ export const useConnections = () => {
     }
   }, []);
 
+  console.log('[useConnections] Current state - loading:', loading, 'connections:', connections.length)
+
   useEffect(() => {
     console.log('[useConnections] useEffect triggered, calling loadConnections')
     loadConnections();
