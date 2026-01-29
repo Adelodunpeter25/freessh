@@ -90,7 +90,6 @@
 - ✅ Create/Edit/Delete port forwarding configurations
 - ✅ Support for local and remote port forwarding
 - ✅ Tunnel status monitoring and management
-- ⏳ Auto-start tunnels on connection (not yet implemented)
 
 ### Settings Page
 **Status:** ✅ Implemented (Basic)

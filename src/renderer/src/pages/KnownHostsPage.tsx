@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { KnownHostsHeader } from '@/components/knownhosts/KnownHostsHeader'
 import { KnownHostsList } from '@/components/knownhosts'
-import { useKnownHosts } from '@/hooks/useKnownHosts'
+import { useKnownHosts } from '@/hooks'
 
 export function KnownHostsPage() {
   const { hosts, loading, removeHost, importFromSSH } = useKnownHosts()
