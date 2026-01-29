@@ -145,14 +145,6 @@ export function ConnectionsPage() {
     setShowGroupSidebar(false)
     setEditingGroup(undefined)
   }, [])
-  }, [deleteGroup, selectedGroupId])
-
-  const handleNewGroup = useCallback(() => {
-    const name = prompt('Enter group name:')
-    if (name) {
-      createGroup(name)
-    }
-  }, [createGroup])
 
   const contextValue = useMemo(() => ({
     connections,
