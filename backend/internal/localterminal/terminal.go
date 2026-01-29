@@ -32,6 +32,11 @@ func (t *Terminal) Initialize(rows, cols int) error {
 	shell := getShell()
 	t.cmd = exec.Command(shell)
 	t.cmd.Env = os.Environ()
+	
+	// Set working directory to user's home directory
+	if homeDir, err := os.UserHomeDir(); err == nil {
+		t.cmd.Dir = homeDir
+	}
 
 	ptmx, err := pty.Start(t.cmd)
 	if err != nil {

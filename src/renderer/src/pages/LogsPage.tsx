@@ -10,7 +10,14 @@ export function LogsPage() {
   const handleOpenLog = async (log: any) => {
     const { logService } = await import('@/services/ipc')
     const content = await logService.read(log.filename)
-    addLogTab(log.connection_name, content)
+    const timestamp = new Date(log.timestamp).toLocaleString('en-US', { 
+      month: 'short', 
+      day: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    })
+    const title = `Log: ${log.connection_name} - ${timestamp}`
+    addLogTab(title, content)
   }
 
   if (loading) {
