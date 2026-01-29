@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
@@ -8,6 +9,8 @@ import { GroupDetailView } from '@/components/groups/GroupDetailView'
 import { HostKeyVerificationDialog } from '@/components/knownhosts'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ConnectionsProvider } from '@/contexts/ConnectionsContext'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { useConnections } from '@/hooks'
 import {
   useConnectionHandlers,
@@ -31,6 +34,7 @@ export function ConnectionsPage() {
   } = useConnections()
 
   const [searchQuery, setSearchQuery] = useState('')
+  const [connectionsCollapsed, setConnectionsCollapsed] = useState(false)
 
   const connectionHandlers = useConnectionHandlers({
     deleteConnection,
@@ -126,11 +130,30 @@ export function ConnectionsPage() {
           />
           <div className="flex-1 overflow-hidden flex flex-col">
             <div className="px-4 py-3 border-b bg-background/95">
-              <h2 className="text-sm font-semibold text-foreground">Connections</h2>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => setConnectionsCollapsed(!connectionsCollapsed)}
+                >
+                  {connectionsCollapsed ? (
+                    <ChevronRight className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
+                <h2 className="text-sm font-semibold text-foreground">
+                  Connections ({connections.length})
+                </h2>
+                <Badge variant="secondary">{connections.length}</Badge>
+              </div>
             </div>
-            <div className="flex-1 overflow-hidden">
-              <ConnectionList />
-            </div>
+            {!connectionsCollapsed && (
+              <div className="flex-1 overflow-hidden">
+                <ConnectionList />
+              </div>
+            )}
           </div>
 
           <NewConnectionButton onClick={connectionHandlers.handleNewConnection} />
