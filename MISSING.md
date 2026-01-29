@@ -65,6 +65,10 @@
 
 ## Future Features
 
+### Connection Groups/Folders
+**Status:** ✅ Implemented  
+**Description:** Organize connections by project/environment.
+
 ### Port Forwarding
 - UI for managing SSH tunnels (backend already implemented)
 - List active tunnels
