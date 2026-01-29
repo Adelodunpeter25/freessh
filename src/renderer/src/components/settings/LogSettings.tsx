@@ -1,33 +1,16 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useState, useEffect } from 'react'
-import { settingsService } from '@/services/ipc'
-import { toast } from 'sonner'
+import { useSettings } from '@/hooks/settings'
 
 export function LogSettings() {
-  const [autoLogging, setAutoLogging] = useState<'enabled' | 'disabled'>('disabled')
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const loadSettings = async () => {
-      try {
-        const settings = await settingsService.get()
-        setAutoLogging(settings.auto_logging ? 'enabled' : 'disabled')
-      } catch (error) {
-        toast.error('Failed to load settings')
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadSettings()
-  }, [])
-
-  const handleChange = (value: 'enabled' | 'disabled') => {
-    setAutoLogging(value)
-    settingsService.update({ auto_logging: value === 'enabled' })
-    toast.success('Settings updated')
-  }
+  const { settings, loading, setAutoLogging } = useSettings()
 
   if (loading) return null
+
+  const autoLogging = settings.auto_logging ? 'enabled' : 'disabled'
+
+  const handleChange = (value: 'enabled' | 'disabled') => {
+    setAutoLogging(value === 'enabled')
+  }
 
   return (
     <div className="space-y-4">
