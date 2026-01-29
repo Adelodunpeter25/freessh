@@ -203,7 +203,6 @@ export function ConnectionsPage() {
           onSelectGroup={handleSelectGroup}
           onEditGroup={handleEditGroup}
           onDeleteGroup={handleDeleteGroup}
-          onNewGroup={handleNewGroup}
         />
         <div className="flex-1 overflow-hidden">
           <ConnectionList />
