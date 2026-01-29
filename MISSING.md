@@ -80,14 +80,17 @@
 - ✅ Group selector in connection form
 - ✅ Collapsible groups and connections sections with badges
 - ✅ Context menu for group operations (Edit, Delete)
-- ✅ Automatic group count refresh after connection changes
 - ✅ Double-click to open group detail view
-- ✅ Custom empty state for groups with no connections
 
 ### Port Forwarding
-- UI for managing SSH tunnels (backend already implemented)
-- List active tunnels
-- Auto-start tunnels on connection
+**Status:** ✅ Implemented  
+**Implementation:**
+- ✅ UI for managing SSH tunnels (backend already implemented)
+- ✅ List active tunnels
+- ✅ Create/Edit/Delete port forwarding configurations
+- ✅ Support for local and remote port forwarding
+- ✅ Tunnel status monitoring and management
+- ⏳ Auto-start tunnels on connection (not yet implemented)
 
 ### Settings Page
 **Status:** ✅ Implemented (Basic)
