@@ -14,6 +14,11 @@ func (m *Manager) CloseSession(sessionID string) error {
 	// Stop session goroutines first
 	session.Stop()
 	
+	// Stop logging if active
+	if session.isLogging {
+		m.StopLogging(sessionID)
+	}
+	
 	// Close SFTP client
 	if session.SFTPClient != nil {
 		session.SFTPClient.Close()

@@ -8,6 +8,8 @@ import (
 	"freessh-backend/internal/sftp"
 	"freessh-backend/internal/ssh"
 	"freessh-backend/internal/terminal"
+	"os"
+	"sync"
 )
 
 type ActiveSession struct {
@@ -22,6 +24,9 @@ type ActiveSession struct {
 	ErrorChan       chan error
 	stopChan        chan struct{}
 	cancelOutput    context.CancelFunc
+	logFile         *os.File
+	isLogging       bool
+	logMutex        sync.Mutex
 }
 
 func NewActiveSession(id string, sshClient *ssh.Client, term *terminal.Terminal, session models.Session) *ActiveSession {
