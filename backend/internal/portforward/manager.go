@@ -3,6 +3,7 @@ package portforward
 import (
 	"fmt"
 	"freessh-backend/internal/models"
+	"freessh-backend/internal/portforward/dynamic"
 	"freessh-backend/internal/portforward/local"
 	"freessh-backend/internal/portforward/remote"
 	"sync"
@@ -86,6 +87,40 @@ func (m *Manager) CreateRemoteTunnel(connectionID, name string, config models.Re
 		LocalPort:    config.LocalPort,
 		RemoteHost:   config.LocalHost,
 		RemotePort:   config.RemotePort,
+		Status:       "active",
+	}, nil
+}
+
+func (m *Manager) CreateDynamicTunnel(connectionID, name string, config models.DynamicTunnelConfig, sshClient *ssh.Client) (*models.TunnelInfo, error) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	id := uuid.New().String()
+	tunnel := dynamic.NewTunnel(id, config.LocalPort, config.BindingAddress, sshClient)
+
+	if err := tunnel.Start(); err != nil {
+		return nil, err
+	}
+
+	m.tunnels[id] = &TunnelWrapper{
+		ID:           id,
+		ConnectionID: connectionID,
+		Name:         name,
+		Type:         "dynamic",
+		LocalPort:    config.LocalPort,
+		RemoteHost:   "",
+		RemotePort:   0,
+		Tunnel:       tunnel,
+	}
+
+	return &models.TunnelInfo{
+		ID:           id,
+		ConnectionID: connectionID,
+		Name:         name,
+		Type:         "dynamic",
+		LocalPort:    config.LocalPort,
+		RemoteHost:   "",
+		RemotePort:   0,
 		Status:       "active",
 	}, nil
 }

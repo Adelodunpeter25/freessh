@@ -42,6 +42,12 @@ func (m *Manager) AutoStartPortForwards(sessionID, connectionID string) {
 				BindingAddress: config.BindingAddress,
 			}
 			session.PortForwardMgr.CreateRemoteTunnel(connectionID, config.Name, tunnelConfig, session.SSHClient.GetSSHClient())
+		} else if config.Type == "dynamic" {
+			tunnelConfig := models.DynamicTunnelConfig{
+				LocalPort:      config.LocalPort,
+				BindingAddress: config.BindingAddress,
+			}
+			session.PortForwardMgr.CreateDynamicTunnel(connectionID, config.Name, tunnelConfig, session.SSHClient.GetSSHClient())
 		}
 	}
 }

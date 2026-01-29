@@ -20,6 +20,15 @@ func (m *Manager) CreateRemoteTunnel(sessionID, connectionID, name string, confi
 	return session.PortForwardMgr.CreateRemoteTunnel(connectionID, name, config, session.SSHClient.GetSSHClient())
 }
 
+func (m *Manager) CreateDynamicTunnel(sessionID, connectionID, name string, config models.DynamicTunnelConfig) (*models.TunnelInfo, error) {
+	session, err := m.GetSession(sessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	return session.PortForwardMgr.CreateDynamicTunnel(connectionID, name, config, session.SSHClient.GetSSHClient())
+}
+
 func (m *Manager) StopTunnel(sessionID, tunnelID string) error {
 	session, err := m.GetSession(sessionID)
 	if err != nil {

@@ -14,6 +14,11 @@ type RemoteTunnelConfig struct {
 	BindingAddress string `json:"binding_address"`
 }
 
+type DynamicTunnelConfig struct {
+	LocalPort      int    `json:"local_port"`
+	BindingAddress string `json:"binding_address"`
+}
+
 type TunnelInfo struct {
 	ID           string `json:"id"`
 	ConnectionID string `json:"connection_id"`
@@ -27,11 +32,12 @@ type TunnelInfo struct {
 }
 
 type CreateTunnelRequest struct {
-	Type         string              `json:"type"` // "local" or "remote"
+	Type         string              `json:"type"` // "local", "remote", or "dynamic"
 	ConnectionID string              `json:"connection_id"`
 	Name         string              `json:"name"`
 	Config       TunnelConfig        `json:"config,omitempty"`
 	Remote       RemoteTunnelConfig  `json:"remote,omitempty"`
+	Dynamic      DynamicTunnelConfig `json:"dynamic,omitempty"`
 }
 
 type StopTunnelRequest struct {
