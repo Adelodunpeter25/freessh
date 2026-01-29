@@ -50,8 +50,9 @@ export const useConnections = () => {
   }, []);
 
   useEffect(() => {
+    console.log('[useConnections] useEffect triggered, calling loadConnections')
     loadConnections();
-  }, []);
+  }, [loadConnections]);
 
   const getConnection = useCallback(async (id: string) => {
     try {
