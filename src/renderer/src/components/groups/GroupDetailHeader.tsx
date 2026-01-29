@@ -1,4 +1,4 @@
-import { Search, X } from 'lucide-react'
+import { Search, X, Server } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -77,23 +77,12 @@ export function GroupDetailHeader({ groupName }: GroupDetailHeaderProps) {
       <div className="flex items-center gap-2">
         <Button 
           onClick={onNewConnection}
-          className="gap-2"
+          variant="secondary" 
+          size="sm"
+          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M5 12h14" />
-            <path d="M12 5v14" />
-          </svg>
-          New connection
+          <Server className="h-4 w-4 mr-2" />
+          NEW CONNECTION
         </Button>
       </div>
     </div>
