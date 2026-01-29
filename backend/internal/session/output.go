@@ -18,7 +18,7 @@ func (m *Manager) readLocalOutput(as *ActiveSession) {
 }
 
 func (m *Manager) pipeOutput(as *ActiveSession, reader io.Reader) {
-	buf := make([]byte, 4096)
+	buf := make([]byte, 8192) // Increased from 4KB to 8KB for better throughput
 	for {
 		select {
 		case <-as.stopChan:

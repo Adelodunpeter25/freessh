@@ -30,7 +30,7 @@ func NewActiveSession(id string, sshClient *ssh.Client, term *terminal.Terminal,
 		SFTPClient:     sftp.NewClient(sshClient),
 		PortForwardMgr: portforward.NewManager(),
 		Session:        session,
-		OutputChan:     make(chan []byte, 100),
+		OutputChan:     make(chan []byte, 500), // Increased from 100 to 500
 		ErrorChan:      make(chan error, 10),
 		stopChan:       make(chan struct{}),
 	}
@@ -41,7 +41,7 @@ func NewLocalSession(id string, localTerm *localterminal.Terminal, session model
 		ID:            id,
 		LocalTerminal: localTerm,
 		Session:       session,
-		OutputChan:    make(chan []byte, 100),
+		OutputChan:    make(chan []byte, 500), // Increased from 100 to 500
 		ErrorChan:     make(chan error, 10),
 		stopChan:      make(chan struct{}),
 	}
