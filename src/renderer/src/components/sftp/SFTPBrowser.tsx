@@ -6,7 +6,7 @@ import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useSFTP } from "@/hooks";
 import { useLocalFiles } from "@/hooks";
 import { useFilePreview } from "@/hooks";
-import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useKeyboardShortcuts } from "@/hooks";
 import { FilePreviewProvider } from "@/contexts/FilePreviewContext";
 import { FilePanelProvider } from "@/contexts/FilePanelContext";
 import { FileInfo } from "@/types";
