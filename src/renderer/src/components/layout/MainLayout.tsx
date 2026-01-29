@@ -7,7 +7,7 @@ import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
-import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useKeyboardShortcuts } from "@/hooks";
 import { useMenuActions } from "@/hooks/useMenuActions";
 
 // Lazy load pages
