@@ -42,7 +42,7 @@ export function LogViewer({ content }: LogViewerProps) {
       fitAddon.fit()
       terminal.write(content)
       // Force scroll to top
-      terminal.scrollLines(-terminal.buffer.active.length)
+      terminal.scrollToTop()
     }, 10)
 
     xtermRef.current = terminal
