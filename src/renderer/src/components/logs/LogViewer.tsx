@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { Terminal } from 'xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { useThemeStore } from '@/stores/themeStore'
+import { toast } from 'sonner'
 import 'xterm/css/xterm.css'
 
 interface LogViewerProps {
@@ -12,7 +13,6 @@ export function LogViewer({ content }: LogViewerProps) {
   const terminalRef = useRef<HTMLDivElement>(null)
   const xtermRef = useRef<Terminal | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
-  const [showReadOnly, setShowReadOnly] = useState(false)
   const theme = useThemeStore((state) => state.theme)
 
   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -49,10 +49,13 @@ export function LogViewer({ content }: LogViewerProps) {
     const handleResize = () => fitAddon.fit()
     window.addEventListener('resize', handleResize)
 
-    // Show read-only message on keyboard input
-    const handleKeyDown = () => {
-      setShowReadOnly(true)
-      setTimeout(() => setShowReadOnly(false), 2000)
+    // Show read-only toast on actual keyboard input (not modifier keys)
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore modifier keys only
+      if (['Control', 'Alt', 'Meta', 'Shift', 'CapsLock', 'Tab', 'Escape'].includes(e.key)) {
+        return
+      }
+      toast.info('Read-only', { duration: 1500 })
     }
     window.addEventListener('keydown', handleKeyDown)
 
@@ -63,14 +66,5 @@ export function LogViewer({ content }: LogViewerProps) {
     }
   }, [content, isDark])
 
-  return (
-    <div className="relative h-full w-full">
-      <div ref={terminalRef} className="h-full w-full" />
-      {showReadOnly && (
-        <div className="absolute top-4 right-4 bg-muted text-muted-foreground px-3 py-1.5 rounded-md text-sm font-medium shadow-lg">
-          Read-only
-        </div>
-      )}
-    </div>
-  )
+  return <div ref={terminalRef} className="h-full w-full" />
 }
