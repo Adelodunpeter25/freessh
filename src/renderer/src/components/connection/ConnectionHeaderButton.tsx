@@ -50,26 +50,26 @@ export function ConnectionHeaderButton({
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" side="bottom" sideOffset={6} className="border">
+        <DropdownMenuContent align="end" side="bottom" sideOffset={6} className="border min-w-[200px]">
           <DropdownMenuItem 
             onClick={onNewLocalTerminal}
             disabled={localTerminalLoading}
-            className="font-medium"
+            className="font-medium py-2.5 px-3"
           >
             {localTerminalLoading ? (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              <Loader2 className="h-4 w-4 mr-3 animate-spin" />
             ) : (
-              <Terminal className="h-4 w-4 mr-2" />
+              <Terminal className="h-4 w-4 mr-3" />
             )}
-            LOCAL TERMINAL
+            Local terminal
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem 
             onClick={onNewGroup}
-            className="font-medium"
+            className="font-medium py-2.5 px-3"
           >
-            <FolderPlus className="h-4 w-4 mr-2" />
-            NEW GROUP
+            <FolderPlus className="h-4 w-4 mr-3" />
+            New group
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
