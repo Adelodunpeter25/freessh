@@ -48,18 +48,20 @@ export function TerminalSearchBar({ onSearch, onClose, results }: TerminalSearch
         className="h-8 w-48"
         autoFocus
       />
-      <div className="w-16 flex items-center justify-center">
-        {query && results && results.total > 0 && (
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {results.index + 1} of {results.total}
-          </span>
-        )}
-        {query && results && results.total === 0 && (
-          <span className="text-xs text-destructive whitespace-nowrap">
-            No results
-          </span>
-        )}
-      </div>
+      {query && (
+        <div className="w-16 flex items-center justify-center">
+          {results && results.total > 0 && (
+            <span className="text-xs text-muted-foreground whitespace-nowrap">
+              {results.index + 1} of {results.total}
+            </span>
+          )}
+          {results && results.total === 0 && (
+            <span className="text-xs text-destructive whitespace-nowrap">
+              No results
+            </span>
+          )}
+        </div>
+      )}
       <Button
         variant="ghost"
         size="icon"
