@@ -55,7 +55,8 @@ export function useGroups() {
 
   useEffect(() => {
     loadGroups()
-  }, [loadGroups])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return {
     groups,
