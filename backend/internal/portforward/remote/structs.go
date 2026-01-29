@@ -8,12 +8,13 @@ import (
 )
 
 type Tunnel struct {
-	ID         string
-	RemotePort int
-	LocalHost  string
-	LocalPort  int
-	Status     string
-	Error      string
+	ID             string
+	RemotePort     int
+	LocalHost      string
+	LocalPort      int
+	BindingAddress string
+	Status         string
+	Error          string
 
 	sshClient *ssh.Client
 	listener  net.Listener

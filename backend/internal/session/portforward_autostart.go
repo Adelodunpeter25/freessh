@@ -28,16 +28,18 @@ func (m *Manager) AutoStartPortForwards(sessionID, connectionID string) {
 		// Start tunnel based on type
 		if config.Type == "local" {
 			tunnelConfig := models.TunnelConfig{
-				LocalPort:  config.LocalPort,
-				RemoteHost: config.RemoteHost,
-				RemotePort: config.RemotePort,
+				LocalPort:      config.LocalPort,
+				RemoteHost:     config.RemoteHost,
+				RemotePort:     config.RemotePort,
+				BindingAddress: config.BindingAddress,
 			}
 			session.PortForwardMgr.CreateLocalTunnel(connectionID, config.Name, tunnelConfig, session.SSHClient.GetSSHClient())
 		} else if config.Type == "remote" {
 			tunnelConfig := models.RemoteTunnelConfig{
-				RemotePort: config.RemotePort,
-				LocalHost:  config.RemoteHost,
-				LocalPort:  config.LocalPort,
+				RemotePort:     config.RemotePort,
+				LocalHost:      config.RemoteHost,
+				LocalPort:      config.LocalPort,
+				BindingAddress: config.BindingAddress,
 			}
 			session.PortForwardMgr.CreateRemoteTunnel(connectionID, config.Name, tunnelConfig, session.SSHClient.GetSSHClient())
 		}

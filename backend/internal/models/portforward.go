@@ -1,15 +1,17 @@
 package models
 
 type TunnelConfig struct {
-	LocalPort  int    `json:"local_port"`
-	RemoteHost string `json:"remote_host"`
-	RemotePort int    `json:"remote_port"`
+	LocalPort      int    `json:"local_port"`
+	RemoteHost     string `json:"remote_host"`
+	RemotePort     int    `json:"remote_port"`
+	BindingAddress string `json:"binding_address"`
 }
 
 type RemoteTunnelConfig struct {
-	RemotePort int    `json:"remote_port"`
-	LocalHost  string `json:"local_host"`
-	LocalPort  int    `json:"local_port"`
+	RemotePort     int    `json:"remote_port"`
+	LocalHost      string `json:"local_host"`
+	LocalPort      int    `json:"local_port"`
+	BindingAddress string `json:"binding_address"`
 }
 
 type TunnelInfo struct {

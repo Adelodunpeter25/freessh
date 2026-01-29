@@ -2,12 +2,14 @@ export interface TunnelConfig {
   local_port: number
   remote_host: string
   remote_port: number
+  binding_address: string
 }
 
 export interface RemoteTunnelConfig {
   remote_port: number
   local_host: string
   local_port: number
+  binding_address: string
 }
 
 export interface TunnelInfo {

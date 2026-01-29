@@ -8,15 +8,16 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-func NewTunnel(id string, localPort int, remoteHost string, remotePort int, sshClient *ssh.Client) *Tunnel {
+func NewTunnel(id string, localPort int, remoteHost string, remotePort int, bindingAddress string, sshClient *ssh.Client) *Tunnel {
 	return &Tunnel{
-		ID:         id,
-		LocalPort:  localPort,
-		RemoteHost: remoteHost,
-		RemotePort: remotePort,
-		Status:     "stopped",
-		sshClient:  sshClient,
-		stopChan:   make(chan struct{}),
+		ID:             id,
+		LocalPort:      localPort,
+		RemoteHost:     remoteHost,
+		RemotePort:     remotePort,
+		BindingAddress: bindingAddress,
+		Status:         "stopped",
+		sshClient:      sshClient,
+		stopChan:       make(chan struct{}),
 	}
 }
 
@@ -28,7 +29,12 @@ func (t *Tunnel) Start() error {
 		return fmt.Errorf("tunnel already active")
 	}
 
-	listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", t.LocalPort))
+	bindAddr := t.BindingAddress
+	if bindAddr == "" {
+		bindAddr = "localhost"
+	}
+
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", bindAddr, t.LocalPort))
 	if err != nil {
 		t.Status = "error"
 		t.Error = err.Error()

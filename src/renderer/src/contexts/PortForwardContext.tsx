@@ -65,13 +65,15 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
         tunnel = await portForwardService.createLocal(config.connection_id, config.name, {
           local_port: config.local_port,
           remote_host: config.remote_host,
-          remote_port: config.remote_port
+          remote_port: config.remote_port,
+          binding_address: config.binding_address
         })
       } else {
         tunnel = await portForwardService.createRemote(config.connection_id, config.name, {
           remote_port: config.remote_port,
           local_host: config.remote_host,
-          local_port: config.local_port
+          local_port: config.local_port,
+          binding_address: config.binding_address
         })
       }
       

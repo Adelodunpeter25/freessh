@@ -27,7 +27,7 @@ func (m *Manager) CreateLocalTunnel(connectionID, name string, config models.Tun
 	defer m.mu.Unlock()
 
 	id := uuid.New().String()
-	tunnel := local.NewTunnel(id, config.LocalPort, config.RemoteHost, config.RemotePort, sshClient)
+	tunnel := local.NewTunnel(id, config.LocalPort, config.RemoteHost, config.RemotePort, config.BindingAddress, sshClient)
 
 	if err := tunnel.Start(); err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (m *Manager) CreateRemoteTunnel(connectionID, name string, config models.Re
 	defer m.mu.Unlock()
 
 	id := uuid.New().String()
-	tunnel := remote.NewTunnel(id, config.RemotePort, config.LocalHost, config.LocalPort, sshClient)
+	tunnel := remote.NewTunnel(id, config.RemotePort, config.LocalHost, config.LocalPort, config.BindingAddress, sshClient)
 
 	if err := tunnel.Start(); err != nil {
 		return nil, err
