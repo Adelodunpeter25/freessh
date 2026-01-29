@@ -36,6 +36,7 @@ export const GroupCard = memo(function GroupCard({
         }`}
         onClick={(e) => {
           e.stopPropagation()
+          onSelect(group)
         }}
         onContextMenu={(e) => {
           e.stopPropagation()

@@ -13,7 +13,7 @@ export function useGroupHandlers() {
 
   const handleSelectGroup = useCallback((group: Group | null) => {
     setSelectedGroupId(group?.id ?? null)
-    setSelectedGroup(group?.name ?? null)
+    // Don't set selectedGroup to avoid filtering
   }, [])
 
   const handleEditGroup = useCallback((group: Group) => {
