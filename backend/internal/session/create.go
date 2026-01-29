@@ -126,9 +126,15 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 	session.Type = models.SessionTypeSSH
 
 	activeSession := NewActiveSession(sessionID, sshClient, term, session)
+	activeSession.Config = config
 	m.AddSession(activeSession)
 
 	go m.readOutput(activeSession)
+
+	// Auto-start logging if enabled
+	if m.logSettings != nil && m.logSettings.GetAutoLogging() {
+		m.StartLogging(sessionID)
+	}
 
 	return &session, nil
 }

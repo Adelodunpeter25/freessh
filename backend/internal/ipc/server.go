@@ -18,7 +18,13 @@ type Server struct {
 }
 
 func NewServer() *Server {
-	manager := session.NewManager()
+	// Initialize log settings storage first
+	logSettingsStorage, err := settings.NewLogSettingsStorage()
+	if err != nil {
+		log.Printf("Warning: Failed to initialize log settings storage: %v", err)
+	}
+	
+	manager := session.NewManager(logSettingsStorage)
 	terminalHandler := handlers.NewTerminalHandler(manager)
 	
 	// Initialize known hosts storage
@@ -37,12 +43,6 @@ func NewServer() *Server {
 	groupStorage, err := storage.NewGroupStorage()
 	if err != nil {
 		log.Printf("Warning: Failed to initialize group storage: %v", err)
-	}
-	
-	// Initialize log settings storage
-	logSettingsStorage, err := settings.NewLogSettingsStorage()
-	if err != nil {
-		log.Printf("Warning: Failed to initialize log settings storage: %v", err)
 	}
 	
 	// Create shared verification helper

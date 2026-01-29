@@ -2,17 +2,19 @@ package session
 
 import (
 	"fmt"
+	"freessh-backend/internal/settings"
 	"freessh-backend/internal/storage"
 	"sync"
 )
 
 type Manager struct {
-	sessions  map[string]*ActiveSession
-	storage   *storage.ConnectionStorage
-	mu        sync.RWMutex
+	sessions        map[string]*ActiveSession
+	storage         *storage.ConnectionStorage
+	logSettings     *settings.LogSettingsStorage
+	mu              sync.RWMutex
 }
 
-func NewManager() *Manager {
+func NewManager(logSettings *settings.LogSettingsStorage) *Manager {
 	storage, err := storage.NewConnectionStorage()
 	if err != nil {
 		// Log error but don't fail - storage is optional
@@ -20,8 +22,9 @@ func NewManager() *Manager {
 	}
 
 	return &Manager{
-		sessions: make(map[string]*ActiveSession),
-		storage:  storage,
+		sessions:    make(map[string]*ActiveSession),
+		storage:     storage,
+		logSettings: logSettings,
 	}
 }
 
