@@ -42,7 +42,7 @@ interface ShortcutHandlers {
 export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true) {
   const tabs = useTabStore((state) => state.tabs)
   const setActiveTab = useTabStore((state) => state.setActiveTab)
-  const closeTab = useTabStore((state) => state.closeTab)
+  const removeTab = useTabStore((state) => state.removeTab)
   const activeTabId = useTabStore((state) => state.activeTabId)
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
         case 'cmd+w':
           e.preventDefault()
           if (activeTabId) {
-            closeTab(activeTabId)
+            removeTab(activeTabId)
           }
           break
         
