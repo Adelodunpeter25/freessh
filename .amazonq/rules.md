@@ -53,8 +53,6 @@ git commit -m "Remove unused dependencies"
 ### File Organization
 - Group related files in directories
 - Use index files for clean imports
-- Keep file names descriptive and lowercase
-- Use kebab-case for file names
 
 ## Component Guidelines
 

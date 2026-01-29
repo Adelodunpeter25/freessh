@@ -6,6 +6,7 @@ import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
 import { GroupsSection, GroupSidebar } from '@/components/groups'
 import { HostKeyVerificationDialog } from '@/components/knownhosts'
+import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { ConnectionsProvider } from '@/contexts/ConnectionsContext'
 import { useConnections, useGroups } from '@/hooks'
 import { useSessions } from '@/hooks/useSessions'
@@ -41,6 +42,7 @@ export function ConnectionsPage() {
   const [localTerminalLoading, setLocalTerminalLoading] = useState(false)
   const [showGroupSidebar, setShowGroupSidebar] = useState(false)
   const [editingGroup, setEditingGroup] = useState<Group | undefined>()
+  const [groupToDelete, setGroupToDelete] = useState<{ id: string; name: string } | null>(null)
 
   const groupNames = Array.from(new Set(connections.map(c => c.group).filter(Boolean))) as string[]
   
@@ -118,15 +120,23 @@ export function ConnectionsPage() {
     setShowGroupSidebar(true)
   }, [])
 
-  const handleDeleteGroup = useCallback(async (id: string) => {
-    if (confirm('Delete this group? Connections will not be deleted.')) {
-      await deleteGroup(id)
-      if (selectedGroupId === id) {
+  const handleDeleteGroup = useCallback((id: string) => {
+    const group = groups.find(g => g.id === id)
+    if (group) {
+      setGroupToDelete({ id: group.id, name: group.name })
+    }
+  }, [groups])
+
+  const handleConfirmDeleteGroup = useCallback(async () => {
+    if (groupToDelete) {
+      await deleteGroup(groupToDelete.id)
+      if (selectedGroupId === groupToDelete.id) {
         setSelectedGroupId(null)
         setSelectedGroup(null)
       }
+      setGroupToDelete(null)
     }
-  }, [deleteGroup, selectedGroupId])
+  }, [groupToDelete, deleteGroup, selectedGroupId])
 
   const handleNewGroup = useCallback(() => {
     setEditingGroup(undefined)
@@ -225,6 +235,16 @@ export function ConnectionsPage() {
           onClose={handleCloseGroupSidebar}
           group={editingGroup}
           onSave={handleSaveGroup}
+        />
+
+        <ConfirmDialog
+          open={!!groupToDelete}
+          onOpenChange={(open) => !open && setGroupToDelete(null)}
+          title="Delete group"
+          description={`Are you sure you want to delete "${groupToDelete?.name}"? Connections in this group will not be deleted.`}
+          onConfirm={handleConfirmDeleteGroup}
+          confirmText="Delete"
+          destructive
         />
 
         <HostKeyVerificationDialog
