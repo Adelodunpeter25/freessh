@@ -12,7 +12,6 @@ interface LogListProps {
 
 export function LogList({ logs, onDelete, onOpen }: LogListProps) {
   const [deleteLog, setDeleteLog] = useState<LogEntry | null>(null)
-  const [selectedLog, setSelectedLog] = useState<string | null>(null)
 
   const handleDelete = () => {
     if (deleteLog) {
@@ -47,8 +46,6 @@ export function LogList({ logs, onDelete, onOpen }: LogListProps) {
               <LogCard
                 key={log.filename}
                 log={log}
-                isSelected={selectedLog === log.filename}
-                onSelect={() => setSelectedLog(log.filename)}
                 onDelete={() => setDeleteLog(log)}
                 onOpen={() => onOpen(log)}
               />
