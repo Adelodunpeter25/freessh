@@ -55,8 +55,8 @@ export function LogList({ logs, onDelete, onOpen }: LogListProps) {
       <ConfirmDialog
         open={!!deleteLog}
         onOpenChange={(open) => !open && setDeleteLog(null)}
-        title="Delete Log"
-        description={`Are you sure you want to delete "${deleteLog?.connection_name}"? This action cannot be undone.`}
+        title="Delete Log File"
+        description={`Are you sure you want to delete the log file for "${deleteLog?.connection_name}"? This action cannot be undone.`}
         onConfirm={handleDelete}
       />
     </>
