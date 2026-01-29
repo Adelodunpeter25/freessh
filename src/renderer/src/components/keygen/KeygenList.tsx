@@ -6,8 +6,8 @@ import { KeyCard } from './KeyCard'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { SearchEmptyState } from '@/components/connection/SearchEmptyState'
-import { useKeyStorage } from '@/hooks/useKeyStorage'
-import { useKeySearch } from '@/hooks/useKeySearch'
+import { useKeyStorage } from '@/hooks'
+import { useKeySearch } from '@/hooks'
 import { SSHKey } from '@/types/key'
 
 export function KeygenList() {

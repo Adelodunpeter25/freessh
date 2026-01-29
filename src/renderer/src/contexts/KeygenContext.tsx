@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react'
-import { useKeygen } from '@/hooks/useKeygen'
+import { useKeygen } from '@/hooks'
 import { KeyType, GeneratedKeyPair } from '@/types/keygen'
 import { SSHKey } from '@/types/key'
 import { toast } from 'sonner'

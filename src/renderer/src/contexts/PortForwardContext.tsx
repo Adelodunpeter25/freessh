@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useMemo, useCallback, ReactNode } from 'react'
-import { usePortForwardConfig } from '@/hooks/usePortForwardConfig'
+import { usePortForwardConfig } from '@/hooks'
 import { portForwardService } from '@/services/ipc/portforward'
-import { useConnections } from '@/hooks/useConnections'
+import { useConnections } from '@/hooks'
 import { PortForwardConfig, TunnelInfo } from '@/types'
 import { toast } from 'sonner'
 

@@ -7,7 +7,7 @@ import {
   PortForwardProvider,
   usePortForwardContext,
 } from "@/contexts/PortForwardContext";
-import { useConnections } from "@/hooks/useConnections";
+import { useConnections } from "@/hooks";
 import { PortForwardConfig } from "@/types";
 
 function PortForwardPageContent() {
