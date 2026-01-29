@@ -17,6 +17,7 @@ export function ConnectionsHeader() {
     onGroupSelect,
     onNewConnection,
     onNewLocalTerminal,
+    onNewGroup,
     localTerminalLoading,
   } = useConnectionsContext()
 
@@ -73,6 +74,7 @@ export function ConnectionsHeader() {
         <ConnectionHeaderButton
           onNewConnection={onNewConnection}
           onNewLocalTerminal={onNewLocalTerminal}
+          onNewGroup={onNewGroup}
           localTerminalLoading={localTerminalLoading}
         />
 

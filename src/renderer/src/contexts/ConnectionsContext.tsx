@@ -23,6 +23,7 @@ interface ConnectionsContextValue {
   onGroupSelect: (group: string | null) => void
   onNewConnection: () => void
   onNewLocalTerminal: () => void
+  onNewGroup: () => void
   onVerificationTrust: () => void
   onVerificationCancel: () => void
 }

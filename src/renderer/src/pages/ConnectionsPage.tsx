@@ -156,6 +156,7 @@ export function ConnectionsPage() {
     onGroupSelect: setSelectedGroup,
     onNewConnection: () => setShowForm(true),
     onNewLocalTerminal: handleNewLocalTerminal,
+    onNewGroup: handleNewGroup,
     onVerificationTrust: handleVerificationTrust,
     onVerificationCancel: handleVerificationCancel,
   }), [
@@ -176,6 +177,7 @@ export function ConnectionsPage() {
     handleEdit,
     handleDelete,
     handleNewLocalTerminal,
+    handleNewGroup,
     handleVerificationTrust,
     handleVerificationCancel,
   ])
