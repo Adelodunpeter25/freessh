@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
-import { connectionService } from "../services/ipc";
-import { backendService } from "../services/ipc/backend";
-import { ConnectionConfig, Session } from "../types";
-import { useConnectionStore } from "../stores/connectionStore";
-import { useSessionStore } from "../stores/sessionStore";
-import { useTabStore } from "../stores/tabStore";
+import { connectionService } from "../../services/ipc";
+import { backendService } from "../../services/ipc/backend";
+import { ConnectionConfig, Session } from "../../types";
+import { useConnectionStore } from "../../stores/connectionStore";
+import { useSessionStore } from "../../stores/sessionStore";
+import { useTabStore } from "../../stores/tabStore";
 import { HostKeyVerification } from "@/types/knownHost";
 
 export const useConnections = () => {
