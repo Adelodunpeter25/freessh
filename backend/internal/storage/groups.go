@@ -47,9 +47,6 @@ func (s *GroupStorage) load() error {
 }
 
 func (s *GroupStorage) save() error {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
 	groups := make([]models.Group, 0, len(s.groups))
 	for _, group := range s.groups {
 		groups = append(groups, group)
