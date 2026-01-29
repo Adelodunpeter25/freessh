@@ -156,15 +156,25 @@ export function MainLayout() {
       {/* Terminal view */}
       <div className={mainView === "terminal" ? "flex-1 overflow-hidden" : "hidden"}>
         <Suspense fallback={<div className="flex items-center justify-center h-full"><LoadingSpinner /></div>}>
-          {tabs.filter(t => t.type === 'terminal').map((tab) => (
+          {tabs.map((tab) => (
             <div
               key={tab.id}
               className={activeSessionTabId === tab.id ? "h-full w-full" : "hidden"}
             >
-              <TerminalView
-                sessionId={tab.sessionId}
-                isActive={activeSessionTabId === tab.id && mainView === "terminal"}
-              />
+              {tab.type === 'log' ? (
+                <div className="h-full w-full p-4">
+                  <div className="h-full border rounded-lg overflow-hidden">
+                    <div className="h-full bg-[#1e1e1e] text-[#d4d4d4] p-4 overflow-auto font-mono text-sm whitespace-pre-wrap">
+                      {tab.logContent}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <TerminalView
+                  sessionId={tab.sessionId}
+                  isActive={activeSessionTabId === tab.id && mainView === "terminal"}
+                />
+              )}
             </div>
           ))}
         </Suspense>

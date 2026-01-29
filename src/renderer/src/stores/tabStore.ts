@@ -5,8 +5,9 @@ interface Tab {
   id: string
   sessionId: string
   title: string
-  type: 'terminal' | 'sftp'
+  type: 'terminal' | 'sftp' | 'log'
   isPinned?: boolean
+  logContent?: string
 }
 
 interface TabStore {
@@ -15,6 +16,7 @@ interface TabStore {
   
   addTab: (session: Session, connection: ConnectionConfig, type: 'terminal' | 'sftp') => void
   addLocalTab: (session: Session) => void
+  addLogTab: (logName: string, logContent: string) => void
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
@@ -46,6 +48,22 @@ export const useTabStore = create<TabStore>((set, get) => ({
       sessionId: session.id,
       title: 'Local Terminal',
       type: 'terminal'
+    }
+
+    set((state) => ({
+      tabs: [...state.tabs, newTab],
+      activeTabId: newTab.id
+    }))
+  },
+
+  addLogTab: (logName, logContent) => {
+    const logId = `log-${Date.now()}`
+    const newTab: Tab = {
+      id: logId,
+      sessionId: logId,
+      title: logName,
+      type: 'log',
+      logContent
     }
 
     set((state) => ({
