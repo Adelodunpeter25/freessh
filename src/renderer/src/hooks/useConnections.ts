@@ -57,7 +57,8 @@ export const useConnections = () => {
   useEffect(() => {
     console.log('[useConnections] useEffect triggered, calling loadConnections')
     loadConnections();
-  }, [loadConnections]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const getConnection = useCallback(async (id: string) => {
     try {
