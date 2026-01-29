@@ -10,22 +10,17 @@ export function useGroups() {
 
   const loadGroups = useCallback(async () => {
     if (loadingRef.current) {
-      console.log('[useGroups] Already loading, skipping')
       return
     }
     
-    console.log('[useGroups] loadGroups called')
     loadingRef.current = true
     setLoading(true)
     try {
       const data = await groupService.list()
-      console.log('[useGroups] Got groups:', data.length)
       setGroups(data)
     } catch (error) {
-      console.error('[useGroups] Error:', error)
       toast.error(error instanceof Error ? error.message : 'Failed to load groups')
     } finally {
-      console.log('[useGroups] loadGroups complete')
       loadingRef.current = false
       setLoading(false)
     }
