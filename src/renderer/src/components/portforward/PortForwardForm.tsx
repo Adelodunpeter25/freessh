@@ -58,11 +58,15 @@ export function PortForwardForm({
             <SelectValue placeholder="Select connection" />
           </SelectTrigger>
           <SelectContent>
-            {connections.map((conn) => (
-              <SelectItem key={conn.id} value={conn.id}>
-                {conn.name}
-              </SelectItem>
-            ))}
+            {connections.length === 0 ? (
+              <div className="p-2 text-sm text-muted-foreground">No connections available</div>
+            ) : (
+              connections.map((conn) => (
+                <SelectItem key={conn.id} value={conn.id}>
+                  {conn.name}
+                </SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>
