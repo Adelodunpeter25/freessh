@@ -1,6 +1,7 @@
-import { Server, Search, X, Terminal, Loader2 } from 'lucide-react'
+import { Server, Search, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ConnectionHeaderButton } from './ConnectionHeaderButton'
 import { useConnectionsContext } from '@/contexts/ConnectionsContext'
 
 export function ConnectionsHeader() {
@@ -69,30 +70,11 @@ export function ConnectionsHeader() {
 
       {/* Action Buttons */}
       <div className="flex items-center gap-2">
-        <Button 
-          onClick={onNewConnection}
-          variant="secondary" 
-          size="sm"
-          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all shrink-0"
-        >
-          <Server className="h-4 w-4 mr-2" />
-          NEW CONNECTION
-        </Button>
-
-        <Button 
-          onClick={onNewLocalTerminal}
-          variant="secondary" 
-          size="sm"
-          disabled={localTerminalLoading}
-          className="font-medium hover:bg-secondary/80 hover:scale-105 transition-all shrink-0"
-        >
-          {localTerminalLoading ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
-          ) : (
-            <Terminal className="h-4 w-4 mr-2" />
-          )}
-          LOCAL TERMINAL
-        </Button>
+        <ConnectionHeaderButton
+          onNewConnection={onNewConnection}
+          onNewLocalTerminal={onNewLocalTerminal}
+          localTerminalLoading={localTerminalLoading}
+        />
 
         {/* Scrollable Groups */}
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
