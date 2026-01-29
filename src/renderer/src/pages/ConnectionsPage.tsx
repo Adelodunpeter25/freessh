@@ -16,8 +16,6 @@ import {
 } from '@/hooks/connections'
 
 export function ConnectionsPage() {
-  console.log('[ConnectionsPage] Rendering')
-  
   const {
     connections,
     loading,
@@ -30,8 +28,6 @@ export function ConnectionsPage() {
     handleVerificationTrust,
     handleVerificationCancel,
   } = useConnections()
-
-  console.log('[ConnectionsPage] loading:', loading, 'connections:', connections.length)
 
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -107,6 +103,7 @@ export function ConnectionsPage() {
         <ConnectionsHeader />
         <GroupsSection
           groups={groupHandlers.groups}
+          loading={groupHandlers.loading}
           selectedGroupId={groupHandlers.selectedGroupId}
           onSelectGroup={groupHandlers.handleSelectGroup}
           onEditGroup={groupHandlers.handleEditGroup}

@@ -3,7 +3,7 @@ import { Group } from '@/types'
 import { useGroups } from '@/hooks'
 
 export function useGroupHandlers() {
-  const { groups, createGroup, renameGroup, deleteGroup } = useGroups()
+  const { groups, loading, createGroup, renameGroup, deleteGroup } = useGroups()
   const [showGroupSidebar, setShowGroupSidebar] = useState(false)
   const [editingGroup, setEditingGroup] = useState<Group | undefined>()
   const [groupToDelete, setGroupToDelete] = useState<{ id: string; name: string } | null>(null)
@@ -62,6 +62,7 @@ export function useGroupHandlers() {
 
   return {
     groups,
+    loading,
     selectedGroupId,
     selectedGroup,
     showGroupSidebar,

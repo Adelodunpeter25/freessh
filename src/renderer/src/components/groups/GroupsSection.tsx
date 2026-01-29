@@ -3,9 +3,11 @@ import { ChevronDown, ChevronRight } from 'lucide-react'
 import { GroupList } from './GroupList'
 import { Group } from '@/types'
 import { Button } from '@/components/ui/button'
+import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 
 interface GroupsSectionProps {
   groups: Group[]
+  loading: boolean
   selectedGroupId: string | null
   onSelectGroup: (group: Group | null) => void
   onEditGroup: (group: Group) => void
@@ -13,13 +15,24 @@ interface GroupsSectionProps {
 }
 
 export function GroupsSection({ 
-  groups, 
+  groups,
+  loading,
   selectedGroupId, 
   onSelectGroup, 
   onEditGroup, 
   onDeleteGroup 
 }: GroupsSectionProps) {
   const [collapsed, setCollapsed] = useState(false)
+
+  if (loading) {
+    return (
+      <div className="border-b bg-background/95">
+        <div className="px-4 py-3 flex items-center justify-center">
+          <LoadingSpinner size="sm" />
+        </div>
+      </div>
+    )
+  }
 
   if (groups.length === 0) {
     return null
