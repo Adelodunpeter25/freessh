@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { Group } from '@/types'
 import { useGroups } from '@/hooks'
 
@@ -60,20 +60,38 @@ export function useGroupHandlers() {
     setGroupToDelete(null)
   }, [])
 
-  return {
-    groups,
-    selectedGroupId,
-    selectedGroup,
-    showGroupSidebar,
-    editingGroup,
-    groupToDelete,
-    handleSelectGroup,
-    handleEditGroup,
-    handleDeleteGroup,
-    handleConfirmDeleteGroup,
-    handleNewGroup,
-    handleSaveGroup,
-    handleCloseGroupSidebar,
-    handleCancelDeleteGroup,
-  }
+  return useMemo(
+    () => ({
+      groups,
+      selectedGroupId,
+      selectedGroup,
+      showGroupSidebar,
+      editingGroup,
+      groupToDelete,
+      handleSelectGroup,
+      handleEditGroup,
+      handleDeleteGroup,
+      handleConfirmDeleteGroup,
+      handleNewGroup,
+      handleSaveGroup,
+      handleCloseGroupSidebar,
+      handleCancelDeleteGroup,
+    }),
+    [
+      groups,
+      selectedGroupId,
+      selectedGroup,
+      showGroupSidebar,
+      editingGroup,
+      groupToDelete,
+      handleSelectGroup,
+      handleEditGroup,
+      handleDeleteGroup,
+      handleConfirmDeleteGroup,
+      handleNewGroup,
+      handleSaveGroup,
+      handleCloseGroupSidebar,
+      handleCancelDeleteGroup,
+    ]
+  )
 }
