@@ -23,6 +23,10 @@ export function ConnectionsPage() {
     loading,
     connectingId,
     pendingVerification,
+    deleteConnection,
+    updateConnection,
+    connectAndOpen,
+    saveAndConnect,
     handleVerificationTrust,
     handleVerificationCancel,
   } = useConnections()
@@ -31,7 +35,12 @@ export function ConnectionsPage() {
 
   const [searchQuery, setSearchQuery] = useState('')
 
-  const connectionHandlers = useConnectionHandlers()
+  const connectionHandlers = useConnectionHandlers({
+    deleteConnection,
+    updateConnection,
+    connectAndOpen,
+    saveAndConnect,
+  })
   const groupHandlers = useGroupHandlers()
   const localTerminal = useLocalTerminal()
   const { filteredConnections, groupNames, groupCounts } = useConnectionFilters(

@@ -1,10 +1,20 @@
 import { useState, useCallback } from 'react'
 import { ConnectionConfig } from '@/types'
-import { useConnections } from '@/hooks'
 import { useUIStore } from '@/stores/uiStore'
 
-export function useConnectionHandlers() {
-  const { deleteConnection, updateConnection, connectAndOpen, saveAndConnect } = useConnections()
+interface UseConnectionHandlersProps {
+  deleteConnection: (id: string) => Promise<void>
+  updateConnection: (config: ConnectionConfig) => Promise<void>
+  connectAndOpen: (config: ConnectionConfig) => Promise<any>
+  saveAndConnect: (config: ConnectionConfig) => Promise<void>
+}
+
+export function useConnectionHandlers({
+  deleteConnection,
+  updateConnection,
+  connectAndOpen,
+  saveAndConnect,
+}: UseConnectionHandlersProps) {
   const openSFTP = useUIStore((state) => state.openSFTP)
   const [showForm, setShowForm] = useState(false)
   const [editingConnection, setEditingConnection] = useState<ConnectionConfig | undefined>()
