@@ -20,8 +20,11 @@ export function ConnectionList() {
     searchQuery,
   } = useConnectionsContext()
 
+  console.log('[ConnectionList] loading:', loading, 'filteredConnections:', filteredConnections.length)
+
   const isSearching = searchQuery.trim().length > 0
   if (loading) {
+    console.log('[ConnectionList] Showing loading spinner')
     return (
       <div className="flex items-center justify-center h-full">
         <LoadingSpinner />

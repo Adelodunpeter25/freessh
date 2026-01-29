@@ -16,6 +16,8 @@ import {
 } from '@/hooks/connections'
 
 export function ConnectionsPage() {
+  console.log('[ConnectionsPage] Rendering')
+  
   const {
     connections,
     loading,
@@ -24,6 +26,8 @@ export function ConnectionsPage() {
     handleVerificationTrust,
     handleVerificationCancel,
   } = useConnections()
+
+  console.log('[ConnectionsPage] loading:', loading, 'connections:', connections.length)
 
   const [searchQuery, setSearchQuery] = useState('')
 

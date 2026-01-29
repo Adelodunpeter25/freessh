@@ -10,7 +10,10 @@ export function useConnectionHandlers() {
   const [editingConnection, setEditingConnection] = useState<ConnectionConfig | undefined>()
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
+  console.log('[useConnectionHandlers] Rendering')
+
   const handleSelect = useCallback((connection: ConnectionConfig | null) => {
+    console.log('[useConnectionHandlers] handleSelect called', connection?.id)
     setSelectedId(connection?.id ?? null)
   }, [])
 
