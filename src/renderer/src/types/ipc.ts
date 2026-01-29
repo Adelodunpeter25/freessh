@@ -14,6 +14,8 @@ export type MessageType =
   | 'log:list'
   | 'log:read'
   | 'log:delete'
+  | 'settings:get'
+  | 'settings:update'
   | 'connection:list'
   | 'connection:get'
   | 'connection:delete'
