@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
@@ -34,16 +34,27 @@ export function GroupDetailView({
   handleVerificationTrust,
   handleVerificationCancel,
 }: GroupDetailViewProps) {
+  const [searchQuery, setSearchQuery] = useState('')
+
+  const filteredConnections = useMemo(
+    () => connections.filter(conn =>
+      conn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conn.host.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conn.username.toLowerCase().includes(searchQuery.toLowerCase())
+    ),
+    [connections, searchQuery]
+  )
+
   const contextValue = useMemo(
     () => ({
       connections,
-      filteredConnections: connections,
+      filteredConnections,
       loading,
       connectingId,
       localTerminalLoading: false,
       selectedId: connectionHandlers.selectedId,
-      searchQuery: '',
-      selectedGroup: null,
+      searchQuery,
+      selectedGroup: group.name,
       groups: [],
       groupCounts: {},
       pendingVerification,
@@ -52,7 +63,7 @@ export function GroupDetailView({
       onOpenSFTP: connectionHandlers.handleOpenSFTP,
       onEdit: connectionHandlers.handleEdit,
       onDelete: connectionHandlers.handleDelete,
-      onSearchChange: () => {},
+      onSearchChange: setSearchQuery,
       onGroupSelect: () => {},
       onNewConnection: connectionHandlers.handleNewConnection,
       onNewLocalTerminal: () => {},
@@ -62,9 +73,12 @@ export function GroupDetailView({
     }),
     [
       connections,
+      filteredConnections,
       loading,
       connectingId,
       connectionHandlers,
+      searchQuery,
+      group.name,
       pendingVerification,
       handleVerificationTrust,
       handleVerificationCancel,

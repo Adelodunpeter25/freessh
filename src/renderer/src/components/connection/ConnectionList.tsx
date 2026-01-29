@@ -12,6 +12,7 @@ export function ConnectionList() {
     loading,
     selectedId,
     connectingId,
+    selectedGroup,
     onSelect,
     onConnect,
     onOpenSFTP,
@@ -32,6 +33,15 @@ export function ConnectionList() {
   if (filteredConnections.length === 0) {
     if (isSearching) {
       return <SearchEmptyState />
+    }
+    if (selectedGroup) {
+      return (
+        <EmptyState
+          icon={Server}
+          title="No connections in this group"
+          description={`The "${selectedGroup}" group doesn't have any connections yet`}
+        />
+      )
     }
     return (
       <EmptyState
