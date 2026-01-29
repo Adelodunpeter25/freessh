@@ -5,3 +5,6 @@ export { sessionService } from './session'
 export { connectionService } from './connection'
 export { sftpService } from './sftp'
 export { groupService } from './group'
+export { portForwardConfigService } from './portForwardConfig'
+export { knownHostsService } from './knownHosts'
+

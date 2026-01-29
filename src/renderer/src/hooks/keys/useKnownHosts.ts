@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { knownHostsService } from '@/services/knownHosts'
+import { knownHostsService } from '@/services/ipc/knownHosts'
 import { KnownHost } from '@/types/knownHost'
 import { toast } from 'sonner'
 

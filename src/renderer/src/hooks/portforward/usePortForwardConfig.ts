@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
-import { portForwardConfigService } from '@/services/portForwardConfig'
+import { portForwardConfigService } from '@/services/ipc/portForwardConfig'
 import { PortForwardConfig } from '@/types'
 import { toast } from 'sonner'
 
