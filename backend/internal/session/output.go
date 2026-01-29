@@ -59,6 +59,14 @@ func (m *Manager) pipeOutput(ctx context.Context, as *ActiveSession, reader io.R
 				if n > 0 {
 					data := make([]byte, n)
 					copy(data, buf[:n])
+					
+					// Write to log file if logging is active
+					if as.isLogging && as.logFile != nil {
+						as.logMutex.Lock()
+						as.logFile.Write(data)
+						as.logMutex.Unlock()
+					}
+					
 					as.OutputChan <- data
 				}
 			}

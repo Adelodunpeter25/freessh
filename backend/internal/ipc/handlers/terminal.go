@@ -18,7 +18,10 @@ func NewTerminalHandler(manager *session.Manager) *TerminalHandler {
 }
 
 func (h *TerminalHandler) CanHandle(msgType models.MessageType) bool {
-	return msgType == models.MsgInput || msgType == models.MsgResize
+	return msgType == models.MsgInput || 
+		msgType == models.MsgResize || 
+		msgType == models.MsgTerminalStartLogging || 
+		msgType == models.MsgTerminalStopLogging
 }
 
 func (h *TerminalHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) error {
@@ -27,6 +30,10 @@ func (h *TerminalHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) 
 		return h.handleInput(msg)
 	case models.MsgResize:
 		return h.handleResize(msg)
+	case models.MsgTerminalStartLogging:
+		return h.handleStartLogging(msg, writer)
+	case models.MsgTerminalStopLogging:
+		return h.handleStopLogging(msg, writer)
 	default:
 		return fmt.Errorf("unsupported message type: %s", msg.Type)
 	}
@@ -58,6 +65,51 @@ func (h *TerminalHandler) handleResize(msg *models.IPCMessage) error {
 	}
 
 	return h.manager.ResizeTerminal(msg.SessionID, resizeData.Rows, resizeData.Cols)
+}
+
+func (h *TerminalHandler) handleStartLogging(msg *models.IPCMessage, writer ResponseWriter) error {
+	logPath, err := h.manager.StartLogging(msg.SessionID)
+	if err != nil {
+		return writer.WriteMessage(&models.IPCMessage{
+			Type:      models.MsgTerminalLoggingStatus,
+			SessionID: msg.SessionID,
+			Data: map[string]interface{}{
+				"is_logging": false,
+				"error":      err.Error(),
+			},
+		})
+	}
+
+	return writer.WriteMessage(&models.IPCMessage{
+		Type:      models.MsgTerminalLoggingStatus,
+		SessionID: msg.SessionID,
+		Data: map[string]interface{}{
+			"is_logging": true,
+			"file_path":  logPath,
+		},
+	})
+}
+
+func (h *TerminalHandler) handleStopLogging(msg *models.IPCMessage, writer ResponseWriter) error {
+	err := h.manager.StopLogging(msg.SessionID)
+	if err != nil {
+		return writer.WriteMessage(&models.IPCMessage{
+			Type:      models.MsgTerminalLoggingStatus,
+			SessionID: msg.SessionID,
+			Data: map[string]interface{}{
+				"is_logging": true,
+				"error":      err.Error(),
+			},
+		})
+	}
+
+	return writer.WriteMessage(&models.IPCMessage{
+		Type:      models.MsgTerminalLoggingStatus,
+		SessionID: msg.SessionID,
+		Data: map[string]interface{}{
+			"is_logging": false,
+		},
+	})
 }
 
 func (h *TerminalHandler) StartOutputStreaming(sessionID string, writer ResponseWriter) {

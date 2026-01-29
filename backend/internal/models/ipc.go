@@ -13,6 +13,11 @@ const (
 	MsgSessionStatus MessageType = "session_status"
 	MsgSessionList   MessageType = "session_list"
 	
+	// Terminal logging messages
+	MsgTerminalStartLogging  MessageType = "terminal:start_logging"
+	MsgTerminalStopLogging   MessageType = "terminal:stop_logging"
+	MsgTerminalLoggingStatus MessageType = "terminal:logging_status"
+	
 	// SFTP messages
 	MsgSFTPList      MessageType = "sftp:list"
 	MsgSFTPUpload    MessageType = "sftp:upload"
