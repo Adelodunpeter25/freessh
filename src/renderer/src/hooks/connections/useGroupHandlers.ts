@@ -56,6 +56,10 @@ export function useGroupHandlers() {
     setEditingGroup(undefined)
   }, [])
 
+  const handleCancelDeleteGroup = useCallback(() => {
+    setGroupToDelete(null)
+  }, [])
+
   return {
     groups,
     selectedGroupId,
@@ -70,5 +74,6 @@ export function useGroupHandlers() {
     handleNewGroup,
     handleSaveGroup,
     handleCloseGroupSidebar,
+    handleCancelDeleteGroup,
   }
 }

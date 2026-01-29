@@ -124,7 +124,7 @@ export function ConnectionsPage() {
 
         <ConfirmDialog
           open={!!groupHandlers.groupToDelete}
-          onOpenChange={(open) => !open && groupHandlers.handleDeleteGroup}
+          onOpenChange={(open) => !open && groupHandlers.handleCancelDeleteGroup()}
           title="Delete group"
           description={`Are you sure you want to delete "${groupHandlers.groupToDelete?.name}"? Connections in this group will not be deleted.`}
           onConfirm={groupHandlers.handleConfirmDeleteGroup}
