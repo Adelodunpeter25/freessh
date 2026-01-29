@@ -121,7 +121,6 @@ git commit -m "Remove unused dependencies"
 
 ### Sensitive Data
 - Store passwords in system keychain
-- Encrypt private keys with passphrase
 - Validate all user input
 - Sanitize file paths
 
@@ -132,12 +131,6 @@ git commit -m "Remove unused dependencies"
 - Explain "why" not "what"
 - Keep comments up to date
 - Remove commented-out code
-
-### README Updates
-- Update README when adding features
-- Document new dependencies
-- Keep setup instructions current
-- Add screenshots for UI changes
 
 ## Dependencies
 

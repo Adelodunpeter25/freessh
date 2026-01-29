@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 interface GroupCardProps {
   group: Group
   selected: boolean
-  onSelect: (group: Group) => void
+  onSelect: (group: Group | null) => void
   onEdit: (group: Group) => void
   onDelete: (id: string) => void
 }
@@ -38,8 +38,6 @@ export const GroupCard = memo(function GroupCard({
         }}
         onContextMenu={(e) => {
           e.stopPropagation()
-        }}
-        onDoubleClick={() => {
           onSelect(group)
         }}
       >

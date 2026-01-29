@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 interface GroupsSectionProps {
   groups: Group[]
   selectedGroupId: string | null
-  onSelectGroup: (group: Group) => void
+  onSelectGroup: (group: Group | null) => void
   onEditGroup: (group: Group) => void
   onDeleteGroup: (id: string) => void
 }

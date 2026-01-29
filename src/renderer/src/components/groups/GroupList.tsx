@@ -4,7 +4,7 @@ import { Group } from '@/types'
 interface GroupListProps {
   groups: Group[]
   selectedGroupId: string | null
-  onSelect: (group: Group) => void
+  onSelect: (group: Group | null) => void
   onEdit: (group: Group) => void
   onDelete: (id: string) => void
 }
@@ -26,7 +26,7 @@ export function GroupList({
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3" onClick={() => onSelect(null)}>
       {groups.map((group) => (
         <GroupCard
           key={group.id}

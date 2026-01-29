@@ -110,9 +110,9 @@ export function ConnectionsPage() {
     }
   }, [connectLocal, addSession, addLocalTab])
 
-  const handleSelectGroup = useCallback((group: Group) => {
-    setSelectedGroupId(group.id)
-    setSelectedGroup(group.name)
+  const handleSelectGroup = useCallback((group: Group | null) => {
+    setSelectedGroupId(group?.id ?? null)
+    setSelectedGroup(group?.name ?? null)
   }, [])
 
   const handleEditGroup = useCallback((group: Group) => {
