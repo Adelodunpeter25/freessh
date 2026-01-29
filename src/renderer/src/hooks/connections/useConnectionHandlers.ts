@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback } from 'react'
 import { ConnectionConfig } from '@/types'
 import { useConnections } from '@/hooks'
 import { useUIStore } from '@/stores/uiStore'
@@ -55,34 +55,18 @@ export function useConnectionHandlers() {
     setShowForm(true)
   }, [])
 
-  return useMemo(
-    () => ({
-      selectedId,
-      showForm,
-      editingConnection,
-      handleSelect,
-      handleConnect,
-      handleOpenSFTP,
-      handleEdit,
-      handleFormConnect,
-      handleFormSave,
-      handleDelete,
-      handleCloseForm,
-      handleNewConnection,
-    }),
-    [
-      selectedId,
-      showForm,
-      editingConnection,
-      handleSelect,
-      handleConnect,
-      handleOpenSFTP,
-      handleEdit,
-      handleFormConnect,
-      handleFormSave,
-      handleDelete,
-      handleCloseForm,
-      handleNewConnection,
-    ]
-  )
+  return {
+    selectedId,
+    showForm,
+    editingConnection,
+    handleSelect,
+    handleConnect,
+    handleOpenSFTP,
+    handleEdit,
+    handleFormConnect,
+    handleFormSave,
+    handleDelete,
+    handleCloseForm,
+    handleNewConnection,
+  }
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 import { useSessions } from '@/hooks/useSessions'
 import { useTabStore } from '@/stores/tabStore'
@@ -23,11 +23,8 @@ export function useLocalTerminal() {
     }
   }, [connectLocal, addSession, addLocalTab])
 
-  return useMemo(
-    () => ({
-      localTerminalLoading,
-      handleNewLocalTerminal,
-    }),
-    [localTerminalLoading, handleNewLocalTerminal]
-  )
+  return {
+    localTerminalLoading,
+    handleNewLocalTerminal,
+  }
 }
