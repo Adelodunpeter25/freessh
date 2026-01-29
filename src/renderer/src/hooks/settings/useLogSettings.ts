@@ -21,8 +21,12 @@ export function useLogSettings() {
 
   const updateSettings = (newSettings: LogSettings) => {
     setSettings(newSettings)
-    logSettingsService.update(newSettings)
-    toast.success('Settings updated')
+    try {
+      logSettingsService.update(newSettings)
+      toast.success('Settings updated')
+    } catch (error) {
+      toast.error('Failed to update settings')
+    }
   }
 
   const setAutoLogging = (enabled: boolean) => {
