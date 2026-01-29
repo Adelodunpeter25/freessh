@@ -7,4 +7,5 @@ export { sftpService } from './sftp'
 export { groupService } from './group'
 export { portForwardConfigService } from './portForwardConfig'
 export { knownHostsService } from './knownHosts'
+export { logService } from './logs'
 
