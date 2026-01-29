@@ -4,14 +4,15 @@ import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
+import { GroupsSection } from '@/components/groups'
 import { HostKeyVerificationDialog } from '@/components/knownhosts'
 import { ConnectionsProvider } from '@/contexts/ConnectionsContext'
-import { useConnections } from '@/hooks'
+import { useConnections, useGroups } from '@/hooks'
 import { useSessions } from '@/hooks/useSessions'
 import { useTabStore } from '@/stores/tabStore'
 import { useSessionStore } from '@/stores/sessionStore'
 import { useUIStore } from '@/stores/uiStore'
-import { ConnectionConfig } from '@/types'
+import { ConnectionConfig, Group } from '@/types'
 
 export function ConnectionsPage() {
   const { 
@@ -26,6 +27,7 @@ export function ConnectionsPage() {
     handleVerificationTrust,
     handleVerificationCancel
   } = useConnections()
+  const { groups, createGroup, renameGroup, deleteGroup } = useGroups()
   const { connectLocal } = useSessions()
   const addLocalTab = useTabStore((state) => state.addLocalTab)
   const addSession = useSessionStore((state) => state.addSession)
@@ -35,6 +37,7 @@ export function ConnectionsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
   const [localTerminalLoading, setLocalTerminalLoading] = useState(false)
 
   const groups = Array.from(new Set(connections.map(c => c.group).filter(Boolean))) as string[]
@@ -103,6 +106,35 @@ export function ConnectionsPage() {
     }
   }, [connectLocal, addSession, addLocalTab])
 
+  const handleSelectGroup = useCallback((group: Group) => {
+    setSelectedGroupId(group.id)
+    setSelectedGroup(group.name)
+  }, [])
+
+  const handleEditGroup = useCallback((group: Group) => {
+    const newName = prompt('Enter new group name:', group.name)
+    if (newName && newName !== group.name) {
+      renameGroup(group.id, newName)
+    }
+  }, [renameGroup])
+
+  const handleDeleteGroup = useCallback(async (id: string) => {
+    if (confirm('Delete this group? Connections will not be deleted.')) {
+      await deleteGroup(id)
+      if (selectedGroupId === id) {
+        setSelectedGroupId(null)
+        setSelectedGroup(null)
+      }
+    }
+  }, [deleteGroup, selectedGroupId])
+
+  const handleNewGroup = useCallback(() => {
+    const name = prompt('Enter group name:')
+    if (name) {
+      createGroup(name)
+    }
+  }, [createGroup])
+
   const contextValue = useMemo(() => ({
     connections,
     filteredConnections,
@@ -152,6 +184,14 @@ export function ConnectionsPage() {
     <ConnectionsProvider value={contextValue}>
       <div className="h-full flex flex-col relative">
         <ConnectionsHeader />
+        <GroupsSection
+          groups={groups}
+          selectedGroupId={selectedGroupId}
+          onSelectGroup={handleSelectGroup}
+          onEditGroup={handleEditGroup}
+          onDeleteGroup={handleDeleteGroup}
+          onNewGroup={handleNewGroup}
+        />
         <div className="flex-1 overflow-hidden">
           <ConnectionList />
         </div>
