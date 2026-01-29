@@ -92,14 +92,55 @@
 - ✅ Tunnel status monitoring and management
 
 ### Settings Page
-**Status:** ✅ Implemented (Basic)
-**Description:** Settings page is now functional with theme toggle.  
+**Status:** ✅ Implemented  
+**Description:** Settings page with tabs for Theme and Logs.  
 **Implementation:**
-- ✅ Settings page with proper layout
+- ✅ Settings dialog with tab navigation
 - ✅ Theme toggle (Light/Dark/System)
-- ✅ Theme stored in Zustand store
-- ⏳ Additional settings to be added later (SSH defaults, performance tuning, etc.)
+- ✅ Log settings (Auto-logging toggle, Delete All Logs)
+- ✅ Settings stored in backend (theme in Zustand, logs in backend storage)
 
-### Snippets/Scripts
-- Replace snippets sidebar with useful feature
-- Options: SSH key management, transfer history, active sessions, bookmarks
+### Session Logging
+**Status:** ✅ Implemented  
+**Description:** Record terminal sessions to log files.  
+**Implementation:**
+- ✅ Auto-logging toggle in settings
+- ✅ Manual start/stop logging per session
+- ✅ Logs stored with connection name and timestamp
+- ✅ Logs page with table view (Date, Name, Size, Actions)
+- ✅ Double-click to open log in read-only terminal viewer
+- ✅ Delete individual or all logs
+- ✅ ANSI code rendering in log viewer
+- ✅ Theme support (black/white backgrounds)
+
+---
+
+## Planned Features
+
+### Dynamic Port Forwarding (SOCKS Proxy)
+**Status:** Not implemented  
+**Description:** Create a SOCKS proxy through SSH tunnel for routing all traffic.  
+**Use case:** Browse internet through remote server, bypass firewalls, access region-locked content.  
+**Implementation needed:**
+- Backend: Add SOCKS proxy support using `ssh -D` equivalent
+- UI: Add "Dynamic" option to port forwarding form
+- Config: Local port for SOCKS proxy
+- Status: Show active SOCKS proxy with port number
+
+### Export/Import Connections
+**Status:** Not implemented  
+**Description:** Backup and share connection configurations.  
+**Implementation needed:**
+- Export: Save connections to JSON/encrypted file
+- Import: Load connections from file
+- Options: Export all, export selected, export group
+- Security: Option to exclude passwords/keys from export
+
+### Snippets/Commands
+**Status:** Not implemented  
+**Description:** Save and execute frequently used commands.  
+**Implementation needed:**
+- UI: Snippets sidebar or panel
+- Storage: snippets.json with name, command, description
+- Features: Quick execute, variables/placeholders, organize by tags
+- Integration: Right-click in terminal to save selection as snippet
