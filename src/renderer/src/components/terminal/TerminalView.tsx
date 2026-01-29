@@ -51,9 +51,9 @@ export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) 
   const handleSearch = useCallback((query: string, direction: 'next' | 'prev') => {
     if (searchAddonRef.current && query) {
       if (direction === 'next') {
-        searchAddonRef.current.findNext(query)
+        searchAddonRef.current.findNext(query, { incremental: false })
       } else {
-        searchAddonRef.current.findPrevious(query)
+        searchAddonRef.current.findPrevious(query, { incremental: false })
       }
     }
   }, [])

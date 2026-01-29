@@ -12,6 +12,14 @@ interface TerminalSearchBarProps {
 export function TerminalSearchBar({ onSearch, onClose, results }: TerminalSearchBarProps) {
   const [query, setQuery] = useState('')
 
+  const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = e.target.value
+    setQuery(newQuery)
+    if (newQuery) {
+      onSearch(newQuery, 'next')
+    }
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault()
@@ -31,7 +39,7 @@ export function TerminalSearchBar({ onSearch, onClose, results }: TerminalSearch
     <div className="absolute top-0 right-0 m-2 flex items-center gap-1 bg-background border rounded-lg shadow-lg p-1 z-10">
       <Input
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={handleQueryChange}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
         placeholder="Find..."
