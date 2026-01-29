@@ -1,6 +1,7 @@
 package session
 
 import (
+	"context"
 	"freessh-backend/internal/localterminal"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/portforward"
@@ -20,6 +21,7 @@ type ActiveSession struct {
 	OutputChan      chan []byte
 	ErrorChan       chan error
 	stopChan        chan struct{}
+	cancelOutput    context.CancelFunc
 }
 
 func NewActiveSession(id string, sshClient *ssh.Client, term *terminal.Terminal, session models.Session) *ActiveSession {
@@ -48,6 +50,11 @@ func NewLocalSession(id string, localTerm *localterminal.Terminal, session model
 }
 
 func (as *ActiveSession) Stop() {
+	// Cancel output goroutines with context
+	if as.cancelOutput != nil {
+		as.cancelOutput()
+	}
+	
 	// Stop port forwarding first
 	if as.PortForwardMgr != nil {
 		as.PortForwardMgr.StopAll()
