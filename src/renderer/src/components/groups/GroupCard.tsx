@@ -32,11 +32,10 @@ export const GroupCard = memo(function GroupCard({
         className={`group flex items-center gap-4 p-4 rounded-xl border transition-all select-none animate-scale-in ${
           selected 
             ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)] cursor-pointer' 
-            : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md cursor-pointer'
+            : 'bg-card border-border hover:border-primary/30 shadow-sm hover:shadow-md cursor-pointer'
         }`}
         onClick={(e) => {
           e.stopPropagation()
-          onSelect(group)
         }}
         onContextMenu={(e) => {
           e.stopPropagation()
