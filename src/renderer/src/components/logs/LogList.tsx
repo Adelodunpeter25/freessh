@@ -1,8 +1,6 @@
 import { LogEntry } from '@/types/log'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import { Trash2 } from 'lucide-react'
-import { formatDate } from '@/utils/formatDate'
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { LogCard } from './LogCard'
 import { useState } from 'react'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 
@@ -14,12 +12,6 @@ interface LogListProps {
 
 export function LogList({ logs, onDelete, onOpen }: LogListProps) {
   const [deleteLog, setDeleteLog] = useState<LogEntry | null>(null)
-
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-  }
 
   const handleDelete = () => {
     if (deleteLog) {
@@ -49,32 +41,14 @@ export function LogList({ logs, onDelete, onOpen }: LogListProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {logs.map((log) => {
-            const timestamp = new Date(log.timestamp).getTime()
-            return (
-              <TableRow
-                key={log.filename}
-                className="cursor-pointer hover:bg-accent"
-                onDoubleClick={() => onOpen(log)}
-              >
-                <TableCell className="font-medium">{log.connection_name}</TableCell>
-                <TableCell>{formatDate(timestamp, true)}</TableCell>
-                <TableCell>{formatSize(log.size)}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setDeleteLog(log)
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            )
-          })}
+          {logs.map((log) => (
+            <LogCard
+              key={log.filename}
+              log={log}
+              onDelete={() => setDeleteLog(log)}
+              onOpen={() => onOpen(log)}
+            />
+          ))}
         </TableBody>
       </Table>
 
