@@ -40,9 +40,9 @@ export function ConnectionsPage() {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
   const [localTerminalLoading, setLocalTerminalLoading] = useState(false)
 
-  const groups = Array.from(new Set(connections.map(c => c.group).filter(Boolean))) as string[]
+  const groupNames = Array.from(new Set(connections.map(c => c.group).filter(Boolean))) as string[]
   
-  const groupCounts = groups.reduce((acc, group) => {
+  const groupCounts = groupNames.reduce((acc, group) => {
     acc[group] = connections.filter(c => c.group === group).length
     return acc
   }, {} as Record<string, number>)
@@ -144,7 +144,7 @@ export function ConnectionsPage() {
     selectedId,
     searchQuery,
     selectedGroup,
-    groups,
+    groups: groupNames,
     groupCounts,
     pendingVerification,
     onSelect: handleSelect,
@@ -167,7 +167,7 @@ export function ConnectionsPage() {
     selectedId,
     searchQuery,
     selectedGroup,
-    groups,
+    groupNames,
     groupCounts,
     pendingVerification,
     handleSelect,
