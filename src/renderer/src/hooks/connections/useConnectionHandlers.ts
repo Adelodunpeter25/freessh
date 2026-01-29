@@ -7,6 +7,7 @@ interface UseConnectionHandlersProps {
   updateConnection: (config: ConnectionConfig) => Promise<void>
   connectAndOpen: (config: ConnectionConfig) => Promise<any>
   saveAndConnect: (config: ConnectionConfig) => Promise<void>
+  refreshGroups?: () => Promise<void>
 }
 
 export function useConnectionHandlers({
@@ -14,6 +15,7 @@ export function useConnectionHandlers({
   updateConnection,
   connectAndOpen,
   saveAndConnect,
+  refreshGroups,
 }: UseConnectionHandlersProps) {
   const openSFTP = useUIStore((state) => state.openSFTP)
   const [showForm, setShowForm] = useState(false)
@@ -47,11 +49,13 @@ export function useConnectionHandlers({
     await updateConnection(config)
     setShowForm(false)
     setEditingConnection(undefined)
-  }, [updateConnection])
+    if (refreshGroups) await refreshGroups()
+  }, [updateConnection, refreshGroups])
 
   const handleDelete = useCallback(async (id: string) => {
     await deleteConnection(id)
-  }, [deleteConnection])
+    if (refreshGroups) await refreshGroups()
+  }, [deleteConnection, refreshGroups])
 
   const handleCloseForm = useCallback(() => {
     setShowForm(false)

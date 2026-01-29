@@ -36,14 +36,17 @@ export function ConnectionsPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [connectionsCollapsed, setConnectionsCollapsed] = useState(false)
 
+  const groupHandlers = useGroupHandlers()
+  const localTerminal = useLocalTerminal()
+  
   const connectionHandlers = useConnectionHandlers({
     deleteConnection,
     updateConnection,
     connectAndOpen,
     saveAndConnect,
+    refreshGroups: groupHandlers.refresh,
   })
-  const groupHandlers = useGroupHandlers()
-  const localTerminal = useLocalTerminal()
+  
   const { filteredConnections, groupNames, groupCounts } = useConnectionFilters(
     connections,
     searchQuery,
