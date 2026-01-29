@@ -4,7 +4,7 @@ import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
-import { GroupsSection } from '@/components/groups'
+import { GroupsSection, GroupSidebar } from '@/components/groups'
 import { HostKeyVerificationDialog } from '@/components/knownhosts'
 import { ConnectionsProvider } from '@/contexts/ConnectionsContext'
 import { useConnections, useGroups } from '@/hooks'
@@ -39,6 +39,8 @@ export function ConnectionsPage() {
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null)
   const [localTerminalLoading, setLocalTerminalLoading] = useState(false)
+  const [showGroupSidebar, setShowGroupSidebar] = useState(false)
+  const [editingGroup, setEditingGroup] = useState<Group | undefined>()
 
   const groupNames = Array.from(new Set(connections.map(c => c.group).filter(Boolean))) as string[]
   
@@ -112,11 +114,9 @@ export function ConnectionsPage() {
   }, [])
 
   const handleEditGroup = useCallback((group: Group) => {
-    const newName = prompt('Enter new group name:', group.name)
-    if (newName && newName !== group.name) {
-      renameGroup(group.id, newName)
-    }
-  }, [renameGroup])
+    setEditingGroup(group)
+    setShowGroupSidebar(true)
+  }, [])
 
   const handleDeleteGroup = useCallback(async (id: string) => {
     if (confirm('Delete this group? Connections will not be deleted.')) {
@@ -126,6 +126,25 @@ export function ConnectionsPage() {
         setSelectedGroup(null)
       }
     }
+  }, [deleteGroup, selectedGroupId])
+
+  const handleNewGroup = useCallback(() => {
+    setEditingGroup(undefined)
+    setShowGroupSidebar(true)
+  }, [])
+
+  const handleSaveGroup = useCallback(async (name: string) => {
+    if (editingGroup) {
+      await renameGroup(editingGroup.id, name)
+    } else {
+      await createGroup(name)
+    }
+  }, [editingGroup, renameGroup, createGroup])
+
+  const handleCloseGroupSidebar = useCallback(() => {
+    setShowGroupSidebar(false)
+    setEditingGroup(undefined)
+  }, [])
   }, [deleteGroup, selectedGroupId])
 
   const handleNewGroup = useCallback(() => {
@@ -209,6 +228,13 @@ export function ConnectionsPage() {
             onClose={handleCloseForm}
           />
         )}
+
+        <GroupSidebar
+          isOpen={showGroupSidebar}
+          onClose={handleCloseGroupSidebar}
+          group={editingGroup}
+          onSave={handleSaveGroup}
+        />
 
         <HostKeyVerificationDialog
           open={!!pendingVerification}
