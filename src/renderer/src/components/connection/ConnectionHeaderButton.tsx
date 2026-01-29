@@ -49,7 +49,7 @@ export function ConnectionHeaderButton({
             )}
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" side="bottom" sideOffset={4}>
+        <DropdownMenuContent align="end" side="bottom" sideOffset={6} className="border">
           <DropdownMenuItem 
             onClick={onNewLocalTerminal}
             disabled={localTerminalLoading}
