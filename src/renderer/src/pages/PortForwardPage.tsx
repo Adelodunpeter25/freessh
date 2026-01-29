@@ -7,7 +7,6 @@ import {
   PortForwardProvider,
   usePortForwardContext,
 } from "@/contexts/PortForwardContext";
-import { useConnections } from "@/hooks";
 import { PortForwardConfig } from "@/types";
 
 function PortForwardPageContent() {
@@ -21,13 +20,13 @@ function PortForwardPageContent() {
     loading,
     activeTunnels,
     connections,
+    connectionList,
     startTunnel,
     stopTunnel,
     createConfig,
     updateConfig,
     deleteConfig,
   } = usePortForwardContext();
-  const { connections: connectionList } = useConnections();
 
   const handleSave = useCallback(
     async (config: Omit<PortForwardConfig, "id">) => {

@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useMemo, useCallback, ReactNode } 
 import { usePortForwardConfig } from '@/hooks'
 import { portForwardService } from '@/services/ipc/portforward'
 import { useConnections } from '@/hooks'
-import { PortForwardConfig, TunnelInfo } from '@/types'
+import { PortForwardConfig, TunnelInfo, ConnectionConfig } from '@/types'
 import { toast } from 'sonner'
 
 interface PortForwardContextValue {
@@ -10,6 +10,7 @@ interface PortForwardContextValue {
   loading: boolean
   activeTunnels: Set<string>
   connections: Map<string, string>
+  connectionList: ConnectionConfig[]
   startTunnel: (configId: string) => Promise<void>
   stopTunnel: (configId: string) => Promise<void>
   createConfig: (config: Omit<PortForwardConfig, 'id'>) => Promise<void>
@@ -125,13 +126,14 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
     loading,
     activeTunnels,
     connections: connectionNames,
+    connectionList: connections,
     startTunnel,
     stopTunnel,
     createConfig,
     updateConfig,
     deleteConfig,
     getConnectionName
-  }), [configs, loading, activeTunnels, connectionNames, startTunnel, stopTunnel, createConfig, updateConfig, deleteConfig, getConnectionName])
+  }), [configs, loading, activeTunnels, connectionNames, connections, startTunnel, stopTunnel, createConfig, updateConfig, deleteConfig, getConnectionName])
 
   return (
     <PortForwardContext.Provider value={value}>
