@@ -59,6 +59,14 @@ export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) 
     }
   }, [])
 
+  const handleCloseSearch = useCallback(() => {
+    if (searchAddonRef.current) {
+      searchAddonRef.current.clearDecorations()
+    }
+    setShowSearch(false)
+    setSearchResults(null)
+  }, [])
+
   // Terminal keyboard shortcuts
   useKeyboardShortcuts({
     onClearTerminal: actions.clear,
@@ -78,7 +86,7 @@ export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) 
         {showSearch && (
           <TerminalSearchBar
             onSearch={handleSearch}
-            onClose={() => setShowSearch(false)}
+            onClose={handleCloseSearch}
             results={searchResults}
           />
         )}
