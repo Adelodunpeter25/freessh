@@ -1,5 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ThemeSettings } from './ThemeSettings'
+import { LogSettings } from './LogSettings'
 
 interface SettingsDialogProps {
   open: boolean
@@ -16,6 +17,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
         
         <div className="space-y-8 mt-4">
           <ThemeSettings />
+          <LogSettings />
         </div>
       </DialogContent>
     </Dialog>
