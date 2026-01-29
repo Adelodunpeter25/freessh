@@ -67,7 +67,20 @@
 
 ### Connection Groups/Folders
 **Status:** ✅ Implemented  
-**Description:** Organize connections by project/environment.
+**Description:** Organize connections by project/environment.  
+**Implementation:**
+- ✅ Backend group management system with CRUD operations
+- ✅ Groups stored in separate groups.json file
+- ✅ Connection count calculated dynamically
+- ✅ Frontend group UI components (GroupCard, GroupList, GroupsSection, GroupSidebar)
+- ✅ Group detail view showing all connections in a group
+- ✅ Breadcrumb navigation for group detail view
+- ✅ Group selector in connection form
+- ✅ Collapsible groups and connections sections with badges
+- ✅ Context menu for group operations (Edit, Delete)
+- ✅ Automatic group count refresh after connection changes
+- ✅ Double-click to open group detail view
+- ✅ Custom empty state for groups with no connections
 
 ### Port Forwarding
 - UI for managing SSH tunnels (backend already implemented)
