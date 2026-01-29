@@ -3,15 +3,19 @@ import { TunnelConfig, RemoteTunnelConfig, TunnelInfo, CreateTunnelRequest, IPCM
 
 export const portForwardService = {
   createLocal(connectionId: string, name: string, config: TunnelConfig): Promise<TunnelInfo> {
+    console.log('[portForwardService] createLocal called:', { connectionId, name, config })
     return new Promise((resolve, reject) => {
       const handler = (message: IPCMessage) => {
+        console.log('[portForwardService] Received message:', message)
         if (message.type === 'portforward:create') {
           backendService.off('portforward:create')
           backendService.off('error')
+          console.log('[portForwardService] Tunnel created successfully:', message.data)
           resolve(message.data as TunnelInfo)
         } else if (message.type === 'error') {
           backendService.off('portforward:create')
           backendService.off('error')
+          console.error('[portForwardService] Error creating tunnel:', message.data)
           reject(new Error(message.data.error))
         }
       }
@@ -19,9 +23,11 @@ export const portForwardService = {
       backendService.on('portforward:create', handler)
       backendService.on('error', handler)
 
+      const request = { type: 'local', connection_id: connectionId, name, config } as CreateTunnelRequest
+      console.log('[portForwardService] Sending request:', request)
       backendService.send({
         type: 'portforward:create',
-        data: { type: 'local', connection_id: connectionId, name, config } as CreateTunnelRequest
+        data: request
       })
     })
   },

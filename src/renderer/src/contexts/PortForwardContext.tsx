@@ -56,16 +56,36 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
     const config = configs.find(c => c.id === configId)
     if (!config) return
 
+    console.log('[PortForward] Starting tunnel:', config)
+
     try {
       let tunnel: TunnelInfo
       
       if (config.type === 'local') {
+        console.log('[PortForward] Creating local tunnel:', {
+          connection_id: config.connection_id,
+          name: config.name,
+          config: {
+            local_port: config.local_port,
+            remote_host: config.remote_host,
+            remote_port: config.remote_port
+          }
+        })
         tunnel = await portForwardService.createLocal(config.connection_id, config.name, {
           local_port: config.local_port,
           remote_host: config.remote_host,
           remote_port: config.remote_port
         })
       } else {
+        console.log('[PortForward] Creating remote tunnel:', {
+          connection_id: config.connection_id,
+          name: config.name,
+          config: {
+            remote_port: config.remote_port,
+            local_host: config.remote_host,
+            local_port: config.local_port
+          }
+        })
         tunnel = await portForwardService.createRemote(config.connection_id, config.name, {
           remote_port: config.remote_port,
           local_host: config.remote_host,
@@ -73,11 +93,12 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
         })
       }
       
+      console.log('[PortForward] Tunnel created:', tunnel)
       setActiveTunnelMap(prev => new Map(prev).set(configId, tunnel))
       toast.success('Tunnel started')
     } catch (error) {
+      console.error('[PortForward] Failed to start tunnel:', error)
       toast.error('Failed to start tunnel')
-      console.error(error)
     }
   }, [configs])
 
