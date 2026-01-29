@@ -23,9 +23,9 @@ const (
 	MsgLogRead   MessageType = "log:read"
 	MsgLogDelete MessageType = "log:delete"
 	
-	// Settings messages
-	MsgSettingsGet    MessageType = "settings:get"
-	MsgSettingsUpdate MessageType = "settings:update"
+	// Log settings messages
+	MsgLogSettingsGet    MessageType = "log_settings:get"
+	MsgLogSettingsUpdate MessageType = "log_settings:update"
 	
 	// SFTP messages
 	MsgSFTPList      MessageType = "sftp:list"

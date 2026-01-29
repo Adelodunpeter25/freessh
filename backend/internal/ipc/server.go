@@ -38,10 +38,10 @@ func NewServer() *Server {
 		log.Printf("Warning: Failed to initialize group storage: %v", err)
 	}
 	
-	// Initialize settings storage
-	settingsStorage, err := storage.NewSettingsStorage()
+	// Initialize log settings storage
+	logSettingsStorage, err := storage.NewLogSettingsStorage()
 	if err != nil {
-		log.Printf("Warning: Failed to initialize settings storage: %v", err)
+		log.Printf("Warning: Failed to initialize log settings storage: %v", err)
 	}
 	
 	// Create shared verification helper
@@ -65,7 +65,7 @@ func NewServer() *Server {
 			handlers.NewKnownHostsHandler(knownHostStorage),
 			handlers.NewGroupHandler(groupStorage, manager.GetConnectionStorage()),
 			handlers.NewLogHandler(),
-			handlers.NewSettingsHandler(settingsStorage),
+			handlers.NewLogSettingsHandler(logSettingsStorage),
 		},
 	}
 }

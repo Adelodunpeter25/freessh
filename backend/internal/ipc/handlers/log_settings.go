@@ -7,46 +7,46 @@ import (
 	"freessh-backend/internal/storage"
 )
 
-type SettingsHandler struct {
-	storage *storage.SettingsStorage
+type LogSettingsHandler struct {
+	storage *storage.LogSettingsStorage
 }
 
-func NewSettingsHandler(storage *storage.SettingsStorage) *SettingsHandler {
-	return &SettingsHandler{
+func NewLogSettingsHandler(storage *storage.LogSettingsStorage) *LogSettingsHandler {
+	return &LogSettingsHandler{
 		storage: storage,
 	}
 }
 
-func (h *SettingsHandler) CanHandle(msgType models.MessageType) bool {
-	return msgType == models.MsgSettingsGet || msgType == models.MsgSettingsUpdate
+func (h *LogSettingsHandler) CanHandle(msgType models.MessageType) bool {
+	return msgType == models.MsgLogSettingsGet || msgType == models.MsgLogSettingsUpdate
 }
 
-func (h *SettingsHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) error {
+func (h *LogSettingsHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) error {
 	switch msg.Type {
-	case models.MsgSettingsGet:
+	case models.MsgLogSettingsGet:
 		return h.handleGet(writer)
-	case models.MsgSettingsUpdate:
+	case models.MsgLogSettingsUpdate:
 		return h.handleUpdate(msg, writer)
 	default:
 		return fmt.Errorf("unsupported message type: %s", msg.Type)
 	}
 }
 
-func (h *SettingsHandler) handleGet(writer ResponseWriter) error {
+func (h *LogSettingsHandler) handleGet(writer ResponseWriter) error {
 	settings := h.storage.Get()
 	return writer.WriteMessage(&models.IPCMessage{
-		Type: models.MsgSettingsGet,
+		Type: models.MsgLogSettingsGet,
 		Data: settings,
 	})
 }
 
-func (h *SettingsHandler) handleUpdate(msg *models.IPCMessage, writer ResponseWriter) error {
+func (h *LogSettingsHandler) handleUpdate(msg *models.IPCMessage, writer ResponseWriter) error {
 	jsonData, err := json.Marshal(msg.Data)
 	if err != nil {
 		return fmt.Errorf("invalid settings data: %w", err)
 	}
 
-	var settings storage.Settings
+	var settings storage.LogSettings
 	if err := json.Unmarshal(jsonData, &settings); err != nil {
 		return fmt.Errorf("failed to parse settings: %w", err)
 	}
@@ -56,7 +56,7 @@ func (h *SettingsHandler) handleUpdate(msg *models.IPCMessage, writer ResponseWr
 	}
 
 	return writer.WriteMessage(&models.IPCMessage{
-		Type: models.MsgSettingsUpdate,
+		Type: models.MsgLogSettingsUpdate,
 		Data: settings,
 	})
 }

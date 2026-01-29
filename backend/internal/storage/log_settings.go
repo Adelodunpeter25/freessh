@@ -4,25 +4,25 @@ import (
 	"sync"
 )
 
-type Settings struct {
+type LogSettings struct {
 	AutoLogging bool `json:"auto_logging"`
 }
 
-type SettingsStorage struct {
+type LogSettingsStorage struct {
 	manager  *Manager
-	settings Settings
+	settings LogSettings
 	mu       sync.RWMutex
 }
 
-func NewSettingsStorage() (*SettingsStorage, error) {
-	manager, err := NewManager("settings.json")
+func NewLogSettingsStorage() (*LogSettingsStorage, error) {
+	manager, err := NewManager("log_settings.json")
 	if err != nil {
 		return nil, err
 	}
 
-	storage := &SettingsStorage{
+	storage := &LogSettingsStorage{
 		manager: manager,
-		settings: Settings{
+		settings: LogSettings{
 			AutoLogging: false,
 		},
 	}
@@ -34,7 +34,7 @@ func NewSettingsStorage() (*SettingsStorage, error) {
 	return storage, nil
 }
 
-func (s *SettingsStorage) load() error {
+func (s *LogSettingsStorage) load() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -45,13 +45,13 @@ func (s *SettingsStorage) load() error {
 	return nil
 }
 
-func (s *SettingsStorage) Get() Settings {
+func (s *LogSettingsStorage) Get() LogSettings {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.settings
 }
 
-func (s *SettingsStorage) Update(settings Settings) error {
+func (s *LogSettingsStorage) Update(settings LogSettings) error {
 	s.mu.Lock()
 	s.settings = settings
 	s.mu.Unlock()
@@ -59,13 +59,13 @@ func (s *SettingsStorage) Update(settings Settings) error {
 	return s.manager.Save(settings)
 }
 
-func (s *SettingsStorage) GetAutoLogging() bool {
+func (s *LogSettingsStorage) GetAutoLogging() bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.settings.AutoLogging
 }
 
-func (s *SettingsStorage) SetAutoLogging(enabled bool) error {
+func (s *LogSettingsStorage) SetAutoLogging(enabled bool) error {
 	s.mu.Lock()
 	s.settings.AutoLogging = enabled
 	settings := s.settings
