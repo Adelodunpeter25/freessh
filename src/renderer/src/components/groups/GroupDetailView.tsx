@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Breadcrumb } from '@/components/ui/breadcrumb'
-import { ConnectionsHeader } from '@/components/connection/ConnectionsHeader'
+import { GroupDetailHeader } from './GroupDetailHeader'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
 import { NewConnectionButton } from '@/components/connection/NewConnectionButton'
@@ -106,7 +106,7 @@ export function GroupDetailView({
             />
           </div>
         </div>
-        <ConnectionsHeader />
+        <GroupDetailHeader groupName={group.name} />
 
         <div className="flex-1 overflow-hidden">
           <ConnectionList />
