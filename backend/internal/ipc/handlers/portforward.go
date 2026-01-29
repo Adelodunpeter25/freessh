@@ -49,32 +49,22 @@ func (h *PortForwardHandler) handleCreate(msg *models.IPCMessage, writer Respons
 		return fmt.Errorf("failed to parse create tunnel request: %w", err)
 	}
 
-	fmt.Printf("[PortForward] Create tunnel request: %+v\n", req)
-
 	// Get or create session for this connection
 	session, err := h.manager.GetOrCreateSession(req.ConnectionID)
 	if err != nil {
-		fmt.Printf("[PortForward] Failed to get session: %v\n", err)
 		return fmt.Errorf("failed to get session: %w", err)
 	}
 
-	fmt.Printf("[PortForward] Got session: %s for connection: %s\n", session.ID, req.ConnectionID)
-
 	var tunnel *models.TunnelInfo
 	if req.Type == "remote" {
-		fmt.Printf("[PortForward] Creating remote tunnel\n")
 		tunnel, err = h.manager.CreateRemoteTunnel(session.ID, req.ConnectionID, req.Name, req.Remote)
 	} else {
-		fmt.Printf("[PortForward] Creating local tunnel\n")
 		tunnel, err = h.manager.CreateLocalTunnel(session.ID, req.ConnectionID, req.Name, req.Config)
 	}
 
 	if err != nil {
-		fmt.Printf("[PortForward] Failed to create tunnel: %v\n", err)
 		return err
 	}
-
-	fmt.Printf("[PortForward] Tunnel created successfully: %+v\n", tunnel)
 
 	return writer.WriteMessage(&models.IPCMessage{
 		Type: models.MsgPortForwardCreate,

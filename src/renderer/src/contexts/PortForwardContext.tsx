@@ -56,36 +56,18 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
     const config = configs.find(c => c.id === configId)
     if (!config) return
 
-    console.log('[PortForward] Starting tunnel:', config)
+    toast.info('Starting tunnel...')
 
     try {
       let tunnel: TunnelInfo
       
       if (config.type === 'local') {
-        console.log('[PortForward] Creating local tunnel:', {
-          connection_id: config.connection_id,
-          name: config.name,
-          config: {
-            local_port: config.local_port,
-            remote_host: config.remote_host,
-            remote_port: config.remote_port
-          }
-        })
         tunnel = await portForwardService.createLocal(config.connection_id, config.name, {
           local_port: config.local_port,
           remote_host: config.remote_host,
           remote_port: config.remote_port
         })
       } else {
-        console.log('[PortForward] Creating remote tunnel:', {
-          connection_id: config.connection_id,
-          name: config.name,
-          config: {
-            remote_port: config.remote_port,
-            local_host: config.remote_host,
-            local_port: config.local_port
-          }
-        })
         tunnel = await portForwardService.createRemote(config.connection_id, config.name, {
           remote_port: config.remote_port,
           local_host: config.remote_host,
@@ -93,30 +75,22 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
         })
       }
       
-      console.log('[PortForward] Tunnel created:', tunnel)
       setActiveTunnelMap(prev => new Map(prev).set(configId, tunnel))
       toast.success('Tunnel started')
     } catch (error) {
-      console.error('[PortForward] Failed to start tunnel:', error)
-      toast.error('Failed to start tunnel')
+      const errorMsg = error instanceof Error ? error.message : 'Failed to start tunnel'
+      toast.error(errorMsg)
     }
   }, [configs])
 
   const stopTunnel = useCallback(async (configId: string) => {
-    console.log('[PortForward] Stopping tunnel for config:', configId)
     const tunnel = activeTunnelMap.get(configId)
-    if (!tunnel) {
-      console.log('[PortForward] No active tunnel found for config:', configId)
-      return
-    }
+    if (!tunnel) return
 
     const config = configs.find(c => c.id === configId)
-    if (!config) {
-      console.log('[PortForward] Config not found:', configId)
-      return
-    }
+    if (!config) return
 
-    console.log('[PortForward] Stopping tunnel:', tunnel.id, 'for connection:', config.connection_id)
+    toast.info('Stopping tunnel...')
 
     try {
       await portForwardService.stop(config.connection_id, tunnel.id)
@@ -125,11 +99,10 @@ export function PortForwardProvider({ children }: PortForwardProviderProps) {
         next.delete(configId)
         return next
       })
-      console.log('[PortForward] Tunnel stopped successfully')
       toast.success('Tunnel stopped')
     } catch (error) {
-      console.error('[PortForward] Failed to stop tunnel:', error)
-      toast.error('Failed to stop tunnel')
+      const errorMsg = error instanceof Error ? error.message : 'Failed to stop tunnel'
+      toast.error(errorMsg)
     }
   }, [activeTunnelMap, configs])
 
