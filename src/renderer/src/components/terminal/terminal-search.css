@@ -1,26 +1,32 @@
 /* Custom search highlight colors for xterm */
 .xterm .xterm-decoration-overview-ruler {
   /* Search result indicator on scrollbar */
-  background-color: #a3a3a3 !important;
+  background-color: #fbbf24 !important;
 }
 
 .xterm-decoration-top {
-  /* Active search result highlight */
-  background-color: #d4d4d4 !important;
+  /* Active search result highlight - bright yellow */
+  background-color: #fde047 !important;
 }
 
 .xterm-decoration {
-  /* Other search results highlight */
-  background-color: #a3a3a3 !important;
+  /* Other search results highlight - softer yellow */
+  background-color: #fef3c7 !important;
 }
 
 /* Dark theme adjustments */
 @media (prefers-color-scheme: dark) {
   .xterm-decoration {
-    background-color: rgba(255, 255, 255, 0.1) !important;
+    /* Other results - amber with transparency */
+    background-color: rgba(251, 191, 36, 0.3) !important;
   }
   
   .xterm-decoration-top {
-    background-color: rgba(255, 255, 255, 0.2) !important;
+    /* Active result - brighter amber */
+    background-color: rgba(251, 191, 36, 0.5) !important;
+  }
+  
+  .xterm .xterm-decoration-overview-ruler {
+    background-color: rgba(251, 191, 36, 0.6) !important;
   }
 }
