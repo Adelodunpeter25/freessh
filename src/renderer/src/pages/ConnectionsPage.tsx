@@ -124,8 +124,13 @@ export function ConnectionsPage() {
             onDeleteGroup={groupHandlers.handleDeleteGroup}
             onOpenGroup={groupHandlers.handleOpenGroup}
           />
-          <div className="flex-1 overflow-hidden">
-            <ConnectionList />
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <div className="px-4 py-3 border-b bg-background/95">
+              <h2 className="text-sm font-semibold text-foreground">Connections</h2>
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <ConnectionList />
+            </div>
           </div>
 
           <NewConnectionButton onClick={connectionHandlers.handleNewConnection} />
