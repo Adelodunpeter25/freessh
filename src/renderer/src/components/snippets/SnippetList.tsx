@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Snippet } from '@/types/snippet'
 import { SnippetCard } from './SnippetCard'
 import { EmptyState } from '@/components/common/EmptyState'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Braces } from 'lucide-react'
 
 interface SnippetListProps {
@@ -34,18 +35,20 @@ export function SnippetList({ snippets, loading, onView, onEdit, onDelete }: Sni
   }
 
   return (
-    <div className="space-y-2 p-4">
-      {snippets.map((snippet) => (
-        <SnippetCard
-          key={snippet.id}
-          snippet={snippet}
-          selected={selectedId === snippet.id}
-          onSelect={(s) => setSelectedId(s.id)}
-          onView={onView}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
-      ))}
-    </div>
+    <ScrollArea className="h-full" onClick={() => setSelectedId(null)}>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6">
+        {snippets.map((snippet) => (
+          <SnippetCard
+            key={snippet.id}
+            snippet={snippet}
+            selected={selectedId === snippet.id}
+            onSelect={(s) => setSelectedId(s.id)}
+            onView={onView}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
+        ))}
+      </div>
+    </ScrollArea>
   )
 }
