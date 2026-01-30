@@ -21,7 +21,7 @@ export function ExportTab() {
       <div>
         <Label className="text-sm font-medium mb-2 block">Export Format</Label>
         <div className="space-y-2">
-          <div className="flex items-center gap-2 p-3 border rounded-lg bg-muted/50">
+          <div className="flex items-center gap-2 p-3 border rounded-lg">
             <input
               type="radio"
               id="format-freessh"
