@@ -55,9 +55,9 @@ func (h *TerminalHandler) handleInput(msg *models.IPCMessage) error {
 		return fmt.Errorf("failed to parse input data: %w", err)
 	}
 
-	// Track command if it ends with newline
-	if strings.HasSuffix(inputData.Data, "\n") {
-		command := strings.TrimSuffix(inputData.Data, "\n")
+	// Track command if it ends with newline or carriage return
+	if strings.HasSuffix(inputData.Data, "\n") || strings.HasSuffix(inputData.Data, "\r") {
+		command := strings.TrimSuffix(strings.TrimSuffix(inputData.Data, "\n"), "\r")
 		h.historyManager.Add(command)
 	}
 
