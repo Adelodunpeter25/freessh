@@ -28,7 +28,7 @@ func (h *ExportFreeSSHHandler) Handle(msg *models.IPCMessage, writer ResponseWri
 		return err
 	}
 
-	filename := fmt.Sprintf("freessh-export-%s.json", time.Now().Format("2006-01-02-150405"))
+	filename := fmt.Sprintf("freessh-export-%s.json", time.Now().Format("2006-01-02"))
 
 	return writer.WriteMessage(&models.IPCMessage{
 		Type: models.MsgExportFreeSSH,
