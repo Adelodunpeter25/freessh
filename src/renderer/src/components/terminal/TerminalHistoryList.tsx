@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Search, Trash2 } from 'lucide-react'
+import { Search, Trash2, Check, X } from 'lucide-react'
 import { Input } from '@renderer/components/ui/input'
 import { Button } from '@renderer/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@renderer/components/ui/tooltip'
 import { useHistory } from '@renderer/hooks/history/useHistory'
+import { useSnippets } from '@renderer/hooks/snippets'
 import { terminalService } from '@renderer/services/ipc/terminal'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@renderer/components/common/ConfirmDialog'
@@ -16,7 +17,10 @@ interface TerminalHistoryListProps {
 export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalHistoryListProps) {
   const [search, setSearch] = useState('')
   const [showClearConfirm, setShowClearConfirm] = useState(false)
+  const [savingId, setSavingId] = useState<string | null>(null)
+  const [snippetName, setSnippetName] = useState('')
   const { history, loading, clearHistory } = useHistory()
+  const { createSnippet } = useSnippets()
 
   const filtered = history.filter((entry) =>
     entry.command.toLowerCase().includes(search.toLowerCase())
@@ -37,6 +41,32 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
       return
     }
     terminalService.sendInput(activeSessionId, command)
+  }
+
+  const handleSaveClick = (id: string) => {
+    setSavingId(id)
+    setSnippetName('')
+  }
+
+  const handleSaveConfirm = async (command: string) => {
+    if (!snippetName.trim()) {
+      toast.error('Please enter a name')
+      return
+    }
+    
+    try {
+      await createSnippet({ name: snippetName.trim(), command })
+      toast.success('Saved to snippets')
+      setSavingId(null)
+      setSnippetName('')
+    } catch (error) {
+      toast.error('Failed to save snippet')
+    }
+  }
+
+  const handleSaveCancel = () => {
+    setSavingId(null)
+    setSnippetName('')
   }
 
   const handleClear = async () => {
@@ -91,27 +121,62 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
                 key={entry.id}
                 className="group p-2 rounded-lg hover:bg-muted/50 transition-colors"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div className="font-mono text-sm break-all flex-1">{entry.command}</div>
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 shrink-0">
+                {savingId === entry.id ? (
+                  <div className="flex items-center gap-2">
+                    <Input
+                      autoFocus
+                      placeholder="Snippet name..."
+                      value={snippetName}
+                      onChange={(e) => setSnippetName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSaveConfirm(entry.command)
+                        } else if (e.key === 'Escape') {
+                          handleSaveCancel()
+                        }
+                      }}
+                      className="h-7 text-sm"
+                    />
                     <Button
                       variant="ghost"
-                      size="sm"
-                      onClick={() => handlePaste(entry.command)}
-                      className="h-6 px-2 text-xs"
+                      size="icon"
+                      onClick={() => handleSaveConfirm(entry.command)}
+                      className="h-7 w-7 shrink-0"
                     >
-                      Paste
+                      <Check className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
-                      size="sm"
-                      onClick={() => handleRun(entry.command)}
-                      className="h-6 px-2 text-xs"
+                      size="icon"
+                      onClick={handleSaveCancel}
+                      className="h-7 w-7 shrink-0"
                     >
-                      Save
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="font-mono text-sm break-all flex-1">{entry.command}</div>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handlePaste(entry.command)}
+                        className="h-6 px-2 text-xs"
+                      >
+                        Paste
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleSaveClick(entry.id)}
+                        className="h-6 px-2 text-xs"
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))
           )}
