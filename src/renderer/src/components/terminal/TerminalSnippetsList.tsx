@@ -42,23 +42,39 @@ export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListPr
         ) : (
           <div className="p-2 space-y-1">
             {filteredSnippets.map((snippet) => (
-              <button
+              <div
                 key={snippet.id}
-                onClick={() => onSelectSnippet(snippet)}
-                className="w-full text-left p-3 rounded-lg hover:bg-accent transition-colors group"
+                className="group relative border-t border-b border-transparent hover:border-border transition-colors"
               >
-                <div className="flex items-start gap-2">
-                  <Braces className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground truncate">
-                      {snippet.name}
-                    </div>
-                    <div className="text-xs text-muted-foreground truncate font-mono mt-0.5">
-                      {snippet.command}
+                <div className="p-3">
+                  <div className="flex items-start gap-2 mb-2">
+                    <Braces className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">
+                        {snippet.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground truncate font-mono mt-0.5">
+                        {snippet.command}
+                      </div>
                     </div>
                   </div>
+                  
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={() => onSelectSnippet(snippet)}
+                      className="flex-1 text-xs py-1.5 px-3 rounded bg-primary/10 hover:bg-primary/20 text-primary font-medium transition-colors"
+                    >
+                      Paste
+                    </button>
+                    <button
+                      onClick={() => onSelectSnippet(snippet)}
+                      className="flex-1 text-xs py-1.5 px-3 rounded bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
+                    >
+                      Run
+                    </button>
+                  </div>
                 </div>
-              </button>
+              </div>
             ))}
           </div>
         )}
