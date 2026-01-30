@@ -8,15 +8,16 @@ export const useImport = () => {
   const importFreeSSH = useCallback(async (file: File) => {
     setImporting(true)
     try {
-      const arrayBuffer = await file.arrayBuffer()
-      const data = new Uint8Array(arrayBuffer)
+      const text = await file.text()
+      const data = new TextEncoder().encode(text)
       
       const result = await importFreeSSHService.import(data)
       
       const messages = [
         `${result.connections_imported} connections`,
         `${result.groups_imported} groups`,
-        `${result.port_forwards_imported} port forwards`
+        `${result.port_forwards_imported} port forwards`,
+        `${result.keys_imported} keys`
       ]
       
       if (result.errors && result.errors.length > 0) {

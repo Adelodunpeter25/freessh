@@ -22,7 +22,7 @@ export const importFreeSSHService = {
 
       backendService.send({
         type: 'import:freessh',
-        data: { data }
+        data: { data: Array.from(data) }
       })
     })
   }
