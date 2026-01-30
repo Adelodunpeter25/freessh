@@ -21,8 +21,14 @@ export const useImport = () => {
       ]
       
       if (result.errors && result.errors.length > 0) {
-        toast.warning(`Import completed with errors: ${messages.join(', ')}`)
-        console.error('Import errors:', result.errors)
+        const hasSkipped = result.errors.some(e => e.includes('already exists'))
+        if (hasSkipped && result.errors.every(e => e.includes('already exists'))) {
+          // All "errors" are just skipped items
+          toast.success(`Imported: ${messages.join(', ')} (some items already existed)`)
+        } else {
+          toast.warning(`Import completed with issues: ${messages.join(', ')}`)
+          console.error('Import errors:', result.errors)
+        }
       } else {
         toast.success(`Imported: ${messages.join(', ')}`)
       }
