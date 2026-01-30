@@ -19,10 +19,11 @@ const TerminalSettings = lazy(() => import("@/components/terminal/TerminalSettin
 const KeygenList = lazy(() => import("@/components/keygen").then(m => ({ default: m.KeygenList })));
 const KnownHostsPage = lazy(() => import("@/pages/KnownHostsPage").then(m => ({ default: m.KnownHostsPage })));
 const PortForwardPage = lazy(() => import("@/pages/PortForwardPage").then(m => ({ default: m.PortForwardPage })));
+const SnippetsPage = lazy(() => import("@/pages/SnippetsPage").then(m => ({ default: m.SnippetsPage })));
 const LogsPage = lazy(() => import("@/pages/LogsPage").then(m => ({ default: m.LogsPage })));
 const LogViewer = lazy(() => import("@/components/logs").then(m => ({ default: m.LogViewer })));
 
-type SidebarTab = "connections" | "keys" | "known-hosts" | "port-forward" | "logs" | "settings";
+type SidebarTab = "connections" | "keys" | "known-hosts" | "port-forward" | "snippets" | "logs" | "settings";
 type MainView = "home" | "sftp" | "terminal";
 
 export function MainLayout() {
@@ -114,6 +115,8 @@ export function MainLayout() {
         return <KnownHostsPage />;
       case "port-forward":
         return <PortForwardPage />;
+      case "snippets":
+        return <SnippetsPage />;
       case "logs":
         return <LogsPage />;
       default:
