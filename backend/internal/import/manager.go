@@ -9,12 +9,12 @@ import (
 )
 
 type Manager struct {
-	connectionStorage *storage.Manager
+	connectionStorage *storage.ConnectionStorage
 	groupStorage      *storage.GroupStorage
 	pfStorage         *storage.PortForwardStorage
 }
 
-func NewManager(connStorage *storage.Manager, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *Manager {
+func NewManager(connStorage *storage.ConnectionStorage, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *Manager {
 	return &Manager{
 		connectionStorage: connStorage,
 		groupStorage:      groupStorage,
@@ -63,7 +63,7 @@ func (m *Manager) importFreeSSH(data []byte) (*ImportResult, error) {
 
 	// Import groups first
 	for _, group := range importData.Groups {
-		if err := m.groupStorage.Add(&group); err != nil {
+		if err := m.groupStorage.Create(group); err != nil {
 			result.Errors = append(result.Errors, fmt.Sprintf("Failed to import group %s: %v", group.Name, err))
 		} else {
 			result.GroupsImported++

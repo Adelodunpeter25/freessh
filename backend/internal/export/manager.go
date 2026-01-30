@@ -10,12 +10,12 @@ import (
 )
 
 type Manager struct {
-	connectionStorage *storage.Manager
+	connectionStorage *storage.ConnectionStorage
 	groupStorage      *storage.GroupStorage
 	pfStorage         *storage.PortForwardStorage
 }
 
-func NewManager(connStorage *storage.Manager, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *Manager {
+func NewManager(connStorage *storage.ConnectionStorage, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *Manager {
 	return &Manager{
 		connectionStorage: connStorage,
 		groupStorage:      groupStorage,
@@ -50,16 +50,22 @@ func (m *Manager) ExportToFile(format, filepath string) error {
 }
 
 func (m *Manager) exportFreeSSH() ([]byte, error) {
-	connections := m.connectionStorage.GetAll()
-	groups := m.groupStorage.GetAll()
+	connections := m.connectionStorage.List()
+	groups := m.groupStorage.List()
 	portForwards := m.pfStorage.GetAll()
+
+	// Convert pointer slice to value slice
+	pfConfigs := make([]models.PortForwardConfig, len(portForwards))
+	for i, pf := range portForwards {
+		pfConfigs[i] = *pf
+	}
 
 	exportData := ExportData{
 		Version:      "1.0",
 		ExportedAt:   time.Now(),
 		Connections:  connections,
 		Groups:       groups,
-		PortForwards: portForwards,
+		PortForwards: pfConfigs,
 	}
 
 	return json.MarshalIndent(exportData, "", "  ")
