@@ -13,6 +13,7 @@ import { useMenuActions } from "@/hooks";
 import { useSnippets } from "@/hooks/snippets";
 import { Snippet } from "@/types/snippet";
 import { terminalService } from "@/services/ipc/terminal";
+import { toast } from "sonner";
 
 // Lazy load pages
 const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));
@@ -199,19 +200,17 @@ export function MainLayout() {
           <TerminalSidebar 
             onClose={() => setShowTerminalSettings(false)}
             onPasteSnippet={(command) => {
-              console.log('🔵 Paste snippet:', { activeSessionId, command })
               if (activeSessionId) {
                 terminalService.sendInput(activeSessionId, command)
               } else {
-                console.log('❌ No active session')
+                toast.error('No active terminal session')
               }
             }}
             onRunSnippet={(command) => {
-              console.log('🟢 Run snippet:', { activeSessionId, command })
               if (activeSessionId) {
                 terminalService.sendInput(activeSessionId, command + '\n')
               } else {
-                console.log('❌ No active session')
+                toast.error('No active terminal session')
               }
             }}
             onEditSnippet={(snippet) => {
