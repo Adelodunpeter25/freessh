@@ -131,7 +131,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    window.addEventListener('keydown', handleKeyDown, true)
+    return () => window.removeEventListener('keydown', handleKeyDown, true)
   }, [handlers, enabled, tabs, setActiveTab, removeTab, activeTabId])
 }
