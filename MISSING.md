@@ -138,7 +138,7 @@
 - PuTTY session format (.reg) - import only
 
 ### Snippets/Commands
-**Status:** 🚧 In Progress  
+**Status:** ✅ Implemented  
 **Description:** Save and execute frequently used commands.  
 **Implementation:**
 - ✅ Backend: snippets.json storage with CRUD operations
@@ -149,16 +149,15 @@
 - ✅ Delete with confirmation dialog
 - ✅ Selection and hover effects
 - ✅ Auto-reopen terminal sidebar after form closes
+- ✅ Snippet store with Zustand for shared state
+- ✅ Command history tracking with backspace/control character handling
+- ✅ History tab in terminal sidebar with search
+- ✅ Save commands from history to snippets with inline name input
+- ✅ Clear history functionality
 
-**In Progress:**
-- 🚧 Variables/placeholders (e.g., `ssh {USER}@{HOST} -p {PORT}`)
+**Planned:**
+- Variables/placeholders (e.g., `ssh {USER}@{HOST} -p {PORT}`)
   - Detect `{VARIABLE}` patterns in command
   - Show dialog with input fields for each variable
   - Replace variables with user input before execution
-- 🚧 Command history
-  - Track executed commands per session
-  - Quick access to recent commands
-  - Save command from history as snippet
-
-**Planned:**
 - Most used/favorites tracking
