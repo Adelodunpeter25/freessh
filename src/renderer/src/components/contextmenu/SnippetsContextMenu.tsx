@@ -28,7 +28,7 @@ export function SnippetsContextMenu({
       <ContextMenuTrigger asChild>
         {children}
       </ContextMenuTrigger>
-      <ContextMenuContent className="w-48">
+      <ContextMenuContent className="w-32">
         {onView && (
           <ContextMenuItem onClick={onView}>
             <Eye className="h-4 w-4 mr-2" />

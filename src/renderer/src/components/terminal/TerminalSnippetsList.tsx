@@ -61,7 +61,7 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
             </p>
           </div>
         ) : (
-          <div className="space-y-1 pr-2">
+          <div className="space-y-2 pr-2">
             {filteredSnippets.map((snippet) => (
               <SnippetsContextMenu
                 key={snippet.id}
@@ -70,7 +70,7 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
                 onDelete={() => onDeleteSnippet(snippet)}
               >
                 <div
-                  className="group border-t border-b border-border p-2"
+                  className="group p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
                 >
                 <div className="flex items-start gap-2">
                   <Braces className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
