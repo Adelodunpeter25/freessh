@@ -61,16 +61,18 @@ func (s *HistoryStorage) List() []models.HistoryEntry {
 
 func (s *HistoryStorage) Add(entry models.HistoryEntry) error {
 	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	s.entries = append(s.entries, entry)
 
 	// Keep only last 200 entries
 	if len(s.entries) > 200 {
 		s.entries = s.entries[len(s.entries)-200:]
 	}
+	s.mu.Unlock()
 
-	return s.save()
+	// Save asynchronously to avoid blocking terminal input
+	go s.save()
+
+	return nil
 }
 
 func (s *HistoryStorage) Clear() error {
