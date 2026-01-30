@@ -10,8 +10,8 @@ export const useExport = () => {
     try {
       const result = await exportFreeSSHService.export()
       
-      // Decode base64 data
-      const jsonString = atob(String.fromCharCode(...result.data))
+      // Convert byte array to string
+      const jsonString = new TextDecoder().decode(result.data)
       
       // Create blob and download
       const blob = new Blob([jsonString], { type: 'application/json' })
