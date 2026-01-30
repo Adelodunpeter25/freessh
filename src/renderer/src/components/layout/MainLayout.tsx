@@ -10,6 +10,8 @@ import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useKeyboardShortcuts, useLocalTerminal } from "@/hooks";
 import { useMenuActions } from "@/hooks";
+import { useSnippets } from "@/hooks/snippets";
+import { Snippet } from "@/types/snippet";
 import { terminalService } from "@/services/ipc/terminal";
 
 // Lazy load pages
@@ -21,6 +23,7 @@ const KeygenList = lazy(() => import("@/components/keygen").then(m => ({ default
 const KnownHostsPage = lazy(() => import("@/pages/KnownHostsPage").then(m => ({ default: m.KnownHostsPage })));
 const PortForwardPage = lazy(() => import("@/pages/PortForwardPage").then(m => ({ default: m.PortForwardPage })));
 const SnippetsPage = lazy(() => import("@/pages/SnippetsPage").then(m => ({ default: m.SnippetsPage })));
+const SnippetForm = lazy(() => import("@/components/snippets").then(m => ({ default: m.SnippetForm })));
 const LogsPage = lazy(() => import("@/pages/LogsPage").then(m => ({ default: m.LogsPage })));
 const LogViewer = lazy(() => import("@/components/logs").then(m => ({ default: m.LogViewer })));
 
@@ -34,12 +37,15 @@ export function MainLayout() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showExportImport, setShowExportImport] = useState(false);
+  const [showSnippetForm, setShowSnippetForm] = useState(false);
+  const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null);
   const activeSessionTabId = useTabStore((state) => state.activeTabId);
   const tabs = useTabStore((state) => state.tabs);
   const currentTab = tabs.find(tab => tab.id === activeSessionTabId);
   const activeSessionId = currentTab?.sessionId;
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
   const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
+  const { createSnippet, updateSnippet } = useSnippets();
   const prevTabsLength = useRef(tabs.length);
 
   useEffect(() => {
@@ -208,6 +214,16 @@ export function MainLayout() {
                 console.log('❌ No active session')
               }
             }}
+            onEditSnippet={(snippet) => {
+              setEditingSnippet(snippet)
+              setShowTerminalSettings(false)
+              setShowSnippetForm(true)
+            }}
+            onNewSnippet={() => {
+              setEditingSnippet(null)
+              setShowTerminalSettings(false)
+              setShowSnippetForm(true)
+            }}
           />
         </Suspense>
       )}
@@ -220,6 +236,32 @@ export function MainLayout() {
 
       {/* Export/Import Dialog */}
       <ExportImportDialog isOpen={showExportImport} onClose={() => setShowExportImport(false)} />
+
+      {/* Snippet Form */}
+      {showSnippetForm && (
+        <Suspense fallback={null}>
+          <SnippetForm
+            isOpen={showSnippetForm}
+            snippet={editingSnippet}
+            onClose={() => {
+              setShowSnippetForm(false)
+              setEditingSnippet(null)
+            }}
+            onSave={async (data) => {
+              if (editingSnippet) {
+                await updateSnippet({
+                  id: editingSnippet.id,
+                  ...data
+                })
+              } else {
+                await createSnippet(data)
+              }
+              setShowSnippetForm(false)
+              setEditingSnippet(null)
+            }}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
