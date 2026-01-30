@@ -14,6 +14,7 @@ interface TerminalPaneProps {
   onReady: (xterm: XTerm, searchAddon: SearchAddon) => void
   onSearchResults?: (results: { resultIndex: number, resultCount: number } | null) => void
   isActive?: boolean
+  sidebarOpen?: boolean
 }
 
 export const TerminalPane = memo(function TerminalPane({
@@ -22,7 +23,8 @@ export const TerminalPane = memo(function TerminalPane({
   onResize,
   onReady,
   onSearchResults,
-  isActive = true
+  isActive = true,
+  sidebarOpen = false
 }: TerminalPaneProps) {
   const terminalRef = useRef<HTMLDivElement>(null)
   const xtermRef = useRef<XTerm | null>(null)
@@ -39,6 +41,18 @@ export const TerminalPane = memo(function TerminalPane({
   const handleResize = useCallback((cols: number, rows: number) => {
     onResize(cols, rows)
   }, [onResize])
+
+  // Re-fit when sidebar opens/closes
+  useEffect(() => {
+    if (xtermRef.current && fitAddonRef.current) {
+      requestAnimationFrame(() => {
+        if (fitAddonRef.current && xtermRef.current) {
+          fitAddonRef.current.fit()
+          handleResize(xtermRef.current.cols, xtermRef.current.rows)
+        }
+      })
+    }
+  }, [sidebarOpen, handleResize])
 
   // Re-fit when becoming active
   useEffect(() => {

@@ -11,9 +11,10 @@ import { Terminal as XTerm } from 'xterm'
 interface TerminalViewProps {
   sessionId: string
   isActive?: boolean
+  sidebarOpen?: boolean
 }
 
-export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) {
+export function TerminalView({ sessionId, isActive = true, sidebarOpen = false }: TerminalViewProps) {
   const { sendInput, resize, setXterm } = useTerminal(sessionId)
   const [showSearch, setShowSearch] = useState(false)
   const [searchResults, setSearchResults] = useState<{ index: number, total: number } | null>(null)
@@ -97,6 +98,9 @@ export function TerminalView({ sessionId, isActive = true }: TerminalViewProps) 
           onResize={handleResize}
           onReady={handleReady}
           onSearchResults={handleSearchResults}
+          isActive={isActive}
+          sidebarOpen={sidebarOpen}
+        />
           isActive={isActive}
         />
       </div>
