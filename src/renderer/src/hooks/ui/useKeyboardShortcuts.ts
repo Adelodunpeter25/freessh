@@ -50,6 +50,9 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
     if (!enabled) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      // If default is already prevented, don't interfere
+      if (e.defaultPrevented) return
+      
       const target = e.target as HTMLElement
       const isInputField = target instanceof HTMLInputElement || 
                           target instanceof HTMLTextAreaElement ||
@@ -77,7 +80,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
         return
       }
 
-      // Only handle our custom shortcuts
+      // Only handle our custom shortcuts, ignore everything else
       switch (shortcutKey) {
         case 'cmd+t':
           e.preventDefault()
@@ -128,10 +131,13 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
             handlers.onDeleteFile?.()
           }
           break
+        
+        // All other shortcuts (Cmd+A, Cmd+C, etc.) fall through and work normally
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    // Use capture phase to check early, but only preventDefault for our shortcuts
+    window.addEventListener('keydown', handleKeyDown, false)
+    return () => window.removeEventListener('keydown', handleKeyDown, false)
   }, [handlers, enabled, tabs, setActiveTab, removeTab, activeTabId])
 }
