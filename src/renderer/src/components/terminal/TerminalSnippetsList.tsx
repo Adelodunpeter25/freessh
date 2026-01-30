@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSnippets, useSnippetSearch } from '@/hooks/snippets'
 import { Snippet } from '@/types/snippet'
-import { SearchBar } from '@/components/common/SearchBar'
+import { SnippetSearchBar } from '@/components/snippets/SnippetSearchBar'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Braces } from 'lucide-react'
 
@@ -25,10 +25,9 @@ export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListPr
   return (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-border">
-        <SearchBar
+        <SnippetSearchBar
           value={searchQuery}
           onChange={setSearchQuery}
-          placeholder="Search snippets..."
         />
       </div>
 
