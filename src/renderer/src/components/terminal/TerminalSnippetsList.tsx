@@ -24,7 +24,7 @@ export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListPr
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-border">
+      <div className="px-2 py-4 border-b border-border">
         <SnippetSearchBar
           value={searchQuery}
           onChange={setSearchQuery}
