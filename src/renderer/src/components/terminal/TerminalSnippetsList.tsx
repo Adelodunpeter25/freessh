@@ -68,7 +68,7 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
         </TooltipProvider>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2" onClick={handleClearSelection}>
+      <div className="flex-1 overflow-y-auto p-2 pb-4" onClick={handleClearSelection}>
         {filteredSnippets.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <Braces className="h-12 w-12 text-muted-foreground/50 mb-3" />

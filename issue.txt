@@ -1,5 +1,0 @@
-i have an issue with the terminal sidebar snippets like adn the terminal settings scrolling can you review it
-
-the terminal does not mind if we open the sidebar thereby the sidebar blocks content if commands are ran
-
-i want the terminal sidebar to close when i exit a terminal window maybe you can make it that the temrinal sidebar can not open in teh home and sftp page
