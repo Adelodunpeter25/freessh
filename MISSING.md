@@ -121,13 +121,22 @@
 ## Planned Features
 
 ### Export/Import Connections
-**Status:** Not implemented  
+**Status:** ✅ Implemented (FreeSSH format)  
 **Description:** Backup and share connection configurations.  
-**Implementation needed:**
-- Export: Save connections to JSON/encrypted file
-- Import: Load connections from file
-- Options: Export all, export selected, export group
-- Security: Option to exclude passwords/keys from export
+**Implementation:**
+- ✅ Export connections, groups, port forwards, and SSH keys to JSON
+- ✅ FreeSSH native format with full data preservation
+- ✅ Export dialog with format selection
+- ✅ Import with validation and error handling
+- ✅ Automatic key migration (embedded keys → managed keys)
+- ✅ Duplicate detection (skips existing items)
+- ✅ Success/warning notifications with import counts
+- ✅ File menu integration (Cmd+Shift+E)
+
+**Planned formats:**
+- OpenSSH config format (~/.ssh/config) - import/export
+- PuTTY session format (.reg) - import only
+- Termius JSON format - import only (if viable)
 
 ### Snippets/Commands
 **Status:** Not implemented  
