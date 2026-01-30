@@ -4,13 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet'
+import { Sheet } from '@/components/ui/sheet'
 import { X } from 'lucide-react'
 
 interface SnippetFormProps {
@@ -73,96 +67,92 @@ export function SnippetForm({ isOpen, snippet, onClose, onSave }: SnippetFormPro
   }
 
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="right" className="w-[400px] sm:w-[540px]">
-        <SheetHeader>
-          <SheetTitle>{snippet ? 'Edit Snippet' : 'New Snippet'}</SheetTitle>
-          <SheetDescription>
-            {snippet ? 'Update your command snippet' : 'Create a new command snippet'}
-          </SheetDescription>
-        </SheetHeader>
+    <Sheet
+      isOpen={isOpen}
+      onClose={onClose}
+      title={snippet ? 'Edit Snippet' : 'New Snippet'}
+      className="w-[400px] sm:w-[540px]"
+    >
+      <form onSubmit={handleSubmit} className="flex-1 overflow-auto p-4 space-y-4">
+        <div>
+          <Label htmlFor="name">Name</Label>
+          <Input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g., Deploy to production"
+            required
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-          <div>
-            <Label htmlFor="name">Name</Label>
+        <div>
+          <Label htmlFor="command">Command</Label>
+          <Textarea
+            id="command"
+            value={command}
+            onChange={(e) => setCommand(e.target.value)}
+            placeholder="e.g., docker build -t myapp . && docker push myapp"
+            rows={4}
+            required
+            className="font-mono text-sm"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="description">Description (optional)</Label>
+          <Textarea
+            id="description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="What does this command do?"
+            rows={2}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="tags">Tags (optional)</Label>
+          <div className="flex gap-2">
             <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Deploy to production"
-              required
+              id="tags"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="e.g., docker, deploy"
             />
+            <Button type="button" variant="outline" onClick={handleAddTag}>
+              Add
+            </Button>
           </div>
-
-          <div>
-            <Label htmlFor="command">Command</Label>
-            <Textarea
-              id="command"
-              value={command}
-              onChange={(e) => setCommand(e.target.value)}
-              placeholder="e.g., docker build -t myapp . && docker push myapp"
-              rows={4}
-              required
-              className="font-mono text-sm"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="description">Description (optional)</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="What does this command do?"
-              rows={2}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="tags">Tags (optional)</Label>
-            <div className="flex gap-2">
-              <Input
-                id="tags"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="e.g., docker, deploy"
-              />
-              <Button type="button" variant="outline" onClick={handleAddTag}>
-                Add
-              </Button>
-            </div>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-sm"
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-sm"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(tag)}
+                    className="hover:text-primary/80"
                   >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="hover:text-primary/80"
-                    >
-                      <X className="h-3 w-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              {snippet ? 'Update' : 'Create'}
-            </Button>
-          </div>
-        </form>
-      </SheetContent>
+        <div className="flex justify-end gap-2 pt-4 border-t">
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit">
+            {snippet ? 'Update' : 'Create'}
+          </Button>
+        </div>
+      </form>
     </Sheet>
   )
 }
