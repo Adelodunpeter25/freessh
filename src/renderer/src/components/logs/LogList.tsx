@@ -1,6 +1,8 @@
 import { LogEntry } from '@/types/log'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { LogCard } from './LogCard'
+import { EmptyState } from '@/components/common/EmptyState'
+import { FileText } from 'lucide-react'
 import { useState } from 'react'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 
@@ -22,10 +24,11 @@ export function LogList({ logs, onDelete, onOpen }: LogListProps) {
 
   if (!logs || logs.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-        <p>No logs found</p>
-        <p className="text-sm">Start recording terminal sessions to see logs here</p>
-      </div>
+      <EmptyState
+        icon={FileText}
+        title="No logs found"
+        description="Start recording terminal sessions to see logs here"
+      />
     )
   }
 
