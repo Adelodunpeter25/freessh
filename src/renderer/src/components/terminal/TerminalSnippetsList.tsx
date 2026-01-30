@@ -40,11 +40,11 @@ export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListPr
             </p>
           </div>
         ) : (
-          <div className="p-2 space-y-1">
+          <div className="space-y-1">
             {filteredSnippets.map((snippet) => (
               <div
                 key={snippet.id}
-                className="group border-t border-b border-border p-3"
+                className="group border-t border-b border-border p-2 px-3"
               >
                 <div className="flex items-start gap-2">
                   <Braces className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
