@@ -4,7 +4,6 @@ import (
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/storage"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -38,9 +37,8 @@ func (m *Manager) Add(command string) (*models.HistoryEntry, error) {
 	}
 
 	entry := models.HistoryEntry{
-		ID:        uuid.New().String(),
-		Command:   command,
-		Timestamp: time.Now(),
+		ID:      uuid.New().String(),
+		Command: command,
 	}
 
 	if err := m.storage.Add(entry); err != nil {

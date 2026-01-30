@@ -1,11 +1,8 @@
 package models
 
-import "time"
-
 type HistoryEntry struct {
-	ID        string    `json:"id"`
-	Command   string    `json:"command"`
-	Timestamp time.Time `json:"timestamp"`
+	ID      string `json:"id"`
+	Command string `json:"command"`
 }
 
 type HistoryListRequest struct{}

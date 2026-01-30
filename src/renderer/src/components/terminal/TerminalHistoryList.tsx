@@ -92,10 +92,7 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
                 className="group p-2 rounded-lg hover:bg-muted/50 transition-colors"
               >
                 <div className="font-mono text-sm break-all">{entry.command}</div>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(entry.timestamp).toLocaleString()}
-                  </span>
+                <div className="flex items-center justify-end mt-1">
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                     <Button
                       variant="ghost"
