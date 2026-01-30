@@ -50,14 +50,24 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
     if (!enabled) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement
+      const isInputField = target instanceof HTMLInputElement || 
+                          target instanceof HTMLTextAreaElement ||
+                          target.isContentEditable
+      
       const shortcutKey = buildShortcutKey(e)
+      
+      // Allow Cmd+A in input fields
+      if (shortcutKey === 'cmd+a' && isInputField) {
+        return
+      }
       
       // Navigation shortcuts
       if (shortcutKey.match(/^cmd\+[1-9]$/)) {
-        const index = parseInt(shortcutKey.slice(-1)) - 1
         e.preventDefault()
         
         // Index 0 = Home, Index 1 = SFTP, Index 2+ = Session tabs
+        const index = parseInt(shortcutKey.slice(-1)) - 1
         if (index === 0) {
           handlers.onSwitchTab?.(0) // Home
         } else if (index === 1) {
@@ -121,7 +131,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
         
         case 'delete':
           // Only if not in input field
-          if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+          if (!isInputField) {
             e.preventDefault()
             handlers.onDeleteFile?.()
           }
