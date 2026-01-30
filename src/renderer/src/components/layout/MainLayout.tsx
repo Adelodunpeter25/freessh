@@ -228,6 +228,7 @@ export function MainLayout() {
               setShowTerminalSettings(false)
               setShowSnippetForm(true)
             }}
+            activeSessionId={activeSessionId || null}
           />
         </Suspense>
       )}

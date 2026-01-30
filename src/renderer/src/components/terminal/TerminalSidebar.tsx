@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TerminalSettingsContent } from './TerminalSettingsContent'
 import { TerminalSnippetsList } from './TerminalSnippetsList'
+import { TerminalHistoryList } from './TerminalHistoryList'
 import { Snippet } from '@/types/snippet'
 
 interface TerminalSidebarProps {
@@ -13,9 +14,10 @@ interface TerminalSidebarProps {
   onEditSnippet: (snippet: Snippet) => void
   onDeleteSnippet: (snippet: Snippet) => void
   onNewSnippet: () => void
+  activeSessionId: string | null
 }
 
-export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditSnippet, onDeleteSnippet, onNewSnippet }: TerminalSidebarProps) {
+export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditSnippet, onDeleteSnippet, onNewSnippet, activeSessionId }: TerminalSidebarProps) {
   const [activeTab, setActiveTab] = useState('snippets')
 
   const handlePasteSnippet = (snippet: Snippet) => {
@@ -52,6 +54,9 @@ export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditS
           <TabsTrigger value="snippets" className="flex-1">
             Snippets
           </TabsTrigger>
+          <TabsTrigger value="history" className="flex-1">
+            History
+          </TabsTrigger>
           <TabsTrigger value="settings" className="flex-1">
             Settings
           </TabsTrigger>
@@ -65,6 +70,10 @@ export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditS
             onDeleteSnippet={handleDeleteSnippet}
             onNewSnippet={handleNewSnippet}
           />
+        </TabsContent>
+
+        <TabsContent value="history" className="flex-1 m-0 overflow-hidden">
+          <TerminalHistoryList activeSessionId={activeSessionId} />
         </TabsContent>
 
         <TabsContent value="settings" className="flex-1 m-0 overflow-hidden">
