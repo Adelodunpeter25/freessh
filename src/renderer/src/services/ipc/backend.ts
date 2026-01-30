@@ -39,7 +39,19 @@ class BackendService {
         return
       }
 
-      console.log('[BackendService] No session handler found, message dropped')
+      // For session_status and error messages, fall back to global handler
+      // These are used during connection establishment before session-specific handlers exist
+      if (message.type === 'session_status' || message.type === 'error') {
+        console.log('[BackendService] Falling back to global handler for:', message.type)
+        const globalHandler = this.messageHandlers.get(message.type)
+        if (globalHandler) {
+          console.log('[BackendService] Found global handler, calling it')
+          globalHandler(message)
+          return
+        }
+      }
+
+      console.log('[BackendService] No handler found, message dropped')
       // If message has session_id, don't fall back to global handler
       // to avoid delivering terminal output to multiple listeners
       return
