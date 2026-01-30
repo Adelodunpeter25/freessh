@@ -57,8 +57,8 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
       
       const shortcutKey = buildShortcutKey(e)
       
-      // Allow Cmd+A in input fields
-      if (shortcutKey === 'cmd+a' && isInputField) {
+      // Allow standard editing shortcuts in input fields
+      if (isInputField && ['cmd+a', 'cmd+c', 'cmd+v', 'cmd+x', 'cmd+z', 'cmd+shift+z'].includes(shortcutKey)) {
         return
       }
       
