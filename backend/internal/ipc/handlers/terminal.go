@@ -13,12 +13,14 @@ import (
 type TerminalHandler struct {
 	manager        *session.Manager
 	historyManager *history.Manager
+	commandBuffers map[string]string
 }
 
 func NewTerminalHandler(manager *session.Manager, historyStorage *storage.HistoryStorage) *TerminalHandler {
 	return &TerminalHandler{
 		manager:        manager,
 		historyManager: history.NewManager(historyStorage),
+		commandBuffers: make(map[string]string),
 	}
 }
 
@@ -57,8 +59,14 @@ func (h *TerminalHandler) handleInput(msg *models.IPCMessage) error {
 
 	// Track command if it ends with newline or carriage return
 	if strings.HasSuffix(inputData.Data, "\n") || strings.HasSuffix(inputData.Data, "\r") {
-		command := strings.TrimSuffix(strings.TrimSuffix(inputData.Data, "\n"), "\r")
-		h.historyManager.Add(command)
+		command := strings.TrimSpace(h.commandBuffers[msg.SessionID])
+		if command != "" {
+			h.historyManager.Add(command)
+		}
+		h.commandBuffers[msg.SessionID] = ""
+	} else {
+		// Accumulate command buffer
+		h.commandBuffers[msg.SessionID] += inputData.Data
 	}
 
 	return h.manager.SendInput(msg.SessionID, []byte(inputData.Data))
