@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Search, Trash2 } from 'lucide-react'
 import { Input } from '@renderer/components/ui/input'
 import { Button } from '@renderer/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@renderer/components/ui/tooltip'
 import { useHistory } from '@renderer/hooks/history/useHistory'
 import { terminalService } from '@renderer/services/ipc/terminal'
 import { toast } from 'sonner'
@@ -51,25 +52,32 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
     <>
       <div className="flex flex-col h-full">
         <div className="p-3 space-y-2">
-          <div className="relative">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search history..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 h-9"
-            />
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search history..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-8 h-9"
+              />
+            </div>
+            <TooltipProvider delayDuration={150}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowClearConfirm(true)}
+                    disabled={history.length === 0}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Clear History</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowClearConfirm(true)}
-            className="w-full"
-            disabled={history.length === 0}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Clear History
-          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2">
