@@ -49,6 +49,8 @@ func (m *Manager) Export(format string) ([]byte, error) {
 	switch format {
 	case "freessh":
 		return m.exportFreeSSH()
+	case "openssh":
+		return m.exportOpenSSH()
 	default:
 		return nil, fmt.Errorf("unsupported export format: %s", format)
 	}
@@ -117,4 +119,9 @@ func (m *Manager) exportFreeSSH() ([]byte, error) {
 	}
 
 	return json.MarshalIndent(exportData, "", "  ")
+}
+
+func (m *Manager) exportOpenSSH() ([]byte, error) {
+	connections := m.connectionStorage.List()
+	return ExportOpenSSH(connections, m.keyFileStorage)
 }

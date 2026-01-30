@@ -9,6 +9,15 @@ type ExportFreeSSHResponse struct {
 	Filename string `json:"filename"`
 }
 
+type ExportOpenSSHRequest struct {
+	// No parameters needed - exports everything
+}
+
+type ExportOpenSSHResponse struct {
+	Data     string `json:"data"`
+	Filename string `json:"filename"`
+}
+
 type ImportFreeSSHRequest struct {
 	Data []byte `json:"data"`
 }
@@ -19,4 +28,14 @@ type ImportFreeSSHResponse struct {
 	PortForwardsImported int      `json:"port_forwards_imported"`
 	KeysImported         int      `json:"keys_imported"`
 	Errors               []string `json:"errors,omitempty"`
+}
+
+type ImportOpenSSHRequest struct {
+	Data []byte `json:"data"`
+}
+
+type ImportOpenSSHResponse struct {
+	ConnectionsImported int      `json:"connections_imported"`
+	KeysImported        int      `json:"keys_imported"`
+	Errors              []string `json:"errors,omitempty"`
 }

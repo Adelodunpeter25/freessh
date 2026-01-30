@@ -69,6 +69,8 @@ func NewServer() *Server {
 			handlers.NewLogSettingsHandler(logSettingsStorage),
 			handlers.NewExportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 			handlers.NewImportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
+			handlers.NewExportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
+			handlers.NewImportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 		},
 	}
 }

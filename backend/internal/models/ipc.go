@@ -60,9 +60,11 @@ const (
 
 	// Export messages
 	MsgExportFreeSSH MessageType = "export:freessh"
+	MsgExportOpenSSH MessageType = "export:openssh"
 
 	// Import messages
 	MsgImportFreeSSH MessageType = "import:freessh"
+	MsgImportOpenSSH MessageType = "import:openssh"
 
 	// Key generation messages
 	MsgKeygenGenerate    MessageType = "keygen:generate"

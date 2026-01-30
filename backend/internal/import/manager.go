@@ -38,6 +38,8 @@ func (m *Manager) Import(format string, data []byte) (*ImportResult, error) {
 	switch format {
 	case "freessh":
 		return m.importFreeSSH(data)
+	case "openssh":
+		return m.importOpenSSH(data)
 	default:
 		return nil, fmt.Errorf("unsupported import format: %s", format)
 	}
@@ -131,6 +133,42 @@ func (m *Manager) importFreeSSH(data []byte) (*ImportResult, error) {
 			result.Errors = append(result.Errors, fmt.Sprintf("Failed to import port forward %s: %v", pf.Name, err))
 		} else {
 			result.PortForwardsImported++
+		}
+	}
+
+	return result, nil
+}
+
+func (m *Manager) importOpenSSH(data []byte) (*ImportResult, error) {
+	hosts, err := ParseOpenSSHConfig(data)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &ImportResult{}
+
+	for _, host := range hosts {
+		conn := ConvertOpenSSHToConnection(host)
+		
+		// Check if connection already exists by name
+		existing := m.connectionStorage.List()
+		exists := false
+		for _, e := range existing {
+			if e.Name == conn.Name {
+				exists = true
+				break
+			}
+		}
+		
+		if exists {
+			result.Errors = append(result.Errors, fmt.Sprintf("Connection %s already exists, skipping", conn.Name))
+			continue
+		}
+
+		if err := m.connectionStorage.Save(conn); err != nil {
+			result.Errors = append(result.Errors, fmt.Sprintf("Failed to import connection %s: %v", conn.Name, err))
+		} else {
+			result.ConnectionsImported++
 		}
 	}
 
