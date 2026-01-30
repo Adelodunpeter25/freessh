@@ -44,7 +44,7 @@ export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListPr
             {filteredSnippets.map((snippet) => (
               <div
                 key={snippet.id}
-                className="group border-t border-b border-border p-2 px-3"
+                className="group border-t border-b border-border p-2"
               >
                 <div className="flex items-start gap-2">
                   <Braces className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
