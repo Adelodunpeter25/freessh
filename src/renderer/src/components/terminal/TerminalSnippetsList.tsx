@@ -4,6 +4,7 @@ import { Snippet } from '@/types/snippet'
 import { SnippetSearchBar } from '@/components/snippets/SnippetSearchBar'
 import { SnippetsContextMenu } from '@/components/contextmenu'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Braces, Plus } from 'lucide-react'
 
 interface TerminalSnippetsListProps {
@@ -33,14 +34,21 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
           value={searchQuery}
           onChange={setSearchQuery}
         />
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onNewSnippet}
-          className="flex-shrink-0"
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onNewSnippet}
+                className="flex-shrink-0"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Add new snippet</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <div className="flex-1 overflow-y-auto">
