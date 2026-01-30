@@ -15,7 +15,7 @@ import { useMenuActions } from "@/hooks";
 const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));
 const SFTPPage = lazy(() => import("@/pages/SFTPPage"));
 const TerminalView = lazy(() => import("@/components/terminal/TerminalView").then(m => ({ default: m.TerminalView })));
-const TerminalSettings = lazy(() => import("@/components/terminal/TerminalSettings").then(m => ({ default: m.TerminalSettings })));
+const TerminalSidebar = lazy(() => import("@/components/terminal/TerminalSidebar").then(m => ({ default: m.TerminalSidebar })));
 const KeygenList = lazy(() => import("@/components/keygen").then(m => ({ default: m.KeygenList })));
 const KnownHostsPage = lazy(() => import("@/pages/KnownHostsPage").then(m => ({ default: m.KnownHostsPage })));
 const PortForwardPage = lazy(() => import("@/pages/PortForwardPage").then(m => ({ default: m.PortForwardPage })));
@@ -184,10 +184,13 @@ export function MainLayout() {
         </Suspense>
       </div>
 
-      {/* Terminal Settings Sidebar */}
+      {/* Terminal Sidebar */}
       {showTerminalSettings && (
         <Suspense fallback={null}>
-          <TerminalSettings onClose={() => setShowTerminalSettings(false)} />
+          <TerminalSidebar 
+            onClose={() => setShowTerminalSettings(false)}
+            onInsertSnippet={() => {}} 
+          />
         </Suspense>
       )}
 
