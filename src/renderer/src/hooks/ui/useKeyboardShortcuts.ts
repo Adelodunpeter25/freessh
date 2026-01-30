@@ -57,11 +57,6 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
       
       const shortcutKey = buildShortcutKey(e)
       
-      // Allow standard editing shortcuts in input fields
-      if (isInputField && ['cmd+a', 'cmd+c', 'cmd+v', 'cmd+x', 'cmd+z', 'cmd+shift+z'].includes(shortcutKey)) {
-        return
-      }
-      
       // Navigation shortcuts
       if (shortcutKey.match(/^cmd\+[1-9]$/)) {
         e.preventDefault()
@@ -82,8 +77,8 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
         return
       }
 
+      // Only handle our custom shortcuts
       switch (shortcutKey) {
-        // Navigation
         case 'cmd+t':
           e.preventDefault()
           handlers.onNewConnection?.()
@@ -112,7 +107,6 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           handlers.onShowShortcuts?.()
           break
         
-        // Terminal
         case 'cmd+k':
           e.preventDefault()
           handlers.onClearTerminal?.()
@@ -123,14 +117,12 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           handlers.onSearchTerminal?.()
           break
         
-        // SFTP
         case 'cmd+r':
           e.preventDefault()
           handlers.onRefreshSFTP?.()
           break
         
         case 'delete':
-          // Only if not in input field
           if (!isInputField) {
             e.preventDefault()
             handlers.onDeleteFile?.()
