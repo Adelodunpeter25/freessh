@@ -101,8 +101,6 @@ export function TerminalView({ sessionId, isActive = true, sidebarOpen = false }
           isActive={isActive}
           sidebarOpen={sidebarOpen}
         />
-          isActive={isActive}
-        />
       </div>
     </TerminalContextMenu>
   )
