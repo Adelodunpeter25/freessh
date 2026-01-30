@@ -184,9 +184,20 @@ func (h *ConnectionHandler) handleConnect(msg *models.IPCMessage, writer Respons
 	fmt.Fprintf(os.Stderr, "[Backend] Session created successfully: %s\n", session.ID)
 	msg.SessionID = session.ID
 
-	return writer.WriteMessage(&models.IPCMessage{
+	fmt.Fprintf(os.Stderr, "[Backend] Preparing to write session_status message\n")
+	responseMsg := &models.IPCMessage{
 		Type:      models.MsgSessionStatus,
 		SessionID: session.ID,
 		Data:      session,
-	})
+	}
+	fmt.Fprintf(os.Stderr, "[Backend] Response message: Type=%s, SessionID=%s\n", responseMsg.Type, responseMsg.SessionID)
+	
+	err = writer.WriteMessage(responseMsg)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "[Backend] Failed to write message: %v\n", err)
+		return err
+	}
+	
+	fmt.Fprintf(os.Stderr, "[Backend] Message written successfully\n")
+	return nil
 }
