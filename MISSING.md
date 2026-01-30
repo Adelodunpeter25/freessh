@@ -161,6 +161,4 @@
   - Save command from history as snippet
 
 **Planned:**
-- Keyboard shortcuts for snippets
-- Most used/favorites
-- Categories/folders for organization
+- Most used/favorites tracking
