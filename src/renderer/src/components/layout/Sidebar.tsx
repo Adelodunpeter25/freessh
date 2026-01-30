@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Server, Key, Fingerprint, ArrowRightLeft, Code, FileText, type LucideIcon } from 'lucide-react'
+import { Server, Key, Fingerprint, ArrowRightLeft, Braces, FileText, type LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type SidebarTab = 'connections' | 'keys' | 'known-hosts' | 'port-forward' | 'snippets' | 'logs'
@@ -16,7 +16,7 @@ export function Sidebar({ onTabChange }: SidebarProps) {
     { id: 'keys' as SidebarTab, icon: Key, label: 'Keys' },
     { id: 'known-hosts' as SidebarTab, icon: Fingerprint, label: 'Known Hosts' },
     { id: 'port-forward' as SidebarTab, icon: ArrowRightLeft, label: 'Port Forward' },
-    { id: 'snippets' as SidebarTab, icon: Code, label: 'Snippets' },
+    { id: 'snippets' as SidebarTab, icon: Braces, label: 'Snippets' },
     { id: 'logs' as SidebarTab, icon: FileText, label: 'Logs' },
   ]
 
