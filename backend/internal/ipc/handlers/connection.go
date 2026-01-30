@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"freessh-backend/internal/connection"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
@@ -144,19 +145,26 @@ func (h *ConnectionHandler) handleUpdate(msg *models.IPCMessage, writer Response
 }
 
 func (h *ConnectionHandler) handleConnect(msg *models.IPCMessage, writer ResponseWriter) error {
+	fmt.Fprintf(os.Stderr, "[Backend] handleConnect called\n")
+	
 	jsonData, err := json.Marshal(msg.Data)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "[Backend] Failed to marshal data: %v\n", err)
 		return fmt.Errorf("invalid data: %w", err)
 	}
 
 	var config models.ConnectionConfig
 	if err := json.Unmarshal(jsonData, &config); err != nil {
+		fmt.Fprintf(os.Stderr, "[Backend] Failed to unmarshal config: %v\n", err)
 		return fmt.Errorf("failed to parse connection config: %w", err)
 	}
+
+	fmt.Fprintf(os.Stderr, "[Backend] Connecting to: %s@%s:%d\n", config.Username, config.Host, config.Port)
 
 	// Migrate embedded key to key storage if present
 	if h.keyStorage != nil && h.keyFileStorage != nil {
 		if err := connection.MigrateEmbeddedKey(&config, h.keyStorage, h.keyFileStorage); err != nil {
+			fmt.Fprintf(os.Stderr, "[Backend] Failed to migrate key: %v\n", err)
 			return fmt.Errorf("failed to migrate key: %w", err)
 		}
 		// Save the updated config if migration happened
@@ -165,12 +173,15 @@ func (h *ConnectionHandler) handleConnect(msg *models.IPCMessage, writer Respons
 		}
 	}
 
+	fmt.Fprintf(os.Stderr, "[Backend] Creating session with verification\n")
 	verificationCallback := h.verificationHelper.CreateVerificationCallback(writer)
 	session, err := h.manager.CreateSessionWithVerification(config, verificationCallback)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "[Backend] Failed to create session: %v\n", err)
 		return err
 	}
 
+	fmt.Fprintf(os.Stderr, "[Backend] Session created successfully: %s\n", session.ID)
 	msg.SessionID = session.ID
 
 	return writer.WriteMessage(&models.IPCMessage{
