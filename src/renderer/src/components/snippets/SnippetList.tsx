@@ -36,7 +36,7 @@ export function SnippetList({ snippets, loading, onView, onEdit, onDelete }: Sni
 
   return (
     <ScrollArea className="h-full" onClick={() => setSelectedId(null)}>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-4 p-6">
         {snippets.map((snippet) => (
           <SnippetCard
             key={snippet.id}

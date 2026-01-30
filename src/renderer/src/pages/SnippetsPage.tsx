@@ -1,13 +1,13 @@
 import { useState } from 'react'
-import { useSnippets } from '@/hooks'
+import { useSnippets, useSnippetSearch } from '@/hooks/snippets'
 import { Snippet } from '@/types/snippet'
-import { SnippetList, SnippetForm, ViewCommandDialog } from '@/components/snippets'
-import { Button } from '@/components/ui/button'
-import { Plus } from 'lucide-react'
+import { SnippetList, SnippetForm, ViewCommandDialog, SnippetHeader } from '@/components/snippets'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 
 export function SnippetsPage() {
   const { snippets, loading, createSnippet, updateSnippet, deleteSnippet } = useSnippets()
+  const [searchQuery, setSearchQuery] = useState('')
+  const { filteredSnippets } = useSnippetSearch(snippets, searchQuery)
   const [showForm, setShowForm] = useState(false)
   const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null)
   const [deletingSnippet, setDeletingSnippet] = useState<Snippet | null>(null)
@@ -56,17 +56,15 @@ export function SnippetsPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 border-b">
-        <h2 className="text-lg font-semibold">Snippets</h2>
-        <Button onClick={handleNew} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          New Snippet
-        </Button>
-      </div>
+      <SnippetHeader
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onNewSnippet={handleNew}
+      />
 
       <div className="flex-1 overflow-auto">
         <SnippetList
-          snippets={snippets}
+          snippets={filteredSnippets}
           loading={loading}
           onView={handleView}
           onEdit={handleEdit}
