@@ -50,22 +50,14 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
     if (!enabled) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement
-      const isInputField = target instanceof HTMLInputElement || 
-                          target instanceof HTMLTextAreaElement ||
-                          target.isContentEditable
-      
-      // Don't process ANY shortcuts when in input fields - let browser handle natively
-      if (isInputField) return
-      
       const shortcutKey = buildShortcutKey(e)
       
       // Navigation shortcuts
       if (shortcutKey.match(/^cmd\+[1-9]$/)) {
+        const index = parseInt(shortcutKey.slice(-1)) - 1
         e.preventDefault()
         
         // Index 0 = Home, Index 1 = SFTP, Index 2+ = Session tabs
-        const index = parseInt(shortcutKey.slice(-1)) - 1
         if (index === 0) {
           handlers.onSwitchTab?.(0) // Home
         } else if (index === 1) {
@@ -81,6 +73,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
       }
 
       switch (shortcutKey) {
+        // Navigation
         case 'cmd+t':
           e.preventDefault()
           handlers.onNewConnection?.()
@@ -109,6 +102,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           handlers.onShowShortcuts?.()
           break
         
+        // Terminal
         case 'cmd+k':
           e.preventDefault()
           handlers.onClearTerminal?.()
@@ -119,19 +113,23 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           handlers.onSearchTerminal?.()
           break
         
+        // SFTP
         case 'cmd+r':
           e.preventDefault()
           handlers.onRefreshSFTP?.()
           break
         
         case 'delete':
-          e.preventDefault()
-          handlers.onDeleteFile?.()
+          // Only if not in input field
+          if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+            e.preventDefault()
+            handlers.onDeleteFile?.()
+          }
           break
       }
     }
 
-    window.addEventListener('keydown', handleKeyDown, true)
-    return () => window.removeEventListener('keydown', handleKeyDown, true)
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handlers, enabled, tabs, setActiveTab, removeTab, activeTabId])
 }
