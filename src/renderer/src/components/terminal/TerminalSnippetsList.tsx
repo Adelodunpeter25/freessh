@@ -40,7 +40,7 @@ export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListPr
             </p>
           </div>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-1 pr-2">
             {filteredSnippets.map((snippet) => (
               <div
                 key={snippet.id}
