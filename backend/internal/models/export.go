@@ -5,7 +5,7 @@ type ExportFreeSSHRequest struct {
 }
 
 type ExportFreeSSHResponse struct {
-	Data     []byte `json:"data"`
+	Data     string `json:"data"`
 	Filename string `json:"filename"`
 }
 

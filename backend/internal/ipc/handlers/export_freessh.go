@@ -33,7 +33,7 @@ func (h *ExportFreeSSHHandler) Handle(msg *models.IPCMessage, writer ResponseWri
 	return writer.WriteMessage(&models.IPCMessage{
 		Type: models.MsgExportFreeSSH,
 		Data: models.ExportFreeSSHResponse{
-			Data:     data,
+			Data:     string(data),
 			Filename: filename,
 		},
 	})
