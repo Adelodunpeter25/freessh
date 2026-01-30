@@ -11,10 +11,11 @@ interface TerminalSidebarProps {
   onPasteSnippet: (command: string) => void
   onRunSnippet: (command: string) => void
   onEditSnippet: (snippet: Snippet) => void
+  onDeleteSnippet: (snippet: Snippet) => void
   onNewSnippet: () => void
 }
 
-export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditSnippet, onNewSnippet }: TerminalSidebarProps) {
+export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditSnippet, onDeleteSnippet, onNewSnippet }: TerminalSidebarProps) {
   const [activeTab, setActiveTab] = useState('snippets')
 
   const handlePasteSnippet = (snippet: Snippet) => {
@@ -27,6 +28,10 @@ export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditS
 
   const handleEditSnippet = (snippet: Snippet) => {
     onEditSnippet(snippet)
+  }
+
+  const handleDeleteSnippet = (snippet: Snippet) => {
+    onDeleteSnippet(snippet)
   }
 
   const handleNewSnippet = () => {
@@ -57,6 +62,7 @@ export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditS
             onPasteSnippet={handlePasteSnippet}
             onRunSnippet={handleRunSnippet}
             onEditSnippet={handleEditSnippet}
+            onDeleteSnippet={handleDeleteSnippet}
             onNewSnippet={handleNewSnippet}
           />
         </TabsContent>

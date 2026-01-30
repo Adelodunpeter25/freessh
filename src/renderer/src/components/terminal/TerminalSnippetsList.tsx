@@ -11,10 +11,11 @@ interface TerminalSnippetsListProps {
   onPasteSnippet: (snippet: Snippet) => void
   onRunSnippet: (snippet: Snippet) => void
   onEditSnippet: (snippet: Snippet) => void
+  onDeleteSnippet: (snippet: Snippet) => void
   onNewSnippet: () => void
 }
 
-export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnippet, onNewSnippet }: TerminalSnippetsListProps) {
+export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnippet, onDeleteSnippet, onNewSnippet }: TerminalSnippetsListProps) {
   const { snippets, loading } = useSnippets()
   const [searchQuery, setSearchQuery] = useState('')
   const { filteredSnippets } = useSnippetSearch(snippets, searchQuery)
@@ -66,6 +67,7 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
                 key={snippet.id}
                 snippet={snippet}
                 onEdit={() => onEditSnippet(snippet)}
+                onDelete={() => onDeleteSnippet(snippet)}
               >
                 <div
                   className="group border-t border-b border-border p-2"

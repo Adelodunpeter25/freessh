@@ -3,6 +3,7 @@ import { TitleBar } from "./TitleBar";
 import { Sidebar } from "./Sidebar";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { KeyboardShortcutsDialog } from "@/components/common/KeyboardShortcutsDialog";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { ExportImportDialog } from "@/components/export-import";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
@@ -40,13 +41,14 @@ export function MainLayout() {
   const [showExportImport, setShowExportImport] = useState(false);
   const [showSnippetForm, setShowSnippetForm] = useState(false);
   const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null);
+  const [deletingSnippet, setDeletingSnippet] = useState<Snippet | null>(null);
   const activeSessionTabId = useTabStore((state) => state.activeTabId);
   const tabs = useTabStore((state) => state.tabs);
   const currentTab = tabs.find(tab => tab.id === activeSessionTabId);
   const activeSessionId = currentTab?.sessionId;
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
   const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
-  const { createSnippet, updateSnippet } = useSnippets();
+  const { createSnippet, updateSnippet, deleteSnippet } = useSnippets();
   const prevTabsLength = useRef(tabs.length);
 
   useEffect(() => {
@@ -218,6 +220,9 @@ export function MainLayout() {
               setShowTerminalSettings(false)
               setShowSnippetForm(true)
             }}
+            onDeleteSnippet={(snippet) => {
+              setDeletingSnippet(snippet)
+            }}
             onNewSnippet={() => {
               setEditingSnippet(null)
               setShowTerminalSettings(false)
@@ -261,6 +266,22 @@ export function MainLayout() {
           />
         </Suspense>
       )}
+
+      {/* Delete Snippet Confirm Dialog */}
+      <ConfirmDialog
+        open={!!deletingSnippet}
+        onOpenChange={(open) => !open && setDeletingSnippet(null)}
+        title="Delete Snippet"
+        description={`Are you sure you want to delete "${deletingSnippet?.name}"? This action cannot be undone.`}
+        onConfirm={async () => {
+          if (deletingSnippet) {
+            await deleteSnippet(deletingSnippet.id)
+            setDeletingSnippet(null)
+          }
+        }}
+        confirmText="Delete"
+        destructive
+      />
     </div>
   );
 }
