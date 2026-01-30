@@ -3,7 +3,6 @@ import { ChevronRight } from 'lucide-react'
 import { useTerminalThemeStore } from '@/stores/terminalThemeStore'
 import { terminalThemePresets } from '@/utils/terminalThemePresets'
 import { TerminalFontSettings } from './TerminalFontSettings'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
 
 export function TerminalSettingsContent() {
@@ -19,8 +18,8 @@ export function TerminalSettingsContent() {
   }
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-4 space-y-6">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto p-4 space-y-6">
       <button
         onClick={() => setShowFontSettings(true)}
         className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-accent transition-colors"
@@ -87,6 +86,6 @@ export function TerminalSettingsContent() {
         </div>
       </div>
       </div>
-    </ScrollArea>
+    </div>
   )
 }

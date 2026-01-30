@@ -53,7 +53,7 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
         </TooltipProvider>
       </div>
 
-      <div className="flex-1 overflow-y-auto" onClick={() => setSelectedId(null)}>
+      <div className="flex-1 overflow-y-auto p-2" onClick={() => setSelectedId(null)}>
         {filteredSnippets.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <Braces className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -62,7 +62,7 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
             </p>
           </div>
         ) : (
-          <div className="space-y-2 pr-2">
+          <div className="space-y-2">
             {filteredSnippets.map((snippet) => (
               <SnippetsContextMenu
                 key={snippet.id}
