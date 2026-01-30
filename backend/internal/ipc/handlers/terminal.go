@@ -65,8 +65,23 @@ func (h *TerminalHandler) handleInput(msg *models.IPCMessage) error {
 		}
 		h.commandBuffers[msg.SessionID] = ""
 	} else {
-		// Accumulate command buffer
-		h.commandBuffers[msg.SessionID] += inputData.Data
+		// Handle backspace/delete
+		if inputData.Data == "\x7f" || inputData.Data == "\b" {
+			buffer := h.commandBuffers[msg.SessionID]
+			if len(buffer) > 0 {
+				h.commandBuffers[msg.SessionID] = buffer[:len(buffer)-1]
+			}
+		} else if inputData.Data == "\x03" || inputData.Data == "\x04" {
+			// Ctrl+C or Ctrl+D - clear buffer
+			h.commandBuffers[msg.SessionID] = ""
+		} else {
+			// Accumulate command buffer (ignore other control characters)
+			for _, r := range inputData.Data {
+				if r >= 32 || r == '\t' {
+					h.commandBuffers[msg.SessionID] += string(r)
+				}
+			}
+		}
 	}
 
 	return h.manager.SendInput(msg.SessionID, []byte(inputData.Data))
