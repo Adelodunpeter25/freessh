@@ -58,9 +58,11 @@ const (
 	MsgKeychainGet    MessageType = "keychain:get"
 	MsgKeychainDelete MessageType = "keychain:delete"
 
-	// Export/Import messages
-	MsgExport MessageType = "export"
-	MsgImport MessageType = "import"
+	// Export messages
+	MsgExportFreeSSH MessageType = "export:freessh"
+
+	// Import messages
+	MsgImportFreeSSH MessageType = "import:freessh"
 
 	// Key generation messages
 	MsgKeygenGenerate    MessageType = "keygen:generate"

@@ -8,43 +8,39 @@ import (
 	"freessh-backend/internal/storage"
 )
 
-type ImportHandler struct {
+type ImportFreeSSHHandler struct {
 	importManager *importpkg.Manager
 }
 
-func NewImportHandler(connStorage *storage.ConnectionStorage, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *ImportHandler {
-	return &ImportHandler{
+func NewImportFreeSSHHandler(connStorage *storage.ConnectionStorage, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *ImportFreeSSHHandler {
+	return &ImportFreeSSHHandler{
 		importManager: importpkg.NewManager(connStorage, groupStorage, pfStorage),
 	}
 }
 
-func (h *ImportHandler) CanHandle(msgType models.MessageType) bool {
-	return msgType == models.MsgImport
+func (h *ImportFreeSSHHandler) CanHandle(msgType models.MessageType) bool {
+	return msgType == models.MsgImportFreeSSH
 }
 
-func (h *ImportHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) error {
-	return h.handleImport(msg, writer)
-}
-
-func (h *ImportHandler) handleImport(msg *models.IPCMessage, writer ResponseWriter) error {
+func (h *ImportFreeSSHHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) error {
 	jsonData, err := json.Marshal(msg.Data)
 	if err != nil {
 		return fmt.Errorf("invalid data: %w", err)
 	}
 
-	var req models.ImportRequest
+	var req models.ImportFreeSSHRequest
 	if err := json.Unmarshal(jsonData, &req); err != nil {
 		return fmt.Errorf("failed to parse import request: %w", err)
 	}
 
-	result, err := h.importManager.Import(req.Format, req.Data)
+	result, err := h.importManager.Import("freessh", req.Data)
 	if err != nil {
 		return err
 	}
 
 	return writer.WriteMessage(&models.IPCMessage{
-		Type: models.MsgImport,
-		Data: models.ImportResponse{
+		Type: models.MsgImportFreeSSH,
+		Data: models.ImportFreeSSHResponse{
 			ConnectionsImported:  result.ConnectionsImported,
 			GroupsImported:       result.GroupsImported,
 			PortForwardsImported: result.PortForwardsImported,

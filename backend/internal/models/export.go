@@ -1,20 +1,19 @@
 package models
 
-type ExportRequest struct {
-	Format string `json:"format"` // "freessh"
+type ExportFreeSSHRequest struct {
+	// No parameters needed - exports everything
 }
 
-type ExportResponse struct {
+type ExportFreeSSHResponse struct {
 	Data     []byte `json:"data"`
 	Filename string `json:"filename"`
 }
 
-type ImportRequest struct {
-	Format string `json:"format"` // "freessh"
-	Data   []byte `json:"data"`
+type ImportFreeSSHRequest struct {
+	Data []byte `json:"data"`
 }
 
-type ImportResponse struct {
+type ImportFreeSSHResponse struct {
 	ConnectionsImported  int      `json:"connections_imported"`
 	GroupsImported       int      `json:"groups_imported"`
 	PortForwardsImported int      `json:"port_forwards_imported"`
