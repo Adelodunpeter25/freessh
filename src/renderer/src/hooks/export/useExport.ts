@@ -10,8 +10,11 @@ export const useExport = () => {
     try {
       const result = await exportFreeSSHService.export()
       
+      // Decode base64 data
+      const jsonString = atob(String.fromCharCode(...result.data))
+      
       // Create blob and download
-      const blob = new Blob([result.data], { type: 'application/json' })
+      const blob = new Blob([jsonString], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
