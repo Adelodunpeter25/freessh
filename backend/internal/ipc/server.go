@@ -67,7 +67,8 @@ func NewServer() *Server {
 			handlers.NewGroupHandler(groupStorage, manager.GetConnectionStorage()),
 			handlers.NewLogHandler(),
 			handlers.NewLogSettingsHandler(logSettingsStorage),
-			handlers.NewExportImportHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
+			handlers.NewExportHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
+			handlers.NewImportHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 		},
 	}
 }
