@@ -1,17 +1,27 @@
-import { useState } from 'react'
-import { useSnippets, useSnippetSearch } from '@/hooks/snippets'
+import { useState, useEffect } from 'react'
+import { useSnippetStore } from '@/stores'
+import { useSnippetSearch } from '@/hooks/snippets'
 import { Snippet } from '@/types/snippet'
 import { SnippetList, SnippetForm, ViewCommandDialog, SnippetHeader } from '@/components/snippets'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 
 export function SnippetsPage() {
-  const { snippets, loading, createSnippet, updateSnippet, deleteSnippet } = useSnippets()
+  const snippets = useSnippetStore((state) => state.snippets)
+  const loading = useSnippetStore((state) => state.loading)
+  const loadSnippets = useSnippetStore((state) => state.loadSnippets)
+  const createSnippet = useSnippetStore((state) => state.createSnippet)
+  const updateSnippet = useSnippetStore((state) => state.updateSnippet)
+  const deleteSnippet = useSnippetStore((state) => state.deleteSnippet)
   const [searchQuery, setSearchQuery] = useState('')
   const { filteredSnippets } = useSnippetSearch(snippets, searchQuery)
   const [showForm, setShowForm] = useState(false)
   const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null)
   const [deletingSnippet, setDeletingSnippet] = useState<Snippet | null>(null)
   const [viewingSnippet, setViewingSnippet] = useState<Snippet | null>(null)
+
+  useEffect(() => {
+    loadSnippets()
+  }, [])
 
   const handleNew = () => {
     setEditingSnippet(null)

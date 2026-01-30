@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import { useSnippets, useSnippetSearch } from '@/hooks/snippets'
+import { useState, useEffect } from 'react'
+import { useSnippetStore } from '@/stores'
+import { useSnippetSearch } from '@/hooks/snippets'
 import { Snippet } from '@/types/snippet'
 import { SnippetSearchBar } from '@/components/snippets/SnippetSearchBar'
 import { SnippetsContextMenu } from '@/components/contextmenu'
@@ -16,10 +17,16 @@ interface TerminalSnippetsListProps {
 }
 
 export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnippet, onDeleteSnippet, onNewSnippet }: TerminalSnippetsListProps) {
-  const { snippets, loading } = useSnippets()
+  const snippets = useSnippetStore((state) => state.snippets)
+  const loading = useSnippetStore((state) => state.loading)
+  const loadSnippets = useSnippetStore((state) => state.loadSnippets)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const { filteredSnippets } = useSnippetSearch(snippets, searchQuery)
+
+  useEffect(() => {
+    loadSnippets()
+  }, [])
 
   if (loading) {
     return (

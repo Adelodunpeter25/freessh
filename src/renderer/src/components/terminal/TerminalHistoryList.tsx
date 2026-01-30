@@ -4,7 +4,7 @@ import { Input } from '@renderer/components/ui/input'
 import { Button } from '@renderer/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@renderer/components/ui/tooltip'
 import { useHistory } from '@renderer/hooks/history/useHistory'
-import { useSnippets } from '@renderer/hooks/snippets'
+import { useSnippetStore } from '@renderer/stores'
 import { terminalService } from '@renderer/services/ipc/terminal'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@renderer/components/common/ConfirmDialog'
@@ -20,7 +20,7 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
   const [savingId, setSavingId] = useState<string | null>(null)
   const [snippetName, setSnippetName] = useState('')
   const { history, loading, clearHistory } = useHistory()
-  const { createSnippet } = useSnippets()
+  const createSnippet = useSnippetStore((state) => state.createSnippet)
 
   const filtered = history.filter((entry) =>
     entry.command.toLowerCase().includes(search.toLowerCase())
@@ -156,7 +156,7 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
                   </div>
                 ) : (
                   <div className="flex items-center justify-between gap-2">
-                    <div className="font-mono text-sm break-all flex-1">{entry.command}</div>
+                    <div className="font-mono text-sm break-all flex-1 truncate">{entry.command}</div>
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 shrink-0">
                       <Button
                         variant="ghost"

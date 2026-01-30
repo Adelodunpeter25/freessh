@@ -9,9 +9,9 @@ import { ExportImportDialog } from "@/components/export-import";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
+import { useSnippetStore } from "@/stores/snippetStore";
 import { useKeyboardShortcuts, useLocalTerminal } from "@/hooks";
 import { useMenuActions } from "@/hooks";
-import { useSnippets } from "@/hooks/snippets";
 import { Snippet } from "@/types/snippet";
 import { terminalService } from "@/services/ipc/terminal";
 import { toast } from "sonner";
@@ -48,7 +48,9 @@ export function MainLayout() {
   const activeSessionId = currentTab?.sessionId;
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
   const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
-  const { createSnippet, updateSnippet, deleteSnippet } = useSnippets();
+  const createSnippet = useSnippetStore((state) => state.createSnippet);
+  const updateSnippet = useSnippetStore((state) => state.updateSnippet);
+  const deleteSnippet = useSnippetStore((state) => state.deleteSnippet);
   const prevTabsLength = useRef(tabs.length);
 
   useEffect(() => {
