@@ -58,6 +58,7 @@ export function MainLayout() {
       setMainView("terminal");
     } else if (tabs.length === 0 && mainView === "terminal") {
       setMainView("home");
+      setShowTerminalSettings(false) // Close sidebar when no terminals
     }
     prevTabsLength.current = tabs.length;
   }, [tabs.length, mainView]);
@@ -65,6 +66,7 @@ export function MainLayout() {
   useEffect(() => {
     if (sftpConnectionId) {
       setMainView("sftp");
+      setShowTerminalSettings(false) // Close sidebar when switching to SFTP
     }
   }, [sftpConnectionId]);
 
@@ -72,10 +74,14 @@ export function MainLayout() {
 
   const handleHomeClick = useCallback(() => {
     setMainView("home");
+    setShowTerminalSettings(false) // Close sidebar when going home
     clearSFTPConnection();
   }, [clearSFTPConnection]);
 
-  const handleSFTPClick = useCallback(() => setMainView("sftp"), []);
+  const handleSFTPClick = useCallback(() => {
+    setMainView("sftp")
+    setShowTerminalSettings(false) // Close sidebar when going to SFTP
+  }, []);
   const handleSessionClick = useCallback(() => setMainView("terminal"), []);
   const handleSidebarTabChange = useCallback((tab: SidebarTab) => setSidebarTab(tab), []);
 
@@ -199,7 +205,7 @@ export function MainLayout() {
       </div>
 
       {/* Terminal Sidebar */}
-      {showTerminalSettings && (
+      {showTerminalSettings && mainView === "terminal" && (
         <Suspense fallback={null}>
           <TerminalSidebar 
             onClose={() => setShowTerminalSettings(false)}
