@@ -29,13 +29,16 @@ export function ViewCommandDialog({ isOpen, snippet, onClose }: ViewCommandDialo
         </DialogHeader>
 
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-sm font-medium">Command</label>
+          <label className="text-sm font-medium mb-2 block">Command</label>
+          <div className="relative w-full rounded-md border bg-muted/50 p-4">
+            <pre className="text-sm font-mono whitespace-pre-wrap break-all pr-10">
+              {snippet.command}
+            </pre>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleCopy}
-              className="h-8 px-2"
+              className="absolute top-2 right-2 h-8 w-8 p-0"
             >
               {copied ? (
                 <Check className="h-4 w-4 text-green-500" />
@@ -43,11 +46,6 @@ export function ViewCommandDialog({ isOpen, snippet, onClose }: ViewCommandDialo
                 <Copy className="h-4 w-4" />
               )}
             </Button>
-          </div>
-          <div className="w-full rounded-md border bg-muted/50 p-4">
-            <pre className="text-sm font-mono whitespace-pre-wrap break-all">
-              {snippet.command}
-            </pre>
           </div>
         </div>
 
