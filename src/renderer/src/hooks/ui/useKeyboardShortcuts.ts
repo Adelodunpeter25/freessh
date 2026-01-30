@@ -31,6 +31,7 @@ const buildShortcutKey = (e: KeyboardEvent): string => {
 interface ShortcutHandlers {
   onSwitchTab?: (index: number) => void
   onNewConnection?: () => void
+  onNewLocalTerminal?: () => void
   onOpenSettings?: () => void
   onClearTerminal?: () => void
   onSearchTerminal?: () => void
@@ -78,6 +79,11 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           handlers.onNewConnection?.()
           break
         
+        case 'cmd+l':
+          e.preventDefault()
+          handlers.onNewLocalTerminal?.()
+          break
+        
         case 'cmd+w':
           e.preventDefault()
           if (activeTabId) {
@@ -97,7 +103,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           break
         
         // Terminal
-        case 'cmd+l':
+        case 'cmd+k':
           e.preventDefault()
           handlers.onClearTerminal?.()
           break

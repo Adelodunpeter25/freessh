@@ -8,7 +8,7 @@ import { ExportImportDialog } from "@/components/export-import";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
-import { useKeyboardShortcuts } from "@/hooks";
+import { useKeyboardShortcuts, useLocalTerminal } from "@/hooks";
 import { useMenuActions } from "@/hooks";
 
 // Lazy load pages
@@ -53,6 +53,8 @@ export function MainLayout() {
     }
   }, [sftpConnectionId]);
 
+  const { handleNewLocalTerminal } = useLocalTerminal();
+
   const handleHomeClick = useCallback(() => {
     setMainView("home");
     clearSFTPConnection();
@@ -77,6 +79,7 @@ export function MainLayout() {
       handleHomeClick()
       setSidebarTab('connections')
     },
+    onNewLocalTerminal: handleNewLocalTerminal,
     onOpenSettings: () => setShowSettings(true),
     onShowShortcuts: () => setShowShortcuts(true),
   })
