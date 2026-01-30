@@ -250,6 +250,7 @@ export function MainLayout() {
             onClose={() => {
               setShowSnippetForm(false)
               setEditingSnippet(null)
+              setShowTerminalSettings(true)
             }}
             onSave={async (data) => {
               if (editingSnippet) {
@@ -262,6 +263,7 @@ export function MainLayout() {
               }
               setShowSnippetForm(false)
               setEditingSnippet(null)
+              setShowTerminalSettings(true)
             }}
           />
         </Suspense>

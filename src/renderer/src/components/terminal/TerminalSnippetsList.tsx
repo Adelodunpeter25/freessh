@@ -18,6 +18,7 @@ interface TerminalSnippetsListProps {
 export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnippet, onDeleteSnippet, onNewSnippet }: TerminalSnippetsListProps) {
   const { snippets, loading } = useSnippets()
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedId, setSelectedId] = useState<string | null>(null)
   const { filteredSnippets } = useSnippetSearch(snippets, searchQuery)
 
   if (loading) {
@@ -52,7 +53,7 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
         </TooltipProvider>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" onClick={() => setSelectedId(null)}>
         {filteredSnippets.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <Braces className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -70,7 +71,19 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
                 onDelete={() => onDeleteSnippet(snippet)}
               >
                 <div
-                  className="group p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                  className={`group p-2 rounded-lg transition-all cursor-pointer ${
+                    selectedId === snippet.id
+                      ? 'bg-accent shadow-sm'
+                      : 'hover:bg-muted/50 hover:shadow-sm'
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setSelectedId(snippet.id)
+                  }}
+                  onContextMenu={(e) => {
+                    e.stopPropagation()
+                    setSelectedId(snippet.id)
+                  }}
                 >
                 <div className="flex items-start gap-2">
                   <Braces className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
