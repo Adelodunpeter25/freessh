@@ -10,8 +10,8 @@ export const useExport = () => {
     try {
       const result = await exportFreeSSHService.export()
       
-      // Convert byte array to string
-      const jsonString = new TextDecoder().decode(result.data)
+      // Data is already a string from IPC
+      const jsonString = typeof result.data === 'string' ? result.data : JSON.stringify(result.data)
       
       // Create blob and download
       const blob = new Blob([jsonString], { type: 'application/json' })

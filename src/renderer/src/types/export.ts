@@ -1,5 +1,5 @@
 export interface ExportFreeSSHResponse {
-  data: Uint8Array
+  data: any
   filename: string
 }
 
