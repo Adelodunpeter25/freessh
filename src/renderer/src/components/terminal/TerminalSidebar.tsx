@@ -38,11 +38,11 @@ export function TerminalSidebar({ onClose, onInsertSnippet }: TerminalSidebarPro
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="snippets" className="flex-1 m-0">
+        <TabsContent value="snippets" className="flex-1 m-0 overflow-hidden">
           <TerminalSnippetsList onSelectSnippet={handleSelectSnippet} />
         </TabsContent>
 
-        <TabsContent value="settings" className="flex-1 m-0">
+        <TabsContent value="settings" className="flex-1 m-0 overflow-hidden">
           <TerminalSettingsContent />
         </TabsContent>
       </Tabs>

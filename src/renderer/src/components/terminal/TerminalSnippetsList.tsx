@@ -46,32 +46,31 @@ export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListPr
                 key={snippet.id}
                 className="group border-t border-b border-border p-3"
               >
-                <div className="flex items-start gap-2 mb-1">
+                <div className="flex items-start gap-2">
                   <Braces className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground truncate">
-                      {snippet.name}
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="text-sm font-medium text-foreground truncate flex-1">
+                        {snippet.name}
+                      </div>
+                      <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                        <button
+                          onClick={() => onSelectSnippet(snippet)}
+                          className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                        >
+                          Paste
+                        </button>
+                        <button
+                          onClick={() => onSelectSnippet(snippet)}
+                          className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                        >
+                          Run
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-2 ml-6">
-                  <div className="text-xs text-muted-foreground truncate font-mono flex-1">
-                    {snippet.command}
-                  </div>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                    <button
-                      onClick={() => onSelectSnippet(snippet)}
-                      className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                    >
-                      Paste
-                    </button>
-                    <button
-                      onClick={() => onSelectSnippet(snippet)}
-                      className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                    >
-                      Run
-                    </button>
+                    <div className="text-xs text-muted-foreground truncate font-mono">
+                      {snippet.command}
+                    </div>
                   </div>
                 </div>
               </div>
