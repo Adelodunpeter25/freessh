@@ -4,9 +4,11 @@ import { useSnippetSearch } from '@/hooks/snippets'
 import { Snippet } from '@/types/snippet'
 import { SnippetSearchBar } from '@/components/snippets/SnippetSearchBar'
 import { SnippetsContextMenu } from '@/components/contextmenu'
+import { VariableInputDialog } from '@/components/snippets/VariableInputDialog'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Braces, Plus } from 'lucide-react'
+import { parseVariables, replaceVariables } from '@/utils/snippetVariables'
 
 interface TerminalSnippetsListProps {
   onPasteSnippet: (snippet: Snippet) => void
@@ -22,6 +24,9 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
   const loadSnippets = useSnippetStore((state) => state.loadSnippets)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [showVariableDialog, setShowVariableDialog] = useState(false)
+  const [currentSnippet, setCurrentSnippet] = useState<Snippet | null>(null)
+  const [variables, setVariables] = useState<string[]>([])
   const { filteredSnippets } = useSnippetSearch(snippets, searchQuery)
 
   useEffect(() => {
@@ -35,6 +40,25 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
   const handleSelectSnippet = useCallback((id: string) => {
     setSelectedId(id)
   }, [])
+
+  const handleRunClick = useCallback((snippet: Snippet) => {
+    const vars = parseVariables(snippet.command)
+    if (vars.length > 0) {
+      setCurrentSnippet(snippet)
+      setVariables(vars)
+      setShowVariableDialog(true)
+    } else {
+      onRunSnippet(snippet)
+    }
+  }, [onRunSnippet])
+
+  const handleVariableConfirm = useCallback((values: Record<string, string>) => {
+    if (currentSnippet) {
+      const finalCommand = replaceVariables(currentSnippet.command, values)
+      onRunSnippet({ ...currentSnippet, command: finalCommand })
+      setCurrentSnippet(null)
+    }
+  }, [currentSnippet, onRunSnippet])
 
   if (loading) {
     return (
@@ -115,7 +139,7 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
                           Paste
                         </button>
                         <button
-                          onClick={() => onRunSnippet(snippet)}
+                          onClick={() => handleRunClick(snippet)}
                           className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                         >
                           Run
@@ -133,6 +157,13 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
           </div>
         )}
       </div>
+
+      <VariableInputDialog
+        open={showVariableDialog}
+        onOpenChange={setShowVariableDialog}
+        variables={variables}
+        onConfirm={handleVariableConfirm}
+      />
     </div>
   )
 }
