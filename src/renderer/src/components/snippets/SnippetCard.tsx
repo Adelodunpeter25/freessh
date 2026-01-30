@@ -30,7 +30,7 @@ export const SnippetCard = memo(function SnippetCard({
       onDelete={() => onDelete(snippet)}
     >
       <div
-        className={`group flex items-center gap-4 p-3 rounded-xl border transition-all select-none animate-scale-in ${
+        className={`group flex items-center gap-4 p-3 rounded-xl border transition-all select-none animate-scale-in min-h-[100px] ${
           selected
             ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)] cursor-pointer'
             : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md cursor-pointer'
