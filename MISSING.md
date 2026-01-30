@@ -136,7 +136,6 @@
 **Planned formats:**
 - OpenSSH config format (~/.ssh/config) - import/export
 - PuTTY session format (.reg) - import only
-- Termius JSON format - import only (if viable)
 
 ### Snippets/Commands
 **Status:** Not implemented  
