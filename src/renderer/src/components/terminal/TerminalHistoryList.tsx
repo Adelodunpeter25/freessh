@@ -3,7 +3,7 @@ import { Search, Trash2 } from 'lucide-react'
 import { Input } from '@renderer/components/ui/input'
 import { Button } from '@renderer/components/ui/button'
 import { useHistory } from '@renderer/hooks/history/useHistory'
-import { useTerminal } from '@renderer/hooks/terminal/useTerminal'
+import { terminalService } from '@renderer/services/ipc/terminal'
 import { toast } from 'sonner'
 import { ConfirmDialog } from '@renderer/components/common/ConfirmDialog'
 
@@ -16,7 +16,6 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
   const [search, setSearch] = useState('')
   const [showClearConfirm, setShowClearConfirm] = useState(false)
   const { history, loading, clearHistory } = useHistory()
-  const { sendInput } = useTerminal(activeSessionId)
 
   const filtered = history.filter((entry) =>
     entry.command.toLowerCase().includes(search.toLowerCase())
@@ -27,7 +26,7 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
       toast.error('No active terminal')
       return
     }
-    sendInput(command + '\n')
+    terminalService.sendInput(activeSessionId, command + '\n')
     onCommandRun?.()
   }
 
@@ -36,7 +35,7 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
       toast.error('No active terminal')
       return
     }
-    sendInput(command)
+    terminalService.sendInput(activeSessionId, command)
   }
 
   const handleClear = async () => {
