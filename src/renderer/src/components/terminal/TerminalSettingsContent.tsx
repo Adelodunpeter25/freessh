@@ -86,6 +86,7 @@ export function TerminalSettingsContent() {
           ))}
         </div>
       </div>
+      </div>
     </ScrollArea>
   )
 }
