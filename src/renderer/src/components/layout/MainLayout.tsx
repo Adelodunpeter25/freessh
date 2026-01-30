@@ -191,13 +191,19 @@ export function MainLayout() {
           <TerminalSidebar 
             onClose={() => setShowTerminalSettings(false)}
             onPasteSnippet={(command) => {
+              console.log('🔵 Paste snippet:', { activeSessionTabId, command })
               if (activeSessionTabId) {
                 terminalService.sendInput(activeSessionTabId, command)
+              } else {
+                console.log('❌ No active session tab')
               }
             }}
             onRunSnippet={(command) => {
+              console.log('🟢 Run snippet:', { activeSessionTabId, command })
               if (activeSessionTabId) {
                 terminalService.sendInput(activeSessionTabId, command + '\n')
+              } else {
+                console.log('❌ No active session tab')
               }
             }}
           />
