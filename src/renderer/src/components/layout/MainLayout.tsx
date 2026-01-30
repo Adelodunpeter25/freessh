@@ -4,6 +4,7 @@ import { Sidebar } from "./Sidebar";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { KeyboardShortcutsDialog } from "@/components/common/KeyboardShortcutsDialog";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
+import { ExportImportDialog } from "@/components/export-import";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
@@ -30,6 +31,7 @@ export function MainLayout() {
   const [showTerminalSettings, setShowTerminalSettings] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showExportImport, setShowExportImport] = useState(false);
   const activeSessionTabId = useTabStore((state) => state.activeTabId);
   const tabs = useTabStore((state) => state.tabs);
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
@@ -96,6 +98,7 @@ export function MainLayout() {
       // TODO: Implement update checker
       console.log('Check for updates')
     },
+    onExportImport: () => setShowExportImport(true),
   })
 
   const renderHomeContent = () => {
@@ -187,6 +190,9 @@ export function MainLayout() {
 
       {/* Settings Dialog */}
       <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
+
+      {/* Export/Import Dialog */}
+      <ExportImportDialog isOpen={showExportImport} onClose={() => setShowExportImport(false)} />
     </div>
   );
 }

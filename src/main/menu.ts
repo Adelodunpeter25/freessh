@@ -56,6 +56,14 @@ export function createMenu(): void {
         },
         { type: 'separator' as const },
         {
+          label: 'Export / Import...',
+          accelerator: 'CmdOrCtrl+Shift+E',
+          click: () => {
+            BrowserWindow.getFocusedWindow()?.webContents.send('menu:export-import')
+          }
+        },
+        { type: 'separator' as const },
+        {
           label: 'Close Window',
           accelerator: 'CmdOrCtrl+Shift+W',
           role: 'close' as const
