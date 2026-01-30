@@ -30,7 +30,6 @@ export function SnippetsPage() {
   const handleSave = async (data: {
     name: string
     command: string
-    description: string
     tags: string[]
   }) => {
     if (editingSnippet) {
@@ -66,6 +65,7 @@ export function SnippetsPage() {
         <SnippetList
           snippets={filteredSnippets}
           loading={loading}
+          searchQuery={searchQuery}
           onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}

@@ -3,12 +3,11 @@ package models
 import "time"
 
 type Snippet struct {
-	ID          string    `json:"id"`
-	Name        string    `json:"name"`
-	Command     string    `json:"command"`
-	Description string    `json:"description,omitempty"`
-	Tags        []string  `json:"tags,omitempty"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Command   string    `json:"command"`
+	Tags      []string  `json:"tags,omitempty"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type SnippetListRequest struct{}
@@ -18,10 +17,9 @@ type SnippetListResponse struct {
 }
 
 type SnippetCreateRequest struct {
-	Name        string   `json:"name"`
-	Command     string   `json:"command"`
-	Description string   `json:"description,omitempty"`
-	Tags        []string `json:"tags,omitempty"`
+	Name    string   `json:"name"`
+	Command string   `json:"command"`
+	Tags    []string `json:"tags,omitempty"`
 }
 
 type SnippetCreateResponse struct {
@@ -29,11 +27,10 @@ type SnippetCreateResponse struct {
 }
 
 type SnippetUpdateRequest struct {
-	ID          string   `json:"id"`
-	Name        string   `json:"name"`
-	Command     string   `json:"command"`
-	Description string   `json:"description,omitempty"`
-	Tags        []string `json:"tags,omitempty"`
+	ID      string   `json:"id"`
+	Name    string   `json:"name"`
+	Command string   `json:"command"`
+	Tags    []string `json:"tags,omitempty"`
 }
 
 type SnippetUpdateResponse struct {

@@ -12,7 +12,6 @@ export function useSnippetSearch(snippets: Snippet[], searchQuery: string) {
       (snippet) =>
         snippet.name.toLowerCase().includes(query) ||
         snippet.command.toLowerCase().includes(query) ||
-        snippet.description?.toLowerCase().includes(query) ||
         snippet.tags?.some((tag) => tag.toLowerCase().includes(query))
     )
   }, [snippets, searchQuery])

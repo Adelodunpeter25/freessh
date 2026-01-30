@@ -14,7 +14,6 @@ interface SnippetFormProps {
   onSave: (data: {
     name: string
     command: string
-    description: string
     tags: string[]
   }) => void
 }
@@ -22,7 +21,6 @@ interface SnippetFormProps {
 export function SnippetForm({ isOpen, snippet, onClose, onSave }: SnippetFormProps) {
   const [name, setName] = useState('')
   const [command, setCommand] = useState('')
-  const [description, setDescription] = useState('')
   const [tagInput, setTagInput] = useState('')
   const [tags, setTags] = useState<string[]>([])
 
@@ -30,12 +28,10 @@ export function SnippetForm({ isOpen, snippet, onClose, onSave }: SnippetFormPro
     if (snippet) {
       setName(snippet.name)
       setCommand(snippet.command)
-      setDescription(snippet.description || '')
       setTags(snippet.tags || [])
     } else {
       setName('')
       setCommand('')
-      setDescription('')
       setTags([])
     }
     setTagInput('')
@@ -62,7 +58,7 @@ export function SnippetForm({ isOpen, snippet, onClose, onSave }: SnippetFormPro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSave({ name, command, description, tags })
+    onSave({ name, command, tags })
     onClose()
   }
 
@@ -94,17 +90,6 @@ export function SnippetForm({ isOpen, snippet, onClose, onSave }: SnippetFormPro
             rows={4}
             required
             className="font-mono text-sm"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="description">Description (optional)</Label>
-          <Textarea
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="What does this command do?"
-            rows={2}
           />
         </div>
 
