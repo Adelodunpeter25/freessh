@@ -17,12 +17,10 @@ export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet }: Termi
 
   const handlePasteSnippet = (snippet: Snippet) => {
     onPasteSnippet(snippet.command)
-    onClose()
   }
 
   const handleRunSnippet = (snippet: Snippet) => {
     onRunSnippet(snippet.command)
-    onClose()
   }
 
   return (
