@@ -4,7 +4,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Label } from '@/components/ui/label'
 import { ConnectionConfig, AuthMethod } from '@/types'
+import { useKeyStorage } from '@/hooks/keys/useKeyStorage'
 import { toast } from 'sonner'
 
 interface ConnectionFormCredentialsProps {
@@ -26,6 +29,12 @@ export function ConnectionFormCredentials({
 }: ConnectionFormCredentialsProps) {
   const [showPassword, setShowPassword] = useState(false)
   const [showPassphrase, setShowPassphrase] = useState(false)
+  const [keyMode, setKeyMode] = useState<'existing' | 'new'>(
+    formData.key_id ? 'existing' : 'new'
+  )
+  const { keys, loading: keysLoading } = useKeyStorage()
+
+  const selectedKey = keys.find(k => k.id === formData.key_id)
 
   const handleBrowseKey = async () => {
     try {
@@ -85,24 +94,68 @@ export function ConnectionFormCredentials({
 
       {formData.auth_method === 'publickey' && (
         <>
-          <div className="space-y-2">
-            <Textarea
-              value={formData.private_key}
-              onChange={(e) => onChange({ ...formData, private_key: e.target.value })}
-              placeholder="Private Key"
-              rows={6}
-            />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={handleBrowseKey}
-            >
-              <FolderOpen className="h-4 w-4 mr-2" />
-              Browse Key File
-            </Button>
-          </div>
+          <RadioGroup value={keyMode} onValueChange={(v) => setKeyMode(v as 'existing' | 'new')}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="existing" id="existing" />
+              <Label htmlFor="existing">Use existing key</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="new" id="new" />
+              <Label htmlFor="new">Paste new key</Label>
+            </div>
+          </RadioGroup>
+
+          {keyMode === 'existing' ? (
+            <div className="space-y-2">
+              <Select
+                value={formData.key_id || ''}
+                onValueChange={(value) => onChange({ ...formData, key_id: value, private_key: '' })}
+                disabled={keysLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={keysLoading ? 'Loading keys...' : 'Select a key'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {keys.length === 0 ? (
+                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                      No keys available. Create one first.
+                    </div>
+                  ) : (
+                    keys.map((key) => (
+                      <SelectItem key={key.id} value={key.id}>
+                        {key.name} ({key.algorithm} {key.bits})
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
+              {selectedKey && (
+                <div className="text-xs text-muted-foreground">
+                  Using: {selectedKey.name} ({selectedKey.algorithm} {selectedKey.bits})
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Textarea
+                value={formData.private_key}
+                onChange={(e) => onChange({ ...formData, private_key: e.target.value, key_id: '' })}
+                placeholder="Private Key"
+                rows={6}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={handleBrowseKey}
+              >
+                <FolderOpen className="h-4 w-4 mr-2" />
+                Browse Key File
+              </Button>
+            </div>
+          )}
+
           <div className="relative">
             <Input
               type={showPassphrase ? 'text' : 'password'}
