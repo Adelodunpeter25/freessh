@@ -57,7 +57,7 @@ export const SnippetCard = memo(function SnippetCard({
         </div>
 
         {snippet.tags && snippet.tags.length > 0 && (
-          <div className="flex items-center gap-1">
+          <div className="flex flex-col gap-1">
             {snippet.tags.slice(0, 2).map((tag) => (
               <span
                 key={tag}
