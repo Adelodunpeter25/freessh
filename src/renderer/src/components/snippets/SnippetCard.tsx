@@ -1,7 +1,9 @@
 import { memo } from 'react'
 import { Snippet } from '@/types/snippet'
-import { Braces, Tag } from 'lucide-react'
+import { Braces, Tag, Pencil } from 'lucide-react'
 import { SnippetsContextMenu } from '@/components/contextmenu'
+import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface SnippetCardProps {
   snippet: Snippet
@@ -28,7 +30,7 @@ export const SnippetCard = memo(function SnippetCard({
       onDelete={() => onDelete(snippet)}
     >
       <div
-        className={`group flex items-center gap-4 p-4 rounded-xl border transition-all select-none animate-scale-in ${
+        className={`group flex items-center gap-4 p-3 rounded-xl border transition-all select-none animate-scale-in ${
           selected
             ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)] cursor-pointer'
             : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md cursor-pointer'
@@ -43,42 +45,54 @@ export const SnippetCard = memo(function SnippetCard({
         }}
         onDoubleClick={() => onView(snippet)}
       >
-        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary shrink-0">
-          <Braces className="h-5 w-5" />
+        <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+          <Braces className="h-5 w-5 text-primary" />
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-medium text-sm truncate mb-1">{snippet.name}</h3>
-          
-          {snippet.description && (
-            <p className="text-xs text-muted-foreground line-clamp-1 mb-1">
-              {snippet.description}
-            </p>
-          )}
-          
-          <code className="text-xs font-mono text-muted-foreground line-clamp-1 block">
+          <h3 className="text-base font-semibold text-foreground truncate">{snippet.name}</h3>
+          <p className="text-xs text-muted-foreground truncate">
             {snippet.command}
-          </code>
-          
-          {snippet.tags && snippet.tags.length > 0 && (
-            <div className="flex items-center gap-1 flex-wrap mt-2">
-              {snippet.tags.slice(0, 3).map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-xs"
-                >
-                  <Tag className="h-2.5 w-2.5" />
-                  {tag}
-                </span>
-              ))}
-              {snippet.tags.length > 3 && (
-                <span className="text-xs text-muted-foreground">
-                  +{snippet.tags.length - 3}
-                </span>
-              )}
-            </div>
-          )}
+          </p>
         </div>
+
+        {snippet.tags && snippet.tags.length > 0 && (
+          <div className="flex items-center gap-1">
+            {snippet.tags.slice(0, 2).map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-xs"
+              >
+                <Tag className="h-2.5 w-2.5" />
+                {tag}
+              </span>
+            ))}
+            {snippet.tags.length > 2 && (
+              <span className="text-xs text-muted-foreground">
+                +{snippet.tags.length - 2}
+              </span>
+            )}
+          </div>
+        )}
+
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="opacity-0 group-hover:opacity-100 h-8 w-8"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit(snippet)
+                }}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Edit</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </SnippetsContextMenu>
   )

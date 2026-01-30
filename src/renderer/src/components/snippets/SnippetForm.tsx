@@ -72,7 +72,7 @@ export function SnippetForm({ isOpen, snippet, onClose, onSave }: SnippetFormPro
       onClose={onClose}
       title={snippet ? 'Edit Snippet' : 'New Snippet'}
     >
-      <form onSubmit={handleSubmit} className="flex-1 overflow-auto p-4 space-y-4">
+      <form id="snippet-form" onSubmit={handleSubmit} className="flex-1 overflow-auto p-4 space-y-4">
         <div>
           <Label htmlFor="name">Name</Label>
           <Input
@@ -142,16 +142,16 @@ export function SnippetForm({ isOpen, snippet, onClose, onSave }: SnippetFormPro
             </div>
           )}
         </div>
-
-        <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit">
-            {snippet ? 'Update' : 'Create'}
-          </Button>
-        </div>
       </form>
+
+      <div className="flex gap-2 p-4 border-t mt-auto">
+        <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+          Cancel
+        </Button>
+        <Button type="submit" form="snippet-form" className="flex-1">
+          {snippet ? 'Update' : 'Create'}
+        </Button>
+      </div>
     </Sheet>
   )
 }
