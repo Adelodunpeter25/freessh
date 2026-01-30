@@ -36,8 +36,8 @@ export function MainLayout() {
   const [showExportImport, setShowExportImport] = useState(false);
   const activeSessionTabId = useTabStore((state) => state.activeTabId);
   const tabs = useTabStore((state) => state.tabs);
-  const activeTab = tabs.find(tab => tab.id === activeSessionTabId);
-  const activeSessionId = activeTab?.sessionId;
+  const currentTab = tabs.find(tab => tab.id === activeSessionTabId);
+  const activeSessionId = currentTab?.sessionId;
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
   const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
   const prevTabsLength = useRef(tabs.length);
