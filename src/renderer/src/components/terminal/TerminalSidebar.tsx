@@ -73,7 +73,10 @@ export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditS
         </TabsContent>
 
         <TabsContent value="history" className="flex-1 m-0 overflow-hidden">
-          <TerminalHistoryList activeSessionId={activeSessionId} />
+          <TerminalHistoryList 
+            activeSessionId={activeSessionId}
+            onCommandRun={onClose}
+          />
         </TabsContent>
 
         <TabsContent value="settings" className="flex-1 m-0 overflow-hidden">
