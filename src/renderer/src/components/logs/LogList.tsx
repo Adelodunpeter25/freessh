@@ -27,7 +27,7 @@ export function LogList({ logs, onDelete, onOpen }: LogListProps) {
       <EmptyState
         icon={FileText}
         title="No logs found"
-        description="Start recording terminal sessions to see logs here"
+        description="Recorded terminal sessions will appear here"
       />
     )
   }
