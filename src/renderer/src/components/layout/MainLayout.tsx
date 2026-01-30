@@ -36,6 +36,8 @@ export function MainLayout() {
   const [showExportImport, setShowExportImport] = useState(false);
   const activeSessionTabId = useTabStore((state) => state.activeTabId);
   const tabs = useTabStore((state) => state.tabs);
+  const activeTab = tabs.find(tab => tab.id === activeSessionTabId);
+  const activeSessionId = activeTab?.sessionId;
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
   const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
   const prevTabsLength = useRef(tabs.length);
@@ -191,19 +193,19 @@ export function MainLayout() {
           <TerminalSidebar 
             onClose={() => setShowTerminalSettings(false)}
             onPasteSnippet={(command) => {
-              console.log('🔵 Paste snippet:', { activeSessionTabId, command })
-              if (activeSessionTabId) {
-                terminalService.sendInput(activeSessionTabId, command)
+              console.log('🔵 Paste snippet:', { activeSessionId, command })
+              if (activeSessionId) {
+                terminalService.sendInput(activeSessionId, command)
               } else {
-                console.log('❌ No active session tab')
+                console.log('❌ No active session')
               }
             }}
             onRunSnippet={(command) => {
-              console.log('🟢 Run snippet:', { activeSessionTabId, command })
-              if (activeSessionTabId) {
-                terminalService.sendInput(activeSessionTabId, command + '\n')
+              console.log('🟢 Run snippet:', { activeSessionId, command })
+              if (activeSessionId) {
+                terminalService.sendInput(activeSessionId, command + '\n')
               } else {
-                console.log('❌ No active session tab')
+                console.log('❌ No active session')
               }
             }}
           />

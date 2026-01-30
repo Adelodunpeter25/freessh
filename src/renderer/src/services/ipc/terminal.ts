@@ -3,6 +3,7 @@ import { IPCMessage } from '../../types'
 
 export const terminalService = {
   sendInput(sessionId: string, data: string): void {
+    console.log('📤 terminalService.sendInput:', { sessionId, data })
     backendService.send({
       type: 'input',
       session_id: sessionId,
