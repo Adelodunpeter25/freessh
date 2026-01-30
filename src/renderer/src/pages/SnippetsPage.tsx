@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSnippets } from '@/hooks'
 import { Snippet } from '@/types/snippet'
-import { SnippetList, SnippetForm } from '@/components/snippets'
+import { SnippetList, SnippetForm, ViewCommandDialog } from '@/components/snippets'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
@@ -11,10 +11,15 @@ export function SnippetsPage() {
   const [showForm, setShowForm] = useState(false)
   const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null)
   const [deletingSnippet, setDeletingSnippet] = useState<Snippet | null>(null)
+  const [viewingSnippet, setViewingSnippet] = useState<Snippet | null>(null)
 
   const handleNew = () => {
     setEditingSnippet(null)
     setShowForm(true)
+  }
+
+  const handleView = (snippet: Snippet) => {
+    setViewingSnippet(snippet)
   }
 
   const handleEdit = (snippet: Snippet) => {
@@ -63,6 +68,7 @@ export function SnippetsPage() {
         <SnippetList
           snippets={snippets}
           loading={loading}
+          onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
@@ -73,6 +79,12 @@ export function SnippetsPage() {
         snippet={editingSnippet}
         onClose={() => setShowForm(false)}
         onSave={handleSave}
+      />
+
+      <ViewCommandDialog
+        isOpen={!!viewingSnippet}
+        snippet={viewingSnippet}
+        onClose={() => setViewingSnippet(null)}
       />
 
       <ConfirmDialog

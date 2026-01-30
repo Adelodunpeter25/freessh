@@ -1,81 +1,85 @@
+import { memo } from 'react'
 import { Snippet } from '@/types/snippet'
-import { Code, Tag, MoreVertical, Trash2, Edit } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+import { Braces, Tag } from 'lucide-react'
+import { SnippetsContextMenu } from '@/components/contextmenu'
 
 interface SnippetCardProps {
   snippet: Snippet
+  selected: boolean
+  onSelect: (snippet: Snippet) => void
+  onView: (snippet: Snippet) => void
   onEdit: (snippet: Snippet) => void
   onDelete: (snippet: Snippet) => void
 }
 
-export function SnippetCard({ snippet, onEdit, onDelete }: SnippetCardProps) {
+export const SnippetCard = memo(function SnippetCard({
+  snippet,
+  selected,
+  onSelect,
+  onView,
+  onEdit,
+  onDelete
+}: SnippetCardProps) {
   return (
-    <div className="group p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-      <div className="flex items-start justify-between gap-2">
+    <SnippetsContextMenu
+      snippet={snippet}
+      onView={() => onView(snippet)}
+      onEdit={() => onEdit(snippet)}
+      onDelete={() => onDelete(snippet)}
+    >
+      <div
+        className={`group flex items-center gap-4 p-4 rounded-xl border transition-all select-none animate-scale-in ${
+          selected
+            ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)] cursor-pointer'
+            : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md cursor-pointer'
+        }`}
+        onClick={(e) => {
+          e.stopPropagation()
+          onSelect(snippet)
+        }}
+        onContextMenu={(e) => {
+          e.stopPropagation()
+          onSelect(snippet)
+        }}
+        onDoubleClick={() => onView(snippet)}
+      >
+        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary shrink-0">
+          <Braces className="h-5 w-5" />
+        </div>
+
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <Code className="h-4 w-4 text-muted-foreground shrink-0" />
-            <h3 className="font-medium text-sm truncate">{snippet.name}</h3>
-          </div>
+          <h3 className="font-medium text-sm truncate mb-1">{snippet.name}</h3>
           
           {snippet.description && (
-            <p className="text-xs text-muted-foreground mb-2 line-clamp-2">
+            <p className="text-xs text-muted-foreground line-clamp-1 mb-1">
               {snippet.description}
             </p>
           )}
           
-          <div className="bg-muted/50 rounded px-2 py-1 mb-2">
-            <code className="text-xs font-mono text-foreground line-clamp-2">
-              {snippet.command}
-            </code>
-          </div>
+          <code className="text-xs font-mono text-muted-foreground line-clamp-1 block">
+            {snippet.command}
+          </code>
           
           {snippet.tags && snippet.tags.length > 0 && (
-            <div className="flex items-center gap-1 flex-wrap">
-              {snippet.tags.map((tag) => (
+            <div className="flex items-center gap-1 flex-wrap mt-2">
+              {snippet.tags.slice(0, 3).map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs"
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-xs"
                 >
-                  <Tag className="h-3 w-3" />
+                  <Tag className="h-2.5 w-2.5" />
                   {tag}
                 </span>
               ))}
+              {snippet.tags.length > 3 && (
+                <span className="text-xs text-muted-foreground">
+                  +{snippet.tags.length - 3}
+                </span>
+              )}
             </div>
           )}
         </div>
-        
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(snippet)}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onDelete(snippet)}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
-    </div>
+    </SnippetsContextMenu>
   )
-}
+})
