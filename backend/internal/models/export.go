@@ -17,5 +17,6 @@ type ImportFreeSSHResponse struct {
 	ConnectionsImported  int      `json:"connections_imported"`
 	GroupsImported       int      `json:"groups_imported"`
 	PortForwardsImported int      `json:"port_forwards_imported"`
+	KeysImported         int      `json:"keys_imported"`
 	Errors               []string `json:"errors,omitempty"`
 }

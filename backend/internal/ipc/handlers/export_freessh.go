@@ -13,8 +13,11 @@ type ExportFreeSSHHandler struct {
 }
 
 func NewExportFreeSSHHandler(connStorage *storage.ConnectionStorage, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *ExportFreeSSHHandler {
+	keyStorage, _ := storage.NewKeyStorage()
+	keyFileStorage, _ := storage.NewKeyFileStorage()
+	
 	return &ExportFreeSSHHandler{
-		exportManager: export.NewManager(connStorage, groupStorage, pfStorage),
+		exportManager: export.NewManager(connStorage, groupStorage, pfStorage, keyStorage, keyFileStorage),
 	}
 }
 
