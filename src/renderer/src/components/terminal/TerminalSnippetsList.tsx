@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useSnippets, useSnippetSearch } from '@/hooks/snippets'
 import { Snippet } from '@/types/snippet'
 import { SnippetSearchBar } from '@/components/snippets/SnippetSearchBar'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import { Braces } from 'lucide-react'
 
 interface TerminalSnippetsListProps {
@@ -31,7 +30,7 @@ export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListPr
         />
       </div>
 
-      <ScrollArea className="flex-1">
+      <div className="flex-1 overflow-y-auto">
         {filteredSnippets.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <Braces className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -77,7 +76,7 @@ export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListPr
             ))}
           </div>
         )}
-      </ScrollArea>
+      </div>
     </div>
   )
 }
