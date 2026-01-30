@@ -55,10 +55,16 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
                           target instanceof HTMLTextAreaElement ||
                           target.isContentEditable
       
+      console.log('🔑 Key pressed:', e.key, 'Cmd/Ctrl:', e.metaKey || e.ctrlKey, 'Target:', target.tagName, 'IsInput:', isInputField)
+      
       // Don't process ANY shortcuts when in input fields - let browser handle natively
-      if (isInputField) return
+      if (isInputField) {
+        console.log('✅ Ignoring - in input field')
+        return
+      }
       
       const shortcutKey = buildShortcutKey(e)
+      console.log('🎯 Shortcut key:', shortcutKey)
       
       // Navigation shortcuts
       if (shortcutKey.match(/^cmd\+[1-9]$/)) {
