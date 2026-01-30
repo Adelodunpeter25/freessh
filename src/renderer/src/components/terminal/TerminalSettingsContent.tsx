@@ -19,7 +19,7 @@ export function TerminalSettingsContent() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto p-4 pb-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 pb-8 space-y-6">
       <button
         onClick={() => setShowFontSettings(true)}
         className="w-full flex items-center justify-between p-3 rounded-lg border border-border hover:bg-accent transition-colors"

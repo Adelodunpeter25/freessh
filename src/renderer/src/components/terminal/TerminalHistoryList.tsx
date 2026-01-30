@@ -111,7 +111,7 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-3 pb-4 space-y-2">
+        <div className="flex-1 overflow-y-auto px-3 pb-6 space-y-2">
           {filtered.length === 0 ? (
             <div className="text-sm text-muted-foreground text-center py-8">
               {search ? 'No matching commands' : 'No command history'}
