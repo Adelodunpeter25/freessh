@@ -138,10 +138,29 @@
 - PuTTY session format (.reg) - import only
 
 ### Snippets/Commands
-**Status:** Not implemented  
+**Status:** 🚧 In Progress  
 **Description:** Save and execute frequently used commands.  
-**Implementation needed:**
-- UI: Snippets sidebar or panel
-- Storage: snippets.json with name, command, description
-- Features: Quick execute, variables/placeholders, organize by tags
-- Integration: Right-click in terminal to save selection as snippet
+**Implementation:**
+- ✅ Backend: snippets.json storage with CRUD operations
+- ✅ Frontend: Snippets page with search, cards, context menu
+- ✅ Terminal sidebar: Snippets tab with search and list
+- ✅ Paste and Run functionality in terminal
+- ✅ Edit and New snippet from terminal sidebar
+- ✅ Delete with confirmation dialog
+- ✅ Selection and hover effects
+- ✅ Auto-reopen terminal sidebar after form closes
+
+**In Progress:**
+- 🚧 Variables/placeholders (e.g., `ssh {USER}@{HOST} -p {PORT}`)
+  - Detect `{VARIABLE}` patterns in command
+  - Show dialog with input fields for each variable
+  - Replace variables with user input before execution
+- 🚧 Command history
+  - Track executed commands per session
+  - Quick access to recent commands
+  - Save command from history as snippet
+
+**Planned:**
+- Keyboard shortcuts for snippets
+- Most used/favorites
+- Categories/folders for organization
