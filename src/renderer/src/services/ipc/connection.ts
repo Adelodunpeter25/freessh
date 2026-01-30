@@ -89,7 +89,7 @@ export const connectionService = {
     })
   },
 
-  connect(config: ConnectionConfig, timeoutMs: number = 10000): Promise<Session> {
+  connect(config: ConnectionConfig, timeoutMs: number = 20000): Promise<Session> {
     console.log('[Connection] Starting connection to:', config.host)
     return new Promise((resolve, reject) => {
       let timeoutId: NodeJS.Timeout
@@ -102,9 +102,9 @@ export const connectionService = {
       }
 
       const handler = (message: IPCMessage) => {
-        console.log('[Connection] Received message:', message.type, message)
+        console.log('[Connection] Received message:', message.type, 'SessionID:', message.session_id)
         if (message.type === 'session_status') {
-          console.log('[Connection] Connection successful')
+          console.log('[Connection] Connection successful, session data:', message.data)
           cleanup()
           resolve(message.data as Session)
         } else if (message.type === 'error') {
@@ -115,20 +115,21 @@ export const connectionService = {
       }
 
       timeoutId = setTimeout(() => {
-        console.log('[Connection] Connection timeout after 10 seconds')
+        console.log('[Connection] Connection timeout after 20 seconds')
         cleanup()
-        reject(new Error('Connection timeout - server did not respond within 10 seconds'))
+        reject(new Error('Connection timeout - server did not respond within 20 seconds'))
       }, timeoutMs)
 
-      console.log('[Connection] Registering handlers and sending connect message')
+      console.log('[Connection] Registering handlers')
       backendService.on('session_status', handler)
       backendService.on('error', handler)
 
+      console.log('[Connection] Sending connect message')
       backendService.send({
         type: 'connection:connect',
         data: config
       })
-      console.log('[Connection] Connect message sent to backend')
+      console.log('[Connection] Connect message sent')
     })
   }
 }
