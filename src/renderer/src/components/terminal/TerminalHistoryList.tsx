@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { Search, Trash2, Check, X } from 'lucide-react'
 import { Input } from '@renderer/components/ui/input'
 import { Button } from '@renderer/components/ui/button'
@@ -22,33 +22,34 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
   const { history, loading, clearHistory } = useHistory()
   const createSnippet = useSnippetStore((state) => state.createSnippet)
 
-  const filtered = history.filter((entry) =>
-    entry.command.toLowerCase().includes(search.toLowerCase())
+  const filtered = useMemo(
+    () => history.filter((entry) => entry.command.toLowerCase().includes(search.toLowerCase())),
+    [history, search]
   )
 
-  const handleRun = (command: string) => {
+  const handleRun = useCallback((command: string) => {
     if (!activeSessionId) {
       toast.error('No active terminal')
       return
     }
     terminalService.sendInput(activeSessionId, command + '\n')
     onCommandRun?.()
-  }
+  }, [activeSessionId, onCommandRun])
 
-  const handlePaste = (command: string) => {
+  const handlePaste = useCallback((command: string) => {
     if (!activeSessionId) {
       toast.error('No active terminal')
       return
     }
     terminalService.sendInput(activeSessionId, command)
-  }
+  }, [activeSessionId])
 
-  const handleSaveClick = (id: string) => {
+  const handleSaveClick = useCallback((id: string) => {
     setSavingId(id)
     setSnippetName('')
-  }
+  }, [])
 
-  const handleSaveConfirm = async (command: string) => {
+  const handleSaveConfirm = useCallback(async (command: string) => {
     if (!snippetName.trim()) {
       toast.error('Please enter a name')
       return
@@ -62,17 +63,17 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
     } catch (error) {
       toast.error('Failed to save snippet')
     }
-  }
+  }, [snippetName, createSnippet])
 
-  const handleSaveCancel = () => {
+  const handleSaveCancel = useCallback(() => {
     setSavingId(null)
     setSnippetName('')
-  }
+  }, [])
 
-  const handleClear = async () => {
+  const handleClear = useCallback(async () => {
     await clearHistory()
     setShowClearConfirm(false)
-  }
+  }, [clearHistory])
 
   if (loading) {
     return <div className="p-4 text-sm text-muted-foreground">Loading...</div>
