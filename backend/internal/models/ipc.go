@@ -58,6 +58,12 @@ const (
 	MsgKeychainGet    MessageType = "keychain:get"
 	MsgKeychainDelete MessageType = "keychain:delete"
 
+	// Snippet messages
+	MsgSnippetList   MessageType = "snippet:list"
+	MsgSnippetCreate MessageType = "snippet:create"
+	MsgSnippetUpdate MessageType = "snippet:update"
+	MsgSnippetDelete MessageType = "snippet:delete"
+
 	// Export messages
 	MsgExportFreeSSH MessageType = "export:freessh"
 	MsgExportOpenSSH MessageType = "export:openssh"

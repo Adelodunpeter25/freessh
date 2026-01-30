@@ -45,6 +45,12 @@ func NewServer() *Server {
 		log.Printf("Warning: Failed to initialize group storage: %v", err)
 	}
 	
+	// Initialize snippet storage
+	snippetStorage, err := storage.NewSnippetStorage()
+	if err != nil {
+		log.Printf("Warning: Failed to initialize snippet storage: %v", err)
+	}
+	
 	// Create shared verification helper
 	verificationHelper := handlers.NewHostKeyVerificationHelper()
 	
@@ -67,6 +73,7 @@ func NewServer() *Server {
 			handlers.NewGroupHandler(groupStorage, manager.GetConnectionStorage()),
 			handlers.NewLogHandler(),
 			handlers.NewLogSettingsHandler(logSettingsStorage),
+			handlers.NewSnippetHandler(snippetStorage),
 			handlers.NewExportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 			handlers.NewImportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 			handlers.NewExportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
