@@ -156,8 +156,8 @@
 - ✅ Clear history functionality
 
 **Planned:**
-- Variables/placeholders (e.g., `ssh {USER}@{HOST} -p {PORT}`)
-  - Detect `{VARIABLE}` patterns in command
-  - Show dialog with input fields for each variable
-  - Replace variables with user input before execution
+- ✅ Variables/placeholders (e.g., `ssh {USER}@{HOST} -p {PORT}`)
+  - ✅ Detect `{VARIABLE}` patterns in command
+  - ✅ Show dialog with input fields for each variable
+  - ✅ Replace variables with user input before execution
 - Most used/favorites tracking
