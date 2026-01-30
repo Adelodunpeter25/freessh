@@ -1,9 +1,8 @@
 # Missing Features & Edge Cases
 
-## SFTP Features
+## SFTP Features (Not Implemented)
 
 ### Remote to Remote Transfer
-**Status:** Not implemented  
 **Description:** Currently only supports local↔remote transfers. Need server-to-server direct transfers.  
 **Implementation needed:**
 - UI: Add "Remote Source" panel alongside existing local/remote panels
@@ -12,149 +11,59 @@
 - Progress: Track bytes transferred between remote endpoints
 - Use case: Copy files between staging/production servers, sync between remote locations
 
----
-
-## Authentication
-
-### SSH Key File Selection
-**Status:** ✅ Implemented  
-**Description:** Users can browse and select SSH key files from their system.  
-**Implementation:**
-- ✅ "Browse Key File" button in ConnectionForm
-- ✅ Electron file dialog with .pem, .key, .pub filters
-- ✅ Automatic key content loading into textarea
-- ✅ Toast notification showing loaded file path
-- ✅ Users can still paste keys directly if preferred
-- ✅ Removed keyboard-interactive auth (simplified to Password and Public Key only)
-- ✅ Form split into smaller components for maintainability
-- ✅ Unsaved changes confirmation dialog
-
----
-
-## Known Edge Cases
-
-### Connection Management
-**Status:** ✅ Implemented  
-**Auto-reconnect on connection loss:**
-- ✅ Exponential backoff utility (1s → 2s → 4s → 8s → 16s → 30s max)
-- ✅ Automatic reconnection on keepalive failure
-- ✅ Max 10 reconnect attempts
-- ✅ Callback hooks for status updates (optional)
-- ✅ Can be disabled if needed
-- ✅ Transparent to user - works silently in background
-
-### File Operations
+### File Operations Enhancements
 - Large file handling (>1GB) - memory optimization needed
 - Concurrent transfer limits (currently unlimited, could overwhelm system)
 - Resume interrupted transfers
 - Verify file integrity after transfer (checksums)
 
-### Terminal
-**Status:** ✅ Implemented  
-**Implementation:**
-- ✅ Handle terminal resize during active session
-- ✅ Copy/paste support improvements
-- ✅ Search in terminal output (live search with result count and navigation)
-- ✅ Terminal session logging to file
-
-### SFTP Browser
+### SFTP Browser Enhancements
 - Bulk operations (select multiple files for delete/download)
 - File preview for more types (PDFs, videos)
 - Drag and drop between two remote panels
 
 ---
 
-## Future Features
+## Export/Import Additional Formats
 
-### Connection Groups/Folders
-**Status:** ✅ Implemented  
-**Description:** Organize connections by project/environment.  
-**Implementation:**
-- ✅ Backend group management system with CRUD operations
-- ✅ Groups stored in separate groups.json file
-- ✅ Connection count calculated dynamically
-- ✅ Frontend group UI components (GroupCard, GroupList, GroupsSection, GroupSidebar)
-- ✅ Group detail view showing all connections in a group
-- ✅ Breadcrumb navigation for group detail view
-- ✅ Group selector in connection form
-- ✅ Collapsible groups and connections sections with badges
-- ✅ Context menu for group operations (Edit, Delete)
-- ✅ Double-click to open group detail view
-
-### Port Forwarding
-**Status:** ✅ Implemented  
-**Implementation:**
-- ✅ UI for managing SSH tunnels (backend already implemented)
-- ✅ List active tunnels
-- ✅ Create/Edit/Delete port forwarding configurations
-- ✅ Support for local and remote port forwarding
-- ✅ Support for dynamic port forwarding (SOCKS proxy)
-- ✅ Tunnel status monitoring and management
-- ✅ Connection tracking and cleanup on disconnect
-- ✅ Auto-start tunnels on session creation
-- ✅ Binding address configuration (localhost/0.0.0.0)
-
-### Settings Page
-**Status:** ✅ Implemented  
-**Description:** Settings page with tabs for Theme and Logs.  
-**Implementation:**
-- ✅ Settings dialog with tab navigation
-- ✅ Theme toggle (Light/Dark/System)
-- ✅ Log settings (Auto-logging toggle, Delete All Logs)
-- ✅ Settings stored in backend (theme in Zustand, logs in backend storage)
-
-### Session Logging
-**Status:** ✅ Implemented  
-**Description:** Record terminal sessions to log files.  
-**Implementation:**
-- ✅ Auto-logging toggle in settings
-- ✅ Manual start/stop logging per session
-- ✅ Logs stored with connection name and timestamp
-- ✅ Logs page with table view (Date, Name, Size, Actions)
-- ✅ Double-click to open log in read-only terminal viewer
-- ✅ Delete individual or all logs
-- ✅ ANSI code rendering in log viewer
-- ✅ Theme support (black/white backgrounds)
-
----
-
-## Planned Features
-
-### Export/Import Connections
-**Status:** ✅ Implemented (FreeSSH format)  
-**Description:** Backup and share connection configurations.  
-**Implementation:**
-- ✅ Export connections, groups, port forwards, and SSH keys to JSON
-- ✅ FreeSSH native format with full data preservation
-- ✅ Export dialog with format selection
-- ✅ Import with validation and error handling
-- ✅ Automatic key migration (embedded keys → managed keys)
-- ✅ Duplicate detection (skips existing items)
-- ✅ Success/warning notifications with import counts
-- ✅ File menu integration (Cmd+Shift+E)
+**Current Status:** ✅ FreeSSH native format implemented
 
 **Planned formats:**
 - OpenSSH config format (~/.ssh/config) - import/export
 - PuTTY session format (.reg) - import only
 
-### Snippets/Commands
-**Status:** ✅ Implemented  
-**Description:** Save and execute frequently used commands.  
-**Implementation:**
-- ✅ Backend: snippets.json storage with CRUD operations
-- ✅ Frontend: Snippets page with search, cards, context menu
-- ✅ Terminal sidebar: Snippets tab with search and list
-- ✅ Paste and Run functionality in terminal
-- ✅ Edit and New snippet from terminal sidebar
-- ✅ Delete with confirmation dialog
-- ✅ Selection and hover effects
-- ✅ Auto-reopen terminal sidebar after form closes
-- ✅ Snippet store with Zustand for shared state
-- ✅ Command history tracking with backspace/control character handling
-- ✅ History tab in terminal sidebar with search
-- ✅ Save commands from history to snippets with inline name input
-- ✅ Clear history functionality
-- ✅ Variables/placeholders (e.g., `ssh {USER}@{HOST} -p {PORT}`)
-  - ✅ Detect `{VARIABLE}` patterns in command
-  - ✅ Show dialog with input fields for each variable
-  - ✅ Replace variables with user input before execution
+---
+
+## Completed Features
+
+### Authentication ✅
+- SSH Key File Selection with browse dialog
+- Password and Public Key authentication
+- System keychain integration
+
+### Connection Management ✅
+- Connection Groups/Folders
+- Auto-reconnect with exponential backoff
+- Host key verification
+
+### Terminal ✅
+- Terminal resize handling
+- Copy/paste support
+- Search in terminal output
+- Session logging to file
+
+### Port Forwarding ✅
+- Local/Remote/Dynamic (SOCKS) tunnels
+- Tunnel management UI
+- Auto-start on connection
+
+### Settings ✅
+- Theme toggle (Light/Dark/System)
+- Log management
+- Settings persistence
+
+### Snippets/Commands ✅
+- Snippet storage and management
+- Command history tracking
+- Variables/placeholders with runtime input
+- Save from history to snippets
