@@ -10,6 +10,7 @@ import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useKeyboardShortcuts, useLocalTerminal } from "@/hooks";
 import { useMenuActions } from "@/hooks";
+import { terminalService } from "@/services/ipc/terminal";
 
 // Lazy load pages
 const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));
@@ -189,7 +190,16 @@ export function MainLayout() {
         <Suspense fallback={null}>
           <TerminalSidebar 
             onClose={() => setShowTerminalSettings(false)}
-            onInsertSnippet={() => {}} 
+            onPasteSnippet={(command) => {
+              if (activeSessionTabId) {
+                terminalService.sendInput(activeSessionTabId, command)
+              }
+            }}
+            onRunSnippet={(command) => {
+              if (activeSessionTabId) {
+                terminalService.sendInput(activeSessionTabId, command + '\n')
+              }
+            }}
           />
         </Suspense>
       )}

@@ -8,14 +8,20 @@ import { Snippet } from '@/types/snippet'
 
 interface TerminalSidebarProps {
   onClose: () => void
-  onInsertSnippet: (command: string) => void
+  onPasteSnippet: (command: string) => void
+  onRunSnippet: (command: string) => void
 }
 
-export function TerminalSidebar({ onClose, onInsertSnippet }: TerminalSidebarProps) {
+export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet }: TerminalSidebarProps) {
   const [activeTab, setActiveTab] = useState('snippets')
 
-  const handleSelectSnippet = (snippet: Snippet) => {
-    onInsertSnippet(snippet.command)
+  const handlePasteSnippet = (snippet: Snippet) => {
+    onPasteSnippet(snippet.command)
+    onClose()
+  }
+
+  const handleRunSnippet = (snippet: Snippet) => {
+    onRunSnippet(snippet.command)
     onClose()
   }
 
@@ -39,7 +45,10 @@ export function TerminalSidebar({ onClose, onInsertSnippet }: TerminalSidebarPro
         </TabsList>
 
         <TabsContent value="snippets" className="flex-1 m-0 overflow-hidden">
-          <TerminalSnippetsList onSelectSnippet={handleSelectSnippet} />
+          <TerminalSnippetsList 
+            onPasteSnippet={handlePasteSnippet}
+            onRunSnippet={handleRunSnippet}
+          />
         </TabsContent>
 
         <TabsContent value="settings" className="flex-1 m-0 overflow-hidden">

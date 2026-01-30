@@ -5,10 +5,11 @@ import { SnippetSearchBar } from '@/components/snippets/SnippetSearchBar'
 import { Braces } from 'lucide-react'
 
 interface TerminalSnippetsListProps {
-  onSelectSnippet: (snippet: Snippet) => void
+  onPasteSnippet: (snippet: Snippet) => void
+  onRunSnippet: (snippet: Snippet) => void
 }
 
-export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListProps) {
+export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet }: TerminalSnippetsListProps) {
   const { snippets, loading } = useSnippets()
   const [searchQuery, setSearchQuery] = useState('')
   const { filteredSnippets } = useSnippetSearch(snippets, searchQuery)
@@ -54,13 +55,13 @@ export function TerminalSnippetsList({ onSelectSnippet }: TerminalSnippetsListPr
                       </div>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
                         <button
-                          onClick={() => onSelectSnippet(snippet)}
+                          onClick={() => onPasteSnippet(snippet)}
                           className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                         >
                           Paste
                         </button>
                         <button
-                          onClick={() => onSelectSnippet(snippet)}
+                          onClick={() => onRunSnippet(snippet)}
                           className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                         >
                           Run
