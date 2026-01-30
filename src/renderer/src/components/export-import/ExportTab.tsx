@@ -5,12 +5,14 @@ import { Label } from '@/components/ui/label'
 import { Download } from 'lucide-react'
 
 export function ExportTab() {
-  const { exporting, exportFreeSSH } = useExport()
-  const [format] = useState('freessh')
+  const { exporting, exportFreeSSH, exportOpenSSH } = useExport()
+  const [format, setFormat] = useState<'freessh' | 'openssh'>('freessh')
 
   const handleExport = async () => {
     if (format === 'freessh') {
       await exportFreeSSH()
+    } else if (format === 'openssh') {
+      await exportOpenSSH()
     }
   }
 
@@ -26,13 +28,31 @@ export function ExportTab() {
               name="format"
               value="freessh"
               checked={format === 'freessh'}
-              readOnly
+              onChange={(e) => setFormat(e.target.value as 'freessh')}
               className="w-4 h-4"
             />
             <label htmlFor="format-freessh" className="flex-1 cursor-pointer">
               <div className="font-medium">FreeSSH Format</div>
               <div className="text-xs text-muted-foreground">
-                Export all connections, groups, and port forwards to JSON
+                Export all connections, groups, port forwards, and keys to JSON
+              </div>
+            </label>
+          </div>
+
+          <div className="flex items-center gap-2 p-3 border rounded-lg">
+            <input
+              type="radio"
+              id="format-openssh"
+              name="format"
+              value="openssh"
+              checked={format === 'openssh'}
+              onChange={(e) => setFormat(e.target.value as 'openssh')}
+              className="w-4 h-4"
+            />
+            <label htmlFor="format-openssh" className="flex-1 cursor-pointer">
+              <div className="font-medium">OpenSSH Config</div>
+              <div className="text-xs text-muted-foreground">
+                Export connections to OpenSSH config format (~/.ssh/config)
               </div>
             </label>
           </div>

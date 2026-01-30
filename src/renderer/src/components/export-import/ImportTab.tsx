@@ -5,8 +5,8 @@ import { Label } from '@/components/ui/label'
 import { Upload, FileText } from 'lucide-react'
 
 export function ImportTab() {
-  const { importing, importFreeSSH } = useImport()
-  const [format] = useState('freessh')
+  const { importing, importFreeSSH, importOpenSSH } = useImport()
+  const [format, setFormat] = useState<'freessh' | 'openssh'>('freessh')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -22,16 +22,21 @@ export function ImportTab() {
 
     if (format === 'freessh') {
       await importFreeSSH(selectedFile)
-      setSelectedFile(null)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+    } else if (format === 'openssh') {
+      await importOpenSSH(selectedFile)
+    }
+    
+    setSelectedFile(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
     }
   }
 
   const handleBrowse = () => {
     fileInputRef.current?.click()
   }
+
+  const acceptedFileTypes = format === 'freessh' ? '.json' : '.conf,.config,*'
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -45,13 +50,31 @@ export function ImportTab() {
               name="import-format"
               value="freessh"
               checked={format === 'freessh'}
-              readOnly
+              onChange={(e) => setFormat(e.target.value as 'freessh')}
               className="w-4 h-4"
             />
             <label htmlFor="import-format-freessh" className="flex-1 cursor-pointer">
               <div className="font-medium">FreeSSH Format</div>
               <div className="text-xs text-muted-foreground">
-                Import connections, groups, and port forwards from JSON
+                Import connections, groups, port forwards, and keys from JSON
+              </div>
+            </label>
+          </div>
+
+          <div className="flex items-center gap-2 p-3 border rounded-lg">
+            <input
+              type="radio"
+              id="import-format-openssh"
+              name="import-format"
+              value="openssh"
+              checked={format === 'openssh'}
+              onChange={(e) => setFormat(e.target.value as 'openssh')}
+              className="w-4 h-4"
+            />
+            <label htmlFor="import-format-openssh" className="flex-1 cursor-pointer">
+              <div className="font-medium">OpenSSH Config</div>
+              <div className="text-xs text-muted-foreground">
+                Import connections from OpenSSH config file (~/.ssh/config)
               </div>
             </label>
           </div>
@@ -63,7 +86,7 @@ export function ImportTab() {
         <input
           ref={fileInputRef}
           type="file"
-          accept=".json"
+          accept={acceptedFileTypes}
           onChange={handleFileSelect}
           className="hidden"
         />
