@@ -8,4 +8,4 @@ export { useKeyboardShortcuts, useMenuActions, useSearch, useFormDirty, useDragD
 export { usePortForward, usePortForwardConfig } from './portforward'
 export { useExport } from './export'
 export { useImport } from './import'
-export { useSnippets, useSnippetSearch } from './snippets'
+export { useSnippetSearch } from './snippets'
