@@ -3,19 +3,28 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"freessh-backend/internal/connection"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
+	"freessh-backend/internal/storage"
 )
 
 type ConnectionHandler struct {
-	manager          *session.Manager
+	manager            *session.Manager
 	verificationHelper *HostKeyVerificationHelper
+	keyStorage         *storage.KeyStorage
+	keyFileStorage     *storage.KeyFileStorage
 }
 
 func NewConnectionHandler(manager *session.Manager, verificationHelper *HostKeyVerificationHelper) *ConnectionHandler {
+	keyStorage, _ := storage.NewKeyStorage()
+	keyFileStorage, _ := storage.NewKeyFileStorage()
+	
 	return &ConnectionHandler{
-		manager:          manager,
+		manager:            manager,
 		verificationHelper: verificationHelper,
+		keyStorage:         keyStorage,
+		keyFileStorage:     keyFileStorage,
 	}
 }
 
@@ -117,6 +126,13 @@ func (h *ConnectionHandler) handleUpdate(msg *models.IPCMessage, writer Response
 		return fmt.Errorf("failed to parse connection config: %w", err)
 	}
 
+	// Migrate embedded key to key storage if present
+	if h.keyStorage != nil && h.keyFileStorage != nil {
+		if err := connection.MigrateEmbeddedKey(&config, h.keyStorage, h.keyFileStorage); err != nil {
+			return fmt.Errorf("failed to migrate key: %w", err)
+		}
+	}
+
 	if err := h.manager.UpdateSavedConnection(config); err != nil {
 		return err
 	}
@@ -136,6 +152,17 @@ func (h *ConnectionHandler) handleConnect(msg *models.IPCMessage, writer Respons
 	var config models.ConnectionConfig
 	if err := json.Unmarshal(jsonData, &config); err != nil {
 		return fmt.Errorf("failed to parse connection config: %w", err)
+	}
+
+	// Migrate embedded key to key storage if present
+	if h.keyStorage != nil && h.keyFileStorage != nil {
+		if err := connection.MigrateEmbeddedKey(&config, h.keyStorage, h.keyFileStorage); err != nil {
+			return fmt.Errorf("failed to migrate key: %w", err)
+		}
+		// Save the updated config if migration happened
+		if config.KeyID != "" && config.PrivateKey == "" {
+			_ = h.manager.UpdateSavedConnection(config)
+		}
 	}
 
 	verificationCallback := h.verificationHelper.CreateVerificationCallback(writer)
