@@ -21,7 +21,7 @@ export function ExportTab() {
       <div>
         <Label className="text-sm font-medium mb-2 block">Export Format</Label>
         <div className="space-y-2">
-          <div className="flex items-center gap-2 p-3 border rounded-lg">
+          <div className={`flex items-center gap-2 p-3 border rounded-lg ${format === 'freessh' ? 'bg-muted/50' : ''}`}>
             <input
               type="radio"
               id="format-freessh"
@@ -39,7 +39,7 @@ export function ExportTab() {
             </label>
           </div>
 
-          <div className="flex items-center gap-2 p-3 border rounded-lg">
+          <div className={`flex items-center gap-2 p-3 border rounded-lg ${format === 'openssh' ? 'bg-muted/50' : ''}`}>
             <input
               type="radio"
               id="format-openssh"

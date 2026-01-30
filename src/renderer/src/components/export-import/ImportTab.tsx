@@ -43,7 +43,7 @@ export function ImportTab() {
       <div>
         <Label className="text-sm font-medium mb-2 block">Import Format</Label>
         <div className="space-y-2">
-          <div className="flex items-center gap-2 p-3 border rounded-lg">
+          <div className={`flex items-center gap-2 p-3 border rounded-lg ${format === 'freessh' ? 'bg-muted/50' : ''}`}>
             <input
               type="radio"
               id="import-format-freessh"
@@ -61,7 +61,7 @@ export function ImportTab() {
             </label>
           </div>
 
-          <div className="flex items-center gap-2 p-3 border rounded-lg">
+          <div className={`flex items-center gap-2 p-3 border rounded-lg ${format === 'openssh' ? 'bg-muted/50' : ''}`}>
             <input
               type="radio"
               id="import-format-openssh"
