@@ -10,9 +10,9 @@ import { Eye, Edit, Trash2 } from 'lucide-react'
 
 interface SnippetsContextMenuProps {
   snippet: Snippet
-  onView: () => void
-  onEdit: () => void
-  onDelete: () => void
+  onView?: () => void
+  onEdit?: () => void
+  onDelete?: () => void
   children: ReactNode
 }
 
@@ -29,21 +29,27 @@ export function SnippetsContextMenu({
         {children}
       </ContextMenuTrigger>
       <ContextMenuContent className="w-48">
-        <ContextMenuItem onClick={onView}>
-          <Eye className="h-4 w-4 mr-2" />
-          View Command
-        </ContextMenuItem>
-        <ContextMenuItem onClick={onEdit}>
-          <Edit className="h-4 w-4 mr-2" />
-          Edit
-        </ContextMenuItem>
-        <ContextMenuItem
-          onClick={onDelete}
-          className="text-destructive focus:text-destructive"
-        >
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete
-        </ContextMenuItem>
+        {onView && (
+          <ContextMenuItem onClick={onView}>
+            <Eye className="h-4 w-4 mr-2" />
+            View Command
+          </ContextMenuItem>
+        )}
+        {onEdit && (
+          <ContextMenuItem onClick={onEdit}>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </ContextMenuItem>
+        )}
+        {onDelete && (
+          <ContextMenuItem
+            onClick={onDelete}
+            className="text-destructive focus:text-destructive"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete
+          </ContextMenuItem>
+        )}
       </ContextMenuContent>
     </ContextMenu>
   )

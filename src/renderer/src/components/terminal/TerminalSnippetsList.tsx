@@ -2,14 +2,18 @@ import { useState } from 'react'
 import { useSnippets, useSnippetSearch } from '@/hooks/snippets'
 import { Snippet } from '@/types/snippet'
 import { SnippetSearchBar } from '@/components/snippets/SnippetSearchBar'
-import { Braces } from 'lucide-react'
+import { SnippetsContextMenu } from '@/components/contextmenu'
+import { Button } from '@/components/ui/button'
+import { Braces, Plus } from 'lucide-react'
 
 interface TerminalSnippetsListProps {
   onPasteSnippet: (snippet: Snippet) => void
   onRunSnippet: (snippet: Snippet) => void
+  onEditSnippet: (snippet: Snippet) => void
+  onNewSnippet: () => void
 }
 
-export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet }: TerminalSnippetsListProps) {
+export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnippet, onNewSnippet }: TerminalSnippetsListProps) {
   const { snippets, loading } = useSnippets()
   const [searchQuery, setSearchQuery] = useState('')
   const { filteredSnippets } = useSnippetSearch(snippets, searchQuery)
@@ -24,11 +28,19 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet }: TerminalS
 
   return (
     <div className="flex flex-col h-full">
-      <div className="px-2 py-4 border-b border-border">
+      <div className="px-2 py-4 border-b border-border flex items-center gap-2">
         <SnippetSearchBar
           value={searchQuery}
           onChange={setSearchQuery}
         />
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onNewSnippet}
+          className="flex-shrink-0"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -42,10 +54,14 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet }: TerminalS
         ) : (
           <div className="space-y-1 pr-2">
             {filteredSnippets.map((snippet) => (
-              <div
+              <SnippetsContextMenu
                 key={snippet.id}
-                className="group border-t border-b border-border p-2"
+                snippet={snippet}
+                onEdit={() => onEditSnippet(snippet)}
               >
+                <div
+                  className="group border-t border-b border-border p-2"
+                >
                 <div className="flex items-start gap-2">
                   <Braces className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
@@ -73,7 +89,8 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet }: TerminalS
                     </div>
                   </div>
                 </div>
-              </div>
+                </div>
+              </SnippetsContextMenu>
             ))}
           </div>
         )}

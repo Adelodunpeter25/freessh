@@ -10,6 +10,8 @@ interface TerminalSidebarProps {
   onClose: () => void
   onPasteSnippet: (command: string) => void
   onRunSnippet: (command: string) => void
+  onEditSnippet: () => void
+  onNewSnippet: () => void
 }
 
 export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet }: TerminalSidebarProps) {
