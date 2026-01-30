@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSnippetStore } from '@/stores'
 import { useSnippetSearch } from '@/hooks/snippets'
 import { Snippet } from '@/types/snippet'
@@ -26,6 +26,14 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
 
   useEffect(() => {
     loadSnippets()
+  }, [])
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedId(null)
+  }, [])
+
+  const handleSelectSnippet = useCallback((id: string) => {
+    setSelectedId(id)
   }, [])
 
   if (loading) {
@@ -60,7 +68,7 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
         </TooltipProvider>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2" onClick={() => setSelectedId(null)}>
+      <div className="flex-1 overflow-y-auto p-2" onClick={handleClearSelection}>
         {filteredSnippets.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
             <Braces className="h-12 w-12 text-muted-foreground/50 mb-3" />
@@ -85,11 +93,11 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
                   }`}
                   onClick={(e) => {
                     e.stopPropagation()
-                    setSelectedId(snippet.id)
+                    handleSelectSnippet(snippet.id)
                   }}
                   onContextMenu={(e) => {
                     e.stopPropagation()
-                    setSelectedId(snippet.id)
+                    handleSelectSnippet(snippet.id)
                   }}
                 >
                 <div className="flex items-start gap-2">
