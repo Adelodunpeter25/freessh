@@ -64,6 +64,11 @@ const (
 	MsgSnippetUpdate MessageType = "snippet:update"
 	MsgSnippetDelete MessageType = "snippet:delete"
 
+	// History messages
+	MsgHistoryList  MessageType = "history:list"
+	MsgHistoryAdd   MessageType = "history:add"
+	MsgHistoryClear MessageType = "history:clear"
+
 	// Export messages
 	MsgExportFreeSSH MessageType = "export:freessh"
 	MsgExportOpenSSH MessageType = "export:openssh"

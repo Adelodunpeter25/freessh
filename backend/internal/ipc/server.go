@@ -24,8 +24,14 @@ func NewServer() *Server {
 		log.Printf("Warning: Failed to initialize log settings storage: %v", err)
 	}
 	
+	// Initialize history storage
+	historyStorage, err := storage.NewHistoryStorage()
+	if err != nil {
+		log.Printf("Warning: Failed to initialize history storage: %v", err)
+	}
+	
 	manager := session.NewManager(logSettingsStorage)
-	terminalHandler := handlers.NewTerminalHandler(manager)
+	terminalHandler := handlers.NewTerminalHandler(manager, historyStorage)
 	
 	// Initialize known hosts storage
 	knownHostStorage, err := storage.NewKnownHostStorage()
@@ -61,7 +67,7 @@ func NewServer() *Server {
 		handlers: []handlers.Handler{
 			handlers.NewSSHHandler(manager, verificationHelper),
 			terminalHandler,
-			handlers.NewSessionHandler(manager),
+			handlers.NewSessionHandler(manager, historyStorage),
 			handlers.NewConnectionHandler(manager, verificationHelper),
 			handlers.NewSFTPHandler(manager),
 			handlers.NewPortForwardHandler(manager),
@@ -74,6 +80,7 @@ func NewServer() *Server {
 			handlers.NewLogHandler(),
 			handlers.NewLogSettingsHandler(logSettingsStorage),
 			handlers.NewSnippetHandler(snippetStorage),
+			handlers.NewHistoryHandler(historyStorage),
 			handlers.NewExportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 			handlers.NewImportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 			handlers.NewExportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),

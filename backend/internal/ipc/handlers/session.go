@@ -3,15 +3,18 @@ package handlers
 import (
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
+	"freessh-backend/internal/storage"
 )
 
 type SessionHandler struct {
-	manager *session.Manager
+	manager        *session.Manager
+	historyStorage *storage.HistoryStorage
 }
 
-func NewSessionHandler(manager *session.Manager) *SessionHandler {
+func NewSessionHandler(manager *session.Manager, historyStorage *storage.HistoryStorage) *SessionHandler {
 	return &SessionHandler{
-		manager: manager,
+		manager:        manager,
+		historyStorage: historyStorage,
 	}
 }
 
@@ -58,7 +61,7 @@ func (h *SessionHandler) handleConnectLocal(msg *models.IPCMessage, writer Respo
 		Data: session,
 	})
 
-	terminalHandler := NewTerminalHandler(h.manager)
+	terminalHandler := NewTerminalHandler(h.manager, h.historyStorage)
 	terminalHandler.StartOutputStreaming(session.ID, writer)
 
 	return nil

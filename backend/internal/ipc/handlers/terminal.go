@@ -3,17 +3,22 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"freessh-backend/internal/history"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
+	"freessh-backend/internal/storage"
+	"strings"
 )
 
 type TerminalHandler struct {
-	manager *session.Manager
+	manager        *session.Manager
+	historyManager *history.Manager
 }
 
-func NewTerminalHandler(manager *session.Manager) *TerminalHandler {
+func NewTerminalHandler(manager *session.Manager, historyStorage *storage.HistoryStorage) *TerminalHandler {
 	return &TerminalHandler{
-		manager: manager,
+		manager:        manager,
+		historyManager: history.NewManager(historyStorage),
 	}
 }
 
@@ -48,6 +53,12 @@ func (h *TerminalHandler) handleInput(msg *models.IPCMessage) error {
 	var inputData models.InputData
 	if err := json.Unmarshal(jsonData, &inputData); err != nil {
 		return fmt.Errorf("failed to parse input data: %w", err)
+	}
+
+	// Track command if it ends with newline
+	if strings.HasSuffix(inputData.Data, "\n") {
+		command := strings.TrimSuffix(inputData.Data, "\n")
+		h.historyManager.Add(command)
 	}
 
 	return h.manager.SendInput(msg.SessionID, []byte(inputData.Data))
