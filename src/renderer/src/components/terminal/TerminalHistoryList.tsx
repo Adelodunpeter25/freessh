@@ -91,9 +91,9 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
                 key={entry.id}
                 className="group p-2 rounded-lg hover:bg-muted/50 transition-colors"
               >
-                <div className="font-mono text-sm break-all">{entry.command}</div>
-                <div className="flex items-center justify-end mt-1">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="font-mono text-sm break-all flex-1">{entry.command}</div>
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 shrink-0">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -108,7 +108,7 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
                       onClick={() => handleRun(entry.command)}
                       className="h-6 px-2 text-xs"
                     >
-                      Run
+                      Save
                     </Button>
                   </div>
                 </div>
