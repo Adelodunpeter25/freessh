@@ -2,7 +2,7 @@ import { backendService } from './backend'
 import { ConnectionConfig, Session, IPCMessage } from '../../types'
 
 export const sshService = {
-  connect(config: ConnectionConfig, timeoutMs: number = 30000): Promise<Session> {
+  connect(config: ConnectionConfig, timeoutMs: number = 10000): Promise<Session> {
     return new Promise((resolve, reject) => {
       let timeoutId: NodeJS.Timeout
 
@@ -24,7 +24,7 @@ export const sshService = {
 
       timeoutId = setTimeout(() => {
         cleanup()
-        reject(new Error('Connection timeout - server did not respond within 30 seconds'))
+        reject(new Error('Connection timeout - server did not respond within 10 seconds'))
       }, timeoutMs)
 
       backendService.on('session_status', handler)
