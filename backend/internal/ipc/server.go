@@ -28,6 +28,7 @@ func NewServer() *Server {
 	historyStorage, err := storage.NewHistoryStorage()
 	if err != nil {
 		log.Printf("Warning: Failed to initialize history storage: %v", err)
+		historyStorage = nil
 	}
 	
 	manager := session.NewManager(logSettingsStorage)

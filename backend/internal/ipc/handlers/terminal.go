@@ -16,9 +16,13 @@ type TerminalHandler struct {
 }
 
 func NewTerminalHandler(manager *session.Manager, historyStorage *storage.HistoryStorage) *TerminalHandler {
+	var historyManager *history.Manager
+	if historyStorage != nil {
+		historyManager = history.NewManager(historyStorage)
+	}
 	return &TerminalHandler{
 		manager:        manager,
-		historyManager: history.NewManager(historyStorage),
+		historyManager: historyManager,
 	}
 }
 
@@ -56,7 +60,7 @@ func (h *TerminalHandler) handleInput(msg *models.IPCMessage) error {
 	}
 
 	// Track command if it ends with newline
-	if strings.HasSuffix(inputData.Data, "\n") {
+	if h.historyManager != nil && strings.HasSuffix(inputData.Data, "\n") {
 		command := strings.TrimSuffix(inputData.Data, "\n")
 		h.historyManager.Add(command)
 	}

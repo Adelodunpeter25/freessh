@@ -13,8 +13,12 @@ type HistoryHandler struct {
 }
 
 func NewHistoryHandler(historyStorage *storage.HistoryStorage) *HistoryHandler {
+	var manager *history.Manager
+	if historyStorage != nil {
+		manager = history.NewManager(historyStorage)
+	}
 	return &HistoryHandler{
-		manager: history.NewManager(historyStorage),
+		manager: manager,
 	}
 }
 
@@ -40,6 +44,15 @@ func (h *HistoryHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) e
 }
 
 func (h *HistoryHandler) handleList(writer ResponseWriter) error {
+	if h.manager == nil {
+		return writer.WriteMessage(&models.IPCMessage{
+			Type: models.MsgHistoryList,
+			Data: models.HistoryListResponse{
+				Entries: []models.HistoryEntry{},
+			},
+		})
+	}
+
 	entries, err := h.manager.List()
 	if err != nil {
 		return err
@@ -54,6 +67,13 @@ func (h *HistoryHandler) handleList(writer ResponseWriter) error {
 }
 
 func (h *HistoryHandler) handleAdd(msg *models.IPCMessage, writer ResponseWriter) error {
+	if h.manager == nil {
+		return writer.WriteMessage(&models.IPCMessage{
+			Type: models.MsgHistoryAdd,
+			Data: models.HistoryAddResponse{},
+		})
+	}
+
 	jsonData, err := json.Marshal(msg.Data)
 	if err != nil {
 		return fmt.Errorf("invalid data: %w", err)
@@ -86,6 +106,15 @@ func (h *HistoryHandler) handleAdd(msg *models.IPCMessage, writer ResponseWriter
 }
 
 func (h *HistoryHandler) handleClear(writer ResponseWriter) error {
+	if h.manager == nil {
+		return writer.WriteMessage(&models.IPCMessage{
+			Type: models.MsgHistoryClear,
+			Data: models.HistoryClearResponse{
+				Status: "cleared",
+			},
+		})
+	}
+
 	if err := h.manager.Clear(); err != nil {
 		return err
 	}
