@@ -77,11 +77,6 @@ export function SFTPBrowser() {
           onPanelSelect={state.handlePanelSelect}
           connectingConnectionId={state.connectingConnectionId}
         />
-          leftSessionId={state.leftSessionId}
-          rightPanelType={state.rightPanelType}
-          rightSessionId={state.rightSessionId}
-          connectingConnectionId={state.connectingConnectionId}
-        />
         <SFTPTransferQueue
           transfers={state.sftp.transfers}
           onCancel={state.sftp.cancelTransfer}
