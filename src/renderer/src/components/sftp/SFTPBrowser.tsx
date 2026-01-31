@@ -164,7 +164,7 @@ export function SFTPBrowser() {
                 files={local.files}
               />
             </FilePanelProvider>
-            {localMultiSelect.selectedItems.size > 0 && (
+            {localMultiSelect.selectedItems.size > 1 && (
               <BulkActionBar
                 selectedCount={localMultiSelect.selectedItems.size}
                 onDelete={handleLocalBulkDelete}
@@ -197,7 +197,7 @@ export function SFTPBrowser() {
               onItemSelect={remoteMultiSelect.handleSelect}
               isItemSelected={remoteMultiSelect.isSelected}
             />
-            {remoteMultiSelect.selectedItems.size > 0 && (
+            {remoteMultiSelect.selectedItems.size > 1 && (
               <BulkActionBar
                 selectedCount={remoteMultiSelect.selectedItems.size}
                 onDelete={handleBulkDelete}
