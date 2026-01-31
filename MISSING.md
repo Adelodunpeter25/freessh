@@ -2,17 +2,7 @@
 
 ## SFTP Features (Not Implemented)
 
-### Remote to Remote Transfer
-**Description:** Currently only supports local↔remote transfers. Need server-to-server direct transfers.  
-**Implementation needed:**
-- UI: Add "Remote Source" panel alongside existing local/remote panels
-- Backend: Create dual SFTP client handler that streams between two SSH sessions
-- Transfer: Direct pipe from source SFTP to destination SFTP without local storage
-- Progress: Track bytes transferred between remote endpoints
-- Use case: Copy files between staging/production servers, sync between remote locations
-
-### SFTP Browser Enhancements
-- Drag and drop between two remote panels
+_All SFTP features have been implemented!_
 
 ---
 
@@ -62,3 +52,17 @@
 - Command history tracking
 - Variables/placeholders with runtime input
 - Save from history to snippets
+
+### SFTP ✅
+- Remote to Remote Transfer
+  - UI: Remote source panel with connection selector
+  - Backend: Dual SFTP client handler with streaming between sessions
+  - Transfer: Direct pipe from source to destination without local storage
+  - Progress: Byte tracking for remote transfers
+  - Cancellation: Full cancel support for remote transfers
+  - Directory support: Recursive remote-to-remote transfers
+- Drag and drop between panels
+  - Local to remote (upload)
+  - Remote to local (download)
+  - Remote to remote (server-to-server)
+  - Visual indicator overlay for all transfer types
