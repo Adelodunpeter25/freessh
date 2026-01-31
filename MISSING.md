@@ -11,11 +11,7 @@
 - Progress: Track bytes transferred between remote endpoints
 - Use case: Copy files between staging/production servers, sync between remote locations
 
-### File Operations Enhancements
-- Concurrent transfer limits (currently unlimited, could overwhelm system)
-
 ### SFTP Browser Enhancements
-- Bulk operations (select multiple files for delete/download) ✅
 - Drag and drop between two remote panels
 
 ---
