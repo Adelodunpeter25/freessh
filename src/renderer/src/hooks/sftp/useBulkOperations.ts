@@ -3,13 +3,12 @@ import { toast } from 'sonner'
 import { bulkSftpService } from '../../services/ipc'
 
 export const useBulkOperations = (sessionId: string | null, currentPath: string, onComplete?: () => void) => {
-  const bulkDelete = useCallback(async (fileNames: string[]) => {
-    if (!sessionId || fileNames.length === 0) return
+  const bulkDelete = useCallback(async (remotePaths: string[]) => {
+    if (!sessionId || remotePaths.length === 0) return
 
-    const toastId = toast.loading(`Deleting ${fileNames.length} item(s)...`)
+    const toastId = toast.loading(`Deleting ${remotePaths.length} item(s)...`)
     
     try {
-      const remotePaths = fileNames.map(name => `${currentPath}/${name}`)
       const results = await bulkSftpService.bulkDelete(sessionId, remotePaths, (progress) => {
         toast.loading(`Deleting ${progress.completed_items}/${progress.total_items}...`, { id: toastId })
       })
@@ -27,16 +26,14 @@ export const useBulkOperations = (sessionId: string | null, currentPath: string,
     } catch (err) {
       toast.error('Bulk delete failed', { id: toastId })
     }
-  }, [sessionId, currentPath, onComplete])
+  }, [sessionId, onComplete])
 
-  const bulkDownload = useCallback(async (fileNames: string[], localDir: string) => {
-    if (!sessionId || fileNames.length === 0) return
+  const bulkDownload = useCallback(async (remotePaths: string[], localDir: string) => {
+    if (!sessionId || remotePaths.length === 0) return
 
-    const toastId = toast.loading(`Downloading ${fileNames.length} item(s)...`)
+    const toastId = toast.loading(`Downloading ${remotePaths.length} item(s)...`)
     
     try {
-      console.log('[BulkDownload] currentPath:', currentPath, 'fileNames:', fileNames)
-      const remotePaths = fileNames.map(name => `${currentPath}/${name}`)
       console.log('[BulkDownload] remotePaths:', remotePaths)
       const results = await bulkSftpService.bulkDownload(sessionId, remotePaths, localDir, (progress) => {
         toast.loading(`Downloading ${progress.completed_items}/${progress.total_items}...`, { id: toastId })
@@ -55,7 +52,7 @@ export const useBulkOperations = (sessionId: string | null, currentPath: string,
     } catch (err) {
       toast.error('Bulk download failed', { id: toastId })
     }
-  }, [sessionId, currentPath, onComplete])
+  }, [sessionId, onComplete])
 
   const bulkUpload = useCallback(async (localPaths: string[], remoteDir: string) => {
     if (!sessionId || localPaths.length === 0) return
