@@ -6,6 +6,7 @@ import { FileItemContextMenu } from '@/components/contextmenu'
 interface FileItemProps {
   file: FileInfo
   selected: boolean
+  multiSelected?: boolean
   onSelect: () => void
   onOpen: () => void
   onDelete: () => Promise<void>
@@ -13,6 +14,7 @@ interface FileItemProps {
   onChmod: (mode: number) => Promise<void>
   draggable?: boolean
   onDragStart?: (e: React.DragEvent) => void
+  onClick?: (e: React.MouseEvent) => void
   formattedDate?: string
   formattedPerms?: string
   formattedSize?: string
@@ -20,7 +22,8 @@ interface FileItemProps {
 
 export const FileItem = memo(function FileItem({ 
   file, 
-  selected, 
+  selected,
+  multiSelected = false,
   onSelect, 
   onOpen, 
   onDelete, 
@@ -28,6 +31,7 @@ export const FileItem = memo(function FileItem({
   onChmod, 
   draggable, 
   onDragStart,
+  onClick,
   formattedDate,
   formattedPerms,
   formattedSize
@@ -67,8 +71,15 @@ export const FileItem = memo(function FileItem({
   return (
     <FileItemContextMenu file={file} onOpen={onOpen} onRename={startRename} onDelete={onDelete} onChmod={onChmod}>
       <div
-        className={`grid grid-cols-[1fr_100px_90px_70px] items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent/50 text-sm ${selected ? 'bg-primary/30' : ''}`}
-        onClick={onSelect}
+        className={`grid grid-cols-[1fr_100px_90px_70px] items-center gap-2 px-3 py-2 cursor-pointer hover:bg-accent/50 text-sm ${
+          multiSelected ? 'bg-primary/20' : selected ? 'bg-primary/30' : ''
+        }`}
+        onClick={(e) => {
+          onClick?.(e)
+          if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
+            onSelect()
+          }
+        }}
         onContextMenu={onSelect}
         onDoubleClick={onOpen}
         draggable={draggable && !isRenaming}

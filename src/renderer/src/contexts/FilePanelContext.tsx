@@ -20,6 +20,11 @@ interface FilePanelContextValue {
   selectedFile: FileInfo | null
   onSelectFile: (file: FileInfo | null) => void
   
+  // Multi-select
+  selectedItems?: Set<string>
+  onItemSelect?: (file: FileInfo, index: number, event: React.MouseEvent) => void
+  isItemSelected?: (fileName: string) => boolean
+  
   // State
   currentPath: string
   loading: boolean

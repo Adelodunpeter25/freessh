@@ -13,6 +13,9 @@ interface FileListProps {
   showHidden: boolean;
   onOpenFile: (file: FileInfo) => void;
   onNewFolder: () => void;
+  selectedItems?: Set<string>;
+  onItemSelect?: (file: FileInfo, index: number, event: React.MouseEvent) => void;
+  isItemSelected?: (fileName: string) => boolean;
 }
 
 export function FileList({
@@ -21,6 +24,9 @@ export function FileList({
   showHidden,
   onOpenFile,
   onNewFolder,
+  selectedItems,
+  onItemSelect,
+  isItemSelected,
 }: FileListProps) {
   const {
     selectedFile,
@@ -67,11 +73,12 @@ export function FileList({
       </div>
       <FilePanelContextMenu onNewFolder={onNewFolder} onRefresh={onRefresh}>
         <div className="flex-1 overflow-auto">
-          {sortedFiles.map((file) => (
+          {sortedFiles.map((file, index) => (
             <FileItem
               key={file.path}
               file={file}
               selected={selectedFile?.path === file.path}
+              multiSelected={isItemSelected?.(file.name) || false}
               onSelect={() => onSelectFile(file)}
               onOpen={() => onOpenFile(file)}
               onDelete={() => onDelete(file.path)}
@@ -79,6 +86,7 @@ export function FileList({
               onChmod={(mode) => onChmod(file.path, mode)}
               draggable
               onDragStart={(e) => handleDragStart(file, e)}
+              onClick={(e) => onItemSelect?.(file, index, e)}
               formattedDate={file._formattedDate}
               formattedPerms={file._formattedPerms}
               formattedSize={file._formattedSize}

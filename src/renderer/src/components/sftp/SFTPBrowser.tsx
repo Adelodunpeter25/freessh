@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { FilePanel } from "./FilePanel";
 import { RemotePanel } from "./RemotePanel";
 import { TransferQueue } from "./TransferQueue";
+import { BulkActionBar } from "./BulkActionBar";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
-import { useSFTP } from "@/hooks";
+import { useSFTP, useMultiSelect, useBulkOperations } from "@/hooks";
 import { useLocalFiles } from "@/hooks";
 import { useFilePreview } from "@/hooks";
 import { useKeyboardShortcuts } from "@/hooks";
@@ -21,6 +22,12 @@ export function SFTPBrowser() {
   const sftp = useSFTP(sessionId);
   const local = useLocalFiles();
   const preview = useFilePreview(sftp.readFile, sftp.writeFile);
+  
+  const remoteMultiSelect = useMultiSelect(sftp.files);
+  const bulkOps = useBulkOperations(sessionId, sftp.currentPath, () => {
+    sftp.listFiles(sftp.currentPath)
+    remoteMultiSelect.clearSelection()
+  });
 
   const transferActive = useMemo(() => 
     sftp.transfers.some(t => t.status !== 'completed' && t.status !== 'failed'),
@@ -99,10 +106,23 @@ export function SFTPBrowser() {
     fetchSuggestions: local.listPath,
   }), [local, handleDownloadDrop, selectedLocal, transferActive]);
 
+  const handleBulkDelete = async () => {
+    const fileNames = Array.from(remoteMultiSelect.selectedItems)
+    await bulkOps.bulkDelete(fileNames)
+  }
+
+  const handleBulkDownload = async () => {
+    const fileNames = Array.from(remoteMultiSelect.selectedItems)
+    const localDir = await window.electron.ipcRenderer.invoke('dialog:openDirectory')
+    if (localDir) {
+      await bulkOps.bulkDownload(fileNames, localDir)
+    }
+  }
+
   return (
     <FilePreviewProvider value={preview}>
       <div className="flex flex-col h-full gap-4 overflow-hidden">
-        <div className="flex flex-1 gap-4 overflow-hidden">
+        <div className="flex flex-1 gap-4 overflow-hidden relative">
           <div className="flex-1 h-full overflow-hidden">
             <FilePanelProvider value={localContextValue}>
               <FilePanel
@@ -130,8 +150,19 @@ export function SFTPBrowser() {
               onSelectFile={setSelectedRemote}
               transferActive={transferActive}
               fetchSuggestions={sftp.listPath}
+              selectedItems={remoteMultiSelect.selectedItems}
+              onItemSelect={remoteMultiSelect.handleSelect}
+              isItemSelected={remoteMultiSelect.isSelected}
             />
           </div>
+          {remoteMultiSelect.selectedItems.size > 0 && (
+            <BulkActionBar
+              selectedCount={remoteMultiSelect.selectedItems.size}
+              onDelete={handleBulkDelete}
+              onDownload={handleBulkDownload}
+              onClear={remoteMultiSelect.clearSelection}
+            />
+          )}
         </div>
         {sftp.transfers.length > 0 && (
           <TransferQueue transfers={sftp.transfers} onCancel={sftp.cancelTransfer} onClearCompleted={sftp.clearCompleted} />

@@ -6,6 +6,7 @@ import { useConnectionStore } from "@/stores/connectionStore";
 import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
 import { FilePanelProvider } from "@/contexts/FilePanelContext";
 import { LoadingOverlay } from "@/components/common/LoadingOverlay";
+import { useMultiSelect } from "@/hooks/sftp";
 
 interface RemotePanelProps {
   sessionId: string | null;
@@ -25,6 +26,9 @@ interface RemotePanelProps {
   transferActive?: boolean;
   fetchSuggestions: (path: string) => Promise<FileInfo[]>;
   onDownloadToTemp?: (remotePath: string, filename: string) => Promise<string>;
+  selectedItems?: Set<string>;
+  onItemSelect?: (file: FileInfo, index: number, event: React.MouseEvent) => void;
+  isItemSelected?: (fileName: string) => boolean;
 }
 
 export function RemotePanel({
@@ -45,6 +49,9 @@ export function RemotePanel({
   transferActive = false,
   fetchSuggestions,
   onDownloadToTemp,
+  selectedItems,
+  onItemSelect,
+  isItemSelected,
 }: RemotePanelProps) {
   const connections = useConnectionStore((state) => state.connections);
   const [connectedConnectionId, setConnectedConnectionId] = useState<string>("");
@@ -76,7 +83,10 @@ export function RemotePanel({
     transferActive,
     fetchSuggestions,
     onDownloadToTemp,
-  }), [onDelete, onRename, onChmod, onMkdir, onNavigate, onRefresh, onDrop, selectedFile, onSelectFile, currentPath, loading, sessionId, transferActive, fetchSuggestions, onDownloadToTemp]);
+    selectedItems,
+    onItemSelect,
+    isItemSelected,
+  }), [onDelete, onRename, onChmod, onMkdir, onNavigate, onRefresh, onDrop, selectedFile, onSelectFile, currentPath, loading, sessionId, transferActive, fetchSuggestions, onDownloadToTemp, selectedItems, onItemSelect, isItemSelected]);
 
   if (!sessionId) {
     return <ConnectionSelector onConnect={handleConnect} />;
