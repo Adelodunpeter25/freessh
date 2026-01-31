@@ -3,6 +3,7 @@ package ipc
 import (
 	"fmt"
 	"freessh-backend/internal/ipc/handlers"
+	"freessh-backend/internal/ipc/handlers/keys"
 	"freessh-backend/internal/ipc/handlers/sftp"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
@@ -76,7 +77,7 @@ func NewServer() *Server {
 			handlers.NewPortForwardConfigHandler(portForwardStorage),
 			handlers.NewKeychainHandler(),
 			handlers.NewKeygenHandler(),
-			handlers.NewKeysHandler(manager),
+			keys.NewHandler(manager),
 			handlers.NewKnownHostsHandler(knownHostStorage),
 			handlers.NewGroupHandler(groupStorage, manager.GetConnectionStorage()),
 			handlers.NewLogHandler(),
