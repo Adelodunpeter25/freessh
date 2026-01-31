@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { SFTPPanels } from "./SFTPPanels";
+import { SFTPPanelsV2 } from "./SFTPPanelsV2";
 import { SFTPTransferQueue } from "./SFTPTransferQueue";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useFilePreview } from "@/hooks";
@@ -40,54 +40,43 @@ export function SFTPBrowser() {
     <FilePreviewProvider value={preview}>
       <div className="flex flex-col h-full gap-4 overflow-hidden">
         <SFTPPanels
-          sessionId={state.sessionId}
-          onSessionChange={state.setSessionId}
-          localFiles={state.local.files}
-          remoteFiles={state.sftp.files}
-          localCurrentPath={state.local.currentPath}
-          remoteCurrentPath={state.sftp.currentPath}
-          remoteLoading={state.sftp.loading}
-          localLoading={state.local.loading}
+          leftPanelType={state.leftPanelType}
+          leftSessionId={state.leftSessionId}
+          leftFiles={state.leftData.files}
+          leftCurrentPath={state.leftData.currentPath}
+          leftLoading={state.leftData.loading}
+          leftSftp={state.leftSftp}
+          leftLocal={state.leftLocal}
+          leftSelectedItems={state.leftMultiSelect.selectedItems}
+          onLeftItemSelect={state.leftMultiSelect.handleSelect}
+          isLeftItemSelected={state.leftMultiSelect.isSelected}
+          onLeftClearSelection={state.leftMultiSelect.clearSelection}
+          
+          rightPanelType={state.rightPanelType}
+          rightSessionId={state.rightSessionId}
+          rightFiles={state.rightData.files}
+          rightCurrentPath={state.rightData.currentPath}
+          rightLoading={state.rightData.loading}
+          rightSftp={state.rightSftp}
+          rightLocal={state.rightLocal}
+          rightSelectedItems={state.rightMultiSelect.selectedItems}
+          onRightItemSelect={state.rightMultiSelect.handleSelect}
+          isRightItemSelected={state.rightMultiSelect.isSelected}
+          onRightClearSelection={state.rightMultiSelect.clearSelection}
+          
           selectedLocal={state.selectedLocal}
           selectedRemote={state.selectedRemote}
           onSelectLocal={state.setSelectedLocal}
           onSelectRemote={state.setSelectedRemote}
           transferActive={state.transferActive}
-          onLocalDelete={state.local.deleteFile}
-          onLocalRename={state.local.rename}
-          onLocalChmod={state.local.chmod}
-          onLocalMkdir={state.local.mkdir}
-          onLocalNavigate={state.local.navigate}
-          onLocalRefresh={state.local.refresh}
-          onLocalDrop={state.handleDownloadDrop}
-          onLocalFetchSuggestions={state.local.listPath}
-          onRemoteNavigate={state.sftp.listFiles}
-          onRemoteRefresh={() => state.sftp.listFiles(state.sftp.currentPath)}
-          onRemoteDelete={state.sftp.deleteFile}
-          onRemoteRename={state.sftp.rename}
-          onRemoteChmod={state.sftp.chmod}
-          onRemoteMkdir={state.sftp.createDirectory}
-          onRemoteDrop={state.handleUploadDrop}
-          onRemoteDownloadToTemp={state.sftp.downloadToTemp}
-          onRemoteFetchSuggestions={state.sftp.listPath}
-          localSelectedItems={state.localMultiSelect.selectedItems}
-          remoteSelectedItems={state.remoteMultiSelect.selectedItems}
-          onLocalItemSelect={state.localMultiSelect.handleSelect}
-          onRemoteItemSelect={state.remoteMultiSelect.handleSelect}
-          isLocalItemSelected={state.localMultiSelect.isSelected}
-          isRemoteItemSelected={state.remoteMultiSelect.isSelected}
-          onLocalBulkDelete={state.handleLocalBulkDelete}
-          onLocalBulkUpload={state.handleLocalBulkUpload}
-          onLocalClearSelection={state.localMultiSelect.clearSelection}
-          onRemoteBulkDelete={state.handleBulkDelete}
-          onRemoteBulkDownload={state.handleBulkDownload}
-          onRemoteClearSelection={state.remoteMultiSelect.clearSelection}
-          onLocalTitleClick={() => state.setShowingSelector('left')}
-          onRemoteTitleClick={() => state.setShowingSelector('right')}
+          
+          onLeftTitleClick={() => state.setShowingSelector('left')}
+          onRightTitleClick={() => state.setShowingSelector('right')}
           showingSelector={state.showingSelector}
           onSelectorClose={() => state.setShowingSelector(null)}
           onPanelSelect={state.handlePanelSelect}
-          leftPanelType={state.leftPanelType}
+          connectingConnectionId={state.connectingConnectionId}
+        />
           leftSessionId={state.leftSessionId}
           rightPanelType={state.rightPanelType}
           rightSessionId={state.rightSessionId}

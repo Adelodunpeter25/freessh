@@ -27,8 +27,22 @@ export const useSFTPBrowserState = () => {
   const leftSftp = useSFTP(leftSessionId);
   const rightSftp = useSFTP(rightSessionId);
   const local = useLocalFiles();
+  const leftLocal = useLocalFiles();
+  const rightLocal = useLocalFiles();
+  
   const remoteMultiSelect = useMultiSelect();
   const localMultiSelect = useMultiSelect();
+  const leftMultiSelect = useMultiSelect();
+  const rightMultiSelect = useMultiSelect();
+  // Get data for each panel based on type
+  const leftData = leftPanelType === 'local' 
+    ? { files: leftLocal.files, currentPath: leftLocal.currentPath, loading: leftLocal.loading }
+    : { files: leftSftp.files, currentPath: leftSftp.currentPath, loading: leftSftp.loading };
+    
+  const rightData = rightPanelType === 'local'
+    ? { files: rightLocal.files, currentPath: rightLocal.currentPath, loading: rightLocal.loading }
+    : { files: rightSftp.files, currentPath: rightSftp.currentPath, loading: rightSftp.loading };
+
   const bulkOps = useBulkOperations(sessionId, sftp.currentPath, () => {
     sftp.listFiles(sftp.currentPath)
     remoteMultiSelect.clearSelection()
@@ -115,10 +129,7 @@ export const useSFTPBrowserState = () => {
   }
 
   const handlePanelSelect = useCallback(async (panel: 'left' | 'right', type: 'local' | 'remote', connectionId?: string) => {
-    console.log('[handlePanelSelect] Called:', { panel, type, connectionId })
-    
     if (type === 'local') {
-      console.log('[handlePanelSelect] Setting panel to local')
       if (panel === 'left') {
         setLeftPanelType('local')
         setLeftSessionId(null)
@@ -127,16 +138,10 @@ export const useSFTPBrowserState = () => {
         setRightSessionId(null)
       }
     } else if (type === 'remote' && connectionId) {
-      console.log('[handlePanelSelect] Setting panel to remote, checking for existing session')
-      // Check if there's already an active session for this connection
       const allSessions = useSessionStore.getState().getAllSessions()
-      console.log('[handlePanelSelect] All sessions:', allSessions)
       const existingSession = allSessions.find(s => s.connection?.id === connectionId)
-      console.log('[handlePanelSelect] Existing session:', existingSession)
       
       if (existingSession) {
-        // Use existing session
-        console.log('[handlePanelSelect] Using existing session:', existingSession.session.id)
         if (panel === 'left') {
           setLeftPanelType('remote')
           setLeftSessionId(existingSession.session.id)
@@ -145,45 +150,27 @@ export const useSFTPBrowserState = () => {
           setRightSessionId(existingSession.session.id)
         }
       } else {
-        // Create new session
-        console.log('[handlePanelSelect] Creating new session')
         const connection = useConnectionStore.getState().connections.find(c => c.id === connectionId)
-        console.log('[handlePanelSelect] Connection:', connection)
         if (connection) {
           try {
-            console.log('[handlePanelSelect] Connecting...')
             setConnectingConnectionId(connectionId)
             const session = await connectionService.connect(connection)
-            console.log('[handlePanelSelect] Connected, session:', session)
-            
-            // Add session to store with connection info
             useSessionStore.getState().addSession(session, connection)
-            
             setConnectingConnectionId(null)
             if (panel === 'left') {
               setLeftPanelType('remote')
               setLeftSessionId(session.id)
-              // Initialize SFTP and list files
-              setTimeout(() => {
-                leftSftp.listFiles('/')
-              }, 100)
             } else {
               setRightPanelType('remote')
               setRightSessionId(session.id)
-              // Initialize SFTP and list files
-              setTimeout(() => {
-                rightSftp.listFiles('/')
-              }, 100)
             }
           } catch (err) {
-            console.error('[handlePanelSelect] Failed to connect:', err)
             setConnectingConnectionId(null)
           }
         }
       }
     }
     
-    console.log('[handlePanelSelect] Closing selector')
     setShowingSelector(null)
   }, [])
 
@@ -205,13 +192,19 @@ export const useSFTPBrowserState = () => {
     setShowingSelector,
     leftPanelType,
     leftSessionId,
+    leftData,
+    leftSftp,
+    leftLocal,
+    leftMultiSelect,
     rightPanelType,
     rightSessionId,
+    rightData,
+    rightSftp,
+    rightLocal,
+    rightMultiSelect,
     connectingConnectionId,
     handlePanelSelect,
     sftp,
-    leftSftp,
-    rightSftp,
     local,
     remoteMultiSelect,
     localMultiSelect,
