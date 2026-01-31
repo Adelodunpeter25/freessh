@@ -1,33 +1,30 @@
-import { useState, useEffect, lazy, Suspense } from 'react'
-import { Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import Editor from '@monaco-editor/react'
+import { loader } from '@monaco-editor/react'
+import * as monaco from 'monaco-editor'
 import { getLanguageFromFilename } from '@/utils/fileTypes'
 import { FilePreviewHeader } from './FilePreviewHeader'
 import { monacoOptions, readOnlyOptions } from './config'
 
-const Editor = lazy(() => import('@monaco-editor/react').then(async (m) => {
-  const monaco = await import('monaco-editor')
-  m.loader.config({ monaco })
-  
-  monaco.editor.defineTheme('custom-dark', {
-    base: 'vs-dark',
-    inherit: true,
-    rules: [],
-    colors: {
-      'editor.background': '#0a0a0a',
-    }
-  })
-  
-  monaco.editor.defineTheme('custom-light', {
-    base: 'vs',
-    inherit: true,
-    rules: [],
-    colors: {
-      'editor.background': '#ffffff',
-    }
-  })
-  
-  return { default: m.default }
-}))
+loader.config({ monaco })
+
+monaco.editor.defineTheme('custom-dark', {
+  base: 'vs-dark',
+  inherit: true,
+  rules: [],
+  colors: {
+    'editor.background': '#0a0a0a',
+  }
+})
+
+monaco.editor.defineTheme('custom-light', {
+  base: 'vs',
+  inherit: true,
+  rules: [],
+  colors: {
+    'editor.background': '#ffffff',
+  }
+})
 
 interface CodeEditorProps {
   filename: string
@@ -83,21 +80,15 @@ export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
         onCancel={handleCancel}
       />
       <div className="flex-1">
-        <Suspense fallback={
-          <div className="flex items-center justify-center h-full">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-          </div>
-        }>
-          <Editor
-            key={isEditing ? 'edit' : 'readonly'}
-            height="100%"
-            language={language}
-            value={value}
-            onChange={handleChange}
-            theme={theme}
-            options={isEditing ? monacoOptions : readOnlyOptions}
-          />
-        </Suspense>
+        <Editor
+          key={isEditing ? 'edit' : 'readonly'}
+          height="100%"
+          language={language}
+          value={value}
+          onChange={handleChange}
+          theme={theme}
+          options={isEditing ? monacoOptions : readOnlyOptions}
+        />
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { toast } from 'sonner'
 import { FileInfo } from '@/types'
 import { isImageFile, isTextFile } from '@/utils/fileTypes'
 
@@ -14,19 +15,19 @@ export const useFilePreview = (
   const [previewFile, setPreviewFile] = useState<PreviewState | null>(null)
   const [previewContent, setPreviewContent] = useState<string | null>(null)
   const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null)
-  const [previewLoading, setPreviewLoading] = useState(false)
 
   const openFile = useCallback(async (file: FileInfo, isRemote: boolean) => {
     if (file.is_dir) return
     if (!isTextFile(file.name) && !isImageFile(file.name)) return
 
     setPreviewFile({ file, isRemote })
-    setPreviewLoading(true)
     setPreviewContent(null)
     setPreviewBlobUrl(prev => {
       if (prev) URL.revokeObjectURL(prev)
       return null
     })
+
+    const toastId = isRemote ? toast.loading('Loading preview...') : undefined
 
     try {
       if (isTextFile(file.name)) {
@@ -34,6 +35,7 @@ export const useFilePreview = (
           ? await readRemoteFile(file.path)
           : await window.electron.ipcRenderer.invoke('fs:readfile', file.path)
         setPreviewContent(content)
+        if (toastId) toast.dismiss(toastId)
       } else if (isImageFile(file.name)) {
         if (isRemote) {
           const base64 = await readRemoteFile(file.path, true)
@@ -44,14 +46,14 @@ export const useFilePreview = (
           }
           const blob = new Blob([bytes])
           setPreviewBlobUrl(URL.createObjectURL(blob))
+          if (toastId) toast.dismiss(toastId)
         } else {
           setPreviewBlobUrl(`file://${file.path}`)
         }
       }
     } catch (err) {
       console.error('Failed to read file:', err)
-    } finally {
-      setPreviewLoading(false)
+      if (toastId) toast.error('Failed to load preview', { id: toastId })
     }
   }, [readRemoteFile])
 
@@ -80,7 +82,6 @@ export const useFilePreview = (
     isRemotePreview: previewFile?.isRemote ?? false,
     previewContent,
     previewBlobUrl,
-    previewLoading,
     openFile,
     saveFile,
     closePreview,

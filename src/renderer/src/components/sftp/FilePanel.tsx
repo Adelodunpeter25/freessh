@@ -50,7 +50,6 @@ export function FilePanel({
     isRemotePreview, 
     previewContent, 
     previewBlobUrl, 
-    previewLoading, 
     openFile, 
     saveFile, 
     closePreview 
@@ -128,7 +127,6 @@ export function FilePanel({
             filename={previewFile.name}
             content={previewContent}
             blobUrl={previewBlobUrl}
-            isLoading={previewLoading}
             onSave={saveFile}
           />
         </div>

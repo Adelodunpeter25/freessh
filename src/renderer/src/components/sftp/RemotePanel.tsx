@@ -3,9 +3,7 @@ import { FilePanel } from "./FilePanel";
 import { ConnectionSelector } from "./ConnectionSelector";
 import { FileInfo } from "@/types";
 import { useConnectionStore } from "@/stores/connectionStore";
-import { useFilePreviewContext } from "@/contexts/FilePreviewContext";
 import { FilePanelProvider } from "@/contexts/FilePanelContext";
-import { LoadingOverlay } from "@/components/common/LoadingOverlay";
 import { useMultiSelect } from "@/hooks/sftp";
 
 interface RemotePanelProps {
@@ -55,7 +53,6 @@ export function RemotePanel({
 }: RemotePanelProps) {
   const connections = useConnectionStore((state) => state.connections);
   const [connectedConnectionId, setConnectedConnectionId] = useState<string>("");
-  const { previewLoading, isRemotePreview } = useFilePreviewContext();
 
   const connectedConnection = connections.find(
     (c) => c.id === connectedConnectionId,
@@ -93,14 +90,11 @@ export function RemotePanel({
   }
 
   return (
-    <div className="relative h-full">
-      <LoadingOverlay visible={previewLoading && isRemotePreview} message="Loading preview..." />
-      <FilePanelProvider value={contextValue}>
-        <FilePanel
-          title={`Remote Server: ${connectedConnection?.name || ""}`}
-          files={files}
-        />
-      </FilePanelProvider>
-    </div>
-  );
+    <FilePanelProvider value={contextValue}>
+      <FilePanel
+        title={`Remote Server: ${connectedConnection?.name || ""}`}
+        files={files}
+      />
+    </FilePanelProvider>
+  )
 }
