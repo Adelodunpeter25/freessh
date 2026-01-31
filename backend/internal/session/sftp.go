@@ -248,3 +248,103 @@ func (m *Manager) Chmod(sessionID, path string, mode uint32) error {
 	return client.Chmod(path, mode)
 }
 
+func (m *Manager) BulkDownload(sessionID string, remotePaths []string, localBaseDir string, progress func(models.BulkProgress)) ([]models.BulkResult, error) {
+	client, err := m.ensureSFTP(sessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	sftpResults, err := client.BulkDownload(remotePaths, localBaseDir, func(p sftp.BulkProgress) {
+		if progress != nil {
+			progress(models.BulkProgress{
+				TotalItems:     p.TotalItems,
+				CompletedItems: p.CompletedItems,
+				FailedItems:    p.FailedItems,
+				CurrentItem:    p.CurrentItem,
+			})
+		}
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]models.BulkResult, len(sftpResults))
+	for i, r := range sftpResults {
+		results[i] = models.BulkResult{
+			Path:    r.Path,
+			Success: r.Success,
+			Error:   r.Error,
+		}
+	}
+
+	return results, nil
+}
+
+func (m *Manager) BulkUpload(sessionID string, localPaths []string, remoteBaseDir string, progress func(models.BulkProgress)) ([]models.BulkResult, error) {
+	client, err := m.ensureSFTP(sessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	sftpResults, err := client.BulkUpload(localPaths, remoteBaseDir, func(p sftp.BulkProgress) {
+		if progress != nil {
+			progress(models.BulkProgress{
+				TotalItems:     p.TotalItems,
+				CompletedItems: p.CompletedItems,
+				FailedItems:    p.FailedItems,
+				CurrentItem:    p.CurrentItem,
+			})
+		}
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]models.BulkResult, len(sftpResults))
+	for i, r := range sftpResults {
+		results[i] = models.BulkResult{
+			Path:    r.Path,
+			Success: r.Success,
+			Error:   r.Error,
+		}
+	}
+
+	return results, nil
+}
+
+func (m *Manager) BulkDelete(sessionID string, remotePaths []string, progress func(models.BulkProgress)) ([]models.BulkResult, error) {
+	client, err := m.ensureSFTP(sessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	sftpResults, err := client.BulkDelete(remotePaths, func(p sftp.BulkProgress) {
+		if progress != nil {
+			progress(models.BulkProgress{
+				TotalItems:     p.TotalItems,
+				CompletedItems: p.CompletedItems,
+				FailedItems:    p.FailedItems,
+				CurrentItem:    p.CurrentItem,
+			})
+		}
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	results := make([]models.BulkResult, len(sftpResults))
+	for i, r := range sftpResults {
+		results[i] = models.BulkResult{
+			Path:    r.Path,
+			Success: r.Success,
+			Error:   r.Error,
+		}
+	}
+
+	return results, nil
+}
+
+

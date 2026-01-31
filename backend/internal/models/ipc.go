@@ -41,6 +41,12 @@ const (
 	MsgSFTPWriteFile MessageType = "sftp:writefile"
 	MsgSFTPChmod     MessageType = "sftp:chmod"
 
+	// Bulk operations messages
+	MsgBulkDownload  MessageType = "bulk:download"
+	MsgBulkUpload    MessageType = "bulk:upload"
+	MsgBulkDelete    MessageType = "bulk:delete"
+	MsgBulkProgress  MessageType = "bulk:progress"
+
 	// Port forwarding messages
 	MsgPortForwardCreate MessageType = "portforward:create"
 	MsgPortForwardStop   MessageType = "portforward:stop"
@@ -122,3 +128,31 @@ type ResizeData struct {
 	Rows int `json:"rows"`
 	Cols int `json:"cols"`
 }
+
+type BulkDownloadRequest struct {
+	RemotePaths  []string `json:"remote_paths"`
+	LocalBaseDir string   `json:"local_base_dir"`
+}
+
+type BulkUploadRequest struct {
+	LocalPaths    []string `json:"local_paths"`
+	RemoteBaseDir string   `json:"remote_base_dir"`
+}
+
+type BulkDeleteRequest struct {
+	RemotePaths []string `json:"remote_paths"`
+}
+
+type BulkResult struct {
+	Path    string `json:"path"`
+	Success bool   `json:"success"`
+	Error   string `json:"error,omitempty"`
+}
+
+type BulkProgress struct {
+	TotalItems     int    `json:"total_items"`
+	CompletedItems int    `json:"completed_items"`
+	FailedItems    int    `json:"failed_items"`
+	CurrentItem    string `json:"current_item"`
+}
+

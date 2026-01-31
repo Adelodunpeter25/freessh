@@ -70,6 +70,7 @@ func NewServer() *Server {
 			handlers.NewSessionHandler(manager, historyStorage),
 			handlers.NewConnectionHandler(manager, verificationHelper),
 			handlers.NewSFTPHandler(manager),
+			handlers.NewBulkHandler(manager),
 			handlers.NewPortForwardHandler(manager),
 			handlers.NewPortForwardConfigHandler(portForwardStorage),
 			handlers.NewKeychainHandler(),
