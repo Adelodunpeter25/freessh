@@ -29,17 +29,8 @@ export function SFTPBrowser() {
 
   useEffect(() => {
     if (sessionId) {
-      console.log('[SFTPBrowser] Session ID changed, initializing remote:', sessionId)
-      const initRemote = async () => {
-        console.log('[SFTPBrowser] Getting home directory')
-        const homeDir = await sftp.getHomeDir()
-        console.log('[SFTPBrowser] Home directory:', homeDir)
-        console.log('[SFTPBrowser] Listing files in:', homeDir)
-        await sftp.listFiles(homeDir)
-        console.log('[SFTPBrowser] Files listed')
-      }
-      initRemote().catch(err => {
-        console.error('[SFTPBrowser] Init failed:', err)
+      sftp.listFiles('/').catch(err => {
+        console.error('Failed to list root directory:', err)
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

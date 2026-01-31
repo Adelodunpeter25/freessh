@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
-	"os"
 )
 
 type SFTPHandler struct {
@@ -23,7 +22,7 @@ func (h *SFTPHandler) CanHandle(msgType models.MessageType) bool {
 	case models.MsgSFTPList, models.MsgSFTPUpload, models.MsgSFTPDownload,
 		models.MsgSFTPDelete, models.MsgSFTPMkdir, models.MsgSFTPRename, 
 		models.MsgSFTPCancel, models.MsgSFTPReadFile, models.MsgSFTPWriteFile,
-		models.MsgSFTPChmod, models.MsgSFTPHomeDir:
+		models.MsgSFTPChmod:
 		return true
 	}
 	return false
@@ -51,8 +50,6 @@ func (h *SFTPHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) erro
 		return h.handleWriteFile(msg, writer)
 	case models.MsgSFTPChmod:
 		return h.handleChmod(msg, writer)
-	case models.MsgSFTPHomeDir:
-		return h.handleHomeDir(msg, writer)
 	default:
 		return fmt.Errorf("unsupported message type: %s", msg.Type)
 	}
@@ -310,18 +307,3 @@ func (h *SFTPHandler) handleChmod(msg *models.IPCMessage, writer ResponseWriter)
 	})
 }
 
-func (h *SFTPHandler) handleHomeDir(msg *models.IPCMessage, writer ResponseWriter) error {
-	fmt.Fprintf(os.Stderr, "[SFTP] handleHomeDir called for session: %s\n", msg.SessionID)
-	homeDir, err := h.manager.GetHomeDir(msg.SessionID)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "[SFTP] handleHomeDir error: %v\n", err)
-		return err
-	}
-
-	fmt.Fprintf(os.Stderr, "[SFTP] handleHomeDir returning path: %s\n", homeDir)
-	return writer.WriteMessage(&models.IPCMessage{
-		Type:      models.MsgSFTPHomeDir,
-		SessionID: msg.SessionID,
-		Data:      map[string]interface{}{"path": homeDir},
-	})
-}

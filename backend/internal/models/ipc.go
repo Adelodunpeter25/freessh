@@ -40,7 +40,6 @@ const (
 	MsgSFTPReadFile  MessageType = "sftp:readfile"
 	MsgSFTPWriteFile MessageType = "sftp:writefile"
 	MsgSFTPChmod     MessageType = "sftp:chmod"
-	MsgSFTPHomeDir   MessageType = "sftp:homedir"
 
 	// Port forwarding messages
 	MsgPortForwardCreate MessageType = "portforward:create"
