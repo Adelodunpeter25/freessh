@@ -62,10 +62,16 @@ sudo rpm -i freessh-*.rpm
 1. **Launch FreeSH** - Open the application
 2. **Click "New Connection"** - Located in the top-right corner of the home screen
 3. **Fill in connection details:**
-   - **Name**: A friendly name for this connection (e.g., "Production Server")
-   - **Host**: The server address (e.g., `example.com` or `192.168.1.100`)
-   - **Port**: SSH port (default is `22`)
-   - **Username**: Your SSH username
+
+#### General Settings
+- **Connection Name**: A friendly name for this connection (e.g., "Production Server")
+- **Group**: Optional - Organize connections into folders
+- **Host**: The server address (e.g., `example.com` or `192.168.1.100`)
+- **Port**: SSH port (default is `22`)
+
+#### Credentials
+- **Username**: Your SSH username
+- **Authentication Method**: Choose between Password or Public Key
 
 ### Authentication Methods
 
@@ -73,17 +79,29 @@ FreeSH supports two authentication methods:
 
 #### Password Authentication
 1. Select **"Password"** as the authentication method
-2. Enter your password
-3. Optionally check **"Save to Keychain"** to securely store your password
+2. Enter your password in the password field
+3. The password is automatically saved to your system keychain
 
 #### SSH Key Authentication
-1. Select **"SSH Key"** as the authentication method
-2. Click **"Browse"** to select your private key file
-   - Common locations:
-     - macOS/Linux: `~/.ssh/id_rsa` or `~/.ssh/id_ed25519`
-     - Windows: `C:\Users\YourName\.ssh\id_rsa`
-3. If your key has a passphrase, enter it
-4. Optionally check **"Save to Keychain"** to store the passphrase
+1. Select **"Public Key"** as the authentication method
+2. Choose how to provide your key:
+
+**Option 1: Use Existing Key**
+- Select **"Use existing key"**
+- Choose a key from the dropdown (keys you've previously added to FreeSH)
+- If no keys are available, you'll need to add one first in Settings → SSH Keys
+
+**Option 2: Paste New Key**
+- Select **"Paste new key"**
+- Either:
+  - Paste your private key directly into the text area
+  - Click **"Browse Key File"** to select your key file
+    - Common locations:
+      - macOS/Linux: `~/.ssh/id_rsa` or `~/.ssh/id_ed25519`
+      - Windows: `C:\Users\YourName\.ssh\id_rsa`
+
+3. If your key has a passphrase, enter it in the **"Passphrase"** field (optional)
+4. The passphrase is automatically saved to your system keychain
 
 ### Connecting
 
@@ -128,7 +146,11 @@ Now that you're connected, explore these features:
 - [**Connection Management**](/connections/overview) - Organize and manage your connections
 - [**Terminal Features**](/terminal/overview) - Learn about terminal capabilities
 - [**SFTP File Transfers**](/sftp/overview) - Transfer files between servers
-- [**Port Forwarding**](/port-forwarding) - Set up SSH tunnels
+- [**SSH Key Management**](/keys/overview) - Generate and manage SSH keys
+- [**Command Snippets**](/snippets/overview) - Save frequently used commands
+- [**Port Forwarding**](/port-forwarding/overview) - Set up SSH tunnels
+- [**Session Logs**](/session-logs/overview) - Save and review terminal sessions
+- [**Known Hosts**](/known-hosts/overview) - Manage trusted server keys
 
 ## Troubleshooting
 
