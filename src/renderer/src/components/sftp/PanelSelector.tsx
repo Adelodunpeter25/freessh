@@ -6,8 +6,8 @@ interface PanelSelectorProps {
 }
 
 export function PanelSelector({ onSelect }: PanelSelectorProps) {
-  const sessions = useSessionStore((state) => state.sessions)
-  const remoteSessions = sessions.filter(s => s.type === 'ssh')
+  const allSessions = useSessionStore((state) => state.getAllSessions())
+  const remoteSessions = allSessions.filter(s => s.session.type === 'ssh')
 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-3 p-6">
@@ -19,14 +19,14 @@ export function PanelSelector({ onSelect }: PanelSelectorProps) {
         <span className="font-medium">Local</span>
       </button>
 
-      {remoteSessions.map((session) => (
+      {remoteSessions.map(({ session, connection }) => (
         <button
           key={session.id}
           onClick={() => onSelect('remote', session.id)}
           className="w-full max-w-md px-6 py-4 rounded-lg border border-border bg-accent hover:bg-accent/80 hover:scale-105 transition-all cursor-pointer flex items-center gap-3"
         >
           <Server className="w-5 h-5" />
-          <span className="font-medium">{session.name}</span>
+          <span className="font-medium">{connection?.name || session.name}</span>
         </button>
       ))}
 
