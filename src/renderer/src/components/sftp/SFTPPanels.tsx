@@ -100,10 +100,13 @@ export function SFTPPanels(props: SFTPPanelsProps) {
       <div className="flex-1 h-full overflow-hidden relative">
         {props.showingSelector === 'left' ? (
           <div className="h-full border rounded-lg bg-card">
-            <PanelSelector onSelect={(type, sessionId) => {
-              console.log('Left panel selected:', type, sessionId)
-              props.onSelectorClose?.()
-            }} />
+            <PanelSelector 
+              onSelect={(type, connectionId) => {
+                console.log('Left panel selected:', type, connectionId)
+                props.onSelectorClose?.()
+              }}
+              onCancel={() => props.onSelectorClose?.()}
+            />
           </div>
         ) : (
           <>
@@ -125,10 +128,13 @@ export function SFTPPanels(props: SFTPPanelsProps) {
       <div className="flex-1 h-full overflow-hidden relative">
         {props.showingSelector === 'right' ? (
           <div className="h-full border rounded-lg bg-card">
-            <PanelSelector onSelect={(type, sessionId) => {
-              console.log('Right panel selected:', type, sessionId)
-              props.onSelectorClose?.()
-            }} />
+            <PanelSelector 
+              onSelect={(type, connectionId) => {
+                console.log('Right panel selected:', type, connectionId)
+                props.onSelectorClose?.()
+              }}
+              onCancel={() => props.onSelectorClose?.()}
+            />
           </div>
         ) : (
           <>
