@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { FilePanel } from "./FilePanel";
 import { BulkActionBar } from "./BulkActionBar";
 import { PanelSelector } from "./PanelSelector";
 import { FilePanelProvider } from "@/contexts/FilePanelContext";
+import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { FileInfo } from "@/types";
 import { isRemoteToRemote } from "@/utils/remoteTransferDetector";
 import { useRemoteTransfer } from "@/hooks";
@@ -49,6 +50,9 @@ interface SFTPPanelsProps {
 }
 
 export function SFTPPanels(props: SFTPPanelsProps) {
+  const [showLeftDeleteConfirm, setShowLeftDeleteConfirm] = useState(false)
+  const [showRightDeleteConfirm, setShowRightDeleteConfirm] = useState(false)
+  
   const { bulkRemoteTransfer } = useRemoteTransfer(() => {
     // Refresh both panels after remote transfer
     if (props.leftPanelType === 'remote') {
@@ -146,6 +150,34 @@ export function SFTPPanels(props: SFTPPanelsProps) {
   const leftTitle = props.leftPanelType === 'local' ? 'Local' : 'Remote';
   const rightTitle = props.rightPanelType === 'local' ? 'Local' : 'Remote';
 
+  const handleLeftDeleteConfirm = async () => {
+    const items = Array.from(props.leftSelectedItems)
+    if (props.leftPanelType === 'remote') {
+      await props.leftBulkOps.bulkDelete(items)
+    } else {
+      for (const name of items) {
+        await props.leftLocal.deleteFile(`${props.leftCurrentPath}/${name}`)
+      }
+      props.leftLocal.refresh()
+    }
+    props.onLeftClearSelection()
+    setShowLeftDeleteConfirm(false)
+  }
+
+  const handleRightDeleteConfirm = async () => {
+    const items = Array.from(props.rightSelectedItems)
+    if (props.rightPanelType === 'remote') {
+      await props.rightBulkOps.bulkDelete(items)
+    } else {
+      for (const name of items) {
+        await props.rightLocal.deleteFile(`${props.rightCurrentPath}/${name}`)
+      }
+      props.rightLocal.refresh()
+    }
+    props.onRightClearSelection()
+    setShowRightDeleteConfirm(false)
+  }
+
   return (
     <div className="flex flex-1 gap-4 overflow-hidden relative">
       <div className="flex-1 h-full overflow-hidden relative">
@@ -165,16 +197,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
             {props.leftSelectedItems.size > 1 && (
               <BulkActionBar
                 selectedCount={props.leftSelectedItems.size}
-                onDelete={() => {
-                  const items = Array.from(props.leftSelectedItems)
-                  if (props.leftPanelType === 'remote') {
-                    props.leftBulkOps.bulkDelete(items)
-                  } else {
-                    items.forEach(name => props.leftLocal.deleteFile(`${props.leftCurrentPath}/${name}`))
-                    props.leftLocal.refresh()
-                    props.onLeftClearSelection()
-                  }
-                }}
+                onDelete={() => setShowLeftDeleteConfirm(true)}
                 onDownload={async () => {
                   const items = Array.from(props.leftSelectedItems)
                   const itemPaths = items.map(name => `${props.leftCurrentPath}/${name}`)
@@ -227,16 +250,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
             {props.rightSelectedItems.size > 1 && (
               <BulkActionBar
                 selectedCount={props.rightSelectedItems.size}
-                onDelete={() => {
-                  const items = Array.from(props.rightSelectedItems)
-                  if (props.rightPanelType === 'remote') {
-                    props.rightBulkOps.bulkDelete(items)
-                  } else {
-                    items.forEach(name => props.rightLocal.deleteFile(`${props.rightCurrentPath}/${name}`))
-                    props.rightLocal.refresh()
-                    props.onRightClearSelection()
-                  }
-                }}
+                onDelete={() => setShowRightDeleteConfirm(true)}
                 onDownload={async () => {
                   const items = Array.from(props.rightSelectedItems)
                   const itemPaths = items.map(name => `${props.rightCurrentPath}/${name}`)
@@ -271,6 +285,24 @@ export function SFTPPanels(props: SFTPPanelsProps) {
           </>
         )}
       </div>
+      <ConfirmDialog
+        open={showLeftDeleteConfirm}
+        onOpenChange={setShowLeftDeleteConfirm}
+        title="Delete multiple items"
+        description={`Are you sure you want to delete ${props.leftSelectedItems.size} item(s)? This action cannot be undone.`}
+        confirmText="Delete"
+        destructive
+        onConfirm={handleLeftDeleteConfirm}
+      />
+      <ConfirmDialog
+        open={showRightDeleteConfirm}
+        onOpenChange={setShowRightDeleteConfirm}
+        title="Delete multiple items"
+        description={`Are you sure you want to delete ${props.rightSelectedItems.size} item(s)? This action cannot be undone.`}
+        confirmText="Delete"
+        destructive
+        onConfirm={handleRightDeleteConfirm}
+      />
     </div>
   );
 }
