@@ -84,7 +84,7 @@ export function FilePanelHeader({
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={onTitleClick}
-            className="text-sm font-medium px-3 py-1.5 rounded-md border border-border bg-accent hover:scale-105 transition-transform cursor-pointer flex items-center gap-2"
+            className="text-sm font-medium px-3 py-1.5 rounded-md border border-border bg-accent hover:bg-accent/80 hover:scale-105 transition-all cursor-pointer flex items-center gap-2"
           >
             {isRemote ? <Server className="w-4 h-4" /> : <Home className="w-4 h-4" />}
             {title}
