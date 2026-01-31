@@ -47,6 +47,32 @@ export const useSFTPBrowserState = () => {
   const localMultiSelect = useMultiSelect();
   const leftMultiSelect = useMultiSelect();
   const rightMultiSelect = useMultiSelect();
+  
+  const leftBulkOps = useBulkOperations(
+    leftPanelType === 'remote' ? leftSessionId : null,
+    leftSftp.currentPath,
+    () => {
+      if (leftPanelType === 'remote') {
+        leftSftp.listFiles(leftSftp.currentPath)
+      } else {
+        leftLocal.refresh()
+      }
+      leftMultiSelect.clearSelection()
+    }
+  );
+  
+  const rightBulkOps = useBulkOperations(
+    rightPanelType === 'remote' ? rightSessionId : null,
+    rightSftp.currentPath,
+    () => {
+      if (rightPanelType === 'remote') {
+        rightSftp.listFiles(rightSftp.currentPath)
+      } else {
+        rightLocal.refresh()
+      }
+      rightMultiSelect.clearSelection()
+    }
+  );
   // Get data for each panel based on type
   const leftData = leftPanelType === 'local' 
     ? { files: leftLocal.files, currentPath: leftLocal.currentPath, loading: leftLocal.loading }
@@ -209,12 +235,14 @@ export const useSFTPBrowserState = () => {
     leftSftp,
     leftLocal,
     leftMultiSelect,
+    leftBulkOps,
     rightPanelType,
     rightSessionId,
     rightData,
     rightSftp,
     rightLocal,
     rightMultiSelect,
+    rightBulkOps,
     connectingConnectionId,
     handlePanelSelect,
     sftp,

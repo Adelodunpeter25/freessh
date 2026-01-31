@@ -17,6 +17,7 @@ interface SFTPPanelsProps {
   onLeftItemSelect: (fileName: string, isMulti: boolean) => void;
   isLeftItemSelected: (fileName: string) => boolean;
   onLeftClearSelection: () => void;
+  leftBulkOps: any;
   
   rightPanelType: 'local' | 'remote';
   rightSessionId: string | null;
@@ -29,6 +30,7 @@ interface SFTPPanelsProps {
   onRightItemSelect: (fileName: string, isMulti: boolean) => void;
   isRightItemSelected: (fileName: string) => boolean;
   onRightClearSelection: () => void;
+  rightBulkOps: any;
   
   selectedLocal: FileInfo | null;
   selectedRemote: FileInfo | null;
@@ -151,8 +153,24 @@ export function SFTPPanels(props: SFTPPanelsProps) {
             {props.leftSelectedItems.size > 1 && (
               <BulkActionBar
                 selectedCount={props.leftSelectedItems.size}
-                onDelete={() => {}}
-                onDownload={() => {}}
+                onDelete={() => {
+                  const items = Array.from(props.leftSelectedItems)
+                  if (props.leftPanelType === 'remote') {
+                    props.leftBulkOps.bulkDelete(items)
+                  } else {
+                    items.forEach(name => props.leftLocal.deleteFile(`${props.leftCurrentPath}/${name}`))
+                    props.leftLocal.refresh()
+                    props.onLeftClearSelection()
+                  }
+                }}
+                onDownload={async () => {
+                  const items = Array.from(props.leftSelectedItems)
+                  if (props.leftPanelType === 'remote') {
+                    await props.leftBulkOps.bulkDownload(items, props.rightCurrentPath)
+                  } else {
+                    await props.leftBulkOps.bulkUpload(items.map(n => `${props.leftCurrentPath}/${n}`), props.rightCurrentPath)
+                  }
+                }}
                 onClear={props.onLeftClearSelection}
                 actionLabel={props.leftPanelType === 'local' ? 'Upload' : 'Download'}
               />
@@ -178,8 +196,24 @@ export function SFTPPanels(props: SFTPPanelsProps) {
             {props.rightSelectedItems.size > 1 && (
               <BulkActionBar
                 selectedCount={props.rightSelectedItems.size}
-                onDelete={() => {}}
-                onDownload={() => {}}
+                onDelete={() => {
+                  const items = Array.from(props.rightSelectedItems)
+                  if (props.rightPanelType === 'remote') {
+                    props.rightBulkOps.bulkDelete(items)
+                  } else {
+                    items.forEach(name => props.rightLocal.deleteFile(`${props.rightCurrentPath}/${name}`))
+                    props.rightLocal.refresh()
+                    props.onRightClearSelection()
+                  }
+                }}
+                onDownload={async () => {
+                  const items = Array.from(props.rightSelectedItems)
+                  if (props.rightPanelType === 'remote') {
+                    await props.rightBulkOps.bulkDownload(items, props.leftCurrentPath)
+                  } else {
+                    await props.rightBulkOps.bulkUpload(items.map(n => `${props.rightCurrentPath}/${n}`), props.leftCurrentPath)
+                  }
+                }}
                 onClear={props.onRightClearSelection}
                 actionLabel={props.rightPanelType === 'local' ? 'Upload' : 'Download'}
               />

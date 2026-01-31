@@ -31,6 +31,7 @@ func BulkTransfer(
 
 	var completed, failed int32
 	var totalBytes, transferredBytes int64
+	var fileOffsets sync.Map // Track per-file byte offsets
 
 	// Calculate total size
 	for _, path := range sourcePaths {
@@ -72,14 +73,24 @@ func BulkTransfer(
 			}
 
 			err := Transfer(sourceClient, destClient, path, destPath, func(transferred, total int64) {
-				atomic.StoreInt64(&transferredBytes, transferred)
+				// Calculate delta from last reported progress for this file
+				var lastTransferred int64
+				if val, ok := fileOffsets.Load(path); ok {
+					lastTransferred = val.(int64)
+				}
+				delta := transferred - lastTransferred
+				fileOffsets.Store(path, transferred)
+				
+				// Add delta to total transferred bytes
+				atomic.AddInt64(&transferredBytes, delta)
+				
 				if progress != nil {
 					progress(RemoteTransferProgress{
 						TotalItems:       len(sourcePaths),
 						CompletedItems:   int(atomic.LoadInt32(&completed)),
 						FailedItems:      int(atomic.LoadInt32(&failed)),
 						CurrentItem:      fileName,
-						BytesTransferred: transferred,
+						BytesTransferred: atomic.LoadInt64(&transferredBytes),
 						TotalBytes:       atomic.LoadInt64(&totalBytes),
 					})
 				}
