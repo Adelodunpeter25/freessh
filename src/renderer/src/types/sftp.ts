@@ -42,3 +42,19 @@ export interface RenameRequest {
   old_path: string
   new_path: string
 }
+
+export interface RemoteTransferResult {
+  source_path: string
+  dest_path: string
+  success: boolean
+  error?: string
+}
+
+export interface RemoteTransferProgress {
+  total_items: number
+  completed_items: number
+  failed_items: number
+  current_item: string
+  bytes_transferred: number
+  total_bytes: number
+}
