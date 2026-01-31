@@ -16,6 +16,19 @@
 
 ---
 
+## UI/UX Improvements
+
+### Session Tab Naming
+**Description:** Detect duplicate session tab names and append (1), (2), etc.  
+**Current behavior:** Multiple tabs can have the same name (e.g., "Local Terminal", "Local Terminal")  
+**Expected behavior:** Auto-increment duplicates → "Local Terminal", "Local Terminal (1)", "Local Terminal (2)"  
+**Implementation needed:**
+- Track existing tab names when creating new sessions
+- Detect duplicates and append counter
+- Update counter when tabs are closed/renamed
+
+---
+
 ## Completed Features
 
 ### Authentication ✅
