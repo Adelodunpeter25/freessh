@@ -1,16 +1,12 @@
 import { Home, Server } from "lucide-react"
-import { useSessionStore } from "@/stores/sessionStore"
-import { useMemo } from "react"
+import { useConnectionStore } from "@/stores/connectionStore"
 
 interface PanelSelectorProps {
-  onSelect: (type: 'local' | 'remote', sessionId?: string) => void
+  onSelect: (type: 'local' | 'remote', connectionId?: string) => void
 }
 
 export function PanelSelector({ onSelect }: PanelSelectorProps) {
-  const getAllSessions = useSessionStore((state) => state.getAllSessions)
-  const remoteSessions = useMemo(() => {
-    return getAllSessions().filter(s => s.session.type === 'ssh')
-  }, [getAllSessions])
+  const connections = useConnectionStore((state) => state.connections)
 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-3 p-6">
@@ -22,20 +18,20 @@ export function PanelSelector({ onSelect }: PanelSelectorProps) {
         <span className="font-medium">Local</span>
       </button>
 
-      {remoteSessions.map(({ session, connection }) => (
+      {connections.map((connection) => (
         <button
-          key={session.id}
-          onClick={() => onSelect('remote', session.id)}
+          key={connection.id}
+          onClick={() => onSelect('remote', connection.id)}
           className="w-full max-w-md px-6 py-4 rounded-lg border border-border bg-accent hover:bg-accent/80 hover:scale-105 transition-all cursor-pointer flex items-center gap-3"
         >
           <Server className="w-5 h-5" />
-          <span className="font-medium">{connection?.name || session.name}</span>
+          <span className="font-medium">{connection.name}</span>
         </button>
       ))}
 
-      {remoteSessions.length === 0 && (
+      {connections.length === 0 && (
         <p className="text-sm text-muted-foreground mt-4">
-          No remote sessions available
+          No connections available
         </p>
       )}
     </div>
