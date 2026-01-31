@@ -15,12 +15,14 @@ export const useFilePreview = (
   const [previewFile, setPreviewFile] = useState<PreviewState | null>(null)
   const [previewContent, setPreviewContent] = useState<string | null>(null)
   const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
 
   const openFile = useCallback(async (file: FileInfo, isRemote: boolean) => {
     if (file.is_dir) return
     if (!isTextFile(file.name) && !isImageFile(file.name)) return
 
     setPreviewFile({ file, isRemote })
+    setPreviewLoading(true)
     setPreviewContent(null)
     setPreviewBlobUrl(prev => {
       if (prev) URL.revokeObjectURL(prev)
@@ -54,6 +56,8 @@ export const useFilePreview = (
     } catch (err) {
       console.error('Failed to read file:', err)
       if (toastId) toast.error('Failed to load preview', { id: toastId })
+    } finally {
+      setPreviewLoading(false)
     }
   }, [readRemoteFile])
 
@@ -82,6 +86,7 @@ export const useFilePreview = (
     isRemotePreview: previewFile?.isRemote ?? false,
     previewContent,
     previewBlobUrl,
+    previewLoading,
     openFile,
     saveFile,
     closePreview,

@@ -167,6 +167,17 @@ func (c *Client) ReadFile(remotePath string, binary bool) (string, error) {
 	}
 	defer file.Close()
 
+	// Check file size before reading
+	stat, err := file.Stat()
+	if err != nil {
+		return "", fmt.Errorf("failed to stat remote file: %w", err)
+	}
+
+	const maxPreviewSize = 5 * 1024 * 1024 // 5MB
+	if stat.Size() > maxPreviewSize {
+		return "", fmt.Errorf("file too large to preview (>5MB)")
+	}
+
 	content, err := io.ReadAll(file)
 	if err != nil {
 		return "", fmt.Errorf("failed to read remote file: %w", err)
