@@ -12,7 +12,6 @@
 - Use case: Copy files between staging/production servers, sync between remote locations
 
 ### File Operations Enhancements
-- Large file handling (>1GB) - memory optimization needed
 - Concurrent transfer limits (currently unlimited, could overwhelm system)
 
 ### SFTP Browser Enhancements
