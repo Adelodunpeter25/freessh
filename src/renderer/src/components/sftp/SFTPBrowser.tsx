@@ -118,10 +118,8 @@ export function SFTPBrowser() {
 
   const handleBulkDownload = async () => {
     const fileNames = Array.from(remoteMultiSelect.selectedItems)
-    const localDir = await window.electron.ipcRenderer.invoke('dialog:openDirectory')
-    if (localDir) {
-      await bulkOps.bulkDownload(fileNames, localDir)
-    }
+    await bulkOps.bulkDownload(fileNames, local.currentPath)
+    local.refresh()
   }
 
   const handleLocalBulkDelete = async () => {
