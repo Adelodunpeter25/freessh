@@ -67,6 +67,18 @@ export function setupFileSystemHandlers(): void {
     return { path: filePath, content }
   })
 
+  ipcMain.handle('dialog:openDirectory', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory']
+    })
+    
+    if (result.canceled || result.filePaths.length === 0) {
+      return null
+    }
+    
+    return result.filePaths[0]
+  })
+
   ipcMain.handle('shell:openPath', async (_event, filePath: string) => {
     const { shell } = require('electron')
     return shell.openPath(filePath)
