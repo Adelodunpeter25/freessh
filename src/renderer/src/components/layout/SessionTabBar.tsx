@@ -44,7 +44,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
   }, [])
 
   return (
-    <div className="flex items-center gap-2 flex-1 overflow-x-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
+    <div className="flex items-center gap-2 flex-1 overflow-x-auto scrollbar-hide">
       <TooltipProvider delayDuration={400}>
         <Tooltip>
           <TooltipTrigger asChild>

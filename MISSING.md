@@ -1,21 +1,8 @@
 # Missing Features & Edge Cases
 
-## SFTP Features (Not Implemented)
-
-_All SFTP features have been implemented!_
-
----
-
 ## UI/UX Improvements
 
-### Session Tab Naming
-**Description:** Detect duplicate session tab names and append (1), (2), etc.  
-**Current behavior:** Multiple tabs can have the same name (e.g., "Local Terminal", "Local Terminal")  
-**Expected behavior:** Auto-increment duplicates → "Local Terminal", "Local Terminal (1)", "Local Terminal (2)"  
-**Implementation needed:**
-- Track existing tab names when creating new sessions
-- Detect duplicates and append counter
-- Update counter when tabs are closed/renamed
+_All planned UI/UX improvements have been implemented!_
 
 ---
 
@@ -66,3 +53,9 @@ _All SFTP features have been implemented!_
   - Remote to local (download)
   - Remote to remote (server-to-server)
   - Visual indicator overlay for all transfer types
+
+### Session Management ✅
+- Duplicate tab name detection
+  - Automatic counter appending: "Local Terminal", "Local Terminal (1)", "Local Terminal (2)"
+  - Works for all tab types: SSH connections, local terminals, and log viewers
+  - Clean utility-based implementation for maintainability
