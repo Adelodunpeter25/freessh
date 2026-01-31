@@ -159,6 +159,9 @@ export function SFTPPanels(props: SFTPPanelsProps) {
               selectedItems={props.remoteSelectedItems}
               onItemSelect={props.onRemoteItemSelect}
               isItemSelected={props.isRemoteItemSelected}
+              onTitleClick={props.onRemoteTitleClick}
+            />
+              isItemSelected={props.isRemoteItemSelected}
             />
             {props.remoteSelectedItems.size > 1 && (
               <BulkActionBar
