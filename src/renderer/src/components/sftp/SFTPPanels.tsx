@@ -186,7 +186,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
         ) : (
           <>
             <RemotePanel
-              sessionId={props.sessionId}
+              sessionId={props.rightSessionId || props.sessionId}
               onSessionChange={props.onSessionChange}
               files={props.remoteFiles}
               currentPath={props.remoteCurrentPath}

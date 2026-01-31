@@ -24,6 +24,8 @@ export const useSFTPBrowserState = () => {
   const [rightSessionId, setRightSessionId] = useState<string | null>(null);
 
   const sftp = useSFTP(sessionId);
+  const leftSftp = useSFTP(leftSessionId);
+  const rightSftp = useSFTP(rightSessionId);
   const local = useLocalFiles();
   const remoteMultiSelect = useMultiSelect();
   const localMultiSelect = useMultiSelect();
@@ -161,9 +163,17 @@ export const useSFTPBrowserState = () => {
             if (panel === 'left') {
               setLeftPanelType('remote')
               setLeftSessionId(session.id)
+              // Initialize SFTP and list files
+              setTimeout(() => {
+                leftSftp.listFiles('/')
+              }, 100)
             } else {
               setRightPanelType('remote')
               setRightSessionId(session.id)
+              // Initialize SFTP and list files
+              setTimeout(() => {
+                rightSftp.listFiles('/')
+              }, 100)
             }
           } catch (err) {
             console.error('[handlePanelSelect] Failed to connect:', err)
@@ -200,6 +210,8 @@ export const useSFTPBrowserState = () => {
     connectingConnectionId,
     handlePanelSelect,
     sftp,
+    leftSftp,
+    rightSftp,
     local,
     remoteMultiSelect,
     localMultiSelect,
