@@ -43,6 +43,9 @@ export const useBulkOperations = (sessionId: string | null, currentPath: string,
       const successCount = results.filter(r => r.success).length
       const failCount = results.filter(r => !r.success).length
 
+      // Small delay to ensure no more progress updates
+      await new Promise(resolve => setTimeout(resolve, 100))
+
       if (failCount === 0) {
         toast.success(`Downloaded ${successCount} item(s)`, { id: toastId })
       } else {
@@ -65,6 +68,9 @@ export const useBulkOperations = (sessionId: string | null, currentPath: string,
 
       const successCount = results.filter(r => r.success).length
       const failCount = results.filter(r => !r.success).length
+
+      // Small delay to ensure no more progress updates
+      await new Promise(resolve => setTimeout(resolve, 100))
 
       if (failCount === 0) {
         toast.success(`Uploaded ${successCount} item(s)`, { id: toastId })
