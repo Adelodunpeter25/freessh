@@ -54,6 +54,10 @@ interface SFTPPanelsProps {
   showingSelector?: 'left' | 'right' | null;
   onSelectorClose?: () => void;
   onPanelSelect?: (panel: 'left' | 'right', type: 'local' | 'remote', connectionId?: string) => void;
+  leftPanelType?: 'local' | 'remote';
+  leftSessionId?: string | null;
+  rightPanelType?: 'local' | 'remote';
+  rightSessionId?: string | null;
 }
 
 export function SFTPPanels(props: SFTPPanelsProps) {
@@ -108,6 +112,32 @@ export function SFTPPanels(props: SFTPPanelsProps) {
               onCancel={() => props.onSelectorClose?.()}
             />
           </div>
+        ) : props.leftPanelType === 'remote' && props.leftSessionId ? (
+          <>
+            <RemotePanel
+              sessionId={props.leftSessionId}
+              onSessionChange={(sid) => console.log('Left remote session change:', sid)}
+              files={props.remoteFiles}
+              currentPath={props.remoteCurrentPath}
+              loading={props.remoteLoading}
+              onNavigate={props.onRemoteNavigate}
+              onRefresh={props.onRemoteRefresh}
+              onDelete={props.onRemoteDelete}
+              onRename={props.onRemoteRename}
+              onChmod={props.onRemoteChmod}
+              onMkdir={props.onRemoteMkdir}
+              onDrop={props.onRemoteDrop}
+              onDownloadToTemp={props.onRemoteDownloadToTemp}
+              selectedFile={props.selectedRemote}
+              onSelectFile={props.onSelectRemote}
+              transferActive={props.transferActive}
+              fetchSuggestions={props.onRemoteFetchSuggestions}
+              selectedItems={props.remoteSelectedItems}
+              onItemSelect={props.onRemoteItemSelect}
+              isItemSelected={props.isRemoteItemSelected}
+              onTitleClick={() => props.onLocalTitleClick?.()}
+            />
+          </>
         ) : (
           <>
             <FilePanelProvider value={localContextValue}>
@@ -135,6 +165,21 @@ export function SFTPPanels(props: SFTPPanelsProps) {
               onCancel={() => props.onSelectorClose?.()}
             />
           </div>
+        ) : props.rightPanelType === 'local' ? (
+          <>
+            <FilePanelProvider value={localContextValue}>
+              <FilePanel title="Local" files={props.localFiles} />
+            </FilePanelProvider>
+            {props.localSelectedItems.size > 1 && (
+              <BulkActionBar
+                selectedCount={props.localSelectedItems.size}
+                onDelete={props.onLocalBulkDelete}
+                onDownload={props.onLocalBulkUpload}
+                onClear={props.onLocalClearSelection}
+                actionLabel="Upload"
+              />
+            )}
+          </>
         ) : (
           <>
             <RemotePanel

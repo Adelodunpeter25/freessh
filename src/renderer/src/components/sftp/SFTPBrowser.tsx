@@ -87,6 +87,10 @@ export function SFTPBrowser() {
           showingSelector={state.showingSelector}
           onSelectorClose={() => state.setShowingSelector(null)}
           onPanelSelect={state.handlePanelSelect}
+          leftPanelType={state.leftPanelType}
+          leftSessionId={state.leftSessionId}
+          rightPanelType={state.rightPanelType}
+          rightSessionId={state.rightSessionId}
         />
         <SFTPTransferQueue
           transfers={state.sftp.transfers}
