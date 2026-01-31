@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { Session, ConnectionConfig } from '../types'
+import { generateUniqueTitle } from '../utils/tabNaming'
 
 interface Tab {
   id: string
@@ -29,10 +30,14 @@ export const useTabStore = create<TabStore>((set, get) => ({
   activeTabId: null,
 
   addTab: (session, connection, type) => {
+    const baseTitle = connection.name || connection.host
+    const existingTitles = get().tabs.map(t => t.title)
+    const uniqueTitle = generateUniqueTitle(baseTitle, existingTitles)
+    
     const newTab: Tab = {
       id: `${session.id}-${type}`,
       sessionId: session.id,
-      title: connection.name || connection.host,
+      title: uniqueTitle,
       type
     }
 
@@ -43,10 +48,13 @@ export const useTabStore = create<TabStore>((set, get) => ({
   },
 
   addLocalTab: (session) => {
+    const existingTitles = get().tabs.map(t => t.title)
+    const uniqueTitle = generateUniqueTitle('Local Terminal', existingTitles)
+    
     const newTab: Tab = {
       id: `${session.id}-terminal`,
       sessionId: session.id,
-      title: 'Local Terminal',
+      title: uniqueTitle,
       type: 'terminal'
     }
 
@@ -58,10 +66,13 @@ export const useTabStore = create<TabStore>((set, get) => ({
 
   addLogTab: (logName, logContent) => {
     const logId = `log-${Date.now()}`
+    const existingTitles = get().tabs.map(t => t.title)
+    const uniqueTitle = generateUniqueTitle(logName, existingTitles)
+    
     const newTab: Tab = {
       id: logId,
       sessionId: logId,
-      title: logName,
+      title: uniqueTitle,
       type: 'log',
       logContent
     }
