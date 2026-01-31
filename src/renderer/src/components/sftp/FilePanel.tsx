@@ -104,7 +104,7 @@ export function FilePanel({
       <DropZoneOverlay 
         visible={isDragOver} 
         type={isRemote ? 'upload' : 'download'} 
-        message={isRemote ? 'Upload files here' : 'Download files here'} 
+        message={isRemote ? 'Upload here' : 'Download here'} 
       />
       <FilePanelHeader
         title={title}
