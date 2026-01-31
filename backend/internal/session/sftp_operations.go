@@ -27,6 +27,10 @@ func (m *Manager) ensureSFTP(sessionID string) (*sftp.Client, error) {
 	return session.SFTPClient, nil
 }
 
+func (m *Manager) GetSFTPClient(sessionID string) (*sftp.Client, error) {
+	return m.ensureSFTP(sessionID)
+}
+
 func isConnectionError(err error) bool {
 	if err == nil {
 		return false

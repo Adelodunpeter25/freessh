@@ -73,6 +73,7 @@ func NewServer() *Server {
 			handlers.NewConnectionHandler(manager, verificationHelper),
 			sftp.NewHandler(manager),
 			handlers.NewBulkHandler(manager),
+			handlers.NewRemoteHandler(manager),
 			handlers.NewPortForwardHandler(manager),
 			handlers.NewPortForwardConfigHandler(portForwardStorage),
 			handlers.NewKeychainHandler(),
