@@ -53,6 +53,7 @@ interface SFTPPanelsProps {
   onRemoteTitleClick?: () => void;
   showingSelector?: 'left' | 'right' | null;
   onSelectorClose?: () => void;
+  onPanelSelect?: (panel: 'left' | 'right', type: 'local' | 'remote', connectionId?: string) => void;
 }
 
 export function SFTPPanels(props: SFTPPanelsProps) {
@@ -102,8 +103,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
           <div className="h-full border rounded-lg bg-card">
             <PanelSelector 
               onSelect={(type, connectionId) => {
-                console.log('Left panel selected:', type, connectionId)
-                props.onSelectorClose?.()
+                props.onPanelSelect?.('left', type, connectionId)
               }}
               onCancel={() => props.onSelectorClose?.()}
             />
@@ -130,8 +130,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
           <div className="h-full border rounded-lg bg-card">
             <PanelSelector 
               onSelect={(type, connectionId) => {
-                console.log('Right panel selected:', type, connectionId)
-                props.onSelectorClose?.()
+                props.onPanelSelect?.('right', type, connectionId)
               }}
               onCancel={() => props.onSelectorClose?.()}
             />

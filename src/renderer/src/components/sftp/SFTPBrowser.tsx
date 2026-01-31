@@ -86,6 +86,7 @@ export function SFTPBrowser() {
           onRemoteTitleClick={() => state.setShowingSelector('right')}
           showingSelector={state.showingSelector}
           onSelectorClose={() => state.setShowingSelector(null)}
+          onPanelSelect={state.handlePanelSelect}
         />
         <SFTPTransferQueue
           transfers={state.sftp.transfers}

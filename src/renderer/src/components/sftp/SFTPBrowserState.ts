@@ -2,6 +2,9 @@ import { useState, useCallback, useMemo } from "react";
 import { useSFTP, useMultiSelect, useBulkOperations } from "@/hooks";
 import { useLocalFiles } from "@/hooks";
 import { FileInfo } from "@/types";
+import { useSessionStore } from "@/stores/sessionStore";
+import { useConnectionStore } from "@/stores/connectionStore";
+import { connectionService } from "@/services/ipc";
 
 export const useSFTPBrowserState = () => {
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -12,6 +15,12 @@ export const useSFTPBrowserState = () => {
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [bulkDeleteContext, setBulkDeleteContext] = useState<{ count: number; isRemote: boolean } | null>(null);
   const [showingSelector, setShowingSelector] = useState<'left' | 'right' | null>(null);
+  
+  // Panel types and session IDs
+  const [leftPanelType, setLeftPanelType] = useState<'local' | 'remote'>('local');
+  const [leftSessionId, setLeftSessionId] = useState<string | null>(null);
+  const [rightPanelType, setRightPanelType] = useState<'local' | 'remote'>('remote');
+  const [rightSessionId, setRightSessionId] = useState<string | null>(null);
 
   const sftp = useSFTP(sessionId);
   const local = useLocalFiles();
@@ -102,6 +111,52 @@ export const useSFTPBrowserState = () => {
     setBulkDeleteContext(null)
   }
 
+  const handlePanelSelect = useCallback(async (panel: 'left' | 'right', type: 'local' | 'remote', connectionId?: string) => {
+    if (type === 'local') {
+      if (panel === 'left') {
+        setLeftPanelType('local')
+        setLeftSessionId(null)
+      } else {
+        setRightPanelType('local')
+        setRightSessionId(null)
+      }
+    } else if (type === 'remote' && connectionId) {
+      // Check if there's already an active session for this connection
+      const allSessions = useSessionStore.getState().getAllSessions()
+      const existingSession = allSessions.find(s => s.connection?.id === connectionId)
+      
+      if (existingSession) {
+        // Use existing session
+        if (panel === 'left') {
+          setLeftPanelType('remote')
+          setLeftSessionId(existingSession.session.id)
+        } else {
+          setRightPanelType('remote')
+          setRightSessionId(existingSession.session.id)
+        }
+      } else {
+        // Create new session
+        const connection = useConnectionStore.getState().connections.find(c => c.id === connectionId)
+        if (connection) {
+          try {
+            const session = await connectionService.connect(connection)
+            if (panel === 'left') {
+              setLeftPanelType('remote')
+              setLeftSessionId(session.id)
+            } else {
+              setRightPanelType('remote')
+              setRightSessionId(session.id)
+            }
+          } catch (err) {
+            console.error('Failed to connect:', err)
+          }
+        }
+      }
+    }
+    
+    setShowingSelector(null)
+  }, [])
+
   return {
     sessionId,
     setSessionId,
@@ -118,6 +173,11 @@ export const useSFTPBrowserState = () => {
     bulkDeleteContext,
     showingSelector,
     setShowingSelector,
+    leftPanelType,
+    leftSessionId,
+    rightPanelType,
+    rightSessionId,
+    handlePanelSelect,
     sftp,
     local,
     remoteMultiSelect,
