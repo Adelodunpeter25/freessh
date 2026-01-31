@@ -1,12 +1,12 @@
-import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { TitleBar } from "./TitleBar";
-import { Sidebar } from "./Sidebar";
-import { LoadingSpinner } from "@/components/common/LoadingSpinner";
+import { MainLayoutSidebar } from "./MainLayoutSidebar";
+import { MainLayoutContent } from "./MainLayoutContent";
 import { KeyboardShortcutsDialog } from "@/components/common/KeyboardShortcutsDialog";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { SettingsDialog } from "@/components/settings/SettingsDialog";
 import { ExportImportDialog } from "@/components/export-import";
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/components/ui/resizable";
+import { TerminalSidebar } from "./MainLayoutRoutes";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useSnippetStore } from "@/stores/snippetStore";
@@ -15,19 +15,7 @@ import { useMenuActions } from "@/hooks";
 import { Snippet } from "@/types/snippet";
 import { terminalService } from "@/services/ipc/terminal";
 import { toast } from "sonner";
-
-// Lazy load pages
-const ConnectionsPage = lazy(() => import("@/pages/ConnectionsPage").then(m => ({ default: m.ConnectionsPage })));
-const SFTPPage = lazy(() => import("@/pages/SFTPPage"));
-const TerminalView = lazy(() => import("@/components/terminal/TerminalView").then(m => ({ default: m.TerminalView })));
-const TerminalSidebar = lazy(() => import("@/components/terminal/TerminalSidebar").then(m => ({ default: m.TerminalSidebar })));
-const KeygenList = lazy(() => import("@/components/keygen").then(m => ({ default: m.KeygenList })));
-const KnownHostsPage = lazy(() => import("@/pages/KnownHostsPage").then(m => ({ default: m.KnownHostsPage })));
-const PortForwardPage = lazy(() => import("@/pages/PortForwardPage").then(m => ({ default: m.PortForwardPage })));
-const SnippetsPage = lazy(() => import("@/pages/SnippetsPage").then(m => ({ default: m.SnippetsPage })));
-const SnippetForm = lazy(() => import("@/components/snippets").then(m => ({ default: m.SnippetForm })));
-const LogsPage = lazy(() => import("@/pages/LogsPage").then(m => ({ default: m.LogsPage })));
-const LogViewer = lazy(() => import("@/components/logs").then(m => ({ default: m.LogViewer })));
+import { SnippetForm } from "./MainLayoutRoutes";
 
 type SidebarTab = "connections" | "keys" | "known-hosts" | "port-forward" | "snippets" | "logs" | "settings";
 type MainView = "home" | "sftp" | "terminal";
@@ -119,27 +107,6 @@ export function MainLayout() {
     onExportImport: () => setShowExportImport(true),
   })
 
-  const renderHomeContent = () => {
-    switch (sidebarTab) {
-      case "connections":
-        return <ConnectionsPage />;
-      case "keys":
-        return <KeygenList />;
-      case "known-hosts":
-        return <KnownHostsPage />;
-      case "port-forward":
-        return <PortForwardPage />;
-      case "snippets":
-        return <SnippetsPage />;
-      case "logs":
-        return <LogsPage />;
-      default:
-        return null;
-    }
-  };
-
-  const activeTab = tabs.find((t) => t.id === activeSessionTabId);
-
   return (
     <div className="h-screen w-screen flex flex-col overflow-hidden">
       <TitleBar
@@ -155,49 +122,16 @@ export function MainLayout() {
 
       {/* Home view with sidebar */}
       <div className={mainView === "home" ? "flex-1 overflow-hidden" : "hidden"}>
-        <ResizablePanelGroup direction="horizontal" autoSaveId="sidebar-layout">
-          <ResizablePanel defaultSize={20} minSize={20}>
-            <Sidebar onTabChange={handleSidebarTabChange} />
-          </ResizablePanel>
-          <ResizableHandle />
-          <ResizablePanel defaultSize={80}>
-            <div className="h-full w-full bg-background overflow-hidden">
-              <Suspense fallback={<div className="flex items-center justify-center h-full"><LoadingSpinner /></div>}>
-                {renderHomeContent()}
-              </Suspense>
-            </div>
-          </ResizablePanel>
-        </ResizablePanelGroup>
+        <MainLayoutSidebar sidebarTab={sidebarTab} onSidebarTabChange={handleSidebarTabChange} />
       </div>
 
-      {/* SFTP view */}
-      <div className={mainView === "sftp" ? "flex-1 overflow-hidden" : "hidden"}>
-        <Suspense fallback={<div className="flex items-center justify-center h-full"><LoadingSpinner /></div>}>
-          <SFTPPage />
-        </Suspense>
-      </div>
-
-      {/* Terminal view */}
-      <div className={mainView === "terminal" ? "flex-1 overflow-hidden transition-all" : "hidden"} style={{ paddingRight: showTerminalSettings ? '320px' : '0' }}>
-        <Suspense fallback={<div className="flex items-center justify-center h-full"><LoadingSpinner /></div>}>
-          {tabs.map((tab) => (
-            <div
-              key={tab.id}
-              className={activeSessionTabId === tab.id ? "h-full w-full" : "hidden"}
-            >
-              {tab.type === 'log' ? (
-                <LogViewer content={tab.logContent || ''} />
-              ) : (
-                <TerminalView
-                  sessionId={tab.sessionId}
-                  isActive={activeSessionTabId === tab.id && mainView === "terminal"}
-                  sidebarOpen={showTerminalSettings}
-                />
-              )}
-            </div>
-          ))}
-        </Suspense>
-      </div>
+      {/* SFTP and Terminal views */}
+      <MainLayoutContent
+        mainView={mainView}
+        tabs={tabs}
+        activeSessionTabId={activeSessionTabId}
+        showTerminalSettings={showTerminalSettings}
+      />
 
       {/* Terminal Sidebar */}
       {showTerminalSettings && mainView === "terminal" && (
