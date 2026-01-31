@@ -112,7 +112,10 @@ export const useSFTPBrowserState = () => {
   }
 
   const handlePanelSelect = useCallback(async (panel: 'left' | 'right', type: 'local' | 'remote', connectionId?: string) => {
+    console.log('[handlePanelSelect] Called:', { panel, type, connectionId })
+    
     if (type === 'local') {
+      console.log('[handlePanelSelect] Setting panel to local')
       if (panel === 'left') {
         setLeftPanelType('local')
         setLeftSessionId(null)
@@ -121,12 +124,16 @@ export const useSFTPBrowserState = () => {
         setRightSessionId(null)
       }
     } else if (type === 'remote' && connectionId) {
+      console.log('[handlePanelSelect] Setting panel to remote, checking for existing session')
       // Check if there's already an active session for this connection
       const allSessions = useSessionStore.getState().getAllSessions()
+      console.log('[handlePanelSelect] All sessions:', allSessions)
       const existingSession = allSessions.find(s => s.connection?.id === connectionId)
+      console.log('[handlePanelSelect] Existing session:', existingSession)
       
       if (existingSession) {
         // Use existing session
+        console.log('[handlePanelSelect] Using existing session:', existingSession.session.id)
         if (panel === 'left') {
           setLeftPanelType('remote')
           setLeftSessionId(existingSession.session.id)
@@ -136,10 +143,14 @@ export const useSFTPBrowserState = () => {
         }
       } else {
         // Create new session
+        console.log('[handlePanelSelect] Creating new session')
         const connection = useConnectionStore.getState().connections.find(c => c.id === connectionId)
+        console.log('[handlePanelSelect] Connection:', connection)
         if (connection) {
           try {
+            console.log('[handlePanelSelect] Connecting...')
             const session = await connectionService.connect(connection)
+            console.log('[handlePanelSelect] Connected, session:', session)
             if (panel === 'left') {
               setLeftPanelType('remote')
               setLeftSessionId(session.id)
@@ -148,12 +159,13 @@ export const useSFTPBrowserState = () => {
               setRightSessionId(session.id)
             }
           } catch (err) {
-            console.error('Failed to connect:', err)
+            console.error('[handlePanelSelect] Failed to connect:', err)
           }
         }
       }
     }
     
+    console.log('[handlePanelSelect] Closing selector')
     setShowingSelector(null)
   }, [])
 
