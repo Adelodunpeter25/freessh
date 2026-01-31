@@ -15,6 +15,7 @@ export const useSFTPBrowserState = () => {
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [bulkDeleteContext, setBulkDeleteContext] = useState<{ count: number; isRemote: boolean } | null>(null);
   const [showingSelector, setShowingSelector] = useState<'left' | 'right' | null>(null);
+  const [connectingConnectionId, setConnectingConnectionId] = useState<string | null>(null);
   
   // Panel types and session IDs
   const [leftPanelType, setLeftPanelType] = useState<'local' | 'remote'>('local');
@@ -149,8 +150,14 @@ export const useSFTPBrowserState = () => {
         if (connection) {
           try {
             console.log('[handlePanelSelect] Connecting...')
+            setConnectingConnectionId(connectionId)
             const session = await connectionService.connect(connection)
             console.log('[handlePanelSelect] Connected, session:', session)
+            
+            // Add session to store with connection info
+            useSessionStore.getState().addSession(session, connection)
+            
+            setConnectingConnectionId(null)
             if (panel === 'left') {
               setLeftPanelType('remote')
               setLeftSessionId(session.id)
@@ -160,6 +167,7 @@ export const useSFTPBrowserState = () => {
             }
           } catch (err) {
             console.error('[handlePanelSelect] Failed to connect:', err)
+            setConnectingConnectionId(null)
           }
         }
       }
@@ -189,6 +197,7 @@ export const useSFTPBrowserState = () => {
     leftSessionId,
     rightPanelType,
     rightSessionId,
+    connectingConnectionId,
     handlePanelSelect,
     sftp,
     local,

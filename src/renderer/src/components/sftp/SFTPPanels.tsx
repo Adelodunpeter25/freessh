@@ -58,6 +58,7 @@ interface SFTPPanelsProps {
   leftSessionId?: string | null;
   rightPanelType?: 'local' | 'remote';
   rightSessionId?: string | null;
+  connectingConnectionId?: string | null;
 }
 
 export function SFTPPanels(props: SFTPPanelsProps) {
@@ -110,6 +111,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
                 props.onPanelSelect?.('left', type, connectionId)
               }}
               onCancel={() => props.onSelectorClose?.()}
+              connectingConnectionId={props.connectingConnectionId}
             />
           </div>
         ) : props.leftPanelType === 'remote' && props.leftSessionId ? (
@@ -163,6 +165,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
                 props.onPanelSelect?.('right', type, connectionId)
               }}
               onCancel={() => props.onSelectorClose?.()}
+              connectingConnectionId={props.connectingConnectionId}
             />
           </div>
         ) : props.rightPanelType === 'local' ? (

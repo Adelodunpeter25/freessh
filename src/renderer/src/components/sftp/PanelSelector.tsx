@@ -1,4 +1,4 @@
-import { Home, X, Search } from "lucide-react"
+import { Home, X, Search, Loader2 } from "lucide-react"
 import { useConnectionStore } from "@/stores/connectionStore"
 import { useOSTypeStore } from "@/stores/osTypeStore"
 import { getOSIcon } from "@/utils/osIcons"
@@ -10,9 +10,10 @@ import { useState, useMemo } from "react"
 interface PanelSelectorProps {
   onSelect: (type: 'local' | 'remote', connectionId?: string) => void
   onCancel: () => void
+  connectingConnectionId?: string | null
 }
 
-export function PanelSelector({ onSelect, onCancel }: PanelSelectorProps) {
+export function PanelSelector({ onSelect, onCancel, connectingConnectionId }: PanelSelectorProps) {
   const connections = useConnectionStore((state) => state.connections)
   const getOSType = useOSTypeStore((state) => state.getOSType)
   const [query, setQuery] = useState('')
@@ -73,20 +74,26 @@ export function PanelSelector({ onSelect, onCancel }: PanelSelectorProps) {
           filteredConnections.map((connection) => {
             const osType = getOSType(connection.id)
             const OSIcon = getOSIcon(osType)
+            const isConnecting = connectingConnectionId === connection.id
             
             return (
               <button
                 key={connection.id}
-                onClick={() => onSelect('remote', connection.id)}
-                className="w-full p-2 rounded-lg bg-card hover:bg-accent/70 transition-colors cursor-pointer flex items-center gap-4"
+                onClick={() => !isConnecting && onSelect('remote', connection.id)}
+                disabled={isConnecting}
+                className="w-full p-2 rounded-lg bg-card hover:bg-accent/70 transition-colors cursor-pointer flex items-center gap-4 disabled:opacity-50 disabled:cursor-wait"
               >
                 <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center shrink-0">
-                  <OSIcon className="w-6 h-6" />
+                  {isConnecting ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  ) : (
+                    <OSIcon className="w-6 h-6" />
+                  )}
                 </div>
                 <div className="flex flex-col items-start">
                   <span className="font-medium">{connection.name}</span>
                   <span className="text-sm text-muted-foreground">
-                    {connection.host}:{connection.port}
+                    {isConnecting ? 'Connecting...' : `${connection.host}:${connection.port}`}
                   </span>
                 </div>
               </button>

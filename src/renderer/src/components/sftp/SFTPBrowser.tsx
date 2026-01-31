@@ -91,6 +91,7 @@ export function SFTPBrowser() {
           leftSessionId={state.leftSessionId}
           rightPanelType={state.rightPanelType}
           rightSessionId={state.rightSessionId}
+          connectingConnectionId={state.connectingConnectionId}
         />
         <SFTPTransferQueue
           transfers={state.sftp.transfers}
