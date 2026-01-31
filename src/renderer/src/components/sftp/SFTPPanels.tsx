@@ -53,6 +53,13 @@ export function SFTPPanels(props: SFTPPanelsProps) {
   const [showLeftDeleteConfirm, setShowLeftDeleteConfirm] = useState(false)
   const [showRightDeleteConfirm, setShowRightDeleteConfirm] = useState(false)
   
+  // Use the first available SFTP setTransfers (prefer left, then right)
+  const setTransfers = props.leftPanelType === 'remote' && props.leftSftp?.setTransfers
+    ? props.leftSftp.setTransfers
+    : props.rightPanelType === 'remote' && props.rightSftp?.setTransfers
+    ? props.rightSftp.setTransfers
+    : undefined
+  
   const { bulkRemoteTransfer } = useRemoteTransfer(() => {
     // Refresh both panels after remote transfer
     if (props.leftPanelType === 'remote') {
@@ -61,7 +68,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     if (props.rightPanelType === 'remote') {
       props.rightSftp.listFiles(props.rightCurrentPath)
     }
-  })
+  }, setTransfers)
 
   const leftContextValue = useMemo(() => {
     const isRemote = props.leftPanelType === 'remote';
@@ -289,7 +296,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
         open={showLeftDeleteConfirm}
         onOpenChange={setShowLeftDeleteConfirm}
         title="Delete multiple items"
-        description={`Are you sure you want to delete ${props.leftSelectedItems.size} item(s)? This action cannot be undone.`}
+        description={`Are you sure you want to delete ${Array.from(props.leftSelectedItems).length} item(s)? This action cannot be undone.`}
         confirmText="Delete"
         destructive
         onConfirm={handleLeftDeleteConfirm}
@@ -298,7 +305,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
         open={showRightDeleteConfirm}
         onOpenChange={setShowRightDeleteConfirm}
         title="Delete multiple items"
-        description={`Are you sure you want to delete ${props.rightSelectedItems.size} item(s)? This action cannot be undone.`}
+        description={`Are you sure you want to delete ${Array.from(props.rightSelectedItems).length} item(s)? This action cannot be undone.`}
         confirmText="Delete"
         destructive
         onConfirm={handleRightDeleteConfirm}

@@ -45,6 +45,7 @@ export const useSFTP = (sessionId: string | null) => {
     error,
     currentPath,
     transfers: Array.from(transfers.values()),
+    setTransfers,
     listFiles,
     listPath,
     ...transferOps,

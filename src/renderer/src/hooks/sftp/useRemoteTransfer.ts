@@ -1,42 +1,12 @@
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { remoteSftpService } from '../../services/ipc'
+import { TransferProgress } from '../../types'
 
-export const useRemoteTransfer = (onComplete?: () => void) => {
-  const remoteTransfer = useCallback(async (
-    sourceSessionId: string,
-    destSessionId: string,
-    sourcePath: string,
-    destPath: string
-  ) => {
-    const toastId = toast.loading('Transferring file...')
-    
-    try {
-      const result = await remoteSftpService.remoteTransfer(
-        sourceSessionId,
-        destSessionId,
-        sourcePath,
-        destPath,
-        (progress) => {
-          const percent = progress.total_bytes > 0 
-            ? Math.round((progress.bytes_transferred / progress.total_bytes) * 100)
-            : 0
-          toast.loading(`Transferring... ${percent}%`, { id: toastId })
-        }
-      )
-
-      if (result.success) {
-        toast.success('Transfer completed', { id: toastId })
-      } else {
-        toast.error(`Transfer failed: ${result.error}`, { id: toastId })
-      }
-
-      if (onComplete) onComplete()
-    } catch (err) {
-      toast.error('Transfer failed', { id: toastId })
-    }
-  }, [onComplete])
-
+export const useRemoteTransfer = (
+  onComplete?: () => void,
+  setTransfers?: React.Dispatch<React.SetStateAction<Map<string, TransferProgress>>>
+) => {
   const bulkRemoteTransfer = useCallback(async (
     sourceSessionId: string,
     destSessionId: string,
@@ -45,7 +15,19 @@ export const useRemoteTransfer = (onComplete?: () => void) => {
   ) => {
     if (sourcePaths.length === 0) return
 
-    const toastId = toast.loading(`Transferring ${sourcePaths.length} item(s)...`)
+    const transferId = `remote-${Date.now()}`
+    
+    // Add to transfer queue
+    if (setTransfers) {
+      setTransfers(prev => new Map(prev).set(transferId, {
+        transfer_id: transferId,
+        filename: `${sourcePaths.length} item(s)`,
+        total: 100,
+        transferred: 0,
+        percentage: 0,
+        status: 'uploading'
+      }))
+    }
     
     try {
       const results = await remoteSftpService.bulkRemoteTransfer(
@@ -54,29 +36,78 @@ export const useRemoteTransfer = (onComplete?: () => void) => {
         sourcePaths,
         destDir,
         (progress) => {
-          toast.loading(`Transferring ${progress.completed_items}/${progress.total_items}...`, { id: toastId })
+          if (setTransfers) {
+            const percent = progress.total_items > 0
+              ? Math.round((progress.completed_items / progress.total_items) * 100)
+              : 0
+            setTransfers(prev => new Map(prev).set(transferId, {
+              transfer_id: transferId,
+              filename: `${progress.completed_items}/${progress.total_items} items`,
+              total: progress.total_items,
+              transferred: progress.completed_items,
+              percentage: percent,
+              status: 'uploading'
+            }))
+          }
         }
       )
 
       const successCount = results.filter(r => r.success).length
       const failCount = results.filter(r => !r.success).length
 
+      if (setTransfers) {
+        if (failCount === 0) {
+          setTransfers(prev => new Map(prev).set(transferId, {
+            transfer_id: transferId,
+            filename: `${successCount} item(s)`,
+            total: results.length,
+            transferred: results.length,
+            percentage: 100,
+            status: 'completed'
+          }))
+        } else {
+          setTransfers(prev => new Map(prev).set(transferId, {
+            transfer_id: transferId,
+            filename: `${successCount} succeeded, ${failCount} failed`,
+            total: results.length,
+            transferred: successCount,
+            percentage: 100,
+            status: 'failed'
+          }))
+        }
+      }
+
       if (failCount === 0) {
-        toast.success(`Transferred ${successCount} item(s)`, { id: toastId })
+        toast.success(`Transferred ${successCount} item(s)`)
       } else {
-        toast.warning(`Transferred ${successCount}, failed ${failCount}`, { id: toastId })
+        toast.warning(`Transferred ${successCount}, failed ${failCount}`)
       }
 
       if (onComplete) onComplete()
     } catch (err) {
-      toast.error('Bulk transfer failed', { id: toastId })
+      if (setTransfers) {
+        setTransfers(prev => new Map(prev).set(transferId, {
+          transfer_id: transferId,
+          filename: `${sourcePaths.length} item(s)`,
+          total: sourcePaths.length,
+          transferred: 0,
+          percentage: 0,
+          status: 'failed'
+        }))
+      }
+      toast.error('Bulk transfer failed')
     }
-  }, [onComplete])
+  }, [onComplete, setTransfers])
 
   const cancelRemoteTransfer = useCallback(async (transferId: string) => {
     try {
       const cancelled = await remoteSftpService.cancelRemoteTransfer(transferId)
-      if (cancelled) {
+      if (cancelled && setTransfers) {
+        setTransfers(prev => {
+          const next = new Map(prev)
+          next.delete(transferId)
+          return next
+        })
         toast.info('Transfer cancelled')
       }
       return cancelled
@@ -84,10 +115,9 @@ export const useRemoteTransfer = (onComplete?: () => void) => {
       toast.error('Failed to cancel transfer')
       return false
     }
-  }, [])
+  }, [setTransfers])
 
   return {
-    remoteTransfer,
     bulkRemoteTransfer,
     cancelRemoteTransfer
   }
