@@ -1,0 +1,5 @@
+on a case like this we should reconnection innit? 3
+operations.ts:12 Uncaught (in promise) Error: failed to stat: connection lost
+    at handler (operations.ts:12:16)
+        at BackendService.handleMessage (backend.ts:38:11)
+            at backend.ts:8:12
