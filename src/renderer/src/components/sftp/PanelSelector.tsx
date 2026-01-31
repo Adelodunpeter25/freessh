@@ -1,13 +1,16 @@
 import { Home, Server } from "lucide-react"
 import { useSessionStore } from "@/stores/sessionStore"
+import { useMemo } from "react"
 
 interface PanelSelectorProps {
   onSelect: (type: 'local' | 'remote', sessionId?: string) => void
 }
 
 export function PanelSelector({ onSelect }: PanelSelectorProps) {
-  const allSessions = useSessionStore((state) => state.getAllSessions())
-  const remoteSessions = allSessions.filter(s => s.session.type === 'ssh')
+  const getAllSessions = useSessionStore((state) => state.getAllSessions)
+  const remoteSessions = useMemo(() => {
+    return getAllSessions().filter(s => s.session.type === 'ssh')
+  }, [getAllSessions])
 
   return (
     <div className="flex flex-col items-center justify-center h-full gap-3 p-6">
