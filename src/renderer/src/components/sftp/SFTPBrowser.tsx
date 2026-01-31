@@ -163,6 +163,7 @@ export function SFTPBrowser() {
       toast.warning(`Uploaded ${successCount}, failed ${failCount}`, { id: toastId })
     }
 
+    await sftp.listFiles(sftp.currentPath)
     localMultiSelect.clearSelection()
   }
 
