@@ -104,25 +104,25 @@ export const useSFTPBrowserState = () => {
     local.refresh()
   }, [bulkOps, local])
 
-  const handleBulkDelete = () => {
+  const handleBulkDelete = useCallback(() => {
     const count = remoteMultiSelect.selectedItems.size
     setBulkDeleteContext({ count, isRemote: true })
     setShowBulkDeleteConfirm(true)
-  }
+  }, [remoteMultiSelect.selectedItems])
 
-  const handleBulkDownload = async () => {
+  const handleBulkDownload = useCallback(async () => {
     const fileNames = Array.from(remoteMultiSelect.selectedItems)
     await bulkOps.bulkDownload(fileNames, local.currentPath)
     local.refresh()
-  }
+  }, [remoteMultiSelect.selectedItems, bulkOps, local])
 
-  const handleLocalBulkDelete = () => {
+  const handleLocalBulkDelete = useCallback(() => {
     const count = localMultiSelect.selectedItems.size
     setBulkDeleteContext({ count, isRemote: false })
     setShowBulkDeleteConfirm(true)
-  }
+  }, [localMultiSelect.selectedItems])
 
-  const handleLocalBulkUpload = async () => {
+  const handleLocalBulkUpload = useCallback(async () => {
     if (!sessionId) return
     const fileNames = Array.from(localMultiSelect.selectedItems)
     const localPaths = fileNames.map(name => `${local.currentPath}/${name}`)
@@ -130,9 +130,9 @@ export const useSFTPBrowserState = () => {
     await bulkOps.bulkUpload(localPaths, sftp.currentPath)
     await sftp.listFiles(sftp.currentPath)
     localMultiSelect.clearSelection()
-  }
+  }, [sessionId, localMultiSelect, local.currentPath, bulkOps, sftp])
 
-  const handleConfirmDelete = async () => {
+  const handleConfirmDelete = useCallback(async () => {
     if (!fileToDelete) return
     
     if (fileToDelete.isRemote) {
@@ -142,9 +142,9 @@ export const useSFTPBrowserState = () => {
     }
     
     setFileToDelete(null)
-  }
+  }, [fileToDelete, sftp, local])
 
-  const handleConfirmBulkDelete = async () => {
+  const handleConfirmBulkDelete = useCallback(async () => {
     if (!bulkDeleteContext) return
 
     if (bulkDeleteContext.isRemote) {
@@ -165,7 +165,7 @@ export const useSFTPBrowserState = () => {
     }
 
     setBulkDeleteContext(null)
-  }
+  }, [bulkDeleteContext, remoteMultiSelect.selectedItems, localMultiSelect, bulkOps, local])
 
   const handlePanelSelect = useCallback(async (panel: 'left' | 'right', type: 'local' | 'remote', connectionId?: string) => {
     if (type === 'local') {

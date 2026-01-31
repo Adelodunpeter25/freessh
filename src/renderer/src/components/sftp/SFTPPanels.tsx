@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { FilePanel } from "./FilePanel";
 import { BulkActionBar } from "./BulkActionBar";
 import { PanelSelector } from "./PanelSelector";
@@ -157,7 +157,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
   const leftTitle = props.leftPanelType === 'local' ? 'Local' : 'Remote';
   const rightTitle = props.rightPanelType === 'local' ? 'Local' : 'Remote';
 
-  const handleLeftDeleteConfirm = async () => {
+  const handleLeftDeleteConfirm = useCallback(async () => {
     const items = Array.from(props.leftSelectedItems)
     if (props.leftPanelType === 'remote') {
       await props.leftBulkOps.bulkDelete(items)
@@ -169,9 +169,16 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     }
     props.onLeftClearSelection()
     setShowLeftDeleteConfirm(false)
-  }
+  }, [
+    props.leftSelectedItems,
+    props.leftPanelType,
+    props.leftBulkOps,
+    props.leftLocal,
+    props.leftCurrentPath,
+    props.onLeftClearSelection
+  ])
 
-  const handleRightDeleteConfirm = async () => {
+  const handleRightDeleteConfirm = useCallback(async () => {
     const items = Array.from(props.rightSelectedItems)
     if (props.rightPanelType === 'remote') {
       await props.rightBulkOps.bulkDelete(items)
@@ -183,7 +190,14 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     }
     props.onRightClearSelection()
     setShowRightDeleteConfirm(false)
-  }
+  }, [
+    props.rightSelectedItems,
+    props.rightPanelType,
+    props.rightBulkOps,
+    props.rightLocal,
+    props.rightCurrentPath,
+    props.onRightClearSelection
+  ])
 
   return (
     <div className="flex flex-1 gap-4 overflow-hidden relative">
