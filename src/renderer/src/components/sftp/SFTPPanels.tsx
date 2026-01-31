@@ -6,7 +6,7 @@ import { FilePanelProvider } from "@/contexts/FilePanelContext";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { FileInfo } from "@/types";
 import { isRemoteToRemote } from "@/utils/remoteTransferDetector";
-import { useRemoteTransfer } from "@/hooks";
+import { useRemoteTransfer, useRemoteDragDrop } from "@/hooks";
 
 interface SFTPPanelsProps {
   leftPanelType: 'local' | 'remote';
@@ -70,6 +70,22 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     }
   }, setTransfers)
 
+  const leftDragDrop = useRemoteDragDrop({
+    sourcePanelType: props.rightPanelType,
+    destPanelType: props.leftPanelType,
+    sourceSessionId: props.rightSessionId,
+    destSessionId: props.leftSessionId,
+    onRemoteTransfer: bulkRemoteTransfer
+  })
+
+  const rightDragDrop = useRemoteDragDrop({
+    sourcePanelType: props.leftPanelType,
+    destPanelType: props.rightPanelType,
+    sourceSessionId: props.leftSessionId,
+    destSessionId: props.rightSessionId,
+    onRemoteTransfer: bulkRemoteTransfer
+  })
+
   const leftContextValue = useMemo(() => {
     const isRemote = props.leftPanelType === 'remote';
     const handler = isRemote ? props.leftSftp : props.leftLocal;
@@ -81,7 +97,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
       onMkdir: isRemote ? handler.createDirectory : handler.mkdir,
       onNavigate: isRemote ? handler.listFiles : handler.navigate,
       onRefresh: handler.refresh,
-      onDrop: undefined,
+      onDrop: leftDragDrop.isRemoteToRemote ? leftDragDrop.handleDrop : undefined,
       selectedFile: props.selectedLocal,
       onSelectFile: props.onSelectLocal,
       currentPath: props.leftCurrentPath,
@@ -110,6 +126,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     props.onLeftItemSelect,
     props.isLeftItemSelected,
     props.onLeftTitleClick,
+    leftDragDrop
   ]);
 
   const rightContextValue = useMemo(() => {
@@ -123,7 +140,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
       onMkdir: isRemote ? handler.createDirectory : handler.mkdir,
       onNavigate: isRemote ? handler.listFiles : handler.navigate,
       onRefresh: handler.refresh,
-      onDrop: undefined,
+      onDrop: rightDragDrop.isRemoteToRemote ? rightDragDrop.handleDrop : undefined,
       selectedFile: props.selectedRemote,
       onSelectFile: props.onSelectRemote,
       currentPath: props.rightCurrentPath,
@@ -152,6 +169,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     props.onRightItemSelect,
     props.isRightItemSelected,
     props.onRightTitleClick,
+    rightDragDrop
   ]);
 
   const leftTitle = props.leftPanelType === 'local' ? 'Local' : 'Remote';
