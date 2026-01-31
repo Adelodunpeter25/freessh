@@ -29,15 +29,12 @@ export const useFilePreview = (
       return null
     })
 
-    const toastId = isRemote ? toast.loading('Loading preview...') : undefined
-
     try {
       if (isTextFile(file.name)) {
         const content = isRemote 
           ? await readRemoteFile(file.path)
           : await window.electron.ipcRenderer.invoke('fs:readfile', file.path)
         setPreviewContent(content)
-        if (toastId) toast.dismiss(toastId)
       } else if (isImageFile(file.name)) {
         if (isRemote) {
           const base64 = await readRemoteFile(file.path, true)
@@ -48,7 +45,6 @@ export const useFilePreview = (
           }
           const blob = new Blob([bytes])
           setPreviewBlobUrl(URL.createObjectURL(blob))
-          if (toastId) toast.dismiss(toastId)
         } else {
           setPreviewBlobUrl(`file://${file.path}`)
         }
@@ -57,11 +53,9 @@ export const useFilePreview = (
       console.error('Failed to read file:', err)
       const errorMsg = err?.message || String(err)
       if (errorMsg.includes('too large to preview')) {
-        if (toastId) toast.error('File too large to preview (>5MB)', { id: toastId })
-        else toast.error('File too large to preview (>5MB)')
+        toast.error('File too large to preview (>5MB)')
       } else {
-        if (toastId) toast.error('Failed to load preview', { id: toastId })
-        else toast.error('Failed to load preview')
+        toast.error('Failed to load preview')
       }
       setPreviewFile(null)
     } finally {
