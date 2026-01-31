@@ -82,9 +82,12 @@ export function FilePanelHeader({
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={onTitleClick}
-            className="text-sm font-medium hover:bg-accent hover:text-accent-foreground px-2 py-1 rounded border border-transparent hover:border-border transition-colors cursor-pointer"
+            className="text-sm font-medium px-3 py-1.5 rounded-md border border-border hover:bg-accent hover:border-accent-foreground/20 transition-all cursor-pointer flex items-center gap-1.5"
           >
             {title}
+            <svg className="w-3 h-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
           <div className="flex gap-1">
             {children}
