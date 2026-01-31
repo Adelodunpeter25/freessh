@@ -73,8 +73,22 @@ export const useRemoteTransfer = (onComplete?: () => void) => {
     }
   }, [onComplete])
 
+  const cancelRemoteTransfer = useCallback(async (transferId: string) => {
+    try {
+      const cancelled = await remoteSftpService.cancelRemoteTransfer(transferId)
+      if (cancelled) {
+        toast.info('Transfer cancelled')
+      }
+      return cancelled
+    } catch (err) {
+      toast.error('Failed to cancel transfer')
+      return false
+    }
+  }, [])
+
   return {
     remoteTransfer,
-    bulkRemoteTransfer
+    bulkRemoteTransfer,
+    cancelRemoteTransfer
   }
 }

@@ -104,5 +104,23 @@ export const remoteSftpService = {
         }
       })
     })
+  },
+
+  cancelRemoteTransfer(transferId: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      const handler = (message: IPCMessage) => {
+        if (message.type === 'remote:cancel') {
+          backendService.off('remote:cancel')
+          resolve(message.data?.cancelled ?? false)
+        }
+      }
+
+      backendService.on('remote:cancel', handler)
+
+      backendService.send({
+        type: 'remote:cancel',
+        data: { transfer_id: transferId }
+      })
+    })
   }
 }
