@@ -1,0 +1,158 @@
+---
+title: Getting Started
+description: Install FreeSH and make your first connection
+---
+
+# Getting Started
+
+This guide will help you install FreeSH and connect to your first remote server.
+
+## Installation
+
+### macOS
+
+#### Download
+1. Visit the [FreeSH releases page](https://github.com/Adelodunpeter25/freessh/releases)
+2. Download the latest `.dmg` file for macOS
+3. Open the downloaded file
+4. Drag FreeSH to your Applications folder
+
+#### First Launch
+When you first open FreeSH, macOS may show a security warning because the app is not from the App Store.
+
+To open FreeSH:
+1. Right-click (or Control-click) the FreeSH app in Applications
+2. Select "Open" from the menu
+3. Click "Open" in the dialog that appears
+
+This only needs to be done once.
+
+### Windows
+
+1. Visit the [FreeSH releases page](https://github.com/Adelodunpeter25/freessh/releases)
+2. Download the latest `.exe` installer for Windows
+3. Run the installer and follow the installation wizard
+4. Launch FreeSH from the Start menu or desktop shortcut
+
+### Linux
+
+#### AppImage
+1. Visit the [FreeSH releases page](https://github.com/Adelodunpeter25/freessh/releases)
+2. Download the latest `.AppImage` file
+3. Make it executable: `chmod +x FreeSH-*.AppImage`
+4. Run it: `./FreeSH-*.AppImage`
+
+#### Debian/Ubuntu (.deb)
+```bash
+# Download the .deb file from releases
+sudo dpkg -i freessh_*.deb
+sudo apt-get install -f  # Install dependencies if needed
+```
+
+#### Red Hat/Fedora (.rpm)
+```bash
+# Download the .rpm file from releases
+sudo rpm -i freessh-*.rpm
+```
+
+## First Connection
+
+### Creating a Connection
+
+1. **Launch FreeSH** - Open the application
+2. **Click "New Connection"** - Located in the top-right corner of the home screen
+3. **Fill in connection details:**
+   - **Name**: A friendly name for this connection (e.g., "Production Server")
+   - **Host**: The server address (e.g., `example.com` or `192.168.1.100`)
+   - **Port**: SSH port (default is `22`)
+   - **Username**: Your SSH username
+
+### Authentication Methods
+
+FreeSH supports two authentication methods:
+
+#### Password Authentication
+1. Select **"Password"** as the authentication method
+2. Enter your password
+3. Optionally check **"Save to Keychain"** to securely store your password
+
+#### SSH Key Authentication
+1. Select **"SSH Key"** as the authentication method
+2. Click **"Browse"** to select your private key file
+   - Common locations:
+     - macOS/Linux: `~/.ssh/id_rsa` or `~/.ssh/id_ed25519`
+     - Windows: `C:\Users\YourName\.ssh\id_rsa`
+3. If your key has a passphrase, enter it
+4. Optionally check **"Save to Keychain"** to store the passphrase
+
+### Connecting
+
+1. Click **"Save"** to save the connection
+2. Click **"Connect"** to establish the SSH connection
+3. On first connection, you'll be asked to verify the host key
+4. Click **"Accept"** to add the host to your known hosts
+
+### Host Key Verification
+
+When connecting to a server for the first time, FreeSH will show you the server's host key fingerprint. This is a security measure to ensure you're connecting to the correct server.
+
+**What to do:**
+- If you recognize the server and trust it, click **"Accept"**
+- If you're unsure, verify the fingerprint with your server administrator
+- The host key will be saved to your known hosts file
+
+## Quick Tour
+
+### Home Screen
+The home screen shows all your saved connections. You can:
+- **Search** for connections using the search bar
+- **Organize** connections into groups/folders
+- **Quick connect** by clicking any connection
+
+### Terminal Tab
+Once connected, you'll see:
+- **Terminal window** - Your SSH session
+- **Tab bar** - Switch between multiple sessions
+- **Menu bar** - Access features like SFTP, port forwarding, and settings
+
+### Opening SFTP
+Click the **"SFTP"** button in the tab bar to open the file browser for the current connection.
+
+### Local Terminal
+Click **"Local Terminal"** in the home screen to open a terminal on your local machine.
+
+## Next Steps
+
+Now that you're connected, explore these features:
+
+- [**Connection Management**](/connections/overview) - Organize and manage your connections
+- [**Terminal Features**](/terminal/overview) - Learn about terminal capabilities
+- [**SFTP File Transfers**](/sftp/overview) - Transfer files between servers
+- [**Port Forwarding**](/port-forwarding) - Set up SSH tunnels
+
+## Troubleshooting
+
+### Connection Failed
+- Verify the host address and port are correct
+- Check that SSH is enabled on the remote server
+- Ensure your firewall allows outbound SSH connections
+- Verify your username and authentication credentials
+
+### Permission Denied
+- Double-check your username
+- Verify your password or SSH key is correct
+- Ensure your SSH key has the correct permissions (`chmod 600 ~/.ssh/id_rsa`)
+- Check that your user account has SSH access on the server
+
+### Host Key Changed Warning
+If you see a warning that the host key has changed:
+- This could indicate a security issue (man-in-the-middle attack)
+- Or the server was reinstalled/reconfigured
+- Only accept if you know the server was legitimately changed
+- You can remove the old key from Settings → Known Hosts
+
+## Need Help?
+
+- Check the [documentation](/introduction) for detailed guides
+- Report issues on [GitHub](https://github.com/Adelodunpeter25/freessh/issues)
+- Review [common issues](https://github.com/Adelodunpeter25/freessh/issues?q=label%3Aquestion)
