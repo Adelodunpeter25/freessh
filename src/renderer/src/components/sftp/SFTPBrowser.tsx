@@ -29,7 +29,11 @@ export function SFTPBrowser() {
 
   useEffect(() => {
     if (sessionId) {
-      sftp.listFiles("/");
+      const initRemote = async () => {
+        const homeDir = await sftp.getHomeDir()
+        sftp.listFiles(homeDir)
+      }
+      initRemote()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionId]);

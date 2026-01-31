@@ -24,16 +24,6 @@
 
 ---
 
-## Export/Import Additional Formats
-
-**Current Status:** ✅ FreeSSH native format implemented
-
-**Planned formats:**
-- OpenSSH config format (~/.ssh/config) - import/export
-- PuTTY session format (.reg) - import only
-
----
-
 ## Completed Features
 
 ### Authentication ✅

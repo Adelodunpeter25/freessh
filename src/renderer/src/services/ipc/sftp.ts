@@ -260,5 +260,27 @@ export const sftpService = {
         data: { path, mode }
       })
     })
+  },
+
+  getHomeDir(sessionId: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const handler = (message: IPCMessage) => {
+        if (message.session_id === sessionId && message.type === 'sftp:homedir') {
+          backendService.off('sftp:homedir')
+          resolve(message.data.path)
+        } else if (message.type === 'error') {
+          backendService.off('error')
+          reject(new Error(message.data.error))
+        }
+      }
+
+      backendService.on('sftp:homedir', handler)
+      backendService.on('error', handler)
+
+      backendService.send({
+        type: 'sftp:homedir',
+        session_id: sessionId
+      })
+    })
   }
 }

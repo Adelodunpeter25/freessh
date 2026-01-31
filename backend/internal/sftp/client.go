@@ -58,3 +58,10 @@ func (c *Client) checkConnection() bool {
 func (c *Client) GetClient() *sftp.Client {
 	return c.sftpClient
 }
+
+func (c *Client) GetHomeDir() (string, error) {
+	if !c.IsConnected() {
+		return "", fmt.Errorf("SFTP not connected")
+	}
+	return c.sftpClient.Getwd()
+}

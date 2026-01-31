@@ -8,7 +8,20 @@ export const useSFTP = (sessionId: string | null) => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [currentPath, setCurrentPath] = useState('/')
+  const [homeDir, setHomeDir] = useState<string | null>(null)
   const [transfers, setTransfers] = useState<Map<string, TransferProgress>>(new Map())
+
+  const getHomeDir = useCallback(async () => {
+    if (!sessionId) return '/'
+    try {
+      const dir = await sftpService.getHomeDir(sessionId)
+      setHomeDir(dir)
+      return dir
+    } catch (err) {
+      console.error('Failed to get home directory:', err)
+      return '/'
+    }
+  }, [sessionId])
 
   const listFiles = useCallback(async (path: string) => {
     if (!sessionId) return
@@ -253,7 +266,9 @@ export const useSFTP = (sessionId: string | null) => {
     loading,
     error,
     currentPath,
+    homeDir,
     transfers: Array.from(transfers.values()),
+    getHomeDir,
     listFiles,
     listPath,
     upload,

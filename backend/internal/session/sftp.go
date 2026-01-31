@@ -247,3 +247,18 @@ func (m *Manager) Chmod(sessionID, path string, mode uint32) error {
 	}
 	return client.Chmod(path, mode)
 }
+
+func (m *Manager) GetHomeDir(sessionID string) (string, error) {
+	session, err := m.GetSession(sessionID)
+	if err != nil {
+		return "", err
+	}
+
+	if !session.SFTPClient.IsConnected() {
+		if err := session.SFTPClient.Connect(); err != nil {
+			return "", err
+		}
+	}
+
+	return session.SFTPClient.GetHomeDir()
+}

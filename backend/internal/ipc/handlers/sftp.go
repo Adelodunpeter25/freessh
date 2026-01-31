@@ -22,7 +22,7 @@ func (h *SFTPHandler) CanHandle(msgType models.MessageType) bool {
 	case models.MsgSFTPList, models.MsgSFTPUpload, models.MsgSFTPDownload,
 		models.MsgSFTPDelete, models.MsgSFTPMkdir, models.MsgSFTPRename, 
 		models.MsgSFTPCancel, models.MsgSFTPReadFile, models.MsgSFTPWriteFile,
-		models.MsgSFTPChmod:
+		models.MsgSFTPChmod, models.MsgSFTPHomeDir:
 		return true
 	}
 	return false
@@ -50,6 +50,8 @@ func (h *SFTPHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) erro
 		return h.handleWriteFile(msg, writer)
 	case models.MsgSFTPChmod:
 		return h.handleChmod(msg, writer)
+	case models.MsgSFTPHomeDir:
+		return h.handleHomeDir(msg, writer)
 	default:
 		return fmt.Errorf("unsupported message type: %s", msg.Type)
 	}
@@ -304,5 +306,18 @@ func (h *SFTPHandler) handleChmod(msg *models.IPCMessage, writer ResponseWriter)
 		Type:      models.MsgSFTPChmod,
 		SessionID: msg.SessionID,
 		Data:      map[string]interface{}{"status": "changed", "path": req.Path, "mode": req.Mode},
+	})
+}
+
+func (h *SFTPHandler) handleHomeDir(msg *models.IPCMessage, writer ResponseWriter) error {
+	homeDir, err := h.manager.GetHomeDir(msg.SessionID)
+	if err != nil {
+		return err
+	}
+
+	return writer.WriteMessage(&models.IPCMessage{
+		Type:      models.MsgSFTPHomeDir,
+		SessionID: msg.SessionID,
+		Data:      map[string]interface{}{"path": homeDir},
 	})
 }
