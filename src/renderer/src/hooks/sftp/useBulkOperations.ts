@@ -51,10 +51,12 @@ export const useBulkOperations = (sessionId: string | null, currentPath: string,
       } else {
         toast.warning(`Downloaded ${successCount}, failed ${failCount}`, { id: toastId })
       }
+
+      if (onComplete) onComplete()
     } catch (err) {
       toast.error('Bulk download failed', { id: toastId })
     }
-  }, [sessionId, currentPath])
+  }, [sessionId, currentPath, onComplete])
 
   const bulkUpload = useCallback(async (localPaths: string[], remoteDir: string) => {
     if (!sessionId || localPaths.length === 0) return
@@ -77,10 +79,12 @@ export const useBulkOperations = (sessionId: string | null, currentPath: string,
       } else {
         toast.warning(`Uploaded ${successCount}, failed ${failCount}`, { id: toastId })
       }
+
+      if (onComplete) onComplete()
     } catch (err) {
       toast.error('Bulk upload failed', { id: toastId })
     }
-  }, [sessionId])
+  }, [sessionId, onComplete])
 
   return {
     bulkDelete,
