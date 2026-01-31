@@ -35,7 +35,13 @@ func (c *Client) Upload(localPath, remotePath string, progress ProgressCallback,
 	}
 	defer remoteFile.Close()
 
-	buf := make([]byte, 128*1024)
+	// Dynamic buffer size based on file size
+	bufSize := 256 * 1024 // 256KB default
+	if stat.Size() > 100*1024*1024 { // >100MB
+		bufSize = 1024 * 1024 // 1MB
+	}
+
+	buf := make([]byte, bufSize)
 	var transferred int64
 	var lastReported int64
 	const reportInterval = 512 * 1024 // Report every 512KB
@@ -102,7 +108,13 @@ func (c *Client) Download(remotePath, localPath string, progress ProgressCallbac
 	}
 	defer localFile.Close()
 
-	buf := make([]byte, 128*1024)
+	// Dynamic buffer size based on file size
+	bufSize := 256 * 1024 // 256KB default
+	if stat.Size() > 100*1024*1024 { // >100MB
+		bufSize = 1024 * 1024 // 1MB
+	}
+
+	buf := make([]byte, bufSize)
 	var transferred int64
 	var lastReported int64
 	const reportInterval = 512 * 1024 // Report every 512KB
