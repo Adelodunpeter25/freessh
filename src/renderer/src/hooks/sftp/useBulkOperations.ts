@@ -35,7 +35,9 @@ export const useBulkOperations = (sessionId: string | null, currentPath: string,
     const toastId = toast.loading(`Downloading ${fileNames.length} item(s)...`)
     
     try {
+      console.log('[BulkDownload] currentPath:', currentPath, 'fileNames:', fileNames)
       const remotePaths = fileNames.map(name => `${currentPath}/${name}`)
+      console.log('[BulkDownload] remotePaths:', remotePaths)
       const results = await bulkSftpService.bulkDownload(sessionId, remotePaths, localDir, (progress) => {
         toast.loading(`Downloading ${progress.completed_items}/${progress.total_items}...`, { id: toastId })
       })
