@@ -11,6 +11,7 @@ export const useSFTPBrowserState = () => {
   const [fileToDelete, setFileToDelete] = useState<{ file: FileInfo; isRemote: boolean } | null>(null);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [bulkDeleteContext, setBulkDeleteContext] = useState<{ count: number; isRemote: boolean } | null>(null);
+  const [showingSelector, setShowingSelector] = useState<'left' | 'right' | null>(null);
 
   const sftp = useSFTP(sessionId);
   const local = useLocalFiles();
@@ -115,6 +116,8 @@ export const useSFTPBrowserState = () => {
     showBulkDeleteConfirm,
     setShowBulkDeleteConfirm,
     bulkDeleteContext,
+    showingSelector,
+    setShowingSelector,
     sftp,
     local,
     remoteMultiSelect,

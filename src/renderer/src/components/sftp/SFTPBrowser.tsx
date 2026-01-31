@@ -82,8 +82,10 @@ export function SFTPBrowser() {
           onRemoteBulkDelete={state.handleBulkDelete}
           onRemoteBulkDownload={state.handleBulkDownload}
           onRemoteClearSelection={state.remoteMultiSelect.clearSelection}
-          onLocalTitleClick={() => console.log('Local title clicked')}
-          onRemoteTitleClick={() => console.log('Remote title clicked')}
+          onLocalTitleClick={() => state.setShowingSelector('left')}
+          onRemoteTitleClick={() => state.setShowingSelector('right')}
+          showingSelector={state.showingSelector}
+          onSelectorClose={() => state.setShowingSelector(null)}
         />
         <SFTPTransferQueue
           transfers={state.sftp.transfers}

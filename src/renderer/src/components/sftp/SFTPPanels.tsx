@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { FilePanel } from "./FilePanel";
 import { RemotePanel } from "./RemotePanel";
 import { BulkActionBar } from "./BulkActionBar";
+import { PanelSelector } from "./PanelSelector";
 import { FilePanelProvider } from "@/contexts/FilePanelContext";
 import { FileInfo } from "@/types";
 
@@ -50,6 +51,8 @@ interface SFTPPanelsProps {
   onRemoteClearSelection: () => void;
   onLocalTitleClick?: () => void;
   onRemoteTitleClick?: () => void;
+  showingSelector?: 'left' | 'right' | null;
+  onSelectorClose?: () => void;
 }
 
 export function SFTPPanels(props: SFTPPanelsProps) {
@@ -95,49 +98,71 @@ export function SFTPPanels(props: SFTPPanelsProps) {
   return (
     <div className="flex flex-1 gap-4 overflow-hidden relative">
       <div className="flex-1 h-full overflow-hidden relative">
-        <FilePanelProvider value={localContextValue}>
-          <FilePanel title="Local" files={props.localFiles} />
-        </FilePanelProvider>
-        {props.localSelectedItems.size > 1 && (
-          <BulkActionBar
-            selectedCount={props.localSelectedItems.size}
-            onDelete={props.onLocalBulkDelete}
-            onDownload={props.onLocalBulkUpload}
-            onClear={props.onLocalClearSelection}
-            actionLabel="Upload"
-          />
+        {props.showingSelector === 'left' ? (
+          <div className="h-full border rounded-lg bg-card">
+            <PanelSelector onSelect={(type, sessionId) => {
+              console.log('Left panel selected:', type, sessionId)
+              props.onSelectorClose?.()
+            }} />
+          </div>
+        ) : (
+          <>
+            <FilePanelProvider value={localContextValue}>
+              <FilePanel title="Local" files={props.localFiles} />
+            </FilePanelProvider>
+            {props.localSelectedItems.size > 1 && (
+              <BulkActionBar
+                selectedCount={props.localSelectedItems.size}
+                onDelete={props.onLocalBulkDelete}
+                onDownload={props.onLocalBulkUpload}
+                onClear={props.onLocalClearSelection}
+                actionLabel="Upload"
+              />
+            )}
+          </>
         )}
       </div>
       <div className="flex-1 h-full overflow-hidden relative">
-        <RemotePanel
-          sessionId={props.sessionId}
-          onSessionChange={props.onSessionChange}
-          files={props.remoteFiles}
-          currentPath={props.remoteCurrentPath}
-          loading={props.remoteLoading}
-          onNavigate={props.onRemoteNavigate}
-          onRefresh={props.onRemoteRefresh}
-          onDelete={props.onRemoteDelete}
-          onRename={props.onRemoteRename}
-          onChmod={props.onRemoteChmod}
-          onMkdir={props.onRemoteMkdir}
-          onDrop={props.onRemoteDrop}
-          onDownloadToTemp={props.onRemoteDownloadToTemp}
-          selectedFile={props.selectedRemote}
-          onSelectFile={props.onSelectRemote}
-          transferActive={props.transferActive}
-          fetchSuggestions={props.onRemoteFetchSuggestions}
-          selectedItems={props.remoteSelectedItems}
-          onItemSelect={props.onRemoteItemSelect}
-          isItemSelected={props.isRemoteItemSelected}
-        />
-        {props.remoteSelectedItems.size > 1 && (
-          <BulkActionBar
-            selectedCount={props.remoteSelectedItems.size}
-            onDelete={props.onRemoteBulkDelete}
-            onDownload={props.onRemoteBulkDownload}
-            onClear={props.onRemoteClearSelection}
-          />
+        {props.showingSelector === 'right' ? (
+          <div className="h-full border rounded-lg bg-card">
+            <PanelSelector onSelect={(type, sessionId) => {
+              console.log('Right panel selected:', type, sessionId)
+              props.onSelectorClose?.()
+            }} />
+          </div>
+        ) : (
+          <>
+            <RemotePanel
+              sessionId={props.sessionId}
+              onSessionChange={props.onSessionChange}
+              files={props.remoteFiles}
+              currentPath={props.remoteCurrentPath}
+              loading={props.remoteLoading}
+              onNavigate={props.onRemoteNavigate}
+              onRefresh={props.onRemoteRefresh}
+              onDelete={props.onRemoteDelete}
+              onRename={props.onRemoteRename}
+              onChmod={props.onRemoteChmod}
+              onMkdir={props.onRemoteMkdir}
+              onDrop={props.onRemoteDrop}
+              onDownloadToTemp={props.onRemoteDownloadToTemp}
+              selectedFile={props.selectedRemote}
+              onSelectFile={props.onSelectRemote}
+              transferActive={props.transferActive}
+              fetchSuggestions={props.onRemoteFetchSuggestions}
+              selectedItems={props.remoteSelectedItems}
+              onItemSelect={props.onRemoteItemSelect}
+              isItemSelected={props.isRemoteItemSelected}
+            />
+            {props.remoteSelectedItems.size > 1 && (
+              <BulkActionBar
+                selectedCount={props.remoteSelectedItems.size}
+                onDelete={props.onRemoteBulkDelete}
+                onDownload={props.onRemoteBulkDownload}
+                onClear={props.onRemoteClearSelection}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
