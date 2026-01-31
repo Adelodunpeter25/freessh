@@ -24,6 +24,8 @@ export function SFTPBrowser() {
   const preview = useFilePreview(sftp.readFile, sftp.writeFile);
   
   const remoteMultiSelect = useMultiSelect(sftp.files);
+  const localMultiSelect = useMultiSelect(local.files);
+  
   const bulkOps = useBulkOperations(sessionId, sftp.currentPath, () => {
     sftp.listFiles(sftp.currentPath)
     remoteMultiSelect.clearSelection()
@@ -104,7 +106,10 @@ export function SFTPBrowser() {
     isRemote: false,
     transferActive,
     fetchSuggestions: local.listPath,
-  }), [local, handleDownloadDrop, selectedLocal, transferActive]);
+    selectedItems: localMultiSelect.selectedItems,
+    onItemSelect: localMultiSelect.handleSelect,
+    isItemSelected: localMultiSelect.isSelected,
+  }), [local, handleDownloadDrop, selectedLocal, transferActive, localMultiSelect]);
 
   const handleBulkDelete = async () => {
     const fileNames = Array.from(remoteMultiSelect.selectedItems)
@@ -119,19 +124,57 @@ export function SFTPBrowser() {
     }
   }
 
+  const handleLocalBulkDelete = async () => {
+    const fileNames = Array.from(localMultiSelect.selectedItems)
+    for (const fileName of fileNames) {
+      const filePath = `${local.currentPath}/${fileName}`
+      try {
+        await local.deleteFile(filePath)
+      } catch (err) {
+        console.error(`Failed to delete ${fileName}:`, err)
+      }
+    }
+    local.refresh()
+    localMultiSelect.clearSelection()
+  }
+
+  const handleLocalBulkUpload = async () => {
+    if (!sessionId) return
+    const fileNames = Array.from(localMultiSelect.selectedItems)
+    for (const fileName of fileNames) {
+      const localPath = `${local.currentPath}/${fileName}`
+      const remotePath = `${sftp.currentPath}/${fileName}`
+      try {
+        await sftp.upload(localPath, remotePath)
+      } catch (err) {
+        console.error(`Failed to upload ${fileName}:`, err)
+      }
+    }
+    localMultiSelect.clearSelection()
+  }
+
   return (
     <FilePreviewProvider value={preview}>
       <div className="flex flex-col h-full gap-4 overflow-hidden">
         <div className="flex flex-1 gap-4 overflow-hidden relative">
-          <div className="flex-1 h-full overflow-hidden">
+          <div className="flex-1 h-full overflow-hidden relative">
             <FilePanelProvider value={localContextValue}>
               <FilePanel
                 title="Local Files"
                 files={local.files}
               />
             </FilePanelProvider>
+            {localMultiSelect.selectedItems.size > 0 && (
+              <BulkActionBar
+                selectedCount={localMultiSelect.selectedItems.size}
+                onDelete={handleLocalBulkDelete}
+                onDownload={handleLocalBulkUpload}
+                onClear={localMultiSelect.clearSelection}
+                actionLabel="Upload"
+              />
+            )}
           </div>
-          <div className="flex-1 h-full overflow-hidden">
+          <div className="flex-1 h-full overflow-hidden relative">
             <RemotePanel
               sessionId={sessionId}
               onSessionChange={setSessionId}
@@ -154,15 +197,15 @@ export function SFTPBrowser() {
               onItemSelect={remoteMultiSelect.handleSelect}
               isItemSelected={remoteMultiSelect.isSelected}
             />
+            {remoteMultiSelect.selectedItems.size > 0 && (
+              <BulkActionBar
+                selectedCount={remoteMultiSelect.selectedItems.size}
+                onDelete={handleBulkDelete}
+                onDownload={handleBulkDownload}
+                onClear={remoteMultiSelect.clearSelection}
+              />
+            )}
           </div>
-          {remoteMultiSelect.selectedItems.size > 0 && (
-            <BulkActionBar
-              selectedCount={remoteMultiSelect.selectedItems.size}
-              onDelete={handleBulkDelete}
-              onDownload={handleBulkDownload}
-              onClear={remoteMultiSelect.clearSelection}
-            />
-          )}
         </div>
         {sftp.transfers.length > 0 && (
           <TransferQueue transfers={sftp.transfers} onCancel={sftp.cancelTransfer} onClearCompleted={sftp.clearCompleted} />
