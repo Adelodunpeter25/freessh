@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { SFTPPanelsV2 } from "./SFTPPanelsV2";
+import { SFTPPanels } from "./SFTPPanels";
 import { SFTPTransferQueue } from "./SFTPTransferQueue";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { useFilePreview } from "@/hooks";
