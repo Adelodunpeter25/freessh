@@ -8,16 +8,13 @@ export const useMultiSelect = <T extends { name: string }>(items: T[]) => {
     const itemName = item.name
 
     if (event.shiftKey && lastSelectedIndex !== null) {
-      // Range selection
+      // Range selection - replace current selection with range
       const start = Math.min(lastSelectedIndex, index)
       const end = Math.max(lastSelectedIndex, index)
       const rangeItems = items.slice(start, end + 1).map(i => i.name)
       
-      setSelectedItems(prev => {
-        const next = new Set(prev)
-        rangeItems.forEach(name => next.add(name))
-        return next
-      })
+      setSelectedItems(new Set(rangeItems))
+      // Don't update lastSelectedIndex on shift - keep the anchor point
     } else if (event.metaKey || event.ctrlKey) {
       // Toggle selection
       setSelectedItems(prev => {
@@ -31,7 +28,7 @@ export const useMultiSelect = <T extends { name: string }>(items: T[]) => {
       })
       setLastSelectedIndex(index)
     } else {
-      // Single selection
+      // Single selection - clear others
       setSelectedItems(new Set([itemName]))
       setLastSelectedIndex(index)
     }
