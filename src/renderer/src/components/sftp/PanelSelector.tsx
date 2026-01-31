@@ -25,7 +25,7 @@ export function PanelSelector({ onSelect, onCancel }: PanelSelectorProps) {
       <div className="flex-1 overflow-auto p-4 space-y-2">
         <button
           onClick={() => onSelect('local')}
-          className="w-full p-4 rounded-lg border border-border bg-card hover:bg-accent hover:scale-[1.02] transition-all cursor-pointer flex items-center gap-4"
+          className="w-full p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors cursor-pointer flex items-center gap-4"
         >
           <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center shrink-0">
             <Home className="w-6 h-6" />
@@ -44,7 +44,7 @@ export function PanelSelector({ onSelect, onCancel }: PanelSelectorProps) {
             <button
               key={connection.id}
               onClick={() => onSelect('remote', connection.id)}
-              className="w-full p-4 rounded-lg border border-border bg-card hover:bg-accent hover:scale-[1.02] transition-all cursor-pointer flex items-center gap-4"
+              className="w-full p-4 rounded-lg border border-border bg-card hover:bg-accent transition-colors cursor-pointer flex items-center gap-4"
             >
               <div className="w-12 h-12 rounded-lg bg-accent flex items-center justify-center shrink-0">
                 <OSIcon className="w-6 h-6" />
