@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useSFTP, useMultiSelect, useBulkOperations } from "@/hooks";
 import { useLocalFiles } from "@/hooks";
 import { FileInfo } from "@/types";
@@ -29,6 +29,19 @@ export const useSFTPBrowserState = () => {
   const local = useLocalFiles();
   const leftLocal = useLocalFiles();
   const rightLocal = useLocalFiles();
+  
+  // Initialize SFTP when session changes
+  useEffect(() => {
+    if (leftSessionId && leftPanelType === 'remote') {
+      leftSftp.listFiles('/')
+    }
+  }, [leftSessionId, leftPanelType])
+  
+  useEffect(() => {
+    if (rightSessionId && rightPanelType === 'remote') {
+      rightSftp.listFiles('/')
+    }
+  }, [rightSessionId, rightPanelType])
   
   const remoteMultiSelect = useMultiSelect();
   const localMultiSelect = useMultiSelect();
