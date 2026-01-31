@@ -1,5 +1,7 @@
-import { Home, Server, X } from "lucide-react"
+import { Home, X } from "lucide-react"
 import { useConnectionStore } from "@/stores/connectionStore"
+import { useOSTypeStore } from "@/stores/osTypeStore"
+import { getOSIcon } from "@/utils/osIcons"
 import { Button } from "@/components/ui/button"
 
 interface PanelSelectorProps {
@@ -9,6 +11,7 @@ interface PanelSelectorProps {
 
 export function PanelSelector({ onSelect, onCancel }: PanelSelectorProps) {
   const connections = useConnectionStore((state) => state.connections)
+  const getOSType = useOSTypeStore((state) => state.getOSType)
 
   return (
     <div className="flex flex-col h-full">
@@ -33,23 +36,28 @@ export function PanelSelector({ onSelect, onCancel }: PanelSelectorProps) {
           </div>
         </button>
 
-        {connections.map((connection) => (
-          <button
-            key={connection.id}
-            onClick={() => onSelect('remote', connection.id)}
-            className="w-full p-4 rounded-lg border border-border bg-card hover:bg-accent hover:scale-[1.02] transition-all cursor-pointer flex items-center gap-4"
-          >
-            <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
-              <Server className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col items-start">
-              <span className="font-medium">{connection.name}</span>
-              <span className="text-sm text-muted-foreground">
-                {connection.host}:{connection.port}
-              </span>
-            </div>
-          </button>
-        ))}
+        {connections.map((connection) => {
+          const osType = getOSType(connection.id)
+          const OSIcon = getOSIcon(osType)
+          
+          return (
+            <button
+              key={connection.id}
+              onClick={() => onSelect('remote', connection.id)}
+              className="w-full p-4 rounded-lg border border-border bg-card hover:bg-accent hover:scale-[1.02] transition-all cursor-pointer flex items-center gap-4"
+            >
+              <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
+                <OSIcon className="w-5 h-5" />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="font-medium">{connection.name}</span>
+                <span className="text-sm text-muted-foreground">
+                  {connection.host}:{connection.port}
+                </span>
+              </div>
+            </button>
+          )
+        })}
 
         {connections.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-8">
