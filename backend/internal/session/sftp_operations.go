@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	activeTransfers = make(map[string]chan struct{})
-	transfersMu     sync.Mutex
+	activeTransfers       = make(map[string]chan struct{})
+	activeRemoteTransfers = make(map[string]chan struct{})
+	transfersMu           sync.Mutex
 )
 
 func (m *Manager) ensureSFTP(sessionID string) (*sftp.Client, error) {

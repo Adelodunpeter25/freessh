@@ -51,6 +51,7 @@ const (
 	MsgRemoteTransfer     MessageType = "remote:transfer"
 	MsgBulkRemoteTransfer MessageType = "bulk:remote:transfer"
 	MsgRemoteProgress     MessageType = "remote:progress"
+	MsgRemoteCancel       MessageType = "remote:cancel"
 
 	// Port forwarding messages
 	MsgPortForwardCreate MessageType = "portforward:create"

@@ -11,7 +11,7 @@ func (m *Manager) RemoteTransfer(
 	sourcePath string,
 	destPath string,
 	progress func(transferred, total int64),
-	cancel <-chan struct{},
+	transferID string,
 ) error {
 	sourceClient, err := m.GetSFTPClient(sourceSessionID)
 	if err != nil {
@@ -23,6 +23,18 @@ func (m *Manager) RemoteTransfer(
 		return fmt.Errorf("failed to get destination SFTP client: %w", err)
 	}
 
+	cancel := make(chan struct{})
+
+	transfersMu.Lock()
+	activeRemoteTransfers[transferID] = cancel
+	transfersMu.Unlock()
+
+	defer func() {
+		transfersMu.Lock()
+		delete(activeRemoteTransfers, transferID)
+		transfersMu.Unlock()
+	}()
+
 	return remote.Transfer(sourceClient.GetClient(), destClient.GetClient(), sourcePath, destPath, progress, cancel)
 }
 
@@ -32,7 +44,7 @@ func (m *Manager) BulkRemoteTransfer(
 	sourcePaths []string,
 	destDir string,
 	progress remote.ProgressCallback,
-	cancel <-chan struct{},
+	transferID string,
 ) []remote.RemoteTransferResult {
 	sourceClient, err := m.GetSFTPClient(sourceSessionID)
 	if err != nil {
@@ -50,5 +62,29 @@ func (m *Manager) BulkRemoteTransfer(
 		}}
 	}
 
+	cancel := make(chan struct{})
+
+	transfersMu.Lock()
+	activeRemoteTransfers[transferID] = cancel
+	transfersMu.Unlock()
+
+	defer func() {
+		transfersMu.Lock()
+		delete(activeRemoteTransfers, transferID)
+		transfersMu.Unlock()
+	}()
+
 	return remote.BulkTransfer(sourceClient.GetClient(), destClient.GetClient(), sourcePaths, destDir, progress, cancel)
+}
+
+func (m *Manager) CancelRemoteTransfer(transferID string) bool {
+	transfersMu.Lock()
+	defer transfersMu.Unlock()
+
+	if cancel, ok := activeRemoteTransfers[transferID]; ok {
+		close(cancel)
+		delete(activeRemoteTransfers, transferID)
+		return true
+	}
+	return false
 }
