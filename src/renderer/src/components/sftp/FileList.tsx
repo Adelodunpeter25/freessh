@@ -14,7 +14,7 @@ interface FileListProps {
   onOpenFile: (file: FileInfo) => void;
   onNewFolder: () => void;
   selectedItems?: Set<string>;
-  onItemSelect?: (file: FileInfo, index: number, event: React.MouseEvent) => void;
+  onItemSelect?: (items: FileInfo[], file: FileInfo, index: number, event: React.MouseEvent) => void;
   isItemSelected?: (fileName: string) => boolean;
 }
 
@@ -86,7 +86,7 @@ export function FileList({
               onChmod={(mode) => onChmod(file.path, mode)}
               draggable
               onDragStart={(e) => handleDragStart(file, e)}
-              onClick={(e) => onItemSelect?.(file, index, e)}
+              onClick={(e) => onItemSelect?.(sortedFiles, file, index, e)}
               formattedDate={file._formattedDate}
               formattedPerms={file._formattedPerms}
               formattedSize={file._formattedSize}

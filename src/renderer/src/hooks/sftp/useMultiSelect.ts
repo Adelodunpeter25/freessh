@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react'
 
-export const useMultiSelect = <T extends { name: string }>(items: T[]) => {
+export const useMultiSelect = () => {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [lastSelectedIndex, setLastSelectedIndex] = useState<number | null>(null)
 
-  const handleSelect = useCallback((item: T, index: number, event: React.MouseEvent) => {
+  const handleSelect = useCallback((items: { name: string }[], item: { name: string }, index: number, event: React.MouseEvent) => {
     const itemName = item.name
 
     if (event.shiftKey && lastSelectedIndex !== null) {
@@ -32,7 +32,7 @@ export const useMultiSelect = <T extends { name: string }>(items: T[]) => {
       setSelectedItems(new Set([itemName]))
       setLastSelectedIndex(index)
     }
-  }, [items, lastSelectedIndex])
+  }, [lastSelectedIndex])
 
   const clearSelection = useCallback(() => {
     setSelectedItems(new Set())

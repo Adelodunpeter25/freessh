@@ -27,7 +27,7 @@ interface RemotePanelProps {
   fetchSuggestions: (path: string) => Promise<FileInfo[]>;
   onDownloadToTemp?: (remotePath: string, filename: string) => Promise<string>;
   selectedItems?: Set<string>;
-  onItemSelect?: (file: FileInfo, index: number, event: React.MouseEvent) => void;
+  onItemSelect?: (items: FileInfo[], file: FileInfo, index: number, event: React.MouseEvent) => void;
   isItemSelected?: (fileName: string) => boolean;
 }
 

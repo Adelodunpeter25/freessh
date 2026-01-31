@@ -23,8 +23,8 @@ export function SFTPBrowser() {
   const local = useLocalFiles();
   const preview = useFilePreview(sftp.readFile, sftp.writeFile);
   
-  const remoteMultiSelect = useMultiSelect(sftp.files);
-  const localMultiSelect = useMultiSelect(local.files);
+  const remoteMultiSelect = useMultiSelect();
+  const localMultiSelect = useMultiSelect();
   
   const bulkOps = useBulkOperations(sessionId, sftp.currentPath, () => {
     sftp.listFiles(sftp.currentPath)
