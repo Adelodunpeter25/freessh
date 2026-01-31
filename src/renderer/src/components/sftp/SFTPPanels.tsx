@@ -202,7 +202,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
   return (
     <div className="flex flex-1 gap-4 overflow-hidden relative">
       <div className="flex-1 h-full overflow-hidden relative">
-        {props.showingSelector === 'left' ? (
+        {props.showingSelector === 'left' || (props.leftPanelType === 'remote' && !props.leftSessionId) ? (
           <div className="h-full border rounded-lg bg-card">
             <PanelSelector 
               onSelect={(type, connectionId) => props.onPanelSelect('left', type, connectionId)}
@@ -255,7 +255,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
       </div>
 
       <div className="flex-1 h-full overflow-hidden relative">
-        {props.showingSelector === 'right' ? (
+        {props.showingSelector === 'right' || (props.rightPanelType === 'remote' && !props.rightSessionId) ? (
           <div className="h-full border rounded-lg bg-card">
             <PanelSelector 
               onSelect={(type, connectionId) => props.onPanelSelect('right', type, connectionId)}
