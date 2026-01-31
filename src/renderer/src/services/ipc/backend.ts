@@ -30,9 +30,9 @@ class BackendService {
         return
       }
 
-      // For session_status, error, and SFTP messages, fall back to global handler
+      // For session_status, error, SFTP, and bulk messages, fall back to global handler
       // These are used during connection establishment or are request-response patterns
-      if (message.type === 'session_status' || message.type === 'error' || message.type.startsWith('sftp:')) {
+      if (message.type === 'session_status' || message.type === 'error' || message.type.startsWith('sftp:') || message.type.startsWith('bulk:')) {
         const globalHandler = this.messageHandlers.get(message.type)
         if (globalHandler) {
           globalHandler(message)
