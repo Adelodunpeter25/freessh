@@ -22,8 +22,10 @@ export const bulkSftpService = {
     onProgress?: (progress: BulkProgress) => void
   ): Promise<BulkResult[]> {
     return new Promise((resolve, reject) => {
+      let progressHandler: ((message: IPCMessage) => void) | null = null
+      
       if (onProgress) {
-        const progressHandler = (message: IPCMessage) => {
+        progressHandler = (message: IPCMessage) => {
           if (message.session_id === sessionId && message.type === 'bulk:progress') {
             onProgress(message.data as BulkProgress)
           }
@@ -31,14 +33,20 @@ export const bulkSftpService = {
         backendService.on('bulk:progress', progressHandler)
       }
 
+      const cleanup = () => {
+        backendService.off('bulk:download')
+        backendService.off('error')
+        if (progressHandler) {
+          backendService.off('bulk:progress')
+        }
+      }
+
       const handler = (message: IPCMessage) => {
         if (message.session_id === sessionId && message.type === 'bulk:download') {
-          backendService.off('bulk:download')
-          backendService.off('bulk:progress')
+          cleanup()
           resolve(message.data as BulkResult[])
-        } else if (message.type === 'error') {
-          backendService.off('error')
-          backendService.off('bulk:progress')
+        } else if (message.type === 'error' && message.session_id === sessionId) {
+          cleanup()
           reject(new Error(message.data.error))
         }
       }
@@ -64,8 +72,10 @@ export const bulkSftpService = {
     onProgress?: (progress: BulkProgress) => void
   ): Promise<BulkResult[]> {
     return new Promise((resolve, reject) => {
+      let progressHandler: ((message: IPCMessage) => void) | null = null
+      
       if (onProgress) {
-        const progressHandler = (message: IPCMessage) => {
+        progressHandler = (message: IPCMessage) => {
           if (message.session_id === sessionId && message.type === 'bulk:progress') {
             onProgress(message.data as BulkProgress)
           }
@@ -73,14 +83,20 @@ export const bulkSftpService = {
         backendService.on('bulk:progress', progressHandler)
       }
 
+      const cleanup = () => {
+        backendService.off('bulk:upload')
+        backendService.off('error')
+        if (progressHandler) {
+          backendService.off('bulk:progress')
+        }
+      }
+
       const handler = (message: IPCMessage) => {
         if (message.session_id === sessionId && message.type === 'bulk:upload') {
-          backendService.off('bulk:upload')
-          backendService.off('bulk:progress')
+          cleanup()
           resolve(message.data as BulkResult[])
-        } else if (message.type === 'error') {
-          backendService.off('error')
-          backendService.off('bulk:progress')
+        } else if (message.type === 'error' && message.session_id === sessionId) {
+          cleanup()
           reject(new Error(message.data.error))
         }
       }

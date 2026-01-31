@@ -18,7 +18,7 @@
 - Verify file integrity after transfer (checksums)
 
 ### SFTP Browser Enhancements
-- Bulk operations (select multiple files for delete/download)
+- Bulk operations (select multiple files for delete/download) ✅
 - File preview for more types (PDFs, videos)
 - Drag and drop between two remote panels
 
