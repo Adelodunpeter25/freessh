@@ -96,7 +96,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     <div className="flex flex-1 gap-4 overflow-hidden relative">
       <div className="flex-1 h-full overflow-hidden relative">
         <FilePanelProvider value={localContextValue}>
-          <FilePanel title="Local Files" files={props.localFiles} />
+          <FilePanel title="Local" files={props.localFiles} />
         </FilePanelProvider>
         {props.localSelectedItems.size > 1 && (
           <BulkActionBar

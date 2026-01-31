@@ -95,7 +95,7 @@ export function RemotePanel({
   return (
     <FilePanelProvider value={contextValue}>
       <FilePanel
-        title={`Remote Server: ${connectedConnection?.name || ""}`}
+        title={`Remote: ${connectedConnection?.name || ""}`}
         files={files}
       />
     </FilePanelProvider>
