@@ -76,6 +76,7 @@ export const FileItem = memo(function FileItem({
         }`}
         onClick={(e) => {
           onClick?.(e)
+          // Only call onSelect for non-modifier clicks (for preview/context menu)
           if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
             onSelect()
           }
