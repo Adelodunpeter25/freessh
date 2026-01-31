@@ -22,13 +22,11 @@ export const bulkSftpService = {
     onProgress?: (progress: BulkProgress) => void
   ): Promise<BulkResult[]> {
     return new Promise((resolve, reject) => {
-      console.log('[BulkDownload] Starting:', { sessionId, remotePaths, localBaseDir })
       let progressHandler: ((message: IPCMessage) => void) | null = null
       
       if (onProgress) {
         progressHandler = (message: IPCMessage) => {
           if (message.session_id === sessionId && message.type === 'bulk:progress') {
-            console.log('[BulkDownload] Progress:', message.data)
             onProgress(message.data as BulkProgress)
           }
         }
@@ -36,7 +34,6 @@ export const bulkSftpService = {
       }
 
       const cleanup = () => {
-        console.log('[BulkDownload] Cleaning up handlers')
         backendService.off('bulk:download')
         backendService.off('error')
         if (progressHandler) {
@@ -46,11 +43,9 @@ export const bulkSftpService = {
 
       const handler = (message: IPCMessage) => {
         if (message.session_id === sessionId && message.type === 'bulk:download') {
-          console.log('[BulkDownload] Completed:', message.data)
           cleanup()
           resolve(message.data as BulkResult[])
         } else if (message.type === 'error' && message.session_id === sessionId) {
-          console.error('[BulkDownload] Error:', message.data)
           cleanup()
           reject(new Error(message.data.error))
         }
@@ -77,13 +72,11 @@ export const bulkSftpService = {
     onProgress?: (progress: BulkProgress) => void
   ): Promise<BulkResult[]> {
     return new Promise((resolve, reject) => {
-      console.log('[BulkUpload] Starting:', { sessionId, localPaths, remoteBaseDir })
       let progressHandler: ((message: IPCMessage) => void) | null = null
       
       if (onProgress) {
         progressHandler = (message: IPCMessage) => {
           if (message.session_id === sessionId && message.type === 'bulk:progress') {
-            console.log('[BulkUpload] Progress:', message.data)
             onProgress(message.data as BulkProgress)
           }
         }
@@ -91,7 +84,6 @@ export const bulkSftpService = {
       }
 
       const cleanup = () => {
-        console.log('[BulkUpload] Cleaning up handlers')
         backendService.off('bulk:upload')
         backendService.off('error')
         if (progressHandler) {
@@ -101,11 +93,9 @@ export const bulkSftpService = {
 
       const handler = (message: IPCMessage) => {
         if (message.session_id === sessionId && message.type === 'bulk:upload') {
-          console.log('[BulkUpload] Completed:', message.data)
           cleanup()
           resolve(message.data as BulkResult[])
         } else if (message.type === 'error' && message.session_id === sessionId) {
-          console.error('[BulkUpload] Error:', message.data)
           cleanup()
           reject(new Error(message.data.error))
         }

@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
-	"log"
-	"os"
 )
 
 type BulkHandler struct {
@@ -51,11 +49,7 @@ func (h *BulkHandler) handleBulkDownload(msg *models.IPCMessage, writer Response
 		return fmt.Errorf("failed to parse bulk download request: %w", err)
 	}
 
-	log.SetOutput(os.Stderr)
-	log.Printf("[BulkDownload] Starting: sessionID=%s, remotePaths=%v, localBaseDir=%s", msg.SessionID, req.RemotePaths, req.LocalBaseDir)
-
 	results, err := h.manager.BulkDownload(msg.SessionID, req.RemotePaths, req.LocalBaseDir, func(progress models.BulkProgress) {
-		log.Printf("[BulkDownload] Progress: %d/%d", progress.CompletedItems, progress.TotalItems)
 		go writer.WriteMessage(&models.IPCMessage{
 			Type:      models.MsgBulkProgress,
 			SessionID: msg.SessionID,
@@ -64,11 +58,9 @@ func (h *BulkHandler) handleBulkDownload(msg *models.IPCMessage, writer Response
 	})
 
 	if err != nil {
-		log.Printf("[BulkDownload] Error: %v", err)
 		return err
 	}
 
-	log.Printf("[BulkDownload] Completed: %d results", len(results))
 	return writer.WriteMessage(&models.IPCMessage{
 		Type:      models.MsgBulkDownload,
 		SessionID: msg.SessionID,
@@ -87,11 +79,7 @@ func (h *BulkHandler) handleBulkUpload(msg *models.IPCMessage, writer ResponseWr
 		return fmt.Errorf("failed to parse bulk upload request: %w", err)
 	}
 
-	log.SetOutput(os.Stderr)
-	log.Printf("[BulkUpload] Starting: sessionID=%s, localPaths=%v, remoteBaseDir=%s", msg.SessionID, req.LocalPaths, req.RemoteBaseDir)
-
 	results, err := h.manager.BulkUpload(msg.SessionID, req.LocalPaths, req.RemoteBaseDir, func(progress models.BulkProgress) {
-		log.Printf("[BulkUpload] Progress: %d/%d", progress.CompletedItems, progress.TotalItems)
 		go writer.WriteMessage(&models.IPCMessage{
 			Type:      models.MsgBulkProgress,
 			SessionID: msg.SessionID,
@@ -100,11 +88,9 @@ func (h *BulkHandler) handleBulkUpload(msg *models.IPCMessage, writer ResponseWr
 	})
 
 	if err != nil {
-		log.Printf("[BulkUpload] Error: %v", err)
 		return err
 	}
 
-	log.Printf("[BulkUpload] Completed: %d results", len(results))
 	return writer.WriteMessage(&models.IPCMessage{
 		Type:      models.MsgBulkUpload,
 		SessionID: msg.SessionID,
