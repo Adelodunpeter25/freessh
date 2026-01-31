@@ -24,6 +24,7 @@ interface FilePanelHeaderProps {
   onToggleHidden: () => void;
   onNewFolder: (name: string) => void;
   onSelectAll?: () => void;
+  onTitleClick?: () => void;
   fetchSuggestions: (path: string) => Promise<FileInfo[]>;
   children?: ReactNode;
   showNewFolderDialog?: boolean;
@@ -42,6 +43,7 @@ export function FilePanelHeader({
   onToggleHidden,
   onNewFolder,
   onSelectAll,
+  onTitleClick,
   fetchSuggestions,
   children,
   showNewFolderDialog: externalShowNewFolder,
@@ -78,7 +80,12 @@ export function FilePanelHeader({
     <TooltipProvider delayDuration={150}>
       <div className="p-3 border-b">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium">{title}</span>
+          <button
+            onClick={onTitleClick}
+            className="text-sm font-medium hover:bg-accent hover:text-accent-foreground px-2 py-1 rounded border border-transparent hover:border-border transition-colors cursor-pointer"
+          >
+            {title}
+          </button>
           <div className="flex gap-1">
             {children}
             <DropdownMenu>

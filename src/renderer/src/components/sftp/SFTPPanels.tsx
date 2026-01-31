@@ -48,6 +48,8 @@ interface SFTPPanelsProps {
   onRemoteBulkDelete: () => void;
   onRemoteBulkDownload: () => Promise<void>;
   onRemoteClearSelection: () => void;
+  onLocalTitleClick?: () => void;
+  onRemoteTitleClick?: () => void;
 }
 
 export function SFTPPanels(props: SFTPPanelsProps) {
@@ -69,6 +71,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     selectedItems: props.localSelectedItems,
     onItemSelect: props.onLocalItemSelect,
     isItemSelected: props.isLocalItemSelected,
+    onTitleClick: props.onLocalTitleClick,
   }), [
     props.onLocalDelete,
     props.onLocalRename,
@@ -86,6 +89,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     props.localSelectedItems,
     props.onLocalItemSelect,
     props.isLocalItemSelected,
+    props.onLocalTitleClick,
   ]);
 
   return (

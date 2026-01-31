@@ -27,6 +27,7 @@ interface RemotePanelProps {
   selectedItems?: Set<string>;
   onItemSelect?: (items: FileInfo[], file: FileInfo, index: number, event: React.MouseEvent) => void;
   isItemSelected?: (fileName: string) => boolean;
+  onTitleClick?: () => void;
 }
 
 export function RemotePanel({
@@ -50,6 +51,7 @@ export function RemotePanel({
   selectedItems,
   onItemSelect,
   isItemSelected,
+  onTitleClick,
 }: RemotePanelProps) {
   const connections = useConnectionStore((state) => state.connections);
   const [connectedConnectionId, setConnectedConnectionId] = useState<string>("");
@@ -83,7 +85,8 @@ export function RemotePanel({
     selectedItems,
     onItemSelect,
     isItemSelected,
-  }), [onDelete, onRename, onChmod, onMkdir, onNavigate, onRefresh, onDrop, selectedFile, onSelectFile, currentPath, loading, sessionId, transferActive, fetchSuggestions, onDownloadToTemp, selectedItems, onItemSelect, isItemSelected]);
+    onTitleClick,
+  }), [onDelete, onRename, onChmod, onMkdir, onNavigate, onRefresh, onDrop, selectedFile, onSelectFile, currentPath, loading, sessionId, transferActive, fetchSuggestions, onDownloadToTemp, selectedItems, onItemSelect, isItemSelected, onTitleClick]);
 
   if (!sessionId) {
     return <ConnectionSelector onConnect={handleConnect} />;

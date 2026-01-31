@@ -37,6 +37,9 @@ interface FilePanelContextValue {
   
   // Remote file operations
   onDownloadToTemp?: (remotePath: string, filename: string) => Promise<string>
+  
+  // Title click
+  onTitleClick?: () => void
 }
 
 const FilePanelContext = createContext<FilePanelContextValue | null>(null)

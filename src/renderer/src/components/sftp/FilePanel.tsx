@@ -42,6 +42,7 @@ export function FilePanel({
     selectedItems,
     onItemSelect,
     isItemSelected,
+    onTitleClick,
   } = useFilePanelContext();
   const { isDragOver, dragProps } = useDragDrop(onDrop, currentPath);
   const { query, setQuery, filteredFiles, clearSearch, isSearching } = useSearch(files);
@@ -116,6 +117,7 @@ export function FilePanel({
         onGoBack={handleGoBack}
         onToggleHidden={() => setShowHidden(!showHidden)}
         onNewFolder={handleNewFolder}
+        onTitleClick={onTitleClick}
         fetchSuggestions={fetchSuggestions}
         showNewFolderDialog={showNewFolderDialog}
         onShowNewFolderDialogChange={setShowNewFolderDialog}
