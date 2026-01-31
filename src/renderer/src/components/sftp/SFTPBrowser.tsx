@@ -51,6 +51,7 @@ export function SFTPBrowser() {
           onLeftItemSelect={state.leftMultiSelect.handleSelect}
           isLeftItemSelected={state.leftMultiSelect.isSelected}
           onLeftClearSelection={state.leftMultiSelect.clearSelection}
+          leftBulkOps={state.leftBulkOps}
           
           rightPanelType={state.rightPanelType}
           rightSessionId={state.rightSessionId}
@@ -63,6 +64,7 @@ export function SFTPBrowser() {
           onRightItemSelect={state.rightMultiSelect.handleSelect}
           isRightItemSelected={state.rightMultiSelect.isSelected}
           onRightClearSelection={state.rightMultiSelect.clearSelection}
+          rightBulkOps={state.rightBulkOps}
           
           selectedLocal={state.selectedLocal}
           selectedRemote={state.selectedRemote}

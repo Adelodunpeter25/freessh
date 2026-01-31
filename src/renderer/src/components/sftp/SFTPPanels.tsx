@@ -86,6 +86,50 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     onRemoteTransfer: bulkRemoteTransfer
   })
 
+  const handleLeftDrop = useCallback(async (files: FileInfo[], targetPath: string) => {
+    // Remote-to-remote
+    if (leftDragDrop.isRemoteToRemote) {
+      return leftDragDrop.handleDrop(files, targetPath)
+    }
+    // Local-to-remote (upload)
+    if (props.leftPanelType === 'remote' && props.rightPanelType === 'local') {
+      const localPaths = files.map(f => f.path)
+      await props.leftBulkOps.bulkUpload(localPaths, targetPath)
+      props.leftSftp.listFiles(targetPath)
+      return true
+    }
+    // Remote-to-local (download)
+    if (props.leftPanelType === 'local' && props.rightPanelType === 'remote') {
+      const remotePaths = files.map(f => f.path)
+      await props.rightBulkOps.bulkDownload(remotePaths, targetPath)
+      props.leftLocal.refresh()
+      return true
+    }
+    return false
+  }, [leftDragDrop, props.leftPanelType, props.rightPanelType, props.leftBulkOps, props.rightBulkOps, props.leftSftp, props.leftLocal])
+
+  const handleRightDrop = useCallback(async (files: FileInfo[], targetPath: string) => {
+    // Remote-to-remote
+    if (rightDragDrop.isRemoteToRemote) {
+      return rightDragDrop.handleDrop(files, targetPath)
+    }
+    // Local-to-remote (upload)
+    if (props.rightPanelType === 'remote' && props.leftPanelType === 'local') {
+      const localPaths = files.map(f => f.path)
+      await props.rightBulkOps.bulkUpload(localPaths, targetPath)
+      props.rightSftp.listFiles(targetPath)
+      return true
+    }
+    // Remote-to-local (download)
+    if (props.rightPanelType === 'local' && props.leftPanelType === 'remote') {
+      const remotePaths = files.map(f => f.path)
+      await props.leftBulkOps.bulkDownload(remotePaths, targetPath)
+      props.rightLocal.refresh()
+      return true
+    }
+    return false
+  }, [rightDragDrop, props.rightPanelType, props.leftPanelType, props.rightBulkOps, props.leftBulkOps, props.rightSftp, props.rightLocal])
+
   const leftContextValue = useMemo(() => {
     const isRemote = props.leftPanelType === 'remote';
     const handler = isRemote ? props.leftSftp : props.leftLocal;
@@ -97,7 +141,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
       onMkdir: isRemote ? handler.createDirectory : handler.mkdir,
       onNavigate: isRemote ? handler.listFiles : handler.navigate,
       onRefresh: handler.refresh,
-      onDrop: leftDragDrop.isRemoteToRemote ? leftDragDrop.handleDrop : undefined,
+      onDrop: handleLeftDrop,
       selectedFile: props.selectedLocal,
       onSelectFile: props.onSelectLocal,
       currentPath: props.leftCurrentPath,
@@ -126,7 +170,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     props.onLeftItemSelect,
     props.isLeftItemSelected,
     props.onLeftTitleClick,
-    leftDragDrop
+    handleLeftDrop
   ]);
 
   const rightContextValue = useMemo(() => {
@@ -140,7 +184,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
       onMkdir: isRemote ? handler.createDirectory : handler.mkdir,
       onNavigate: isRemote ? handler.listFiles : handler.navigate,
       onRefresh: handler.refresh,
-      onDrop: rightDragDrop.isRemoteToRemote ? rightDragDrop.handleDrop : undefined,
+      onDrop: handleRightDrop,
       selectedFile: props.selectedRemote,
       onSelectFile: props.onSelectRemote,
       currentPath: props.rightCurrentPath,
@@ -169,7 +213,7 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     props.onRightItemSelect,
     props.isRightItemSelected,
     props.onRightTitleClick,
-    rightDragDrop
+    handleRightDrop
   ]);
 
   const leftTitle = props.leftPanelType === 'local' ? 'Local' : 'Remote';
