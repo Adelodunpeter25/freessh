@@ -4,6 +4,8 @@ import { BulkActionBar } from "./BulkActionBar";
 import { PanelSelector } from "./PanelSelector";
 import { FilePanelProvider } from "@/contexts/FilePanelContext";
 import { FileInfo } from "@/types";
+import { isRemoteToRemote } from "@/utils/remoteTransferDetector";
+import { useRemoteTransfer } from "@/hooks";
 
 interface SFTPPanelsProps {
   leftPanelType: 'local' | 'remote';
@@ -47,6 +49,16 @@ interface SFTPPanelsProps {
 }
 
 export function SFTPPanels(props: SFTPPanelsProps) {
+  const { bulkRemoteTransfer } = useRemoteTransfer(() => {
+    // Refresh both panels after remote transfer
+    if (props.leftPanelType === 'remote') {
+      props.leftSftp.listFiles(props.leftCurrentPath)
+    }
+    if (props.rightPanelType === 'remote') {
+      props.rightSftp.listFiles(props.rightCurrentPath)
+    }
+  })
+
   const leftContextValue = useMemo(() => {
     const isRemote = props.leftPanelType === 'remote';
     const handler = isRemote ? props.leftSftp : props.leftLocal;
@@ -165,14 +177,33 @@ export function SFTPPanels(props: SFTPPanelsProps) {
                 }}
                 onDownload={async () => {
                   const items = Array.from(props.leftSelectedItems)
-                  if (props.leftPanelType === 'remote') {
+                  const itemPaths = items.map(name => `${props.leftCurrentPath}/${name}`)
+                  
+                  // Check if both panels are remote
+                  if (isRemoteToRemote(props.leftPanelType, props.rightPanelType)) {
+                    if (props.leftSessionId && props.rightSessionId) {
+                      await bulkRemoteTransfer(
+                        props.leftSessionId,
+                        props.rightSessionId,
+                        itemPaths,
+                        props.rightCurrentPath
+                      )
+                    }
+                  } else if (props.leftPanelType === 'remote') {
                     await props.leftBulkOps.bulkDownload(items, props.rightCurrentPath)
                   } else {
-                    await props.leftBulkOps.bulkUpload(items.map(n => `${props.leftCurrentPath}/${n}`), props.rightCurrentPath)
+                    await props.leftBulkOps.bulkUpload(itemPaths, props.rightCurrentPath)
                   }
+                  props.onLeftClearSelection()
                 }}
                 onClear={props.onLeftClearSelection}
-                actionLabel={props.leftPanelType === 'local' ? 'Upload' : 'Download'}
+                actionLabel={
+                  isRemoteToRemote(props.leftPanelType, props.rightPanelType)
+                    ? 'Transfer'
+                    : props.leftPanelType === 'local'
+                    ? 'Upload'
+                    : 'Download'
+                }
               />
             )}
           </>
@@ -208,14 +239,33 @@ export function SFTPPanels(props: SFTPPanelsProps) {
                 }}
                 onDownload={async () => {
                   const items = Array.from(props.rightSelectedItems)
-                  if (props.rightPanelType === 'remote') {
+                  const itemPaths = items.map(name => `${props.rightCurrentPath}/${name}`)
+                  
+                  // Check if both panels are remote
+                  if (isRemoteToRemote(props.rightPanelType, props.leftPanelType)) {
+                    if (props.rightSessionId && props.leftSessionId) {
+                      await bulkRemoteTransfer(
+                        props.rightSessionId,
+                        props.leftSessionId,
+                        itemPaths,
+                        props.leftCurrentPath
+                      )
+                    }
+                  } else if (props.rightPanelType === 'remote') {
                     await props.rightBulkOps.bulkDownload(items, props.leftCurrentPath)
                   } else {
-                    await props.rightBulkOps.bulkUpload(items.map(n => `${props.rightCurrentPath}/${n}`), props.leftCurrentPath)
+                    await props.rightBulkOps.bulkUpload(itemPaths, props.leftCurrentPath)
                   }
+                  props.onRightClearSelection()
                 }}
                 onClear={props.onRightClearSelection}
-                actionLabel={props.rightPanelType === 'local' ? 'Upload' : 'Download'}
+                actionLabel={
+                  isRemoteToRemote(props.rightPanelType, props.leftPanelType)
+                    ? 'Transfer'
+                    : props.rightPanelType === 'local'
+                    ? 'Upload'
+                    : 'Download'
+                }
               />
             )}
           </>

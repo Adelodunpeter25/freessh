@@ -1,4 +1,4 @@
-import { Download, Upload, Trash2, X } from 'lucide-react'
+import { Download, Upload, Trash2, X, ArrowRightLeft } from 'lucide-react'
 import { Button } from '../ui/button'
 
 interface BulkActionBarProps {
@@ -6,11 +6,11 @@ interface BulkActionBarProps {
   onDelete: () => void
   onDownload: () => void
   onClear: () => void
-  actionLabel?: 'Download' | 'Upload'
+  actionLabel?: 'Download' | 'Upload' | 'Transfer'
 }
 
 export const BulkActionBar = ({ selectedCount, onDelete, onDownload, onClear, actionLabel = 'Download' }: BulkActionBarProps) => {
-  const Icon = actionLabel === 'Upload' ? Upload : Download
+  const Icon = actionLabel === 'Upload' ? Upload : actionLabel === 'Transfer' ? ArrowRightLeft : Download
   
   return (
     <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 bg-background border rounded-lg shadow-lg px-4 py-2 flex items-center gap-3">
