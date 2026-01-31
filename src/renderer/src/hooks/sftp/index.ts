@@ -1,3 +1,5 @@
 export { useSFTP } from './useSFTP'
 export { useLocalFiles } from './useLocalFiles'
 export { useFilePreview } from './useFilePreview'
+export { useMultiSelect } from './useMultiSelect'
+export { useBulkOperations } from './useBulkOperations'
