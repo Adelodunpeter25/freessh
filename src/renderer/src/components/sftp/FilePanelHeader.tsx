@@ -1,5 +1,5 @@
 import { useState, useEffect, ReactNode } from "react";
-import { ArrowLeft, FolderPlus, RefreshCw, Eye, EyeOff, MoreVertical, CheckSquare } from "lucide-react";
+import { ArrowLeft, FolderPlus, RefreshCw, Eye, EyeOff, MoreVertical, CheckSquare, Home, Server } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -25,6 +25,7 @@ interface FilePanelHeaderProps {
   onNewFolder: (name: string) => void;
   onSelectAll?: () => void;
   onTitleClick?: () => void;
+  isRemote?: boolean;
   fetchSuggestions: (path: string) => Promise<FileInfo[]>;
   children?: ReactNode;
   showNewFolderDialog?: boolean;
@@ -44,6 +45,7 @@ export function FilePanelHeader({
   onNewFolder,
   onSelectAll,
   onTitleClick,
+  isRemote = false,
   fetchSuggestions,
   children,
   showNewFolderDialog: externalShowNewFolder,
@@ -82,12 +84,10 @@ export function FilePanelHeader({
         <div className="flex items-center justify-between mb-2">
           <button
             onClick={onTitleClick}
-            className="text-sm font-medium px-3 py-1.5 rounded-md border border-border hover:bg-accent hover:border-accent-foreground/20 transition-all cursor-pointer flex items-center gap-1.5"
+            className="text-sm font-medium px-3 py-1.5 rounded-md border border-border bg-accent hover:scale-105 transition-transform cursor-pointer flex items-center gap-2"
           >
+            {isRemote ? <Server className="w-4 h-4" /> : <Home className="w-4 h-4" />}
             {title}
-            <svg className="w-3 h-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
           </button>
           <div className="flex gap-1">
             {children}

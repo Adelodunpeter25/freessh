@@ -118,6 +118,7 @@ export function FilePanel({
         onToggleHidden={() => setShowHidden(!showHidden)}
         onNewFolder={handleNewFolder}
         onTitleClick={onTitleClick}
+        isRemote={isRemote}
         fetchSuggestions={fetchSuggestions}
         showNewFolderDialog={showNewFolderDialog}
         onShowNewFolderDialogChange={setShowNewFolderDialog}
