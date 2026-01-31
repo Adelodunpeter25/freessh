@@ -53,9 +53,17 @@ export const useFilePreview = (
           setPreviewBlobUrl(`file://${file.path}`)
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to read file:', err)
-      if (toastId) toast.error('Failed to load preview', { id: toastId })
+      const errorMsg = err?.message || String(err)
+      if (errorMsg.includes('too large to preview')) {
+        if (toastId) toast.error('File too large to preview (>5MB)', { id: toastId })
+        else toast.error('File too large to preview (>5MB)')
+      } else {
+        if (toastId) toast.error('Failed to load preview', { id: toastId })
+        else toast.error('Failed to load preview')
+      }
+      setPreviewFile(null)
     } finally {
       setPreviewLoading(false)
     }
