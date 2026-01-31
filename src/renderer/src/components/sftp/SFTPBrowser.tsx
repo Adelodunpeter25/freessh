@@ -18,6 +18,8 @@ export function SFTPBrowser() {
   const [selectedLocal, setSelectedLocal] = useState<FileInfo | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<{ file: FileInfo; isRemote: boolean } | null>(null);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
+  const [bulkDeleteContext, setBulkDeleteContext] = useState<{ count: number; isRemote: boolean } | null>(null);
 
   const sftp = useSFTP(sessionId);
   const local = useLocalFiles();
@@ -111,9 +113,10 @@ export function SFTPBrowser() {
     isItemSelected: localMultiSelect.isSelected,
   }), [local, handleDownloadDrop, selectedLocal, transferActive, localMultiSelect]);
 
-  const handleBulkDelete = async () => {
-    const fileNames = Array.from(remoteMultiSelect.selectedItems)
-    await bulkOps.bulkDelete(fileNames)
+  const handleBulkDelete = () => {
+    const count = remoteMultiSelect.selectedItems.size
+    setBulkDeleteContext({ count, isRemote: true })
+    setShowBulkDeleteConfirm(true)
   }
 
   const handleBulkDownload = async () => {
@@ -122,18 +125,33 @@ export function SFTPBrowser() {
     local.refresh()
   }
 
-  const handleLocalBulkDelete = async () => {
-    const fileNames = Array.from(localMultiSelect.selectedItems)
-    for (const fileName of fileNames) {
-      const filePath = `${local.currentPath}/${fileName}`
-      try {
-        await local.deleteFile(filePath)
-      } catch (err) {
-        console.error(`Failed to delete ${fileName}:`, err)
+  const handleLocalBulkDelete = () => {
+    const count = localMultiSelect.selectedItems.size
+    setBulkDeleteContext({ count, isRemote: false })
+    setShowBulkDeleteConfirm(true)
+  }
+
+  const handleConfirmBulkDelete = async () => {
+    if (!bulkDeleteContext) return
+
+    if (bulkDeleteContext.isRemote) {
+      const fileNames = Array.from(remoteMultiSelect.selectedItems)
+      await bulkOps.bulkDelete(fileNames)
+    } else {
+      const fileNames = Array.from(localMultiSelect.selectedItems)
+      for (const fileName of fileNames) {
+        const filePath = `${local.currentPath}/${fileName}`
+        try {
+          await local.deleteFile(filePath)
+        } catch (err) {
+          console.error(`Failed to delete ${fileName}:`, err)
+        }
       }
+      local.refresh()
+      localMultiSelect.clearSelection()
     }
-    local.refresh()
-    localMultiSelect.clearSelection()
+
+    setBulkDeleteContext(null)
   }
 
   const handleLocalBulkUpload = async () => {
@@ -212,6 +230,15 @@ export function SFTPBrowser() {
         confirmText="Delete"
         destructive
         onConfirm={handleConfirmDelete}
+      />
+      <ConfirmDialog
+        open={showBulkDeleteConfirm}
+        onOpenChange={setShowBulkDeleteConfirm}
+        title="Delete multiple items"
+        description={bulkDeleteContext ? `Are you sure you want to delete ${bulkDeleteContext.count} item(s)? This action cannot be undone.` : ''}
+        confirmText="Delete"
+        destructive
+        onConfirm={handleConfirmBulkDelete}
       />
     </FilePreviewProvider>
   );
