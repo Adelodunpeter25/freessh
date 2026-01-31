@@ -1,21 +1,15 @@
-import { useState, useEffect, useRef, useCallback, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { TitleBar } from "./TitleBar";
 import { MainLayoutSidebar } from "./MainLayoutSidebar";
 import { MainLayoutContent } from "./MainLayoutContent";
-import { KeyboardShortcutsDialog } from "@/components/common/KeyboardShortcutsDialog";
-import { ConfirmDialog } from "@/components/common/ConfirmDialog";
-import { SettingsDialog } from "@/components/settings/SettingsDialog";
-import { ExportImportDialog } from "@/components/export-import";
-import { TerminalSidebar } from "./MainLayoutRoutes";
+import { MainLayoutTerminalSidebar } from "./MainLayoutTerminalSidebar";
+import { MainLayoutDialogs } from "./MainLayoutDialogs";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useSnippetStore } from "@/stores/snippetStore";
 import { useKeyboardShortcuts, useLocalTerminal } from "@/hooks";
 import { useMenuActions } from "@/hooks";
 import { Snippet } from "@/types/snippet";
-import { terminalService } from "@/services/ipc/terminal";
-import { toast } from "sonner";
-import { SnippetForm } from "./MainLayoutRoutes";
 
 type SidebarTab = "connections" | "keys" | "known-hosts" | "port-forward" | "snippets" | "logs" | "settings";
 type MainView = "home" | "sftp" | "terminal";
@@ -67,16 +61,11 @@ export function MainLayout() {
   const handleSessionClick = useCallback(() => setMainView("terminal"), []);
   const handleSidebarTabChange = useCallback((tab: SidebarTab) => setSidebarTab(tab), []);
 
-  // Keyboard shortcuts
   useKeyboardShortcuts({
     onSwitchTab: (index) => {
-      if (index === 0) {
-        handleHomeClick()
-      } else if (index === 1) {
-        handleSFTPClick()
-      } else {
-        handleSessionClick()
-      }
+      if (index === 0) handleHomeClick()
+      else if (index === 1) handleSFTPClick()
+      else handleSessionClick()
     },
     onNewConnection: () => {
       handleHomeClick()
@@ -87,7 +76,6 @@ export function MainLayout() {
     onShowShortcuts: () => setShowShortcuts(true),
   })
 
-  // Menu actions
   useMenuActions({
     onNewConnection: () => {
       handleHomeClick()
@@ -100,10 +88,7 @@ export function MainLayout() {
     },
     onOpenSettings: () => setShowSettings(true),
     onShowShortcuts: () => setShowShortcuts(true),
-    onCheckUpdates: () => {
-      // TODO: Implement update checker
-      console.log('Check for updates')
-    },
+    onCheckUpdates: () => console.log('Check for updates'),
     onExportImport: () => setShowExportImport(true),
   })
 
@@ -120,12 +105,10 @@ export function MainLayout() {
         onSidebarToggle={() => setShowTerminalSettings(!showTerminalSettings)}
       />
 
-      {/* Home view with sidebar */}
       <div className={mainView === "home" ? "flex-1 overflow-hidden" : "hidden"}>
         <MainLayoutSidebar sidebarTab={sidebarTab} onSidebarTabChange={handleSidebarTabChange} />
       </div>
 
-      {/* SFTP and Terminal views */}
       <MainLayoutContent
         mainView={mainView}
         tabs={tabs}
@@ -133,94 +116,54 @@ export function MainLayout() {
         showTerminalSettings={showTerminalSettings}
       />
 
-      {/* Terminal Sidebar */}
-      {showTerminalSettings && mainView === "terminal" && (
-        <Suspense fallback={null}>
-          <TerminalSidebar 
-            onClose={() => setShowTerminalSettings(false)}
-            onPasteSnippet={(command) => {
-              if (activeSessionId) {
-                terminalService.sendInput(activeSessionId, command)
-              } else {
-                toast.error('No active terminal session')
-              }
-            }}
-            onRunSnippet={(command) => {
-              if (activeSessionId) {
-                terminalService.sendInput(activeSessionId, command + '\n')
-              } else {
-                toast.error('No active terminal session')
-              }
-            }}
-            onEditSnippet={(snippet) => {
-              setEditingSnippet(snippet)
-              setShowTerminalSettings(false)
-              setShowSnippetForm(true)
-            }}
-            onDeleteSnippet={(snippet) => {
-              setDeletingSnippet(snippet)
-            }}
-            onNewSnippet={() => {
-              setEditingSnippet(null)
-              setShowTerminalSettings(false)
-              setShowSnippetForm(true)
-            }}
-            activeSessionId={activeSessionId || null}
-          />
-        </Suspense>
-      )}
+      <MainLayoutTerminalSidebar
+        showTerminalSettings={showTerminalSettings}
+        mainView={mainView}
+        activeSessionId={activeSessionId}
+        onClose={() => setShowTerminalSettings(false)}
+        onEditSnippet={(snippet) => {
+          setEditingSnippet(snippet)
+          setShowTerminalSettings(false)
+          setShowSnippetForm(true)
+        }}
+        onDeleteSnippet={(snippet) => setDeletingSnippet(snippet)}
+        onNewSnippet={() => {
+          setEditingSnippet(null)
+          setShowTerminalSettings(false)
+          setShowSnippetForm(true)
+        }}
+      />
 
-      {/* Keyboard Shortcuts Dialog */}
-      <KeyboardShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />
-
-      {/* Settings Dialog */}
-      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
-
-      {/* Export/Import Dialog */}
-      <ExportImportDialog isOpen={showExportImport} onClose={() => setShowExportImport(false)} />
-
-      {/* Snippet Form */}
-      {showSnippetForm && (
-        <Suspense fallback={null}>
-          <SnippetForm
-            isOpen={showSnippetForm}
-            snippet={editingSnippet}
-            onClose={() => {
-              setShowSnippetForm(false)
-              setEditingSnippet(null)
-              setShowTerminalSettings(true)
-            }}
-            onSave={async (data) => {
-              if (editingSnippet) {
-                await updateSnippet({
-                  id: editingSnippet.id,
-                  ...data
-                })
-              } else {
-                await createSnippet(data)
-              }
-              setShowSnippetForm(false)
-              setEditingSnippet(null)
-              setShowTerminalSettings(true)
-            }}
-          />
-        </Suspense>
-      )}
-
-      {/* Delete Snippet Confirm Dialog */}
-      <ConfirmDialog
-        open={!!deletingSnippet}
-        onOpenChange={(open) => !open && setDeletingSnippet(null)}
-        title="Delete Snippet"
-        description={`Are you sure you want to delete "${deletingSnippet?.name}"? This action cannot be undone.`}
-        onConfirm={async () => {
+      <MainLayoutDialogs
+        showShortcuts={showShortcuts}
+        setShowShortcuts={setShowShortcuts}
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        showExportImport={showExportImport}
+        setShowExportImport={setShowExportImport}
+        showSnippetForm={showSnippetForm}
+        setShowSnippetForm={setShowSnippetForm}
+        editingSnippet={editingSnippet}
+        setEditingSnippet={setEditingSnippet}
+        deletingSnippet={deletingSnippet}
+        setDeletingSnippet={setDeletingSnippet}
+        setShowTerminalSettings={setShowTerminalSettings}
+        onSaveSnippet={async (data) => {
+          if (editingSnippet) {
+            await updateSnippet({ id: editingSnippet.id, ...data })
+          } else {
+            await createSnippet(data)
+          }
+          setShowSnippetForm(false)
+          setEditingSnippet(null)
+          setShowTerminalSettings(true)
+        }}
+        onDeleteSnippet={async () => {
           if (deletingSnippet) {
             await deleteSnippet(deletingSnippet.id)
             setDeletingSnippet(null)
           }
         }}
-        confirmText="Delete"
-        destructive
       />
     </div>
   );
