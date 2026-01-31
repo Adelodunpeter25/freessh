@@ -113,6 +113,11 @@ func (c *Client) downloadRecursive(remotePath, localBaseDir string) error {
 		return fmt.Errorf("failed to read directory %s: %w", remotePath, err)
 	}
 
+	// Empty directory - done
+	if len(entries) == 0 {
+		return nil
+	}
+
 	// Download all entries
 	for _, entry := range entries {
 		remoteEntryPath := filepath.Join(remotePath, entry.Name())
@@ -241,6 +246,11 @@ func (c *Client) uploadRecursive(localPath, remoteBaseDir string) error {
 	entries, err := os.ReadDir(localPath)
 	if err != nil {
 		return fmt.Errorf("failed to read directory %s: %w", localPath, err)
+	}
+
+	// Empty directory - done
+	if len(entries) == 0 {
+		return nil
 	}
 
 	// Upload all entries

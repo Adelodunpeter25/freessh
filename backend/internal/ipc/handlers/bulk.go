@@ -50,7 +50,7 @@ func (h *BulkHandler) handleBulkDownload(msg *models.IPCMessage, writer Response
 	}
 
 	results, err := h.manager.BulkDownload(msg.SessionID, req.RemotePaths, req.LocalBaseDir, func(progress models.BulkProgress) {
-		writer.WriteMessage(&models.IPCMessage{
+		go writer.WriteMessage(&models.IPCMessage{
 			Type:      models.MsgBulkProgress,
 			SessionID: msg.SessionID,
 			Data:      progress,
@@ -80,7 +80,7 @@ func (h *BulkHandler) handleBulkUpload(msg *models.IPCMessage, writer ResponseWr
 	}
 
 	results, err := h.manager.BulkUpload(msg.SessionID, req.LocalPaths, req.RemoteBaseDir, func(progress models.BulkProgress) {
-		writer.WriteMessage(&models.IPCMessage{
+		go writer.WriteMessage(&models.IPCMessage{
 			Type:      models.MsgBulkProgress,
 			SessionID: msg.SessionID,
 			Data:      progress,
@@ -110,7 +110,7 @@ func (h *BulkHandler) handleBulkDelete(msg *models.IPCMessage, writer ResponseWr
 	}
 
 	results, err := h.manager.BulkDelete(msg.SessionID, req.RemotePaths, func(progress models.BulkProgress) {
-		writer.WriteMessage(&models.IPCMessage{
+		go writer.WriteMessage(&models.IPCMessage{
 			Type:      models.MsgBulkProgress,
 			SessionID: msg.SessionID,
 			Data:      progress,
