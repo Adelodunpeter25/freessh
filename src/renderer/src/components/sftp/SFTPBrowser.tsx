@@ -139,28 +139,9 @@ export function SFTPBrowser() {
   const handleLocalBulkUpload = async () => {
     if (!sessionId) return
     const fileNames = Array.from(localMultiSelect.selectedItems)
-    const toastId = toast.loading(`Uploading ${fileNames.length} file(s)...`)
-    let successCount = 0
-    let failCount = 0
-
-    for (const fileName of fileNames) {
-      const localPath = `${local.currentPath}/${fileName}`
-      const remotePath = `${sftp.currentPath}/${fileName}`
-      try {
-        await sftp.upload(localPath, remotePath)
-        successCount++
-      } catch (err) {
-        console.error(`Failed to upload ${fileName}:`, err)
-        failCount++
-      }
-    }
-
-    if (failCount === 0) {
-      toast.success(`Uploaded ${successCount} file(s)`, { id: toastId })
-    } else {
-      toast.warning(`Uploaded ${successCount}, failed ${failCount}`, { id: toastId })
-    }
-
+    const localPaths = fileNames.map(name => `${local.currentPath}/${name}`)
+    
+    await bulkOps.bulkUpload(localPaths, sftp.currentPath)
     await sftp.listFiles(sftp.currentPath)
     localMultiSelect.clearSelection()
   }
