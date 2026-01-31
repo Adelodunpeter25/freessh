@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { ITheme } from 'xterm'
-import { terminalThemePresets } from '@/utils/terminalThemePresets'
+import { terminalThemePresets } from '@/utils/terminalThemes'
 
 interface TerminalThemeStore {
   themeName: string

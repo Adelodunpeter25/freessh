@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ChevronRight } from 'lucide-react'
 import { useTerminalThemeStore } from '@/stores/terminalThemeStore'
-import { terminalThemePresets } from '@/utils/terminalThemePresets'
+import { terminalThemePresets } from '@/utils/terminalThemes'
 import { TerminalFontSettings } from './TerminalFontSettings'
 import { cn } from '@/lib/utils'
 
