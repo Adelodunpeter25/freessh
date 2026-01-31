@@ -3,13 +3,17 @@ import { FileInfo, TransferProgress, IPCMessage } from '../../types'
 
 export const sftpService = {
   list(sessionId: string, path: string): Promise<FileInfo[]> {
+    console.log('[sftpService] list called, sessionId:', sessionId, 'path:', path)
     return new Promise((resolve, reject) => {
       const handler = (message: IPCMessage) => {
+        console.log('[sftpService] list handler received message:', message.type, message)
         if (message.session_id === sessionId && message.type === 'sftp:list') {
           backendService.off('sftp:list')
+          console.log('[sftpService] list resolving with files:', message.data)
           resolve(message.data as FileInfo[])
         } else if (message.type === 'error') {
           backendService.off('error')
+          console.error('[sftpService] list error:', message.data.error)
           reject(new Error(message.data.error))
         }
       }
@@ -17,6 +21,7 @@ export const sftpService = {
       backendService.on('sftp:list', handler)
       backendService.on('error', handler)
 
+      console.log('[sftpService] list sending message')
       backendService.send({
         type: 'sftp:list',
         session_id: sessionId,
@@ -263,13 +268,17 @@ export const sftpService = {
   },
 
   getHomeDir(sessionId: string): Promise<string> {
+    console.log('[sftpService] getHomeDir called, sessionId:', sessionId)
     return new Promise((resolve, reject) => {
       const handler = (message: IPCMessage) => {
+        console.log('[sftpService] getHomeDir handler received message:', message.type, message)
         if (message.session_id === sessionId && message.type === 'sftp:homedir') {
           backendService.off('sftp:homedir')
+          console.log('[sftpService] getHomeDir resolving with path:', message.data.path)
           resolve(message.data.path)
         } else if (message.type === 'error') {
           backendService.off('error')
+          console.error('[sftpService] getHomeDir error:', message.data.error)
           reject(new Error(message.data.error))
         }
       }
@@ -277,6 +286,7 @@ export const sftpService = {
       backendService.on('sftp:homedir', handler)
       backendService.on('error', handler)
 
+      console.log('[sftpService] getHomeDir sending message')
       backendService.send({
         type: 'sftp:homedir',
         session_id: sessionId

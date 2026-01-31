@@ -12,29 +12,36 @@ export const useSFTP = (sessionId: string | null) => {
   const [transfers, setTransfers] = useState<Map<string, TransferProgress>>(new Map())
 
   const getHomeDir = useCallback(async () => {
+    console.log('[useSFTP] getHomeDir called, sessionId:', sessionId)
     if (!sessionId) return '/'
     try {
+      console.log('[useSFTP] Calling sftpService.getHomeDir')
       const dir = await sftpService.getHomeDir(sessionId)
+      console.log('[useSFTP] Got home directory:', dir)
       setHomeDir(dir)
       return dir
     } catch (err) {
-      console.error('Failed to get home directory:', err)
+      console.error('[useSFTP] Failed to get home directory:', err)
       return '/'
     }
   }, [sessionId])
 
   const listFiles = useCallback(async (path: string) => {
+    console.log('[useSFTP] listFiles called, path:', path, 'sessionId:', sessionId)
     if (!sessionId) return
 
     setLoading(true)
     setError(null)
     
     try {
+      console.log('[useSFTP] Calling sftpService.list')
       const data = await sftpService.list(sessionId, path)
+      console.log('[useSFTP] Got files:', data.length)
       setFiles(data)
       setCurrentPath(path)
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to list files'
+      console.error('[useSFTP] List files error:', errorMessage)
       setError(errorMessage)
     } finally {
       setLoading(false)

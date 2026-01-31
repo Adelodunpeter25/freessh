@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
+	"os"
 )
 
 type SFTPHandler struct {
@@ -310,11 +311,14 @@ func (h *SFTPHandler) handleChmod(msg *models.IPCMessage, writer ResponseWriter)
 }
 
 func (h *SFTPHandler) handleHomeDir(msg *models.IPCMessage, writer ResponseWriter) error {
+	fmt.Fprintf(os.Stderr, "[SFTP] handleHomeDir called for session: %s\n", msg.SessionID)
 	homeDir, err := h.manager.GetHomeDir(msg.SessionID)
 	if err != nil {
+		fmt.Fprintf(os.Stderr, "[SFTP] handleHomeDir error: %v\n", err)
 		return err
 	}
 
+	fmt.Fprintf(os.Stderr, "[SFTP] handleHomeDir returning path: %s\n", homeDir)
 	return writer.WriteMessage(&models.IPCMessage{
 		Type:      models.MsgSFTPHomeDir,
 		SessionID: msg.SessionID,
