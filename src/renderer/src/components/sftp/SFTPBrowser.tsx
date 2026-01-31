@@ -48,21 +48,16 @@ export function SFTPBrowser() {
   }, [sessionId]);
 
   const handleUploadDrop = useCallback(async (files: FileInfo[], targetPath: string) => {
-    for (const file of files) {
-      if (file.is_dir) continue;
-      const remotePath = targetPath === "/" ? `/${file.name}` : `${targetPath}/${file.name}`;
-      await sftp.upload(file.path, remotePath);
-    }
-  }, [sftp.upload]);
+    const localPaths = files.map(f => f.path)
+    await bulkOps.bulkUpload(localPaths, targetPath)
+    await sftp.listFiles(targetPath)
+  }, [bulkOps, sftp])
 
   const handleDownloadDrop = useCallback(async (files: FileInfo[], targetPath: string) => {
-    for (const file of files) {
-      if (file.is_dir) continue;
-      const localPath = `${targetPath}/${file.name}`;
-      await sftp.download(file.path, localPath);
-      local.refresh();
-    }
-  }, [sftp.download, local.refresh]);
+    const remotePaths = files.map(f => f.path)
+    await bulkOps.bulkDownload(remotePaths, targetPath)
+    local.refresh()
+  }, [bulkOps, local])
 
   // SFTP keyboard shortcuts
   useKeyboardShortcuts({
