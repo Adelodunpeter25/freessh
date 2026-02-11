@@ -52,6 +52,7 @@ export function ConnectionsPage() {
     searchQuery,
     groupHandlers.selectedGroup
   )
+  const showStandaloneConnections = !groupHandlers.loading && groupHandlers.groups.length === 0
 
   const contextValue = useMemo(
     () => ({
@@ -131,7 +132,7 @@ export function ConnectionsPage() {
             onDeleteGroup={groupHandlers.handleDeleteGroup}
             onOpenGroup={groupHandlers.handleOpenGroup}
           />
-          {groupHandlers.groups.length === 0 && (
+          {showStandaloneConnections && (
             <div className="flex-1 overflow-hidden flex flex-col">
               <div className="px-4 py-3 border-b bg-background/95">
                 <div className="flex items-center gap-2">
