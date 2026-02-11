@@ -7,6 +7,7 @@ import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { FileInfo } from "@/types";
 import { isRemoteToRemote } from "@/utils/remoteTransferDetector";
 import { useRemoteTransfer, useRemoteDragDrop } from "@/hooks";
+import { useSessionStore } from "@/stores/sessionStore";
 
 interface SFTPPanelsProps {
   leftPanelType: 'local' | 'remote';
@@ -52,6 +53,7 @@ interface SFTPPanelsProps {
 export function SFTPPanels(props: SFTPPanelsProps) {
   const [showLeftDeleteConfirm, setShowLeftDeleteConfirm] = useState(false)
   const [showRightDeleteConfirm, setShowRightDeleteConfirm] = useState(false)
+  const getSession = useSessionStore((state) => state.getSession)
   
   // Use the first available SFTP setTransfers (prefer left, then right)
   const setTransfers = props.leftPanelType === 'remote' && props.leftSftp?.setTransfers
@@ -216,8 +218,14 @@ export function SFTPPanels(props: SFTPPanelsProps) {
     handleRightDrop
   ]);
 
-  const leftTitle = props.leftPanelType === 'local' ? 'Local' : 'Remote';
-  const rightTitle = props.rightPanelType === 'local' ? 'Local' : 'Remote';
+  const leftConnection = props.leftSessionId ? getSession(props.leftSessionId)?.connection : undefined
+  const rightConnection = props.rightSessionId ? getSession(props.rightSessionId)?.connection : undefined
+  const leftTitle = props.leftPanelType === 'local'
+    ? 'Local'
+    : `Remote: ${leftConnection?.name || leftConnection?.host || 'Unknown'}`
+  const rightTitle = props.rightPanelType === 'local'
+    ? 'Local'
+    : `Remote: ${rightConnection?.name || rightConnection?.host || 'Unknown'}`
 
   const handleLeftDeleteConfirm = useCallback(async () => {
     const items = Array.from(props.leftSelectedItems)
