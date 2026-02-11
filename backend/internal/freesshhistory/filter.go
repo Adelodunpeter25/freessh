@@ -48,8 +48,8 @@ func IsBootstrapCommand(command string) bool {
 		strings.Contains(c, "$ZSH_VERSION")
 }
 
-func SanitizeLogContent(content string) string {
-	// Remove marker payloads from content directly.
+// StripMarkers removes freessh OSC marker payloads from terminal output.
+func StripMarkers(content string) string {
 	cleaned := content
 	for {
 		start := strings.Index(cleaned, MarkerPrefix)
@@ -64,6 +64,12 @@ func SanitizeLogContent(content string) string {
 		end += start + len(MarkerPrefix)
 		cleaned = cleaned[:start] + cleaned[end+1:]
 	}
+	return cleaned
+}
+
+func SanitizeLogContent(content string) string {
+	// Remove marker payloads from content directly.
+	cleaned := StripMarkers(content)
 
 	lines := strings.Split(cleaned, "\n")
 	filtered := make([]string, 0, len(lines))

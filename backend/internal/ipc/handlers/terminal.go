@@ -143,8 +143,12 @@ func (h *TerminalHandler) StartOutputStreaming(sessionID string, writer Response
 				if !ok {
 					return
 				}
-				output := string(data)
-				h.captureShellHistory(sessionID, output, writer)
+				rawOutput := string(data)
+				h.captureShellHistory(sessionID, rawOutput, writer)
+				output := freesshhistory.StripMarkers(rawOutput)
+				if output == "" {
+					continue
+				}
 				writer.WriteMessage(&models.IPCMessage{
 					Type:      models.MsgOutput,
 					SessionID: sessionID,
