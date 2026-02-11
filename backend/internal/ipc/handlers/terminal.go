@@ -145,7 +145,7 @@ func (h *TerminalHandler) StartOutputStreaming(sessionID string, writer Response
 				}
 				rawOutput := string(data)
 				h.captureShellHistory(sessionID, rawOutput, writer)
-				output := freesshhistory.StripMarkers(rawOutput)
+				output := freesshhistory.SanitizeLogContent(rawOutput)
 				if output == "" {
 					continue
 				}
