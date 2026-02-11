@@ -10,6 +10,9 @@ import { useSnippetStore } from "@/stores/snippetStore";
 import { useKeyboardShortcuts, useLocalTerminal } from "@/hooks";
 import { useMenuActions } from "@/hooks";
 import { Snippet } from "@/types/snippet";
+import { backendService } from "@/services/ipc/backend";
+import { toast } from "sonner";
+import type { IPCMessage, Session } from "@/types";
 
 type SidebarTab = "connections" | "keys" | "known-hosts" | "port-forward" | "snippets" | "logs" | "settings";
 type MainView = "home" | "sftp" | "terminal";
@@ -35,6 +38,9 @@ export function MainLayout() {
   const updateSnippet = useSnippetStore((state) => state.updateSnippet);
   const deleteSnippet = useSnippetStore((state) => state.deleteSnippet);
   const prevTabsLength = useRef(tabs.length);
+  const removeSession = useSessionStore((state) => state.removeSession);
+  const getTabBySessionId = useTabStore((state) => state.getTabBySessionId);
+  const removeTab = useTabStore((state) => state.removeTab);
 
   useEffect(() => {
     if (tabs.length > prevTabsLength.current) {
@@ -50,6 +56,39 @@ export function MainLayout() {
       setMainView("sftp");
     }
   }, [sftpConnectionId, sftpOpenRequest]);
+
+  useEffect(() => {
+    const handleSessionStatus = (message: IPCMessage) => {
+      const sessionId = message.session_id;
+      if (!sessionId) return;
+
+      const status = typeof message.data?.status === "string"
+        ? message.data.status
+        : (message.data as Session | undefined)?.status;
+
+      if (!status) return;
+
+      if (status === "disconnected" || status === "error") {
+        const tab = getTabBySessionId(sessionId);
+        removeSession(sessionId);
+        if (tab) {
+          removeTab(tab.id);
+        }
+
+        if (status === "error") {
+          const errorMsg = (message.data as Session | undefined)?.error || "Session ended with an error";
+          toast.error(errorMsg);
+        } else {
+          toast.info("Session disconnected");
+        }
+      }
+    };
+
+    backendService.on("session_status", handleSessionStatus);
+    return () => {
+      backendService.off("session_status");
+    };
+  }, [getTabBySessionId, removeSession, removeTab]);
 
   const { handleNewLocalTerminal } = useLocalTerminal();
 
