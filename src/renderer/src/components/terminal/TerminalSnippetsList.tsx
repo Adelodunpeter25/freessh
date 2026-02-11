@@ -102,7 +102,9 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
           </div>
         ) : (
           <div className="space-y-2">
-            {filteredSnippets.map((snippet) => (
+            {filteredSnippets.map((snippet) => {
+              const hasVariables = parseVariables(snippet.command).length > 0
+              return (
               <SnippetsContextMenu
                 key={snippet.id}
                 snippet={snippet}
@@ -132,12 +134,14 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
                         {snippet.name}
                       </div>
                       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                        <button
-                          onClick={() => onPasteSnippet(snippet)}
-                          className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                        >
-                          Paste
-                        </button>
+                        {!hasVariables && (
+                          <button
+                            onClick={() => onPasteSnippet(snippet)}
+                            className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                          >
+                            Paste
+                          </button>
+                        )}
                         <button
                           onClick={() => handleRunClick(snippet)}
                           className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
@@ -153,7 +157,8 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
                 </div>
                 </div>
               </SnippetsContextMenu>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
