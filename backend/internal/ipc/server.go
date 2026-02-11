@@ -25,43 +25,43 @@ func NewServer() *Server {
 	if err != nil {
 		log.Printf("Warning: Failed to initialize log settings storage: %v", err)
 	}
-	
+
 	// Initialize history storage
 	historyStorage, err := storage.NewHistoryStorage()
 	if err != nil {
 		log.Fatalf("Failed to initialize history storage: %v", err)
 	}
-	
+
 	manager := session.NewManager(logSettingsStorage)
 	terminalHandler := handlers.NewTerminalHandler(manager, historyStorage)
-	
+
 	// Initialize known hosts storage
 	knownHostStorage, err := storage.NewKnownHostStorage()
 	if err != nil {
 		log.Printf("Warning: Failed to initialize known hosts storage: %v", err)
 	}
-	
+
 	// Initialize port forward config storage
 	portForwardStorage, err := storage.NewPortForwardStorage()
 	if err != nil {
 		log.Printf("Warning: Failed to initialize port forward storage: %v", err)
 	}
-	
+
 	// Initialize group storage
 	groupStorage, err := storage.NewGroupStorage()
 	if err != nil {
 		log.Printf("Warning: Failed to initialize group storage: %v", err)
 	}
-	
+
 	// Initialize snippet storage
 	snippetStorage, err := storage.NewSnippetStorage()
 	if err != nil {
 		log.Printf("Warning: Failed to initialize snippet storage: %v", err)
 	}
-	
+
 	// Create shared verification helper
 	verificationHelper := handlers.NewHostKeyVerificationHelper()
-	
+
 	return &Server{
 		reader:          NewReader(),
 		writer:          NewWriter(),
@@ -103,6 +103,12 @@ func (s *Server) Start() error {
 			return err
 		}
 
+		// Preserve strict input ordering for terminal keystrokes/history capture.
+		if msg.Type == models.MsgInput || msg.Type == models.MsgResize || msg.Type == models.MsgTerminalStartLogging || msg.Type == models.MsgTerminalStopLogging {
+			s.handleMessage(msg)
+			continue
+		}
+
 		go s.handleMessage(msg)
 	}
 }
@@ -114,12 +120,12 @@ func (s *Server) handleMessage(msg *models.IPCMessage) {
 				s.writer.WriteError(msg.SessionID, err)
 				return
 			}
-			
+
 			// Start terminal output streaming after successful connection
 			if (msg.Type == models.MsgConnect || msg.Type == models.MsgConnectionConnect) && msg.SessionID != "" {
 				s.terminalHandler.StartOutputStreaming(msg.SessionID, s.writer)
 			}
-			
+
 			return
 		}
 	}

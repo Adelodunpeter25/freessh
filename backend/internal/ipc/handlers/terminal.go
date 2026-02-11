@@ -8,12 +8,14 @@ import (
 	"freessh-backend/internal/session"
 	"freessh-backend/internal/storage"
 	"strings"
+	"sync"
 )
 
 type TerminalHandler struct {
 	manager        *session.Manager
 	historyManager *history.Manager
 	commandBuffers map[string]string
+	mu             sync.Mutex
 }
 
 func NewTerminalHandler(manager *session.Manager, historyStorage *storage.HistoryStorage) *TerminalHandler {
@@ -25,16 +27,16 @@ func NewTerminalHandler(manager *session.Manager, historyStorage *storage.Histor
 }
 
 func (h *TerminalHandler) CanHandle(msgType models.MessageType) bool {
-	return msgType == models.MsgInput || 
-		msgType == models.MsgResize || 
-		msgType == models.MsgTerminalStartLogging || 
+	return msgType == models.MsgInput ||
+		msgType == models.MsgResize ||
+		msgType == models.MsgTerminalStartLogging ||
 		msgType == models.MsgTerminalStopLogging
 }
 
 func (h *TerminalHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) error {
 	switch msg.Type {
 	case models.MsgInput:
-		return h.handleInput(msg)
+		return h.handleInput(msg, writer)
 	case models.MsgResize:
 		return h.handleResize(msg)
 	case models.MsgTerminalStartLogging:
@@ -46,7 +48,7 @@ func (h *TerminalHandler) Handle(msg *models.IPCMessage, writer ResponseWriter) 
 	}
 }
 
-func (h *TerminalHandler) handleInput(msg *models.IPCMessage) error {
+func (h *TerminalHandler) handleInput(msg *models.IPCMessage, writer ResponseWriter) error {
 	jsonData, err := json.Marshal(msg.Data)
 	if err != nil {
 		return fmt.Errorf("invalid input data: %w", err)
@@ -57,12 +59,14 @@ func (h *TerminalHandler) handleInput(msg *models.IPCMessage) error {
 		return fmt.Errorf("failed to parse input data: %w", err)
 	}
 
+	var completedCommand string
+
+	h.mu.Lock()
+
 	// Track command if it ends with newline or carriage return
 	if strings.HasSuffix(inputData.Data, "\n") || strings.HasSuffix(inputData.Data, "\r") {
 		command := strings.TrimSpace(h.commandBuffers[msg.SessionID])
-		if command != "" {
-			h.historyManager.Add(command)
-		}
+		completedCommand = command
 		h.commandBuffers[msg.SessionID] = ""
 	} else {
 		// Handle backspace/delete
@@ -83,6 +87,22 @@ func (h *TerminalHandler) handleInput(msg *models.IPCMessage) error {
 					h.commandBuffers[msg.SessionID] += string(r)
 				}
 			}
+		}
+	}
+	h.mu.Unlock()
+
+	if completedCommand != "" {
+		entry, addErr := h.historyManager.Add(completedCommand)
+		if addErr != nil {
+			return addErr
+		}
+		if entry != nil {
+			_ = writer.WriteMessage(&models.IPCMessage{
+				Type: models.MsgHistoryAdd,
+				Data: models.HistoryAddResponse{
+					Entry: *entry,
+				},
+			})
 		}
 	}
 

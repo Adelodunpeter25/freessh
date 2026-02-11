@@ -162,6 +162,14 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleRun(entry.command)}
+                        className="h-6 px-2 text-xs"
+                      >
+                        Run
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handlePaste(entry.command)}
                         className="h-6 px-2 text-xs"
                       >
