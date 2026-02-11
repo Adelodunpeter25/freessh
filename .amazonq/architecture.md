@@ -462,9 +462,10 @@ User creates tunnel config
 - Presence indicators
 - Chat sidebar
 
-### Remote-to-Remote SFTP (Planned)
+### Remote-to-Remote SFTP (Implemented)
 - Dual SFTP client management
 - Direct server-to-server transfers
+- Direct local-to-local transfers
 - Progress tracking between remotes
 - No local storage required
 
@@ -479,8 +480,7 @@ bun run dev                    # Start dev server
 
 ### Production Build
 ```bash
-bun run build:backend          # Build Go binary
-bun run build                  # Build Electron app
+bun run build:backend          # Build Go binary               # Build Electron app
 bun run build:mac              # Package for macOS
 ```
 

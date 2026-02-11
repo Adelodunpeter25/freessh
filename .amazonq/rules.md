@@ -111,19 +111,6 @@ git commit -m "Remove unused dependencies"
 - Close resources properly
 - Use goroutines for concurrent operations
 
-## Security
-
-### Never Commit
-- Passwords or API keys
-- Private SSH keys
-- Connection credentials
-- Personal information
-
-### Sensitive Data
-- Store passwords in system keychain
-- Validate all user input
-- Sanitize file paths
-
 ## Documentation
 
 ### Code Comments
