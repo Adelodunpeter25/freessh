@@ -70,7 +70,10 @@ export const TerminalPane = memo(function TerminalPane({
 
   // Re-fit when becoming active
   useEffect(() => {
-    if (isActive && xtermRef.current) scheduleFit()
+    if (isActive && xtermRef.current) {
+      scheduleFit()
+      requestAnimationFrame(() => xtermRef.current?.focus())
+    }
   }, [isActive, scheduleFit])
 
   // Live theme update
@@ -132,6 +135,7 @@ export const TerminalPane = memo(function TerminalPane({
     onReady(xterm, searchAddon)
 
     scheduleFit()
+    requestAnimationFrame(() => xterm.focus())
 
     xterm.onData((data: string) => {
       onDataRef.current(data)
@@ -156,7 +160,7 @@ export const TerminalPane = memo(function TerminalPane({
 
   return (
     <div className="h-full w-full" style={{ backgroundColor: theme.background }}>
-      <div ref={terminalRef} className="h-full w-full" />
+      <div ref={terminalRef} className="h-full w-full" onClick={() => xtermRef.current?.focus()} />
     </div>
   )
 })

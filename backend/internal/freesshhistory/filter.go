@@ -1,6 +1,9 @@
 package freesshhistory
 
-import "strings"
+import (
+	"regexp"
+	"strings"
+)
 
 const MarkerPrefix = "\x1b]1337;freessh-history="
 
@@ -36,18 +39,21 @@ func ParseMarkers(chunk string) ([]string, string) {
 }
 
 func IsBootstrapCommand(command string) bool {
-	return strings.Contains(command, "__freessh_emit_history") ||
-		strings.Contains(command, "__freessh_precmd") ||
-		strings.Contains(command, "add-zsh-hook precmd") ||
-		strings.Contains(command, "freessh-history=") ||
-		strings.Contains(command, `if [ -n "$BASH_VERSION" ]; then`) ||
-		strings.Contains(command, `if [ -n "$ZSH_VERSION" ]; then`)
+	c := strings.TrimSpace(command)
+	return strings.Contains(c, "__freessh_emit_history") ||
+		strings.Contains(c, "__freessh_precmd") ||
+		strings.Contains(c, "__FREESSH_LAST_HISTNO") ||
+		strings.Contains(c, "freessh-history=") ||
+		strings.Contains(c, "add-zsh-hook") ||
+		strings.Contains(c, "autoload -Uz") ||
+		strings.Contains(c, "PROMPT_COMMAND=") ||
+		strings.Contains(c, "$BASH_VERSION") ||
+		strings.Contains(c, "$ZSH_VERSION")
 }
 
-func SanitizeLogContent(content string) string {
-	commands, _ := ParseMarkers(content)
-	_ = commands // markers are removed by ParseMarkers stream slicing below
+var ansiControlRegex = regexp.MustCompile(`\x1b\[[0-9;?]*[ -/]*[@-~]`)
 
+func SanitizeLogContent(content string) string {
 	// Remove marker payloads from content directly.
 	cleaned := content
 	for {
@@ -64,11 +70,38 @@ func SanitizeLogContent(content string) string {
 		cleaned = cleaned[:start] + cleaned[end+1:]
 	}
 
+	// Strip common ANSI CSI sequences and normalize CRLF/CR so filtering works on wrapped output.
+	cleaned = ansiControlRegex.ReplaceAllString(cleaned, "")
+	cleaned = strings.ReplaceAll(cleaned, "\r\n", "\n")
+	cleaned = strings.ReplaceAll(cleaned, "\r", "\n")
+
 	lines := strings.Split(cleaned, "\n")
 	filtered := make([]string, 0, len(lines))
+	inBootstrapBlock := false
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
-		if trimmed != "" && IsBootstrapCommand(trimmed) {
+		if trimmed == "" {
+			if inBootstrapBlock {
+				continue
+			}
+			filtered = append(filtered, line)
+			continue
+		}
+
+		// Drop full hook block once detected, even when wrapped across multiple lines.
+		if inBootstrapBlock {
+			if trimmed == "fi" {
+				inBootstrapBlock = false
+			}
+			continue
+		}
+		if IsBootstrapCommand(trimmed) {
+			if strings.Contains(trimmed, "$BASH_VERSION") ||
+				strings.Contains(trimmed, "$ZSH_VERSION") ||
+				strings.Contains(trimmed, "__freessh_emit_history") ||
+				strings.Contains(trimmed, "__freessh_precmd") {
+				inBootstrapBlock = true
+			}
 			continue
 		}
 		filtered = append(filtered, line)
