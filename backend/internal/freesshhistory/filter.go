@@ -1,9 +1,6 @@
 package freesshhistory
 
-import (
-	"regexp"
-	"strings"
-)
+import "strings"
 
 const MarkerPrefix = "\x1b]1337;freessh-history="
 
@@ -51,8 +48,6 @@ func IsBootstrapCommand(command string) bool {
 		strings.Contains(c, "$ZSH_VERSION")
 }
 
-var ansiControlRegex = regexp.MustCompile(`\x1b\[[0-9;?]*[ -/]*[@-~]`)
-
 func SanitizeLogContent(content string) string {
 	// Remove marker payloads from content directly.
 	cleaned := content
@@ -69,11 +64,6 @@ func SanitizeLogContent(content string) string {
 		end += start + len(MarkerPrefix)
 		cleaned = cleaned[:start] + cleaned[end+1:]
 	}
-
-	// Strip common ANSI CSI sequences and normalize CRLF/CR so filtering works on wrapped output.
-	cleaned = ansiControlRegex.ReplaceAllString(cleaned, "")
-	cleaned = strings.ReplaceAll(cleaned, "\r\n", "\n")
-	cleaned = strings.ReplaceAll(cleaned, "\r", "\n")
 
 	lines := strings.Split(cleaned, "\n")
 	filtered := make([]string, 0, len(lines))
