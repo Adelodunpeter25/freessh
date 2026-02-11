@@ -1,4 +1,4 @@
-import { Pin, PinOff, X, Edit, FolderSync, Copy } from 'lucide-react'
+import { Pin, PinOff, X, Edit, FolderSync, CopyPlus } from 'lucide-react'
 import { BaseContextMenu, ContextMenuAction } from './BaseContextMenu'
 
 interface SessionTabContextMenuProps {
@@ -36,7 +36,7 @@ export function SessionTabContextMenu({
     },
     ...(showDuplicate ? [{
       label: 'Duplicate Tab',
-      icon: <Copy className="w-4 h-4" />,
+      icon: <CopyPlus className="w-4 h-4" />,
       onClick: onDuplicate
     }] : []),
     ...(showSFTP ? [{
