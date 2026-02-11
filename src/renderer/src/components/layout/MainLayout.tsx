@@ -65,6 +65,8 @@ export function MainLayout() {
       const status = typeof message.data?.status === "string"
         ? message.data.status
         : (message.data as Session | undefined)?.status;
+      const reason = typeof message.data?.reason === "string" ? message.data.reason : "";
+      const messageError = typeof message.data?.error === "string" ? message.data.error : "";
 
       if (!status) return;
 
@@ -76,9 +78,9 @@ export function MainLayout() {
         }
 
         if (status === "error") {
-          const errorMsg = (message.data as Session | undefined)?.error || "Session ended with an error";
+          const errorMsg = messageError || (message.data as Session | undefined)?.error || "Session ended with an error";
           toast.error(errorMsg);
-        } else {
+        } else if (reason !== "user_initiated") {
           toast.info("Session disconnected");
         }
       }

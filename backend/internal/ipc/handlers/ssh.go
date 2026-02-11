@@ -72,6 +72,9 @@ func (h *SSHHandler) handleDisconnect(msg *models.IPCMessage, writer ResponseWri
 	return writer.WriteMessage(&models.IPCMessage{
 		Type:      models.MsgSessionStatus,
 		SessionID: msg.SessionID,
-		Data:      map[string]string{"status": "disconnected"},
+		Data: map[string]string{
+			"status": "disconnected",
+			"reason": "user_initiated",
+		},
 	})
 }
