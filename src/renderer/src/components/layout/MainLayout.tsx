@@ -8,10 +8,12 @@ import { DisconnectNotifications } from "@/components/terminal/DisconnectNotific
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useSnippetStore } from "@/stores/snippetStore";
+import { useSessionStore } from "@/stores/sessionStore";
 import { useKeyboardShortcuts, useLocalTerminal } from "@/hooks";
 import { useMenuActions } from "@/hooks";
 import { Snippet } from "@/types/snippet";
 import { useSessionLifecycle } from "@/hooks/layout/useSessionLifecycle";
+import { sshService } from "@/services/ipc/ssh";
 
 type SidebarTab = "connections" | "keys" | "known-hosts" | "port-forward" | "snippets" | "logs" | "settings";
 type MainView = "home" | "sftp" | "terminal";
@@ -28,6 +30,7 @@ export function MainLayout() {
   const [deletingSnippet, setDeletingSnippet] = useState<Snippet | null>(null);
   const activeSessionTabId = useTabStore((state) => state.activeTabId);
   const tabs = useTabStore((state) => state.tabs);
+  const removeTab = useTabStore((state) => state.removeTab);
   const currentTab = tabs.find(tab => tab.id === activeSessionTabId);
   const activeSessionId = currentTab?.sessionId;
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
@@ -37,6 +40,7 @@ export function MainLayout() {
   const updateSnippet = useSnippetStore((state) => state.updateSnippet);
   const deleteSnippet = useSnippetStore((state) => state.deleteSnippet);
   const prevTabsLength = useRef(tabs.length);
+  const removeSession = useSessionStore((state) => state.removeSession);
   const {
     disconnectNotices,
     reconnectingSessionId,
@@ -70,6 +74,26 @@ export function MainLayout() {
   const handleSFTPClick = useCallback(() => setMainView("sftp"), []);
   const handleSessionClick = useCallback(() => setMainView("terminal"), []);
   const handleSidebarTabChange = useCallback((tab: SidebarTab) => setSidebarTab(tab), []);
+  const handleCloseActiveTab = useCallback(async () => {
+    if (!activeSessionTabId) return;
+
+    const tab = tabs.find((item) => item.id === activeSessionTabId);
+    if (!tab) return;
+
+    if (tab.type === "log") {
+      removeTab(tab.id);
+      return;
+    }
+
+    try {
+      await sshService.disconnect(tab.sessionId);
+    } catch {
+      // Session may already be disconnected; continue cleanup.
+    }
+
+    removeSession(tab.sessionId);
+    removeTab(tab.id);
+  }, [activeSessionTabId, tabs, removeSession, removeTab]);
 
   useKeyboardShortcuts({
     onSwitchTab: (index) => {
@@ -82,6 +106,7 @@ export function MainLayout() {
       setSidebarTab('connections')
     },
     onNewLocalTerminal: handleNewLocalTerminal,
+    onCloseTab: handleCloseActiveTab,
     onOpenSettings: () => setShowSettings(true),
     onShowShortcuts: () => setShowShortcuts(true),
   })
@@ -92,9 +117,7 @@ export function MainLayout() {
       setSidebarTab('connections')
     },
     onCloseTab: () => {
-      if (activeSessionTabId) {
-        useTabStore.getState().removeTab(activeSessionTabId)
-      }
+      handleCloseActiveTab()
     },
     onOpenSettings: () => setShowSettings(true),
     onShowShortcuts: () => setShowShortcuts(true),

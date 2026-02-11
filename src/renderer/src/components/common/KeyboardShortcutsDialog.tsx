@@ -16,14 +16,16 @@ const shortcuts = [
       { keys: [`${modKey}+2`], description: 'Switch to SFTP tab' },
       { keys: [`${modKey}+3-9`], description: 'Switch to session tabs' },
       { keys: [`${modKey}+T`], description: 'New connection' },
+      { keys: [`${modKey}+L`], description: 'New local terminal' },
       { keys: [`${modKey}+W`], description: 'Close current tab' },
       { keys: [`${modKey}+,`], description: 'Open settings' },
+      { keys: [`${modKey}+Shift+/`], description: 'Show keyboard shortcuts' },
     ],
   },
   {
     category: 'Terminal',
     items: [
-      { keys: [`${modKey}+L`], description: 'Clear terminal' },
+      { keys: [`${modKey}+K`], description: 'Clear terminal' },
       { keys: [`${modKey}+F`], description: 'Search in terminal' },
     ],
   },

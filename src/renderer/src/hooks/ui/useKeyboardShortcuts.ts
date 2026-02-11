@@ -32,6 +32,7 @@ interface ShortcutHandlers {
   onSwitchTab?: (index: number) => void
   onNewConnection?: () => void
   onNewLocalTerminal?: () => void
+  onCloseTab?: () => void
   onOpenSettings?: () => void
   onClearTerminal?: () => void
   onSearchTerminal?: () => void
@@ -43,8 +44,6 @@ interface ShortcutHandlers {
 export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true) {
   const tabs = useTabStore((state) => state.tabs)
   const setActiveTab = useTabStore((state) => state.setActiveTab)
-  const removeTab = useTabStore((state) => state.removeTab)
-  const activeTabId = useTabStore((state) => state.activeTabId)
 
   useEffect(() => {
     if (!enabled) return
@@ -86,9 +85,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
         
         case 'cmd+w':
           e.preventDefault()
-          if (activeTabId) {
-            removeTab(activeTabId)
-          }
+          handlers.onCloseTab?.()
           break
         
         case 'cmd+,':
@@ -121,7 +118,12 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
         
         case 'delete':
           // Only if not in input field
-          if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+          const target = e.target as HTMLElement | null
+          const isEditable = target instanceof HTMLInputElement ||
+            target instanceof HTMLTextAreaElement ||
+            !!target?.isContentEditable
+
+          if (!isEditable) {
             e.preventDefault()
             handlers.onDeleteFile?.()
           }
@@ -131,5 +133,5 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handlers, enabled, tabs, setActiveTab, removeTab, activeTabId])
+  }, [handlers, enabled, tabs, setActiveTab])
 }
