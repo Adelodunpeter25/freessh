@@ -8,6 +8,7 @@ import (
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
 	"freessh-backend/internal/storage"
+	"strings"
 	"sync"
 )
 
@@ -15,6 +16,7 @@ type TerminalHandler struct {
 	manager        *session.Manager
 	historyManager *history.Manager
 	markerBuffers  map[string]string
+	outputBuffers  map[string]string
 	mu             sync.Mutex
 }
 
@@ -23,6 +25,7 @@ func NewTerminalHandler(manager *session.Manager, historyStorage *storage.Histor
 		manager:        manager,
 		historyManager: history.NewManager(historyStorage),
 		markerBuffers:  make(map[string]string),
+		outputBuffers:  make(map[string]string),
 	}
 }
 
@@ -135,11 +138,16 @@ func (h *TerminalHandler) StartOutputStreaming(sessionID string, writer Response
 				if !ok {
 					return
 				}
-				h.captureShellHistory(sessionID, string(data), writer)
+				output := string(data)
+				h.captureShellHistory(sessionID, output, writer)
+				output = h.filterBootstrapOutput(sessionID, output)
+				if output == "" {
+					continue
+				}
 				writer.WriteMessage(&models.IPCMessage{
 					Type:      models.MsgOutput,
 					SessionID: sessionID,
-					Data:      map[string]string{"output": string(data)},
+					Data:      map[string]string{"output": output},
 				})
 			case err, ok := <-activeSession.ErrorChan:
 				if !ok {
@@ -172,4 +180,32 @@ func (h *TerminalHandler) captureShellHistory(sessionID, output string, writer R
 			})
 		}
 	}
+}
+
+func (h *TerminalHandler) filterBootstrapOutput(sessionID, output string) string {
+	h.mu.Lock()
+	buffer := h.outputBuffers[sessionID] + output
+	h.outputBuffers[sessionID] = ""
+	h.mu.Unlock()
+
+	lines := strings.Split(buffer, "\n")
+	if !strings.HasSuffix(buffer, "\n") {
+		h.mu.Lock()
+		h.outputBuffers[sessionID] = lines[len(lines)-1]
+		h.mu.Unlock()
+		lines = lines[:len(lines)-1]
+	}
+
+	filtered := make([]string, 0, len(lines))
+	for _, line := range lines {
+		if freesshhistory.IsBootstrapCommand(strings.TrimSpace(line)) {
+			continue
+		}
+		filtered = append(filtered, line)
+	}
+
+	if len(filtered) == 0 {
+		return ""
+	}
+	return strings.Join(filtered, "\n") + "\n"
 }
