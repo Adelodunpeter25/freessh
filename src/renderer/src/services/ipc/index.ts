@@ -11,4 +11,4 @@ export { portForwardConfigService } from './portForwardConfig'
 export { knownHostsService } from './knownHosts'
 export { logService } from './logs'
 export { logSettingsService } from './logSettings'
-
+export { workspaceService } from './workspace'

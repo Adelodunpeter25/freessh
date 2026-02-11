@@ -81,6 +81,14 @@ export type MessageType =
   | 'import:freessh'
   | 'export:openssh'
   | 'import:openssh'
+  | 'workspace:register_window'
+  | 'workspace:remove_window'
+  | 'workspace:create'
+  | 'workspace:get_by_window'
+  | 'workspace:register_tab'
+  | 'workspace:remove_tab'
+  | 'workspace:list_tabs'
+  | 'workspace:move_tab'
 
 export interface IPCMessage {
   type: MessageType
