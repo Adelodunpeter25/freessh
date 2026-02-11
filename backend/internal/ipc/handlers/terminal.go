@@ -75,9 +75,11 @@ func (h *TerminalHandler) handleInput(msg *models.IPCMessage) error {
 			// Ctrl+C or Ctrl+D - clear buffer
 			h.commandBuffers[msg.SessionID] = ""
 		} else {
-			// Accumulate command buffer (ignore other control characters)
+			// Accumulate printable characters.
+			// Skip tab: autocomplete edits happen in shell state/output and a literal
+			// tab in history becomes misleading whitespace.
 			for _, r := range inputData.Data {
-				if r >= 32 || r == '\t' {
+				if r >= 32 && r != '\t' {
 					h.commandBuffers[msg.SessionID] += string(r)
 				}
 			}

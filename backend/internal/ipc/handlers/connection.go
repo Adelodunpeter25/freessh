@@ -31,7 +31,7 @@ func NewConnectionHandler(manager *session.Manager, verificationHelper *HostKeyV
 func (h *ConnectionHandler) CanHandle(msgType models.MessageType) bool {
 	switch msgType {
 	case models.MsgConnectionList, models.MsgConnectionGet, models.MsgConnectionDelete, 
-	     models.MsgConnectionUpdate, models.MsgConnectionConnect, models.MsgHostKeyVerifyResponse:
+	     models.MsgConnectionUpdate, models.MsgConnectionConnect:
 		return true
 	}
 	return false
@@ -49,15 +49,9 @@ func (h *ConnectionHandler) Handle(msg *models.IPCMessage, writer ResponseWriter
 		return h.handleUpdate(msg, writer)
 	case models.MsgConnectionConnect:
 		return h.handleConnect(msg, writer)
-	case models.MsgHostKeyVerifyResponse:
-		return h.handleVerifyResponse(msg, writer)
 	default:
 		return fmt.Errorf("unsupported message type: %s", msg.Type)
 	}
-}
-
-func (h *ConnectionHandler) handleVerifyResponse(msg *models.IPCMessage, writer ResponseWriter) error {
-	return h.verificationHelper.HandleVerifyResponse(msg)
 }
 
 func (h *ConnectionHandler) handleList(writer ResponseWriter) error {
