@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { toast } from 'sonner'
-import { useSessions } from '@/hooks'
+import { useSessions } from '@/hooks/terminal/useSessions'
 import { useTabStore } from '@/stores/tabStore'
 import { useSessionStore } from '@/stores/sessionStore'
 
