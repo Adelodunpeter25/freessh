@@ -3,15 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"freessh-backend/internal/freesshhistory"
 	"freessh-backend/internal/history"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
 	"freessh-backend/internal/storage"
-	"strings"
 	"sync"
 )
-
-const historyMarkerPrefix = "\x1b]1337;freessh-history="
 
 type TerminalHandler struct {
 	manager        *session.Manager
@@ -156,53 +154,22 @@ func (h *TerminalHandler) StartOutputStreaming(sessionID string, writer Response
 func (h *TerminalHandler) captureShellHistory(sessionID, output string, writer ResponseWriter) {
 	h.mu.Lock()
 	buffer := h.markerBuffers[sessionID] + output
-	h.markerBuffers[sessionID] = ""
+	commands, remaining := freesshhistory.ParseMarkers(buffer)
+	h.markerBuffers[sessionID] = remaining
 	h.mu.Unlock()
 
-	for {
-		start := strings.Index(buffer, historyMarkerPrefix)
-		if start == -1 {
-			// Keep a tail so markers split across chunks can be reconstructed.
-			const keepTail = 128
-			if len(buffer) > keepTail {
-				buffer = buffer[len(buffer)-keepTail:]
-			}
-			h.mu.Lock()
-			h.markerBuffers[sessionID] = buffer
-			h.mu.Unlock()
-			return
+	for _, command := range commands {
+		if freesshhistory.IsBootstrapCommand(command) {
+			continue
 		}
-
-		end := strings.IndexByte(buffer[start+len(historyMarkerPrefix):], '\a')
-		if end == -1 {
-			// Keep from marker start and wait for next chunk.
-			h.mu.Lock()
-			h.markerBuffers[sessionID] = buffer[start:]
-			h.mu.Unlock()
-			return
+		entry, err := h.historyManager.Add(command)
+		if err == nil && entry != nil {
+			_ = writer.WriteMessage(&models.IPCMessage{
+				Type: models.MsgHistoryAdd,
+				Data: models.HistoryAddResponse{
+					Entry: *entry,
+				},
+			})
 		}
-
-		end += start + len(historyMarkerPrefix)
-		command := strings.TrimSpace(buffer[start+len(historyMarkerPrefix) : end])
-		if command != "" && !shouldIgnoreHistoryCommand(command) {
-			entry, err := h.historyManager.Add(command)
-			if err == nil && entry != nil {
-				_ = writer.WriteMessage(&models.IPCMessage{
-					Type: models.MsgHistoryAdd,
-					Data: models.HistoryAddResponse{
-						Entry: *entry,
-					},
-				})
-			}
-		}
-
-		buffer = buffer[end+1:]
 	}
-}
-
-func shouldIgnoreHistoryCommand(command string) bool {
-	return strings.Contains(command, "__freessh_emit_history") ||
-		strings.Contains(command, "__freessh_precmd") ||
-		strings.Contains(command, "add-zsh-hook precmd") ||
-		strings.Contains(command, "freessh-history=")
 }
