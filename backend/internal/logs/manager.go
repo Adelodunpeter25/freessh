@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -85,7 +86,7 @@ func (m *Manager) ReadLog(filename string) (string, error) {
 		return "", fmt.Errorf("failed to read log file: %w", err)
 	}
 
-	return string(data), nil
+	return sanitizeLogContent(string(data)), nil
 }
 
 func (m *Manager) DeleteLog(filename string) error {
@@ -146,4 +147,36 @@ func (m *Manager) parseLogFilename(filename string) LogEntry {
 	}
 
 	return entry
+}
+
+var freesshHistoryMarkerRegex = regexp.MustCompile(`\x1b\]1337;freessh-history=[^\a]*\a`)
+
+func sanitizeLogContent(content string) string {
+	content = freesshHistoryMarkerRegex.ReplaceAllString(content, "")
+
+	lines := strings.Split(content, "\n")
+	filtered := make([]string, 0, len(lines))
+
+	for _, line := range lines {
+		if shouldFilterLogLine(line) {
+			continue
+		}
+		filtered = append(filtered, line)
+	}
+
+	return strings.Join(filtered, "\n")
+}
+
+func shouldFilterLogLine(line string) bool {
+	trimmed := strings.TrimSpace(line)
+	if trimmed == "" {
+		return false
+	}
+
+	return strings.Contains(trimmed, "__freessh_emit_history") ||
+		strings.Contains(trimmed, "__freessh_precmd") ||
+		strings.Contains(trimmed, "add-zsh-hook precmd") ||
+		strings.Contains(trimmed, "freessh-history=") ||
+		strings.Contains(trimmed, `if [ -n "$BASH_VERSION" ]; then`) ||
+		strings.Contains(trimmed, `if [ -n "$ZSH_VERSION" ]; then`)
 }
