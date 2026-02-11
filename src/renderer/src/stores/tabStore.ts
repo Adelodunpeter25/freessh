@@ -21,6 +21,7 @@ interface TabStore {
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
+  updateTabSession: (tabId: string, sessionId: string) => void
   togglePinTab: (tabId: string) => void
   getTabBySessionId: (sessionId: string) => Tab | undefined
 }
@@ -109,6 +110,14 @@ export const useTabStore = create<TabStore>((set, get) => ({
     set((state) => ({
       tabs: state.tabs.map((tab) =>
         tab.id === tabId ? { ...tab, title } : tab
+      )
+    }))
+  },
+
+  updateTabSession: (tabId, sessionId) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) =>
+        tab.id === tabId ? { ...tab, sessionId } : tab
       )
     }))
   },
