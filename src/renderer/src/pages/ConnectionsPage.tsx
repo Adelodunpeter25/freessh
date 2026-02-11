@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
@@ -36,6 +36,7 @@ export function ConnectionsPage() {
 
   const [searchQuery, setSearchQuery] = useState('')
   const [connectionsCollapsed, setConnectionsCollapsed] = useState(false)
+  const groupsSectionRef = useRef<HTMLDivElement>(null)
 
   const groupHandlers = useGroupHandlers()
   const localTerminal = useLocalTerminal()
@@ -143,15 +144,26 @@ export function ConnectionsPage() {
       ) : (
         <div className="h-full flex flex-col relative">
           <ConnectionsHeader />
-          <GroupsSection
-            groups={groupHandlers.groups}
-            loading={groupHandlers.loading}
-            selectedGroupId={groupHandlers.selectedGroupId}
-            onSelectGroup={groupHandlers.handleSelectGroup}
-            onEditGroup={groupHandlers.handleEditGroup}
-            onDeleteGroup={groupHandlers.handleDeleteGroup}
-            onOpenGroup={groupHandlers.handleOpenGroup}
-          />
+          <div
+            onClickCapture={(e) => {
+              if (!groupHandlers.selectedGroupId) return
+              const target = e.target as Node
+              if (groupsSectionRef.current?.contains(target)) return
+              groupHandlers.handleSelectGroup(null)
+            }}
+          >
+            <div ref={groupsSectionRef}>
+              <GroupsSection
+                groups={groupHandlers.groups}
+                loading={groupHandlers.loading}
+                selectedGroupId={groupHandlers.selectedGroupId}
+                onSelectGroup={groupHandlers.handleSelectGroup}
+                onEditGroup={groupHandlers.handleEditGroup}
+                onDeleteGroup={groupHandlers.handleDeleteGroup}
+                onOpenGroup={groupHandlers.handleOpenGroup}
+              />
+            </div>
+          </div>
           {showStandaloneConnections && (
             <div className="flex-1 overflow-hidden flex flex-col">
               <div className="px-4 py-3 bg-background/95">
