@@ -8,6 +8,7 @@ import (
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/session"
 	"freessh-backend/internal/storage"
+	"strings"
 	"sync"
 )
 
@@ -158,7 +159,28 @@ func (h *TerminalHandler) StartOutputStreaming(sessionID string, writer Response
 				if !ok {
 					return
 				}
-				writer.WriteError(sessionID, err)
+
+				// Treat stream termination as session disconnect so UI can react consistently.
+				if err != nil {
+					_ = h.manager.CloseSession(sessionID)
+
+					status := "error"
+					errorMessage := err.Error()
+					if strings.Contains(strings.ToLower(errorMessage), "closed") || strings.Contains(strings.ToLower(errorMessage), "eof") {
+						status = "disconnected"
+					}
+
+					_ = writer.WriteMessage(&models.IPCMessage{
+						Type:      models.MsgSessionStatus,
+						SessionID: sessionID,
+						Data: map[string]string{
+							"status": status,
+							"error":  errorMessage,
+							"reason": "stream_error",
+						},
+					})
+					return
+				}
 			}
 		}
 	}()

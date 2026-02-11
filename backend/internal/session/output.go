@@ -2,6 +2,7 @@ package session
 
 import (
 	"context"
+	"fmt"
 	"io"
 )
 
@@ -51,12 +52,21 @@ func (m *Manager) pipeOutput(ctx context.Context, as *ActiveSession, reader io.R
 				return
 			case <-readDone:
 				if err != nil {
-					if err != io.EOF {
-						select {
-						case <-as.stopChan:
-							return
-						case as.ErrorChan <- err:
-						}
+					select {
+					case <-as.stopChan:
+						return
+					default:
+					}
+
+					streamErr := err
+					if err == io.EOF {
+						streamErr = fmt.Errorf("terminal stream closed")
+					}
+
+					select {
+					case <-as.stopChan:
+						return
+					case as.ErrorChan <- streamErr:
 					}
 					return
 				}
