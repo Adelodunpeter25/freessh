@@ -3,6 +3,7 @@ import { create } from 'zustand'
 interface UIStore {
   sidebarOpen: boolean
   sftpConnectionId: string | null
+  sftpOpenRequest: number
   
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
@@ -13,6 +14,7 @@ interface UIStore {
 export const useUIStore = create<UIStore>((set) => ({
   sidebarOpen: true,
   sftpConnectionId: null,
+  sftpOpenRequest: 0,
 
   toggleSidebar: () => {
     set((state) => ({ sidebarOpen: !state.sidebarOpen }))
@@ -23,7 +25,10 @@ export const useUIStore = create<UIStore>((set) => ({
   },
 
   openSFTP: (connectionId) => {
-    set({ sftpConnectionId: connectionId })
+    set((state) => ({
+      sftpConnectionId: connectionId,
+      sftpOpenRequest: state.sftpOpenRequest + 1
+    }))
   },
 
   clearSFTPConnection: () => {

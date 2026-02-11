@@ -29,6 +29,7 @@ export function MainLayout() {
   const currentTab = tabs.find(tab => tab.id === activeSessionTabId);
   const activeSessionId = currentTab?.sessionId;
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
+  const sftpOpenRequest = useUIStore((state) => state.sftpOpenRequest);
   const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
   const createSnippet = useSnippetStore((state) => state.createSnippet);
   const updateSnippet = useSnippetStore((state) => state.updateSnippet);
@@ -48,7 +49,7 @@ export function MainLayout() {
     if (sftpConnectionId) {
       setMainView("sftp");
     }
-  }, [sftpConnectionId]);
+  }, [sftpConnectionId, sftpOpenRequest]);
 
   const { handleNewLocalTerminal } = useLocalTerminal();
 

@@ -20,6 +20,7 @@ interface ConnectionSelectorProps {
 export function ConnectionSelector({ onConnect }: ConnectionSelectorProps) {
   const connections = useConnectionStore((state) => state.connections);
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
+  const sftpOpenRequest = useUIStore((state) => state.sftpOpenRequest);
   const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
   const [selectedConnectionId, setSelectedConnectionId] = useState<string>("");
   const [connecting, setConnecting] = useState(false);
@@ -60,7 +61,7 @@ export function ConnectionSelector({ onConnect }: ConnectionSelectorProps) {
           .finally(() => setConnecting(false));
       }
     }
-  }, [sftpConnectionId, connections, connect, onConnect, clearSFTPConnection]);
+  }, [sftpConnectionId, sftpOpenRequest, connections, connect, onConnect, clearSFTPConnection]);
 
   return (
     <div className="flex flex-col h-full border rounded-lg bg-card">
