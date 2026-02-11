@@ -11,6 +11,9 @@ func (m *Manager) initShellHistoryHook(sessionID string) {
 	go func() {
 		// Wait briefly so interactive shell startup files complete first.
 		time.Sleep(300 * time.Millisecond)
+		// Hide bootstrap commands from terminal by disabling echo while injecting.
+		_ = m.SendInput(sessionID, []byte("stty -echo >/dev/null 2>&1\n"))
 		_ = m.SendInput(sessionID, []byte(shellHistoryHookScript+"\n"))
+		_ = m.SendInput(sessionID, []byte("stty echo >/dev/null 2>&1\n"))
 	}()
 }
