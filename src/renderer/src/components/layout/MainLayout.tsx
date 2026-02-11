@@ -7,6 +7,7 @@ import { MainLayoutDialogs } from "./MainLayoutDialogs";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
 import { useSnippetStore } from "@/stores/snippetStore";
+import { useSessionStore } from "@/stores/sessionStore";
 import { useKeyboardShortcuts, useLocalTerminal } from "@/hooks";
 import { useMenuActions } from "@/hooks";
 import { Snippet } from "@/types/snippet";
