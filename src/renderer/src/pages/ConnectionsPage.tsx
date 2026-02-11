@@ -25,6 +25,7 @@ export function ConnectionsPage() {
     loading,
     connectingId,
     pendingVerification,
+    loadConnections,
     deleteConnection,
     updateConnection,
     connectAndOpen,
@@ -205,7 +206,10 @@ export function ConnectionsPage() {
             onOpenChange={(open) => !open && groupHandlers.handleCancelDeleteGroup()}
             title="Delete group"
             description={`Are you sure you want to delete "${groupHandlers.groupToDelete?.name}"? Connections in this group will not be deleted.`}
-            onConfirm={groupHandlers.handleConfirmDeleteGroup}
+            onConfirm={async () => {
+              await groupHandlers.handleConfirmDeleteGroup()
+              await loadConnections()
+            }}
             confirmText="Delete"
             destructive
           />
