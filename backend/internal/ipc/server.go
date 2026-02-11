@@ -2,6 +2,7 @@ package ipc
 
 import (
 	"fmt"
+	"freessh-backend/internal/config"
 	"freessh-backend/internal/ipc/handlers"
 	"freessh-backend/internal/ipc/handlers/keys"
 	"freessh-backend/internal/ipc/handlers/sftp"
@@ -9,6 +10,7 @@ import (
 	"freessh-backend/internal/session"
 	"freessh-backend/internal/settings"
 	"freessh-backend/internal/storage"
+	"freessh-backend/internal/workspace"
 	"log"
 )
 
@@ -33,6 +35,7 @@ func NewServer() *Server {
 	}
 
 	manager := session.NewManager(logSettingsStorage)
+	workspaceManager := workspace.NewManager(config.FeatureDetachableWorkspaces)
 	terminalHandler := handlers.NewTerminalHandler(manager, historyStorage)
 
 	// Initialize known hosts storage
@@ -89,6 +92,7 @@ func NewServer() *Server {
 			handlers.NewImportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 			handlers.NewExportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 			handlers.NewImportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
+			handlers.NewWorkspaceHandler(workspaceManager),
 		},
 	}
 }
