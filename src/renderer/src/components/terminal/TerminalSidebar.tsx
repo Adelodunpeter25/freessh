@@ -75,7 +75,6 @@ export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditS
         <TabsContent value="history" className="m-0 h-full">
           <TerminalHistoryList 
             activeSessionId={activeSessionId}
-            onCommandRun={onClose}
           />
         </TabsContent>
 

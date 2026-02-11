@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { X } from 'lucide-react'
 import { Button } from './button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './tooltip'
 import { cn } from '@/lib/utils'
 
 interface SheetProps {
@@ -35,16 +34,9 @@ export function Sheet({ isOpen, onClose, title, children, className }: SheetProp
     )}>
       <div className="flex items-center justify-between p-4 border-b border-border">
         <h2 className="text-lg font-semibold">{title}</h2>
-        <TooltipProvider delayDuration={150}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" onClick={onClose}>
-                <X className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Close</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button variant="ghost" size="icon" onClick={onClose}>
+          <X className="h-4 w-4" />
+        </Button>
       </div>
       {children}
     </div>

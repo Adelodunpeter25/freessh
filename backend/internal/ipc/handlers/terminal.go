@@ -14,21 +14,17 @@ import (
 const historyMarkerPrefix = "\x1b]1337;freessh-history="
 
 type TerminalHandler struct {
-	manager             *session.Manager
-	historyManager      *history.Manager
-	commandBuffers      map[string]string
-	historyHookDetected map[string]bool
-	markerBuffers       map[string]string
-	mu                  sync.Mutex
+	manager        *session.Manager
+	historyManager *history.Manager
+	markerBuffers  map[string]string
+	mu             sync.Mutex
 }
 
 func NewTerminalHandler(manager *session.Manager, historyStorage *storage.HistoryStorage) *TerminalHandler {
 	return &TerminalHandler{
-		manager:             manager,
-		historyManager:      history.NewManager(historyStorage),
-		commandBuffers:      make(map[string]string),
-		historyHookDetected: make(map[string]bool),
-		markerBuffers:       make(map[string]string),
+		manager:        manager,
+		historyManager: history.NewManager(historyStorage),
+		markerBuffers:  make(map[string]string),
 	}
 }
 
@@ -65,53 +61,7 @@ func (h *TerminalHandler) handleInput(msg *models.IPCMessage, writer ResponseWri
 		return fmt.Errorf("failed to parse input data: %w", err)
 	}
 
-	var completedCommand string
-	useFallbackCapture := false
-
-	h.mu.Lock()
-	useFallbackCapture = !h.historyHookDetected[msg.SessionID]
-
-	if useFallbackCapture {
-		// Fallback keypress capture is used only until shell hook markers are detected.
-		if strings.HasSuffix(inputData.Data, "\n") || strings.HasSuffix(inputData.Data, "\r") {
-			command := strings.TrimSpace(h.commandBuffers[msg.SessionID])
-			completedCommand = command
-			h.commandBuffers[msg.SessionID] = ""
-		} else {
-			if inputData.Data == "\x7f" || inputData.Data == "\b" {
-				buffer := h.commandBuffers[msg.SessionID]
-				if len(buffer) > 0 {
-					h.commandBuffers[msg.SessionID] = buffer[:len(buffer)-1]
-				}
-			} else if inputData.Data == "\x03" || inputData.Data == "\x04" {
-				h.commandBuffers[msg.SessionID] = ""
-			} else {
-				// Skip tab: shell autocomplete mutates line state internally.
-				for _, r := range inputData.Data {
-					if r >= 32 && r != '\t' {
-						h.commandBuffers[msg.SessionID] += string(r)
-					}
-				}
-			}
-		}
-	}
-	h.mu.Unlock()
-
-	if completedCommand != "" {
-		entry, addErr := h.historyManager.Add(completedCommand)
-		if addErr != nil {
-			return addErr
-		}
-		if entry != nil {
-			_ = writer.WriteMessage(&models.IPCMessage{
-				Type: models.MsgHistoryAdd,
-				Data: models.HistoryAddResponse{
-					Entry: *entry,
-				},
-			})
-		}
-	}
-
+	_ = writer
 	return h.manager.SendInput(msg.SessionID, []byte(inputData.Data))
 }
 
@@ -234,11 +184,7 @@ func (h *TerminalHandler) captureShellHistory(sessionID, output string, writer R
 
 		end += start + len(historyMarkerPrefix)
 		command := strings.TrimSpace(buffer[start+len(historyMarkerPrefix) : end])
-		if command != "" {
-			h.mu.Lock()
-			h.historyHookDetected[sessionID] = true
-			h.mu.Unlock()
-
+		if command != "" && !shouldIgnoreHistoryCommand(command) {
 			entry, err := h.historyManager.Add(command)
 			if err == nil && entry != nil {
 				_ = writer.WriteMessage(&models.IPCMessage{
@@ -252,4 +198,11 @@ func (h *TerminalHandler) captureShellHistory(sessionID, output string, writer R
 
 		buffer = buffer[end+1:]
 	}
+}
+
+func shouldIgnoreHistoryCommand(command string) bool {
+	return strings.Contains(command, "__freessh_emit_history") ||
+		strings.Contains(command, "__freessh_precmd") ||
+		strings.Contains(command, "add-zsh-hook precmd") ||
+		strings.Contains(command, "freessh-history=")
 }
