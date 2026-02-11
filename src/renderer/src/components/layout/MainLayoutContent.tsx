@@ -23,7 +23,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
       </div>
 
       {/* Terminal view */}
-      <div className={mainView === "terminal" ? "flex-1 overflow-hidden transition-all" : "hidden"} style={{ paddingRight: showTerminalSettings ? '320px' : '0' }}>
+      <div className={mainView === "terminal" ? "flex-1 overflow-hidden transition-[padding-right] duration-150 ease-out" : "hidden"} style={{ paddingRight: showTerminalSettings ? '320px' : '0' }}>
         <Suspense fallback={<div className="flex items-center justify-center h-full"><LoadingSpinner /></div>}>
           {tabs.map((tab) => (
             <div

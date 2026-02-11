@@ -29,42 +29,49 @@ export const TerminalPane = memo(function TerminalPane({
   const terminalRef = useRef<HTMLDivElement>(null)
   const xtermRef = useRef<XTerm | null>(null)
   const fitAddonRef = useRef<FitAddon | null>(null)
-  const searchAddonRef = useRef<SearchAddon | null>(null)
+  const onDataRef = useRef(onData)
+  const onResizeRef = useRef(onResize)
+  const onSearchResultsRef = useRef(onSearchResults)
+  const fitScheduledRef = useRef(false)
   const theme = useTerminalThemeStore((state) => state.getTheme())
   const { fontFamily, fontSize, fontWeight } = useTerminalFontStore()
 
-  // Stable callbacks
-  const handleData = useCallback((data: string) => {
-    onData(data)
+  useEffect(() => {
+    onDataRef.current = onData
   }, [onData])
 
-  const handleResize = useCallback((cols: number, rows: number) => {
-    onResize(cols, rows)
+  useEffect(() => {
+    onResizeRef.current = onResize
   }, [onResize])
+
+  useEffect(() => {
+    onSearchResultsRef.current = onSearchResults
+  }, [onSearchResults])
+
+  const scheduleFit = useCallback(() => {
+    if (fitScheduledRef.current) return
+    fitScheduledRef.current = true
+
+    requestAnimationFrame(() => {
+      fitScheduledRef.current = false
+      if (!fitAddonRef.current || !xtermRef.current) return
+      fitAddonRef.current.fit()
+      onResizeRef.current(xtermRef.current.cols, xtermRef.current.rows)
+    })
+  }, [])
 
   // Re-fit when sidebar opens/closes
   useEffect(() => {
-    if (xtermRef.current && fitAddonRef.current) {
-      requestAnimationFrame(() => {
-        if (fitAddonRef.current && xtermRef.current) {
-          fitAddonRef.current.fit()
-          handleResize(xtermRef.current.cols, xtermRef.current.rows)
-        }
-      })
-    }
-  }, [sidebarOpen, handleResize])
+    if (!xtermRef.current) return
+    scheduleFit()
+    const timer = window.setTimeout(() => scheduleFit(), 180)
+    return () => window.clearTimeout(timer)
+  }, [sidebarOpen, scheduleFit])
 
   // Re-fit when becoming active
   useEffect(() => {
-    if (isActive && xtermRef.current && fitAddonRef.current) {
-      requestAnimationFrame(() => {
-        if (fitAddonRef.current && xtermRef.current) {
-          fitAddonRef.current.fit()
-          handleResize(xtermRef.current.cols, xtermRef.current.rows)
-        }
-      })
-    }
-  }, [isActive, handleResize])
+    if (isActive && xtermRef.current) scheduleFit()
+  }, [isActive, scheduleFit])
 
   // Live theme update
   useEffect(() => {
@@ -81,16 +88,9 @@ export const TerminalPane = memo(function TerminalPane({
       xtermRef.current.options.fontWeight = fontWeight as any
 
       // Refit after font change
-      if (fitAddonRef.current) {
-        requestAnimationFrame(() => {
-          if (fitAddonRef.current && xtermRef.current) {
-            fitAddonRef.current.fit()
-            handleResize(xtermRef.current.cols, xtermRef.current.rows)
-          }
-        })
-      }
+      scheduleFit()
     }
-  }, [fontFamily, fontSize, fontWeight, handleResize])
+  }, [fontFamily, fontSize, fontWeight, scheduleFit])
 
   useEffect(() => {
     if (!terminalRef.current) return
@@ -113,13 +113,12 @@ export const TerminalPane = memo(function TerminalPane({
     xterm.loadAddon(searchAddon)
     xterm.open(terminalRef.current)
 
-    // Configure search decoration colors AFTER loading addon
     searchAddon.onDidChangeResults((results) => {
-      if (onSearchResults) {
+      if (onSearchResultsRef.current) {
         if (!results) {
-          onSearchResults(null)
+          onSearchResultsRef.current(null)
         } else {
-          onSearchResults({
+          onSearchResultsRef.current({
             resultIndex: results.resultIndex,
             resultCount: results.resultCount
           })
@@ -129,26 +128,17 @@ export const TerminalPane = memo(function TerminalPane({
 
     xtermRef.current = xterm
     fitAddonRef.current = fitAddon
-    searchAddonRef.current = searchAddon
 
     onReady(xterm, searchAddon)
 
-    requestAnimationFrame(() => {
-      if (fitAddonRef.current && xtermRef.current) {
-        fitAddonRef.current.fit()
-        handleResize(xtermRef.current.cols, xtermRef.current.rows)
-      }
+    scheduleFit()
+
+    xterm.onData((data: string) => {
+      onDataRef.current(data)
     })
 
-    xterm.onData(handleData)
-
     const resizeHandler = () => {
-      requestAnimationFrame(() => {
-        if (fitAddonRef.current && xtermRef.current) {
-          fitAddonRef.current.fit()
-          handleResize(xtermRef.current.cols, xtermRef.current.rows)
-        }
-      })
+      scheduleFit()
     }
     window.addEventListener('resize', resizeHandler)
 
@@ -162,7 +152,7 @@ export const TerminalPane = memo(function TerminalPane({
       xtermRef.current = null
       fitAddonRef.current = null
     }
-  }, [onReady, handleData, handleResize, theme, fontSize, fontFamily, fontWeight])
+  }, [onReady, scheduleFit, sessionId])
 
   return (
     <div className="h-full w-full" style={{ backgroundColor: theme.background }}>
