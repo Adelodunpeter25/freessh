@@ -142,27 +142,26 @@ export function ConnectionsPage() {
           handleVerificationCancel={handleVerificationCancel}
         />
       ) : (
-        <div className="h-full flex flex-col relative">
+        <div
+          className="h-full flex flex-col relative"
+          onClickCapture={(e) => {
+            if (!groupHandlers.selectedGroupId) return
+            const target = e.target as Node
+            if (groupsSectionRef.current?.contains(target)) return
+            groupHandlers.handleSelectGroup(null)
+          }}
+        >
           <ConnectionsHeader />
-          <div
-            onClickCapture={(e) => {
-              if (!groupHandlers.selectedGroupId) return
-              const target = e.target as Node
-              if (groupsSectionRef.current?.contains(target)) return
-              groupHandlers.handleSelectGroup(null)
-            }}
-          >
-            <div ref={groupsSectionRef}>
-              <GroupsSection
-                groups={groupHandlers.groups}
-                loading={groupHandlers.loading}
-                selectedGroupId={groupHandlers.selectedGroupId}
-                onSelectGroup={groupHandlers.handleSelectGroup}
-                onEditGroup={groupHandlers.handleEditGroup}
-                onDeleteGroup={groupHandlers.handleDeleteGroup}
-                onOpenGroup={groupHandlers.handleOpenGroup}
-              />
-            </div>
+          <div ref={groupsSectionRef}>
+            <GroupsSection
+              groups={groupHandlers.groups}
+              loading={groupHandlers.loading}
+              selectedGroupId={groupHandlers.selectedGroupId}
+              onSelectGroup={groupHandlers.handleSelectGroup}
+              onEditGroup={groupHandlers.handleEditGroup}
+              onDeleteGroup={groupHandlers.handleDeleteGroup}
+              onOpenGroup={groupHandlers.handleOpenGroup}
+            />
           </div>
           {showStandaloneConnections && (
             <div className="flex-1 overflow-hidden flex flex-col">

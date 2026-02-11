@@ -29,7 +29,7 @@ export function GroupsSection({
 
   if (loading) {
     return (
-      <div className="border-b bg-background/95">
+      <div className="bg-background/95">
         <div className="px-4 py-3 flex items-center justify-center">
           <LoadingSpinner size="sm" />
         </div>
@@ -42,7 +42,7 @@ export function GroupsSection({
   }
 
   return (
-    <div className="border-b bg-background/95">
+    <div className="bg-background/95">
       <div className="px-4 py-3">
         <div className="flex items-center gap-2 mb-3">
           <Button
