@@ -52,12 +52,26 @@ export function ConnectionsPage() {
     searchQuery,
     groupHandlers.selectedGroup
   )
-  const showStandaloneConnections = !groupHandlers.loading && groupHandlers.groups.length === 0
+  const ungroupedConnections = useMemo(
+    () => connections.filter((c) => !c.group || c.group.trim() === ''),
+    [connections]
+  )
+  const ungroupedFilteredConnections = useMemo(
+    () => ungroupedConnections.filter(conn =>
+      conn.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conn.host.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conn.username.toLowerCase().includes(searchQuery.toLowerCase())
+    ),
+    [ungroupedConnections, searchQuery]
+  )
+  const hasUngroupedConnections = ungroupedConnections.length > 0
+  const showStandaloneConnections = !groupHandlers.loading && (groupHandlers.groups.length === 0 || hasUngroupedConnections)
+  const connectionsForList = groupHandlers.groups.length === 0 ? filteredConnections : ungroupedFilteredConnections
 
   const contextValue = useMemo(
     () => ({
       connections,
-      filteredConnections,
+      filteredConnections: connectionsForList,
       loading,
       connectingId,
       localTerminalLoading: localTerminal.localTerminalLoading,
@@ -82,7 +96,7 @@ export function ConnectionsPage() {
     }),
     [
       connections,
-      filteredConnections,
+      connectionsForList,
       loading,
       connectingId,
       localTerminal.localTerminalLoading,
@@ -151,7 +165,7 @@ export function ConnectionsPage() {
                   <h2 className="text-sm font-semibold text-foreground">
                     Connections
                   </h2>
-                  <Badge variant="secondary">{connections.length}</Badge>
+                  <Badge variant="secondary">{connectionsForList.length}</Badge>
                 </div>
               </div>
               {!connectionsCollapsed && (
