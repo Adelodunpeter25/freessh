@@ -38,9 +38,16 @@ func ParseMarkers(chunk string) ([]string, string) {
 func IsBootstrapCommand(command string) bool {
 	c := strings.TrimSpace(command)
 	return strings.Contains(c, "__freessh_emit_history") ||
+		strings.Contains(c, "__FREESSH_LAST_CMD") ||
+		strings.Contains(c, "fish_prompt") ||
 		strings.Contains(c, "__freessh_precmd") ||
 		strings.Contains(c, "__FREESSH_LAST_HISTNO") ||
+		strings.Contains(c, "__FREESSH_LAST_HIST_ID") ||
 		strings.Contains(c, "freessh-history=") ||
+		strings.Contains(c, "Register-EngineEvent") ||
+		strings.Contains(c, "PowerShell.OnIdle") ||
+		strings.Contains(c, "Get-EventSubscriber") ||
+		strings.Contains(c, "Get-History") ||
 		strings.Contains(c, "add-zsh-hook") ||
 		strings.Contains(c, "autoload -Uz") ||
 		strings.Contains(c, "PROMPT_COMMAND=") ||
