@@ -77,31 +77,14 @@ func SanitizeLogContent(content string) string {
 
 	lines := strings.Split(cleaned, "\n")
 	filtered := make([]string, 0, len(lines))
-	inBootstrapBlock := false
 	for _, line := range lines {
 		trimmed := strings.TrimSpace(line)
 		if trimmed == "" {
-			if inBootstrapBlock {
-				continue
-			}
 			filtered = append(filtered, line)
 			continue
 		}
 
-		// Drop full hook block once detected, even when wrapped across multiple lines.
-		if inBootstrapBlock {
-			if trimmed == "fi" {
-				inBootstrapBlock = false
-			}
-			continue
-		}
 		if IsBootstrapCommand(trimmed) {
-			if strings.Contains(trimmed, "$BASH_VERSION") ||
-				strings.Contains(trimmed, "$ZSH_VERSION") ||
-				strings.Contains(trimmed, "__freessh_emit_history") ||
-				strings.Contains(trimmed, "__freessh_precmd") {
-				inBootstrapBlock = true
-			}
 			continue
 		}
 		filtered = append(filtered, line)
