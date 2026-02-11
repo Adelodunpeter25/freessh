@@ -26,7 +26,10 @@ export function useConnectionFilters(
         conn.host.toLowerCase().includes(searchQuery.toLowerCase()) ||
         conn.username.toLowerCase().includes(searchQuery.toLowerCase())
       )
-      .filter(conn => selectedGroup === null || conn.group === selectedGroup),
+      .filter(conn => {
+        if (searchQuery.trim()) return true
+        return selectedGroup === null || conn.group === selectedGroup
+      }),
     [connections, searchQuery, selectedGroup]
   )
 

@@ -65,8 +65,13 @@ export function ConnectionsPage() {
     [ungroupedConnections, searchQuery]
   )
   const hasUngroupedConnections = ungroupedConnections.length > 0
-  const showStandaloneConnections = !groupHandlers.loading && (groupHandlers.groups.length === 0 || hasUngroupedConnections)
-  const connectionsForList = groupHandlers.groups.length === 0 ? filteredConnections : ungroupedFilteredConnections
+  const isSearching = searchQuery.trim().length > 0
+  const showStandaloneConnections = !groupHandlers.loading && (isSearching || groupHandlers.groups.length === 0 || hasUngroupedConnections)
+  const connectionsForList = isSearching
+    ? filteredConnections
+    : groupHandlers.groups.length === 0
+      ? filteredConnections
+      : ungroupedFilteredConnections
 
   const contextValue = useMemo(
     () => ({
