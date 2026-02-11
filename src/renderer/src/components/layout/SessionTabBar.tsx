@@ -25,6 +25,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
   const {
     handleSelect,
     handleClose,
+    handleDuplicate,
     handleRenameSubmit,
     handleOpenSFTP,
     handleTogglePin
@@ -97,12 +98,14 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               title={tab.title}
               connectionHost={connectionHost}
               connectionId={connectionId}
+              canDuplicate={tab.type !== 'log'}
               isActive={activeTabId === tab.id && !showHome && !showSFTP}
               isPinned={tab.isPinned || false}
               isRenaming={renamingTabId === tab.id}
               onSelect={handleSelect}
               onClose={handleClose}
               onRename={handleRename}
+              onDuplicate={handleDuplicate}
               onRenameSubmit={handleRenameComplete}
               onRenameCancel={handleRenameCancel}
               onOpenSFTP={handleOpenSFTP}

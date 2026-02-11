@@ -16,12 +16,14 @@ interface SessionTabProps {
   title: string
   connectionHost?: string
   connectionId?: string
+  canDuplicate: boolean
   isActive: boolean
   isPinned: boolean
   isRenaming: boolean
   onSelect: (id: string) => void
   onClose: (id: string) => void
   onRename: (id: string) => void
+  onDuplicate: (id: string) => void
   onRenameSubmit: (id: string, newTitle: string) => void
   onRenameCancel: () => void
   onOpenSFTP: (sessionId: string) => void
@@ -34,12 +36,14 @@ export const SessionTab = memo(function SessionTab({
   title,
   connectionHost,
   connectionId,
-  isActive, 
+  canDuplicate,
+  isActive,
   isPinned,
   isRenaming,
   onSelect, 
   onClose,
   onRename,
+  onDuplicate,
   onRenameSubmit,
   onRenameCancel,
   onOpenSFTP,
@@ -54,9 +58,11 @@ export const SessionTab = memo(function SessionTab({
       tabTitle={title}
       isPinned={isPinned}
       showSFTP={!!connectionId}
+      showDuplicate={canDuplicate}
       sessionId={sessionId}
       onClose={() => onClose(id)}
       onRename={() => onRename(id)}
+      onDuplicate={() => onDuplicate(id)}
       onOpenSFTP={() => onOpenSFTP(sessionId)}
       onTogglePin={() => onTogglePin(id)}
     >

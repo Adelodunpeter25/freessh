@@ -1,4 +1,4 @@
-import { Pin, PinOff, X, Edit, FolderSync } from 'lucide-react'
+import { Pin, PinOff, X, Edit, FolderSync, Copy } from 'lucide-react'
 import { BaseContextMenu, ContextMenuAction } from './BaseContextMenu'
 
 interface SessionTabContextMenuProps {
@@ -7,8 +7,10 @@ interface SessionTabContextMenuProps {
   tabTitle: string
   isPinned: boolean
   showSFTP?: boolean
+  showDuplicate?: boolean
   onClose: () => void
   onRename: () => void
+  onDuplicate: () => void
   onOpenSFTP: () => void
   onTogglePin: () => void
 }
@@ -19,8 +21,10 @@ export function SessionTabContextMenu({
   tabTitle,
   isPinned,
   showSFTP = true,
+  showDuplicate = true,
   onClose,
   onRename,
+  onDuplicate,
   onOpenSFTP,
   onTogglePin
 }: SessionTabContextMenuProps) {
@@ -30,6 +34,11 @@ export function SessionTabContextMenu({
       icon: <Edit className="w-4 h-4" />,
       onClick: onRename
     },
+    ...(showDuplicate ? [{
+      label: 'Duplicate Tab',
+      icon: <Copy className="w-4 h-4" />,
+      onClick: onDuplicate
+    }] : []),
     ...(showSFTP ? [{
       label: 'Open SFTP',
       icon: <FolderSync className="w-4 h-4" />,
