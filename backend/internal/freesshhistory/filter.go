@@ -55,6 +55,35 @@ func IsBootstrapCommand(command string) bool {
 		strings.Contains(c, "$ZSH_VERSION")
 }
 
+func ContainsBootstrapFragment(content string) bool {
+	c := strings.TrimSpace(content)
+	if c == "" {
+		return false
+	}
+
+	fragments := []string{
+		"__freessh_emit_history",
+		"__freessh_precmd",
+		"__FREESSH_LAST_HISTNO",
+		"__FREESSH_LAST_CMD",
+		"freessh-history=%s",
+		"histno=\"$HISTCMD\"",
+		"cmd=\"$(fc -ln -1",
+		"add-zsh-hook precmd",
+		"PROMPT_COMMAND=\"__freessh_emit_history",
+		"[ -n \"$BASH_VERSION\" ]",
+		"[ -n \"$ZSH_VERSION\" ]",
+	}
+
+	for _, fragment := range fragments {
+		if strings.Contains(c, fragment) {
+			return true
+		}
+	}
+
+	return false
+}
+
 // StripMarkers removes freessh OSC marker payloads from terminal output.
 func StripMarkers(content string) string {
 	cleaned := content

@@ -146,6 +146,11 @@ func (h *TerminalHandler) StartOutputStreaming(sessionID string, writer Response
 				}
 				rawOutput := string(data)
 				h.captureShellHistory(sessionID, rawOutput, writer)
+
+				if freesshhistory.ContainsBootstrapFragment(rawOutput) {
+					continue
+				}
+
 				output := freesshhistory.SanitizeLogContent(rawOutput)
 				if output == "" {
 					continue
