@@ -5,6 +5,7 @@ import { createMenu } from "./menu";
 import { setupMenuHandlers } from "./menuHandlers";
 import { setupFileSystemHandlers } from "./fs";
 import * as path from "path";
+import * as fs from "fs";
 
 app.setName("FreeSSH");
 
@@ -15,13 +16,14 @@ let stdoutBuffer = "";
 function startBackend() {
   const isDev = !app.isPackaged;
   const binaryName = process.platform === "win32" ? "server.exe" : "server";
-
-  const binaryPath = isDev
-    ? path.join(process.cwd(), "backend", "bin", binaryName)
-    : path.join(process.resourcesPath, "backend", binaryName);
+  const binaryPath = resolveBackendPath(isDev, binaryName);
 
   goBackend = spawn(binaryPath, [], {
     stdio: ["pipe", "pipe", "pipe"],
+  });
+
+  goBackend.on("error", (error) => {
+    console.error("Failed to start backend:", error);
   });
 
   goBackend.stdout?.on("data", (data: Buffer) => {
@@ -50,6 +52,26 @@ function startBackend() {
     console.log("Backend exited with code:", code);
     goBackend = null;
   });
+}
+
+function resolveBackendPath(isDev: boolean, binaryName: string): string {
+  if (!isDev) {
+    return path.join(process.resourcesPath, "backend", binaryName);
+  }
+
+  const candidates = [
+    path.join(process.cwd(), "backend", "bin", binaryName),
+    path.join(app.getAppPath(), "backend", "bin", binaryName),
+    path.join(path.dirname(app.getAppPath()), "backend", "bin", binaryName),
+  ];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return candidates[0];
 }
 
 // Send message to Go backend

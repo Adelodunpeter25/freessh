@@ -13,32 +13,31 @@ func (m *Manager) CloseSession(sessionID string) error {
 
 	// Stop session goroutines first
 	session.Stop()
-	
+
 	// Stop logging if active
-	if session.isLogging {
-		m.StopLogging(sessionID)
+	session.logMutex.Lock()
+	isLogging := session.isLogging
+	session.logMutex.Unlock()
+
+	if isLogging {
+		_ = m.StopLogging(sessionID)
 	}
-	
-	// Stop all port forwarding tunnels
-	if session.PortForwardMgr != nil {
-		session.PortForwardMgr.StopAll()
-	}
-	
+
 	// Close SFTP client
 	if session.SFTPClient != nil {
 		session.SFTPClient.Close()
 	}
-	
+
 	// Close terminal
 	if session.Terminal != nil {
 		session.Terminal.Close()
 	}
-	
+
 	// Disconnect SSH (this stops keep-alive)
 	if session.SSHClient != nil {
 		session.SSHClient.Disconnect()
 	}
-	
+
 	// Update status and remove
 	session.Session.Status = models.SessionDisconnected
 	m.RemoveSession(sessionID)

@@ -20,10 +20,10 @@ func (m *Manager) readOutput(as *ActiveSession) {
 func (m *Manager) readLocalOutput(as *ActiveSession) {
 	io := as.LocalTerminal.Read()
 	reader := io.Read()
-	
+
 	ctx, cancel := context.WithCancel(context.Background())
 	as.cancelOutput = cancel
-	
+
 	go m.pipeOutput(ctx, as, reader)
 }
 
@@ -40,34 +40,42 @@ func (m *Manager) pipeOutput(ctx context.Context, as *ActiveSession, reader io.R
 			readDone := make(chan struct{})
 			var n int
 			var err error
-			
+
 			go func() {
 				n, err = reader.Read(buf)
 				close(readDone)
 			}()
-			
+
 			select {
 			case <-ctx.Done():
 				return
 			case <-readDone:
 				if err != nil {
 					if err != io.EOF {
-						as.ErrorChan <- err
+						select {
+						case <-as.stopChan:
+							return
+						case as.ErrorChan <- err:
+						}
 					}
 					return
 				}
 				if n > 0 {
 					data := make([]byte, n)
 					copy(data, buf[:n])
-					
+
 					// Write to log file if logging is active
+					as.logMutex.Lock()
 					if as.isLogging && as.logFile != nil {
-						as.logMutex.Lock()
 						as.logFile.Write(data)
-						as.logMutex.Unlock()
 					}
-					
-					as.OutputChan <- data
+					as.logMutex.Unlock()
+
+					select {
+					case <-as.stopChan:
+						return
+					case as.OutputChan <- data:
+					}
 				}
 			}
 		}

@@ -13,8 +13,12 @@ type Reader struct {
 }
 
 func NewReader() *Reader {
+	scanner := bufio.NewScanner(os.Stdin)
+	// Allow larger IPC payloads (default scanner token limit is 64KB).
+	scanner.Buffer(make([]byte, 64*1024), 1024*1024)
+
 	return &Reader{
-		scanner: bufio.NewScanner(os.Stdin),
+		scanner: scanner,
 	}
 }
 

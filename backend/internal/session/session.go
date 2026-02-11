@@ -13,21 +13,22 @@ import (
 )
 
 type ActiveSession struct {
-	ID              string
-	SSHClient       *ssh.Client
-	Terminal        *terminal.Terminal
-	LocalTerminal   *localterminal.Terminal
-	SFTPClient      *sftp.Client
-	PortForwardMgr  *portforward.Manager
-	Session         models.Session
-	Config          models.ConnectionConfig
-	OutputChan      chan []byte
-	ErrorChan       chan error
-	stopChan        chan struct{}
-	cancelOutput    context.CancelFunc
-	logFile         *os.File
-	isLogging       bool
-	logMutex        sync.Mutex
+	ID             string
+	SSHClient      *ssh.Client
+	Terminal       *terminal.Terminal
+	LocalTerminal  *localterminal.Terminal
+	SFTPClient     *sftp.Client
+	PortForwardMgr *portforward.Manager
+	Session        models.Session
+	Config         models.ConnectionConfig
+	OutputChan     chan []byte
+	ErrorChan      chan error
+	stopChan       chan struct{}
+	cancelOutput   context.CancelFunc
+	logFile        *os.File
+	isLogging      bool
+	logMutex       sync.Mutex
+	stopOnce       sync.Once
 }
 
 func NewActiveSession(id string, sshClient *ssh.Client, term *terminal.Terminal, session models.Session) *ActiveSession {
@@ -60,20 +61,17 @@ func (as *ActiveSession) Stop() {
 	if as.cancelOutput != nil {
 		as.cancelOutput()
 	}
-	
+
 	// Stop port forwarding first
 	if as.PortForwardMgr != nil {
 		as.PortForwardMgr.StopAll()
 	}
-	
-	// Close channels
-	select {
-	case <-as.stopChan:
-		// Already stopped
-	default:
+
+	as.stopOnce.Do(func() {
 		close(as.stopChan)
-	}
-	
-	close(as.OutputChan)
-	close(as.ErrorChan)
+	})
+}
+
+func (as *ActiveSession) StopChannel() <-chan struct{} {
+	return as.stopChan
 }

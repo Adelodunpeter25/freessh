@@ -129,8 +129,16 @@ func (h *TerminalHandler) StartOutputStreaming(sessionID string, writer Response
 	}
 
 	go func() {
+		defer func() {
+			h.mu.Lock()
+			delete(h.markerBuffers, sessionID)
+			h.mu.Unlock()
+		}()
+
 		for {
 			select {
+			case <-activeSession.StopChannel():
+				return
 			case data, ok := <-activeSession.OutputChan:
 				if !ok {
 					return

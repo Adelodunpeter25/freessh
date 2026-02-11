@@ -40,6 +40,9 @@ func (m *Manager) StartLogging(sessionID string) (string, error) {
 		return "", fmt.Errorf("session not found: %s", sessionID)
 	}
 
+	session.logMutex.Lock()
+	defer session.logMutex.Unlock()
+
 	if session.isLogging {
 		return "", fmt.Errorf("session is already logging")
 	}
@@ -57,7 +60,7 @@ func (m *Manager) StartLogging(sessionID string) (string, error) {
 	// Sanitize connection name for filename
 	connectionName = strings.ReplaceAll(connectionName, " ", "-")
 	connectionName = strings.ReplaceAll(connectionName, "/", "-")
-	
+
 	filename := fmt.Sprintf("%s_%s.log", connectionName, timestamp)
 	logPath := filepath.Join(logsDir, filename)
 
@@ -80,6 +83,9 @@ func (m *Manager) StopLogging(sessionID string) error {
 	if !exists {
 		return fmt.Errorf("session not found: %s", sessionID)
 	}
+
+	session.logMutex.Lock()
+	defer session.logMutex.Unlock()
 
 	if !session.isLogging {
 		return fmt.Errorf("session is not logging")
