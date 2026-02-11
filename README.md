@@ -1,8 +1,29 @@
-# FreeSSH (Beta)
+# FreeSSH
 
-FreeSSH is a desktop SSH client focused on terminal workflows, SFTP transfers, and session tooling.
+**A free, open-source, local-first SSH client.**
 
-## Beta Status
+FreeSSH is a free and open-source alternative to Termius, built for developers and operators who want a fast desktop SSH workflow without vendor lock-in.
+
+## Why FreeSSH
+
+- Free and open source
+- Local-first by design
+- Desktop-focused SSH and SFTP workflows
+- Built for everyday terminal operations
+
+## Features
+
+- Multi-session terminal tabs (local and remote)
+- Integrated SFTP browser for local/remote file operations
+- SSH key generation, import, export, and management
+- Known hosts management and host-key verification flow
+- SSH port forwarding support
+- Command snippets for repeatable workflows
+- Session logging and log viewer
+- Command history support in terminal workflows
+- Connection grouping and search
+
+## Platform Status
 
 FreeSSH is currently in **Beta**.
 
@@ -12,32 +33,18 @@ FreeSSH is currently in **Beta**.
 
 ## Download
 
-Download the latest beta release from the project releases page.
+Download the latest beta build from the project releases page.
 
 - macOS: `.dmg` (or zipped app build)
-- Linux: `.AppImage` / distro package when available
-- Windows: `.exe` installer when available
-
-## What You Can Do
-
-- Open local and remote terminal sessions
-- Manage multiple sessions with tabs
-- Use built-in SFTP file browser and transfers
-- Save and reuse command snippets
-- View known hosts and key fingerprints
-- Generate/import/export SSH keys
-- Configure and run SSH port forwarding
-- Capture and view session logs
-- Use command history inside terminal workflows
-
-## Notes
-
-- This is a beta release, so minor bugs and UI issues may still appear.
-- If something breaks, please report it with:
-  - your OS/version
-  - what you were doing
-  - screenshots/log snippets if possible
+- Linux: `.AppImage` / distro package (when available)
+- Windows: `.exe` installer (when available)
 
 ## Feedback
 
-Your feedback is the main input for hardening Linux/Windows support before stable release.
+If you hit an issue, please share:
+
+- OS and version
+- What you were doing
+- Screenshots or logs (if available)
+
+Feedback from beta users is helping harden Linux and Windows support before stable release.
