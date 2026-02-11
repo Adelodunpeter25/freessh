@@ -62,7 +62,7 @@ export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditS
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="snippets" className="m-0 h-full">
+        <TabsContent value="snippets" className="m-0 flex-1 min-h-0 overflow-hidden">
           <TerminalSnippetsList 
             onPasteSnippet={handlePasteSnippet}
             onRunSnippet={handleRunSnippet}
@@ -72,13 +72,13 @@ export function TerminalSidebar({ onClose, onPasteSnippet, onRunSnippet, onEditS
           />
         </TabsContent>
 
-        <TabsContent value="history" className="m-0 h-full">
+        <TabsContent value="history" className="m-0 flex-1 min-h-0 overflow-hidden">
           <TerminalHistoryList 
             activeSessionId={activeSessionId}
           />
         </TabsContent>
 
-        <TabsContent value="settings" className="m-0 h-full">
+        <TabsContent value="settings" className="m-0 flex-1 min-h-0 overflow-hidden">
           <TerminalSettingsContent />
         </TabsContent>
       </Tabs>
