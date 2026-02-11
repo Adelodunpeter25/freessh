@@ -4,6 +4,7 @@ import { useLocalFiles } from "@/hooks";
 import { FileInfo } from "@/types";
 import { useSessionStore } from "@/stores/sessionStore";
 import { useConnectionStore } from "@/stores/connectionStore";
+import { useUIStore } from "@/stores/uiStore";
 import { connectionService } from "@/services/ipc";
 
 export const useSFTPBrowserState = () => {
@@ -16,12 +17,17 @@ export const useSFTPBrowserState = () => {
   const [bulkDeleteContext, setBulkDeleteContext] = useState<{ count: number; isRemote: boolean } | null>(null);
   const [showingSelector, setShowingSelector] = useState<'left' | 'right' | null>(null);
   const [connectingConnectionId, setConnectingConnectionId] = useState<string | null>(null);
+  const [pendingSFTPConnectionId, setPendingSFTPConnectionId] = useState<string | null>(null);
   
   // Panel types and session IDs
   const [leftPanelType, setLeftPanelType] = useState<'local' | 'remote'>('local');
   const [leftSessionId, setLeftSessionId] = useState<string | null>(null);
   const [rightPanelType, setRightPanelType] = useState<'local' | 'remote'>('remote');
   const [rightSessionId, setRightSessionId] = useState<string | null>(null);
+  const connections = useConnectionStore((state) => state.connections);
+  const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
+  const sftpOpenRequest = useUIStore((state) => state.sftpOpenRequest);
+  const clearSFTPConnection = useUIStore((state) => state.clearSFTPConnection);
 
   const sftp = useSFTP(sessionId);
   const leftSftp = useSFTP(leftSessionId);
@@ -212,6 +218,28 @@ export const useSFTPBrowserState = () => {
     
     setShowingSelector(null)
   }, [])
+
+  useEffect(() => {
+    if (!sftpConnectionId) return
+    setPendingSFTPConnectionId(sftpConnectionId)
+    clearSFTPConnection()
+  }, [sftpConnectionId, sftpOpenRequest, clearSFTPConnection])
+
+  useEffect(() => {
+    if (!pendingSFTPConnectionId) return
+
+    const hasExistingSession = useSessionStore
+      .getState()
+      .getAllSessions()
+      .some((s) => s.connection?.id === pendingSFTPConnectionId)
+    const hasConnection = connections.some((c) => c.id === pendingSFTPConnectionId)
+
+    if (!hasExistingSession && !hasConnection) return
+
+    void handlePanelSelect('right', 'remote', pendingSFTPConnectionId).finally(() => {
+      setPendingSFTPConnectionId(null)
+    })
+  }, [pendingSFTPConnectionId, connections, handlePanelSelect])
 
   return {
     sessionId,
