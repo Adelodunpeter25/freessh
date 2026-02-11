@@ -131,33 +131,35 @@ export function ConnectionsPage() {
             onDeleteGroup={groupHandlers.handleDeleteGroup}
             onOpenGroup={groupHandlers.handleOpenGroup}
           />
-          <div className="flex-1 overflow-hidden flex flex-col">
-            <div className="px-4 py-3 border-b bg-background/95">
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => setConnectionsCollapsed(!connectionsCollapsed)}
-                >
-                  {connectionsCollapsed ? (
-                    <ChevronRight className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </Button>
-                <h2 className="text-sm font-semibold text-foreground">
-                  Connections
-                </h2>
-                <Badge variant="secondary">{connections.length}</Badge>
+          {groupHandlers.groups.length === 0 && (
+            <div className="flex-1 overflow-hidden flex flex-col">
+              <div className="px-4 py-3 border-b bg-background/95">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => setConnectionsCollapsed(!connectionsCollapsed)}
+                  >
+                    {connectionsCollapsed ? (
+                      <ChevronRight className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <h2 className="text-sm font-semibold text-foreground">
+                    Connections
+                  </h2>
+                  <Badge variant="secondary">{connections.length}</Badge>
+                </div>
               </div>
+              {!connectionsCollapsed && (
+                <div className="flex-1 overflow-hidden">
+                  <ConnectionList />
+                </div>
+              )}
             </div>
-            {!connectionsCollapsed && (
-              <div className="flex-1 overflow-hidden">
-                <ConnectionList />
-              </div>
-            )}
-          </div>
+          )}
 
           <NewConnectionButton onClick={connectionHandlers.handleNewConnection} />
 
