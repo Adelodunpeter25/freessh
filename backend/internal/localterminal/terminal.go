@@ -1,10 +1,14 @@
 package localterminal
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
+	"os/user"
+	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -31,8 +35,8 @@ func (t *Terminal) Initialize(rows, cols int) error {
 
 	shell := getShell()
 	t.cmd = exec.Command(shell)
-	t.cmd.Env = os.Environ()
-	
+	t.cmd.Env = buildTerminalEnv(shell)
+
 	// Set working directory to user's home directory
 	if homeDir, err := os.UserHomeDir(); err == nil {
 		t.cmd.Dir = homeDir
@@ -97,13 +101,13 @@ func (t *Terminal) Close() error {
 	if t.cmd != nil && t.cmd.Process != nil {
 		// Try graceful shutdown first
 		t.cmd.Process.Signal(os.Interrupt)
-		
+
 		// Wait for process to exit (with timeout)
 		done := make(chan error, 1)
 		go func() {
 			done <- t.cmd.Wait()
 		}()
-		
+
 		select {
 		case <-done:
 			// Process exited gracefully
@@ -119,15 +123,123 @@ func (t *Terminal) Close() error {
 
 func getShell() string {
 	if runtime.GOOS == "windows" {
-		if powershell := os.Getenv("COMSPEC"); powershell != "" {
-			return powershell
+		for _, candidate := range []string{"pwsh.exe", "powershell.exe"} {
+			if p, err := exec.LookPath(candidate); err == nil {
+				return p
+			}
+		}
+
+		if comspec := os.Getenv("COMSPEC"); comspec != "" {
+			return comspec
+		}
+		if p, err := exec.LookPath("cmd.exe"); err == nil {
+			return p
 		}
 		return "cmd.exe"
 	}
 
-	if shell := os.Getenv("SHELL"); shell != "" {
-		return shell
+	candidates := []string{
+		strings.TrimSpace(os.Getenv("SHELL")),
+		strings.TrimSpace(detectLoginShellFromPasswd()),
 	}
 
+	for _, candidate := range candidates {
+		if candidate == "" {
+			continue
+		}
+		if resolved := resolveExecutable(candidate); resolved != "" {
+			return resolved
+		}
+	}
+
+	// Last-resort portable fallback.
+	if p, err := exec.LookPath("sh"); err == nil {
+		return p
+	}
 	return "/bin/sh"
+}
+
+func buildTerminalEnv(shell string) []string {
+	env := make(map[string]string)
+	for _, pair := range os.Environ() {
+		parts := strings.SplitN(pair, "=", 2)
+		key := parts[0]
+		value := ""
+		if len(parts) == 2 {
+			value = parts[1]
+		}
+		env[key] = value
+	}
+
+	if runtime.GOOS != "windows" {
+		if strings.TrimSpace(env["SHELL"]) == "" && shell != "" {
+			env["SHELL"] = shell
+		}
+		if strings.TrimSpace(env["TERM"]) == "" {
+			// xterm.js behaves closest to xterm-256color.
+			env["TERM"] = "xterm-256color"
+		}
+		if strings.TrimSpace(env["COLORTERM"]) == "" {
+			env["COLORTERM"] = "truecolor"
+		}
+	}
+
+	result := make([]string, 0, len(env))
+	for key, value := range env {
+		result = append(result, key+"="+value)
+	}
+	return result
+}
+
+func resolveExecutable(candidate string) string {
+	candidate = strings.TrimSpace(candidate)
+	if candidate == "" {
+		return ""
+	}
+
+	if filepath.IsAbs(candidate) {
+		if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
+			return candidate
+		}
+		return ""
+	}
+
+	if resolved, err := exec.LookPath(candidate); err == nil {
+		return resolved
+	}
+
+	return ""
+}
+
+func detectLoginShellFromPasswd() string {
+	currentUser, err := user.Current()
+	if err != nil {
+		return ""
+	}
+
+	passwd, err := os.Open("/etc/passwd")
+	if err != nil {
+		return ""
+	}
+	defer passwd.Close()
+
+	scanner := bufio.NewScanner(passwd)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		fields := strings.Split(line, ":")
+		if len(fields) < 7 {
+			continue
+		}
+
+		username := fields[0]
+		uid := fields[2]
+		if username == currentUser.Username || uid == currentUser.Uid {
+			return strings.TrimSpace(fields[6])
+		}
+	}
+
+	return ""
 }
