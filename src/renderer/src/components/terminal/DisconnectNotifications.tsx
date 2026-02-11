@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 export interface DisconnectNotice {
   sessionId: string;
@@ -33,7 +34,17 @@ export function DisconnectNotifications({
 
         return (
           <div key={item.sessionId} className="rounded-lg border bg-background/95 backdrop-blur p-3 shadow-lg">
-            <div className="text-sm font-medium">Disconnected: {item.title}</div>
+            <div className="flex items-start justify-between gap-2">
+              <div className="text-sm font-medium">Disconnected: {item.title}</div>
+              <button
+                type="button"
+                onClick={() => onDismiss(item)}
+                className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                aria-label="Dismiss notification"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
             <div className="text-xs text-muted-foreground mt-1">{description}</div>
             <div className="mt-3 flex gap-2">
               <Button
@@ -49,13 +60,6 @@ export function DisconnectNotifications({
                 onClick={() => onClose(item)}
               >
                 Close Tab
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onDismiss(item)}
-              >
-                Dismiss
               </Button>
             </div>
           </div>
