@@ -21,7 +21,7 @@ func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session
 
 func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, verificationCallback func(*models.HostKeyVerification) error) (*models.Session, error) {
 	sessionID := uuid.New().String()
-	
+
 	session := models.Session{
 		ID:           sessionID,
 		ConnectionID: config.ID,
@@ -64,7 +64,7 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 			}
 			config.PrivateKey = privateKey
 		}
-		
+
 		// Get passphrase from keychain if key is encrypted
 		if config.PrivateKey != "" {
 			passphrase, _ := kc.Get(config.ID + ":passphrase")
@@ -81,16 +81,16 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 	}
 
 	verifier := ssh.NewHostKeyVerifier(knownHostStorage)
-	
+
 	sshClient := ssh.NewClient(config)
-	
+
 	// Set up host key verification callback
 	callback := verifier.CreateCallback(config.Host, config.Port, func(verification *models.HostKeyVerification) error {
 		// If verification callback provided, use it
 		if verificationCallback != nil {
 			return verificationCallback(verification)
 		}
-		
+
 		// Otherwise auto-trust new hosts
 		if verification.Status == "new" {
 			return nil
@@ -98,7 +98,7 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 		return fmt.Errorf("host key verification failed")
 	})
 	sshClient.SetHostKeyCallback(callback)
-	
+
 	if err := sshClient.Connect(); err != nil {
 		session.Status = models.SessionError
 		session.Error = err.Error()
@@ -130,6 +130,7 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 	m.AddSession(activeSession)
 
 	go m.readOutput(activeSession)
+	m.initShellHistoryHook(sessionID)
 
 	// Auto-start logging if enabled
 	if m.logSettings != nil && m.logSettings.GetAutoLogging() {
@@ -173,6 +174,7 @@ func (m *Manager) CreateLocalSession() (*models.Session, error) {
 	m.AddSession(activeSession)
 
 	go m.readLocalOutput(activeSession)
+	m.initShellHistoryHook(sessionID)
 
 	// Auto-start logging if enabled
 	if m.logSettings != nil && m.logSettings.GetAutoLogging() {
