@@ -1,5 +1,5 @@
 package config
 
 const (
-	FeatureDetachableWorkspaces = false
+	FeatureDetachableWorkspaces = true
 )
