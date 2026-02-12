@@ -44,7 +44,7 @@ export function createWindow(options: CreateWindowOptions = {}): BrowserWindow {
   }
 
   mainWindow.webContents.once('did-finish-load', () => {
-    mainWindow.webContents.send('workspace:window-mode', { mode })
+    mainWindow.webContents.send('workspace:window-mode', { mode, windowId: mainWindow.id })
   })
 
   return mainWindow

@@ -110,11 +110,11 @@ app.whenReady().then(() => {
   ipcMain.handle("workspace:get-window-context", (event) => {
     const window = BrowserWindow.fromWebContents(event.sender);
     if (!window) {
-      return { mode: "primary" as AppWindowMode };
+      return { mode: "primary" as AppWindowMode, windowId: -1 };
     }
 
     const mode = windowModes.get(window.id) ?? "primary";
-    return { mode };
+    return { mode, windowId: window.id };
   });
 
   setupFileSystemHandlers();
