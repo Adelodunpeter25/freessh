@@ -1,9 +1,10 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import { spawn, ChildProcess } from "child_process";
-import { createWindow } from "./window";
+import { createWindow, type AppWindowMode } from "./window";
 import { createMenu } from "./menu";
 import { setupMenuHandlers } from "./menuHandlers";
 import { setupFileSystemHandlers } from "./fs";
+import { FEATURE_FLAGS } from "./constants/features";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -11,6 +12,7 @@ app.setName("FreeSSH");
 
 let goBackend: ChildProcess | null = null;
 let stdoutBuffer = "";
+const windowModes = new Map<number, AppWindowMode>();
 
 // Start Go backend
 function startBackend() {
@@ -84,15 +86,55 @@ ipcMain.on("backend:send", (event, message) => {
 
 app.whenReady().then(() => {
   ipcMain.on("ping", () => console.log("pong"));
+  ipcMain.on("workspace:window-mode:set", (event, payload: { mode?: AppWindowMode }) => {
+    const window = BrowserWindow.fromWebContents(event.sender);
+    if (!window) return;
+    const mode = payload?.mode === "workspace" ? "workspace" : "primary";
+    windowModes.set(window.id, mode);
+  });
+
+  ipcMain.handle("workspace:create-window", () => {
+    if (!FEATURE_FLAGS.DETACHABLE_WORKSPACES) {
+      return { ok: false, reason: "feature_disabled" };
+    }
+
+    const window = createWindow({ mode: "workspace" });
+    windowModes.set(window.id, "workspace");
+    window.on("closed", () => {
+      windowModes.delete(window.id);
+    });
+
+    return { ok: true, windowId: window.id };
+  });
+
+  ipcMain.handle("workspace:get-window-context", (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender);
+    if (!window) {
+      return { mode: "primary" as AppWindowMode };
+    }
+
+    const mode = windowModes.get(window.id) ?? "primary";
+    return { mode };
+  });
 
   setupFileSystemHandlers();
   setupMenuHandlers();
   createMenu();
   startBackend();
-  createWindow();
+  const window = createWindow({ mode: "primary" });
+  windowModes.set(window.id, "primary");
+  window.on("closed", () => {
+    windowModes.delete(window.id);
+  });
 
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) {
+      const newWindow = createWindow({ mode: "primary" });
+      windowModes.set(newWindow.id, "primary");
+      newWindow.on("closed", () => {
+        windowModes.delete(newWindow.id);
+      });
+    }
   });
 });
 

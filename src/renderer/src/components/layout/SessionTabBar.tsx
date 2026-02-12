@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react'
-import { Home, FolderSync } from 'lucide-react'
+import { Home, FolderSync, Plus } from 'lucide-react'
 import { useTabStore } from '@/stores'
 import { useSessionStore } from '@/stores/sessionStore'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { SessionTab } from './SessionTab'
 import { useSessionTabActions } from './SessionTabActions'
 import { cn } from '@/lib/utils'
+import { FEATURE_FLAGS } from '@/constants/features'
 
 interface SessionTabBarProps {
   showHome: boolean
@@ -42,6 +43,15 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
 
   const handleRenameCancel = useCallback(() => {
     setRenamingTabId(null)
+  }, [])
+
+  const handleCreateWorkspaceWindow = useCallback(async () => {
+    if (!FEATURE_FLAGS.DETACHABLE_WORKSPACES) return
+    try {
+      await window.electron.ipcRenderer.invoke('workspace:create-window')
+    } catch (error) {
+      console.error('Failed to create workspace window', error)
+    }
   }, [])
 
   return (
@@ -113,6 +123,24 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
             />
           )
         })}
+
+        {FEATURE_FLAGS.DETACHABLE_WORKSPACES ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                style={noDrag}
+                onClick={handleCreateWorkspaceWindow}
+                className="ml-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/5 text-foreground/80 transition-colors hover:border-white/20 hover:bg-white/10"
+                aria-label="Open workspace window"
+                title="Open workspace window"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>New workspace window</TooltipContent>
+          </Tooltip>
+        ) : null}
       </TooltipProvider>
     </div>
   )

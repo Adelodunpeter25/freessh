@@ -3,7 +3,14 @@ import { join } from 'path'
 import { is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
-export function createWindow(): BrowserWindow {
+export type AppWindowMode = 'primary' | 'workspace'
+
+interface CreateWindowOptions {
+  mode?: AppWindowMode
+}
+
+export function createWindow(options: CreateWindowOptions = {}): BrowserWindow {
+  const mode = options.mode ?? 'primary'
   const mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
@@ -35,6 +42,10 @@ export function createWindow(): BrowserWindow {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  mainWindow.webContents.once('did-finish-load', () => {
+    mainWindow.webContents.send('workspace:window-mode', { mode })
+  })
 
   return mainWindow
 }
