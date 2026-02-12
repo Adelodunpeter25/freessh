@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { SFTPPage, TerminalView, LogViewer } from "./MainLayoutRoutes";
+import { WorkspaceEmptyState, WorkspaceShell, WorkspaceSidebar } from "@/components/workspace";
 import { Tab } from "@/types";
 
 type MainView = "home" | "sftp" | "terminal";
@@ -32,6 +33,12 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
             >
               {tab.type === 'log' ? (
                 <LogViewer content={tab.logContent || ''} />
+              ) : tab.type === 'workspace' ? (
+                <WorkspaceShell
+                  title={tab.title}
+                  sidebar={<WorkspaceSidebar tabs={[]} activeTabId={null} />}
+                  content={<WorkspaceEmptyState />}
+                />
               ) : (
                 <TerminalView
                   sessionId={tab.sessionId}

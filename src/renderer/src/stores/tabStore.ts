@@ -1,15 +1,6 @@
 import { create } from 'zustand'
-import { Session, ConnectionConfig } from '../types'
+import { Session, ConnectionConfig, Tab } from '../types'
 import { generateUniqueTitle } from '../utils/tabNaming'
-
-interface Tab {
-  id: string
-  sessionId: string
-  title: string
-  type: 'terminal' | 'sftp' | 'log'
-  isPinned?: boolean
-  logContent?: string
-}
 
 interface TabStore {
   tabs: Tab[]
@@ -18,6 +9,7 @@ interface TabStore {
   addTab: (session: Session, connection: ConnectionConfig, type: 'terminal' | 'sftp') => void
   addLocalTab: (session: Session) => void
   addLogTab: (logName: string, logContent: string) => void
+  addWorkspaceTab: () => void
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
@@ -76,6 +68,24 @@ export const useTabStore = create<TabStore>((set, get) => ({
       title: uniqueTitle,
       type: 'log',
       logContent
+    }
+
+    set((state) => ({
+      tabs: [...state.tabs, newTab],
+      activeTabId: newTab.id
+    }))
+  },
+
+  addWorkspaceTab: () => {
+    const id = `workspace-${Date.now()}`
+    const existingTitles = get().tabs.map(t => t.title)
+    const uniqueTitle = generateUniqueTitle('Workspace', existingTitles)
+
+    const newTab: Tab = {
+      id,
+      sessionId: id,
+      title: uniqueTitle,
+      type: 'workspace'
     }
 
     set((state) => ({

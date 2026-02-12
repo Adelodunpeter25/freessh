@@ -80,7 +80,7 @@ export function MainLayout() {
     const tab = tabs.find((item) => item.id === activeSessionTabId);
     if (!tab) return;
 
-    if (tab.type === "log") {
+    if (tab.type === "log" || tab.type === "workspace") {
       removeTab(tab.id);
       return;
     }

@@ -24,7 +24,7 @@ export const useSessionTabActions = (onSFTPClick: () => void, onSessionClick: ()
     const tab = tabs.find((item) => item.id === id)
     if (!tab) return
 
-    if (tab.type === 'log') {
+    if (tab.type === 'log' || tab.type === 'workspace') {
       removeTab(id)
       return
     }
@@ -45,7 +45,7 @@ export const useSessionTabActions = (onSFTPClick: () => void, onSessionClick: ()
 
   const handleDuplicate = useCallback(async (id: string) => {
     const tab = tabs.find((item) => item.id === id)
-    if (!tab || tab.type === 'log') return
+    if (!tab || tab.type !== 'terminal') return
 
     const sessionData = getSession(tab.sessionId)
     if (!sessionData) {

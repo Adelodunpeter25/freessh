@@ -19,7 +19,7 @@ interface SessionTabBarProps {
 const noDrag = { WebkitAppRegion: 'no-drag' } as React.CSSProperties
 
 export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, onSessionClick }: SessionTabBarProps) {
-  const { tabs, activeTabId } = useTabStore()
+  const { tabs, activeTabId, addWorkspaceTab } = useTabStore()
   const getSession = useSessionStore((state) => state.getSession)
   const [renamingTabId, setRenamingTabId] = useState<string | null>(null)
 
@@ -45,14 +45,11 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
     setRenamingTabId(null)
   }, [])
 
-  const handleCreateWorkspaceWindow = useCallback(async () => {
+  const handleCreateWorkspaceTab = useCallback(() => {
     if (!FEATURE_FLAGS.DETACHABLE_WORKSPACES) return
-    try {
-      await window.electron.ipcRenderer.invoke('workspace:create-window')
-    } catch (error) {
-      console.error('Failed to create workspace window', error)
-    }
-  }, [])
+    addWorkspaceTab()
+    onSessionClick()
+  }, [addWorkspaceTab, onSessionClick])
 
   return (
     <div className="flex items-center gap-2 flex-1 overflow-x-auto scrollbar-hide">
@@ -108,7 +105,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               title={tab.title}
               connectionHost={connectionHost}
               connectionId={connectionId}
-              canDuplicate={tab.type !== 'log'}
+              canDuplicate={tab.type === 'terminal'}
               isActive={activeTabId === tab.id && !showHome && !showSFTP}
               isPinned={tab.isPinned || false}
               isRenaming={renamingTabId === tab.id}
@@ -130,15 +127,15 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               <button
                 type="button"
                 style={noDrag}
-                onClick={handleCreateWorkspaceWindow}
+                onClick={handleCreateWorkspaceTab}
                 className="ml-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/5 text-foreground/80 transition-colors hover:border-white/20 hover:bg-white/10"
-                aria-label="Open workspace window"
-                title="Open workspace window"
+                aria-label="Open workspace tab"
+                title="Open workspace tab"
               >
                 <Plus className="h-4 w-4" />
               </button>
             </TooltipTrigger>
-            <TooltipContent>New workspace window</TooltipContent>
+            <TooltipContent>New workspace tab</TooltipContent>
           </Tooltip>
         ) : null}
       </TooltipProvider>
