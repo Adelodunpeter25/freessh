@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MainLayout } from "./components/layout/MainLayout";
+import { TitleBar } from "./components/layout/TitleBar";
 import { WorkspaceEmptyState, WorkspaceShell, WorkspaceSidebar } from "./components/workspace";
 import { Toaster } from "./components/ui/sonner";
 import { useBackend } from "./hooks";
@@ -91,11 +92,25 @@ function App(): React.JSX.Element {
   return (
     <>
       {showWorkspace ? (
-        <WorkspaceShell
-          title="Workspace"
-          sidebar={<WorkspaceSidebar tabs={workspaceTabs} activeTabId={null} />}
-          content={<WorkspaceEmptyState />}
-        />
+        <div className="h-screen w-screen flex flex-col overflow-hidden">
+          <TitleBar
+            showHome={false}
+            showSFTP={false}
+            showTerminal={false}
+            sidebarOpen={false}
+            onHomeClick={() => {}}
+            onSFTPClick={() => {}}
+            onSessionClick={() => {}}
+            onSidebarToggle={() => {}}
+          />
+          <div className="flex-1 overflow-hidden">
+            <WorkspaceShell
+              title="Workspace"
+              sidebar={<WorkspaceSidebar tabs={workspaceTabs} activeTabId={null} />}
+              content={<WorkspaceEmptyState />}
+            />
+          </div>
+        </div>
       ) : (
         <MainLayout />
       )}
