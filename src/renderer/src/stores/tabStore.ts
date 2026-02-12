@@ -10,6 +10,8 @@ interface TabStore {
   addLocalTab: (session: Session) => void
   addLogTab: (logName: string, logContent: string) => void
   addWorkspaceTab: () => void
+  updateWorkspaceTabSelection: (tabId: string, connectionIds: string[]) => void
+  openWorkspaceTab: (tabId: string) => void
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
@@ -85,12 +87,34 @@ export const useTabStore = create<TabStore>((set, get) => ({
       id,
       sessionId: id,
       title: uniqueTitle,
-      type: 'workspace'
+      type: 'workspace',
+      workspaceMode: 'picker',
+      workspaceConnectionIds: []
     }
 
     set((state) => ({
       tabs: [...state.tabs, newTab],
       activeTabId: newTab.id
+    }))
+  },
+
+  updateWorkspaceTabSelection: (tabId, connectionIds) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) =>
+        tab.id === tabId && tab.type === 'workspace'
+          ? { ...tab, workspaceConnectionIds: connectionIds }
+          : tab
+      )
+    }))
+  },
+
+  openWorkspaceTab: (tabId) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) =>
+        tab.id === tabId && tab.type === 'workspace'
+          ? { ...tab, workspaceMode: 'workspace' }
+          : tab
+      )
     }))
   },
 

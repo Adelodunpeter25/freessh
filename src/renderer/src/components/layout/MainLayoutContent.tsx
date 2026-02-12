@@ -1,7 +1,9 @@
 import { Suspense } from "react";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { SFTPPage, TerminalView, LogViewer } from "./MainLayoutRoutes";
-import { WorkspaceEmptyState, WorkspaceShell, WorkspaceSidebar } from "@/components/workspace";
+import { WorkspaceConnectionsView, WorkspaceEmptyState, WorkspacePicker, WorkspaceShell, WorkspaceSidebar } from "@/components/workspace";
+import { useConnectionStore } from "@/stores/connectionStore";
+import { useTabStore } from "@/stores/tabStore";
 import { Tab } from "@/types";
 
 type MainView = "home" | "sftp" | "terminal";
@@ -14,6 +16,10 @@ interface MainLayoutContentProps {
 }
 
 export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerminalSettings }: MainLayoutContentProps) {
+  const connections = useConnectionStore((state) => state.connections)
+  const updateWorkspaceTabSelection = useTabStore((state) => state.updateWorkspaceTabSelection)
+  const openWorkspaceTab = useTabStore((state) => state.openWorkspaceTab)
+
   return (
     <>
       {/* SFTP view */}
@@ -37,7 +43,29 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                 <WorkspaceShell
                   title={tab.title}
                   sidebar={<WorkspaceSidebar tabs={[]} activeTabId={null} />}
-                  content={<WorkspaceEmptyState />}
+                  content={
+                    tab.workspaceMode === 'workspace' ? (
+                      (tab.workspaceConnectionIds?.length ?? 0) > 0 ? (
+                        <WorkspaceConnectionsView
+                          connections={connections.filter((conn) =>
+                            (tab.workspaceConnectionIds || []).includes(conn.id),
+                          )}
+                        />
+                      ) : (
+                        <WorkspaceEmptyState
+                          title="No connections selected"
+                          description="Go back and select connections to open in this workspace."
+                        />
+                      )
+                    ) : (
+                      <WorkspacePicker
+                        connections={connections}
+                        selectedIds={tab.workspaceConnectionIds || []}
+                        onSelectionChange={(ids) => updateWorkspaceTabSelection(tab.id, ids)}
+                        onOpenWorkspace={() => openWorkspaceTab(tab.id)}
+                      />
+                    )
+                  }
                 />
               ) : (
                 <TerminalView
