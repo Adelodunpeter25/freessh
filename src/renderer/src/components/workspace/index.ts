@@ -1,0 +1,7 @@
+export * from './types'
+export { WorkspaceShell } from './WorkspaceShell'
+export { WorkspaceSidebar } from './WorkspaceSidebar'
+export { WorkspaceTabListItem } from './WorkspaceTabListItem'
+export { WorkspaceEmptyState } from './WorkspaceEmptyState'
+export { WorkspaceDropZone } from './WorkspaceDropZone'
+export { WorkspaceSplitView } from './WorkspaceSplitView'
