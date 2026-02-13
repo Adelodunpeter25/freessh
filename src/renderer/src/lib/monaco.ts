@@ -6,7 +6,6 @@ import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 
-import 'monaco-editor/esm/vs/basic-languages/plaintext/plaintext.contribution'
 import 'monaco-editor/esm/vs/basic-languages/json/json.contribution'
 import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution'
 import 'monaco-editor/esm/vs/basic-languages/html/html.contribution'
