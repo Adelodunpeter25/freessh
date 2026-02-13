@@ -11,8 +11,6 @@ import 'monaco-editor/esm/vs/basic-languages/json/json.contribution'
 import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution'
 import 'monaco-editor/esm/vs/basic-languages/html/html.contribution'
 import 'monaco-editor/esm/vs/basic-languages/css/css.contribution'
-import 'monaco-editor/esm/vs/basic-languages/scss/scss.contribution'
-import 'monaco-editor/esm/vs/basic-languages/less/less.contribution'
 import 'monaco-editor/esm/vs/basic-languages/javascript/javascript.contribution'
 import 'monaco-editor/esm/vs/basic-languages/typescript/typescript.contribution'
 import 'monaco-editor/esm/vs/basic-languages/python/python.contribution'
@@ -22,17 +20,13 @@ import 'monaco-editor/esm/vs/basic-languages/dockerfile/dockerfile.contribution'
 import 'monaco-editor/esm/vs/basic-languages/ini/ini.contribution'
 import 'monaco-editor/esm/vs/basic-languages/toml/toml.contribution'
 import 'monaco-editor/esm/vs/basic-languages/go/go.contribution'
-import 'monaco-editor/esm/vs/basic-languages/rust/rust.contribution'
-import 'monaco-editor/esm/vs/basic-languages/java/java.contribution'
 import 'monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution'
 import 'monaco-editor/esm/vs/basic-languages/php/php.contribution'
-import 'monaco-editor/esm/vs/basic-languages/ruby/ruby.contribution'
-import 'monaco-editor/esm/vs/basic-languages/perl/perl.contribution'
 
 ;(self as any).MonacoEnvironment = {
   getWorker(_: string, label: string) {
     if (label === 'json') return new jsonWorker()
-    if (label === 'css' || label === 'scss' || label === 'less') return new cssWorker()
+    if (label === 'css') return new cssWorker()
     if (label === 'html' || label === 'handlebars' || label === 'razor') return new htmlWorker()
     if (label === 'typescript' || label === 'javascript') return new tsWorker()
     return new editorWorker()
