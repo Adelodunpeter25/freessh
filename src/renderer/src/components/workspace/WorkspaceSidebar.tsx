@@ -10,9 +10,9 @@ export function WorkspaceSidebar({ tabs, activeTabId, onSelectTab }: WorkspaceSi
       <div className="flex-1 space-y-1 overflow-y-auto p-2">
         {tabs.map((tab) => (
           <WorkspaceTabListItem
-            key={tab.tab_id}
+            key={tab.sessionId}
             tab={tab}
-            active={activeTabId === tab.tab_id}
+            active={activeTabId === tab.sessionId}
             onSelect={onSelectTab}
           />
         ))}

@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useState } from "react";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { SFTPPage, TerminalView, LogViewer } from "./MainLayoutRoutes";
-import { WorkspaceEmptyState, WorkspacePicker, WorkspaceShell, WorkspaceSidebar, WorkspaceTerminalGrid } from "@/components/workspace";
+import { WorkspaceEmptyState, WorkspacePicker, WorkspaceShell, WorkspaceSidebar } from "@/components/workspace";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { useTabStore } from "@/stores/tabStore";
 import { useSessionStore } from "@/stores/sessionStore";
@@ -22,6 +22,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const connections = useConnectionStore((state) => state.connections)
   const updateWorkspaceTabSelection = useTabStore((state) => state.updateWorkspaceTabSelection)
   const openWorkspaceTab = useTabStore((state) => state.openWorkspaceTab)
+  const setWorkspaceActiveSession = useTabStore((state) => state.setWorkspaceActiveSession)
   const getAllSessions = useSessionStore((state) => state.getAllSessions)
   const addSession = useSessionStore((state) => state.addSession)
   const getSession = useSessionStore((state) => state.getSession)
@@ -100,22 +101,30 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                           const item = getSession(sessionId)
                           const connection = item?.connection
                           return {
-                            tab_id: connection?.name || `${connection?.username}@${connection?.host}` || sessionId,
-                            session_id: sessionId,
-                            window_id: tab.id,
-                            is_local: item?.session.connection_id === 'local',
-                            created_at: '',
-                            modified_at: '',
+                            sessionId,
+                            title: connection?.name || `${connection?.username}@${connection?.host}` || sessionId,
+                            subtitle: connection ? `${connection.username}@${connection.host}` : sessionId,
+                            connectionId: connection?.id,
+                            isLocal: item?.session.connection_id === 'local',
                           }
                         })}
-                        activeTabId={null}
+                        activeTabId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
+                        onSelectTab={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
                       />
                     ) : undefined
                   }
                   content={
                     tab.workspaceMode === 'workspace' ? (
                       (tab.workspaceSessionIds?.length ?? 0) > 0 ? (
-                        <WorkspaceTerminalGrid sessionIds={tab.workspaceSessionIds || []} />
+                        <div className="h-full w-full p-2">
+                          <div className="h-full overflow-hidden rounded-md border border-border">
+                            <TerminalView
+                              sessionId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || ''}
+                              isActive={activeSessionTabId === tab.id && mainView === "terminal"}
+                              sidebarOpen={false}
+                            />
+                          </div>
+                        </div>
                       ) : (
                         <WorkspaceEmptyState
                           title="No active sessions"

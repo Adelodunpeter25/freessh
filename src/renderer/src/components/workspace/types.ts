@@ -16,15 +16,23 @@ export interface WorkspaceShellProps {
 }
 
 export interface WorkspaceSidebarProps {
-  tabs: WorkspaceTabModel[]
+  tabs: WorkspaceSidebarItem[]
   activeTabId: string | null
-  onSelectTab?: (tabId: string) => void
+  onSelectTab?: (sessionId: string) => void
 }
 
 export interface WorkspaceTabListItemProps {
-  tab: WorkspaceTabModel
+  tab: WorkspaceSidebarItem
   active?: boolean
-  onSelect?: (tabId: string) => void
+  onSelect?: (sessionId: string) => void
+}
+
+export interface WorkspaceSidebarItem {
+  sessionId: string
+  title: string
+  subtitle?: string
+  connectionId?: string
+  isLocal?: boolean
 }
 
 export interface WorkspaceSplitViewProps {
