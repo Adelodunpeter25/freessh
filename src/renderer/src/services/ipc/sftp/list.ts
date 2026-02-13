@@ -5,10 +5,12 @@ export const list = (sessionId: string, path: string): Promise<FileInfo[]> => {
   return new Promise((resolve, reject) => {
     const handler = (message: IPCMessage) => {
       if (message.session_id === sessionId && message.type === 'sftp:list') {
-        backendService.off('sftp:list')
+        backendService.off('sftp:list', handler)
+        backendService.off('error', handler)
         resolve(message.data as FileInfo[])
       } else if (message.type === 'error') {
-        backendService.off('error')
+        backendService.off('sftp:list', handler)
+        backendService.off('error', handler)
         reject(new Error(message.data.error))
       }
     }
