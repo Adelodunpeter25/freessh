@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import Editor from '@monaco-editor/react'
 import { loader } from '@monaco-editor/react'
-import * as monaco from 'monaco-editor'
+import { monaco } from '@/lib/monaco'
 import { getLanguageFromFilename } from '@/utils/fileTypes'
 import { FilePreviewHeader } from './FilePreviewHeader'
 import { monacoOptions, readOnlyOptions } from './config'
