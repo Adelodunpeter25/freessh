@@ -8,7 +8,7 @@ export function WorkspaceShell({ title = 'Workspace', sidebar, content, footer }
       </header>
 
       <div className="flex min-h-0 flex-1">
-        <aside className="w-72 shrink-0 border-r border-border bg-muted/20">{sidebar}</aside>
+        {sidebar ? <aside className="w-72 shrink-0 border-r border-border bg-muted/20">{sidebar}</aside> : null}
         <main className="min-h-0 flex-1">{content}</main>
       </div>
 

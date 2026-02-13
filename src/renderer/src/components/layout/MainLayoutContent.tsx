@@ -24,6 +24,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const openWorkspaceTab = useTabStore((state) => state.openWorkspaceTab)
   const getAllSessions = useSessionStore((state) => state.getAllSessions)
   const addSession = useSessionStore((state) => state.addSession)
+  const getSession = useSessionStore((state) => state.getSession)
   const [openingWorkspaceTabs, setOpeningWorkspaceTabs] = useState<Record<string, boolean>>({})
 
   const handleOpenWorkspace = useCallback(async (tab: Tab) => {
@@ -92,7 +93,25 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
               ) : tab.type === 'workspace' ? (
                 <WorkspaceShell
                   title={tab.title}
-                  sidebar={<WorkspaceSidebar tabs={[]} activeTabId={null} />}
+                  sidebar={
+                    tab.workspaceMode === 'workspace' ? (
+                      <WorkspaceSidebar
+                        tabs={(tab.workspaceSessionIds || []).map((sessionId) => {
+                          const item = getSession(sessionId)
+                          const connection = item?.connection
+                          return {
+                            tab_id: connection?.name || `${connection?.username}@${connection?.host}` || sessionId,
+                            session_id: sessionId,
+                            window_id: tab.id,
+                            is_local: item?.session.connection_id === 'local',
+                            created_at: '',
+                            modified_at: '',
+                          }
+                        })}
+                        activeTabId={null}
+                      />
+                    ) : undefined
+                  }
                   content={
                     tab.workspaceMode === 'workspace' ? (
                       (tab.workspaceSessionIds?.length ?? 0) > 0 ? (

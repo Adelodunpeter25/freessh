@@ -10,7 +10,7 @@ export interface WorkspacePane {
 
 export interface WorkspaceShellProps {
   title?: string
-  sidebar: ReactNode
+  sidebar?: ReactNode
   content: ReactNode
   footer?: ReactNode
 }
