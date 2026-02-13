@@ -8,6 +8,7 @@ export interface Tab {
   type: TabType
   workspaceMode?: WorkspaceTabMode
   workspaceConnectionIds?: string[]
+  workspaceSessionIds?: string[]
   isPinned?: boolean
   logContent?: string
 }

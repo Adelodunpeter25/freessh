@@ -1,10 +1,13 @@
-import { Suspense } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { SFTPPage, TerminalView, LogViewer } from "./MainLayoutRoutes";
-import { WorkspaceConnectionsView, WorkspaceEmptyState, WorkspacePicker, WorkspaceShell, WorkspaceSidebar } from "@/components/workspace";
+import { WorkspaceEmptyState, WorkspacePicker, WorkspaceShell, WorkspaceSidebar, WorkspaceTerminalGrid } from "@/components/workspace";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { useTabStore } from "@/stores/tabStore";
+import { useSessionStore } from "@/stores/sessionStore";
+import { connectionService } from "@/services/ipc/connection";
 import { Tab } from "@/types";
+import { toast } from "sonner";
 
 type MainView = "home" | "sftp" | "terminal";
 
@@ -19,6 +22,53 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const connections = useConnectionStore((state) => state.connections)
   const updateWorkspaceTabSelection = useTabStore((state) => state.updateWorkspaceTabSelection)
   const openWorkspaceTab = useTabStore((state) => state.openWorkspaceTab)
+  const getAllSessions = useSessionStore((state) => state.getAllSessions)
+  const addSession = useSessionStore((state) => state.addSession)
+  const [openingWorkspaceTabs, setOpeningWorkspaceTabs] = useState<Record<string, boolean>>({})
+
+  const handleOpenWorkspace = useCallback(async (tab: Tab) => {
+    const selectedConnectionIds = tab.workspaceConnectionIds || []
+    if (selectedConnectionIds.length === 0) return
+
+    setOpeningWorkspaceTabs((prev) => ({ ...prev, [tab.id]: true }))
+    const sessionIds: string[] = []
+
+    try {
+      for (const connectionId of selectedConnectionIds) {
+        const existing = getAllSessions().find(
+          (item) =>
+            item.connection?.id === connectionId &&
+            (item.session.status === 'connected' || item.session.status === 'connecting'),
+        )
+
+        if (existing) {
+          sessionIds.push(existing.session.id)
+          continue
+        }
+
+        const connection = connections.find((conn) => conn.id === connectionId)
+        if (!connection) continue
+
+        try {
+          const session = await connectionService.connect(connection)
+          addSession(session, connection)
+          sessionIds.push(session.id)
+        } catch (error) {
+          const message = error instanceof Error ? error.message : 'Failed to connect'
+          toast.error(`Failed to connect ${connection.name}: ${message}`)
+        }
+      }
+
+      if (sessionIds.length === 0) {
+        toast.error('No sessions could be opened for this workspace')
+        return
+      }
+
+      openWorkspaceTab(tab.id, sessionIds)
+    } finally {
+      setOpeningWorkspaceTabs((prev) => ({ ...prev, [tab.id]: false }))
+    }
+  }, [addSession, connections, getAllSessions, openWorkspaceTab])
 
   return (
     <>
@@ -45,16 +95,12 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                   sidebar={<WorkspaceSidebar tabs={[]} activeTabId={null} />}
                   content={
                     tab.workspaceMode === 'workspace' ? (
-                      (tab.workspaceConnectionIds?.length ?? 0) > 0 ? (
-                        <WorkspaceConnectionsView
-                          connections={connections.filter((conn) =>
-                            (tab.workspaceConnectionIds || []).includes(conn.id),
-                          )}
-                        />
+                      (tab.workspaceSessionIds?.length ?? 0) > 0 ? (
+                        <WorkspaceTerminalGrid sessionIds={tab.workspaceSessionIds || []} />
                       ) : (
                         <WorkspaceEmptyState
-                          title="No connections selected"
-                          description="Go back and select connections to open in this workspace."
+                          title="No active sessions"
+                          description="Open workspace again after selecting one or more connections."
                         />
                       )
                     ) : (
@@ -62,7 +108,8 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                         connections={connections}
                         selectedIds={tab.workspaceConnectionIds || []}
                         onSelectionChange={(ids) => updateWorkspaceTabSelection(tab.id, ids)}
-                        onOpenWorkspace={() => openWorkspaceTab(tab.id)}
+                        onOpenWorkspace={() => handleOpenWorkspace(tab)}
+                        opening={openingWorkspaceTabs[tab.id] === true}
                       />
                     )
                   }

@@ -11,7 +11,7 @@ interface TabStore {
   addLogTab: (logName: string, logContent: string) => void
   addWorkspaceTab: () => void
   updateWorkspaceTabSelection: (tabId: string, connectionIds: string[]) => void
-  openWorkspaceTab: (tabId: string) => void
+  openWorkspaceTab: (tabId: string, sessionIds: string[]) => void
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
@@ -108,11 +108,11 @@ export const useTabStore = create<TabStore>((set, get) => ({
     }))
   },
 
-  openWorkspaceTab: (tabId) => {
+  openWorkspaceTab: (tabId, sessionIds) => {
     set((state) => ({
       tabs: state.tabs.map((tab) =>
         tab.id === tabId && tab.type === 'workspace'
-          ? { ...tab, workspaceMode: 'workspace' }
+          ? { ...tab, workspaceMode: 'workspace', workspaceSessionIds: sessionIds }
           : tab
       )
     }))

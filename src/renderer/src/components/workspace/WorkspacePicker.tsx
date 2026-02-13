@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Search, FolderOpen } from 'lucide-react'
+import { Search, FolderOpen, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { ConnectionConfig } from '@/types'
@@ -8,7 +8,8 @@ interface WorkspacePickerProps {
   connections: ConnectionConfig[]
   selectedIds: string[]
   onSelectionChange: (ids: string[]) => void
-  onOpenWorkspace: () => void
+  onOpenWorkspace: () => void | Promise<void>
+  opening?: boolean
 }
 
 export function WorkspacePicker({
@@ -16,6 +17,7 @@ export function WorkspacePicker({
   selectedIds,
   onSelectionChange,
   onOpenWorkspace,
+  opening = false,
 }: WorkspacePickerProps) {
   const [query, setQuery] = useState('')
 
@@ -60,6 +62,7 @@ export function WorkspacePicker({
               onChange={(e) => setQuery(e.target.value)}
               className="pl-9"
               placeholder="Search connections"
+              disabled={opening}
             />
           </div>
         </div>
@@ -72,6 +75,7 @@ export function WorkspacePicker({
                 key={conn.id}
                 type="button"
                 onClick={(e) => toggle(conn.id, e.metaKey || e.ctrlKey)}
+                disabled={opening}
                 className={[
                   'flex w-full items-center justify-between rounded-md border px-3 py-2 text-left transition-colors',
                   selected
@@ -96,8 +100,8 @@ export function WorkspacePicker({
 
         <div className="mt-5 flex items-center justify-between">
           <p className="text-xs text-muted-foreground">Use Cmd/Ctrl + click to select multiple connections.</p>
-          <Button onClick={onOpenWorkspace} disabled={selectedIds.length === 0}>
-            <FolderOpen className="mr-2 h-4 w-4" />
+          <Button onClick={onOpenWorkspace} disabled={selectedIds.length === 0 || opening}>
+            {opening ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FolderOpen className="mr-2 h-4 w-4" />}
             Open Workspace
           </Button>
         </div>
