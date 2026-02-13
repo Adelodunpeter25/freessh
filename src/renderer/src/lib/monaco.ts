@@ -16,10 +16,38 @@ import 'monaco-editor/esm/vs/basic-languages/markdown/markdown.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/shell/shell.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/dockerfile/dockerfile.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/ini/ini.contribution.js'
-import 'monaco-editor/esm/vs/basic-languages/toml/toml.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/go/go.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/php/php.contribution.js'
+
+if (!monaco.languages.getLanguages().some((lang) => lang.id === 'toml')) {
+  monaco.languages.register({ id: 'toml' })
+
+  monaco.languages.setLanguageConfiguration('toml', {
+    comments: { lineComment: '#' },
+    brackets: [['[', ']'], ['{', '}']],
+    autoClosingPairs: [
+      { open: '"', close: '"' },
+      { open: "'", close: "'" },
+      { open: '[', close: ']' },
+      { open: '{', close: '}' },
+    ],
+  })
+
+  monaco.languages.setMonarchTokensProvider('toml', {
+    tokenizer: {
+      root: [
+        [/^\s*\[[^\]]+\]\s*$/, 'type.identifier'],
+        [/^\s*[A-Za-z0-9_.-]+\s*(?==)/, 'variable'],
+        [/#.*$/, 'comment'],
+        [/"([^"\\]|\\.)*"/, 'string'],
+        [/'([^'\\]|\\.)*'/, 'string'],
+        [/\b(true|false)\b/, 'keyword'],
+        [/\b\d+(\.\d+)?\b/, 'number'],
+      ],
+    },
+  })
+}
 
 ;(self as any).MonacoEnvironment = {
   getWorker(_: string, label: string) {
