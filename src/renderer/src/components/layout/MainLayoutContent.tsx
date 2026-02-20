@@ -26,6 +26,8 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const openWorkspaceTab = useTabStore((state) => state.openWorkspaceTab)
   const setWorkspaceActiveSession = useTabStore((state) => state.setWorkspaceActiveSession)
   const addSessionToWorkspaceTab = useTabStore((state) => state.addSessionToWorkspaceTab)
+  const showWorkspaceSessionInView = useTabStore((state) => state.showWorkspaceSessionInView)
+  const setWorkspaceFocusSession = useTabStore((state) => state.setWorkspaceFocusSession)
   const getAllSessions = useSessionStore((state) => state.getAllSessions)
   const addSession = useSessionStore((state) => state.addSession)
   const getSession = useSessionStore((state) => state.getSession)
@@ -76,6 +78,20 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
       setOpeningWorkspaceTabs((prev) => ({ ...prev, [tab.id]: false }))
     }
   }, [addSession, connections, getAllSessions, openWorkspaceTab])
+
+  const handleSidebarSelect = useCallback((tab: Tab, sessionId: string) => {
+    const hidden = new Set(tab.workspaceHiddenSessionIds || [])
+    if (hidden.has(sessionId)) {
+      showWorkspaceSessionInView(tab.id, sessionId)
+    } else {
+      setWorkspaceActiveSession(tab.id, sessionId)
+    }
+
+    // If focus mode is on, selecting a session should switch focused terminal.
+    if (tab.workspaceFocusSessionId) {
+      setWorkspaceFocusSession(tab.id, sessionId)
+    }
+  }, [setWorkspaceActiveSession, setWorkspaceFocusSession, showWorkspaceSessionInView])
 
   return (
     <>
@@ -136,7 +152,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                           })
                         })()}
                         activeTabId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
-                        onSelectTab={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
+                        onSelectTab={(sessionId) => handleSidebarSelect(tab, sessionId)}
                         onDropSession={(sessionId) => addSessionToWorkspaceTab(tab.id, sessionId)}
                         onDisconnectSession={workspaceActions.disconnectSession}
                         onOpenSFTP={workspaceActions.openSessionSFTP}
@@ -149,12 +165,53 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                   content={
                     tab.workspaceMode === 'workspace' ? (
                       (tab.workspaceSessionIds?.length ?? 0) > 0 ? (
-                        <WorkspaceSplitPanes
-                          sessionIds={tab.workspaceSessionIds || []}
-                          activeSessionId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
-                          onActivateSession={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
-                          direction={tab.workspaceSplitDirection || 'horizontal'}
-                        />
+                        (() => {
+                          const hidden = new Set(tab.workspaceHiddenSessionIds || [])
+                          const visibleSessionIds = (tab.workspaceSessionIds || []).filter((id) => !hidden.has(id))
+                          const focusedSessionId = tab.workspaceFocusSessionId
+                          const renderedSessionIds =
+                            focusedSessionId && visibleSessionIds.includes(focusedSessionId)
+                              ? [focusedSessionId]
+                              : visibleSessionIds
+
+                          if (renderedSessionIds.length === 0) {
+                            return (
+                              <WorkspaceEmptyState
+                                title="All sessions hidden"
+                                description="Click a session in the sidebar to open it again."
+                              />
+                            )
+                          }
+
+                          const titleBySessionId: Record<string, string> = {}
+                          const usedTitles: string[] = []
+                          ;(tab.workspaceSessionIds || []).forEach((sessionId) => {
+                            const item = getSession(sessionId)
+                            const connection = item?.connection
+                            const isLocal = item?.session.connection_id === 'local'
+                            const baseTitle = isLocal
+                              ? 'Local Terminal'
+                              : connection?.name || (connection?.username && connection?.host
+                                  ? `${connection.username}@${connection.host}`
+                                  : sessionId)
+                            const title = generateUniqueTitle(baseTitle, usedTitles)
+                            usedTitles.push(title)
+                            titleBySessionId[sessionId] = title
+                          })
+
+                          return (
+                            <WorkspaceSplitPanes
+                              sessionIds={renderedSessionIds}
+                              activeSessionId={tab.workspaceActiveSessionId || renderedSessionIds[0] || null}
+                              focusedSessionId={tab.workspaceFocusSessionId}
+                              titleBySessionId={titleBySessionId}
+                              onActivateSession={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
+                              onCloseSession={workspaceActions.closeFromView}
+                              onToggleFocusSession={workspaceActions.toggleFocus}
+                              direction={tab.workspaceSplitDirection || 'horizontal'}
+                            />
+                          )
+                        })()
                       ) : (
                         <WorkspaceEmptyState
                           title="No active sessions"

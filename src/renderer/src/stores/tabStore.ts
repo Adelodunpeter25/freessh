@@ -17,6 +17,9 @@ interface TabStore {
   removeSessionFromWorkspaceTab: (tabId: string, sessionId: string) => void
   toggleWorkspacePinnedSession: (tabId: string, sessionId: string) => void
   setWorkspaceSplitDirection: (tabId: string, direction: 'horizontal' | 'vertical') => void
+  hideWorkspaceSessionFromView: (tabId: string, sessionId: string) => void
+  showWorkspaceSessionInView: (tabId: string, sessionId: string) => void
+  setWorkspaceFocusSession: (tabId: string, sessionId?: string) => void
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
@@ -124,6 +127,8 @@ export const useTabStore = create<TabStore>((set, get) => ({
               workspaceActiveSessionId: sessionIds[0],
               workspacePinnedSessionIds: [],
               workspaceSplitDirection: 'horizontal',
+              workspaceHiddenSessionIds: [],
+              workspaceFocusSessionId: undefined,
             }
           : tab
       )
@@ -156,6 +161,8 @@ export const useTabStore = create<TabStore>((set, get) => ({
           workspaceActiveSessionId: tab.workspaceActiveSessionId || sessionId,
           workspacePinnedSessionIds: tab.workspacePinnedSessionIds || [],
           workspaceSplitDirection: tab.workspaceSplitDirection || 'horizontal',
+          workspaceHiddenSessionIds: (tab.workspaceHiddenSessionIds || []).filter((id) => id !== sessionId),
+          workspaceFocusSessionId: tab.workspaceFocusSessionId,
         }
       }),
     }))
@@ -168,10 +175,13 @@ export const useTabStore = create<TabStore>((set, get) => ({
 
         const nextSessionIds = (tab.workspaceSessionIds || []).filter((id) => id !== sessionId)
         const nextPinned = (tab.workspacePinnedSessionIds || []).filter((id) => id !== sessionId)
+        const nextHidden = (tab.workspaceHiddenSessionIds || []).filter((id) => id !== sessionId)
         const nextActive =
           tab.workspaceActiveSessionId === sessionId
             ? nextSessionIds[0]
             : tab.workspaceActiveSessionId
+        const nextFocus =
+          tab.workspaceFocusSessionId === sessionId ? undefined : tab.workspaceFocusSessionId
 
         if (nextSessionIds.length === 0) {
           return {
@@ -180,6 +190,8 @@ export const useTabStore = create<TabStore>((set, get) => ({
             workspaceSessionIds: [],
             workspacePinnedSessionIds: [],
             workspaceActiveSessionId: undefined,
+            workspaceHiddenSessionIds: [],
+            workspaceFocusSessionId: undefined,
           }
         }
 
@@ -187,7 +199,9 @@ export const useTabStore = create<TabStore>((set, get) => ({
           ...tab,
           workspaceSessionIds: nextSessionIds,
           workspacePinnedSessionIds: nextPinned,
+          workspaceHiddenSessionIds: nextHidden,
           workspaceActiveSessionId: nextActive,
+          workspaceFocusSessionId: nextFocus,
         }
       }),
     }))
@@ -213,6 +227,53 @@ export const useTabStore = create<TabStore>((set, get) => ({
       tabs: state.tabs.map((tab) =>
         tab.id === tabId && tab.type === 'workspace'
           ? { ...tab, workspaceSplitDirection: direction }
+          : tab,
+      ),
+    }))
+  },
+
+  hideWorkspaceSessionFromView: (tabId, sessionId) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) => {
+        if (tab.id !== tabId || tab.type !== 'workspace') return tab
+        const hidden = new Set(tab.workspaceHiddenSessionIds || [])
+        hidden.add(sessionId)
+        const hiddenList = Array.from(hidden)
+
+        const visibleSessions = (tab.workspaceSessionIds || []).filter((id) => !hidden.has(id))
+        const nextActive =
+          tab.workspaceActiveSessionId === sessionId ? visibleSessions[0] : tab.workspaceActiveSessionId
+        const nextFocus =
+          tab.workspaceFocusSessionId === sessionId ? undefined : tab.workspaceFocusSessionId
+
+        return {
+          ...tab,
+          workspaceHiddenSessionIds: hiddenList,
+          workspaceActiveSessionId: nextActive,
+          workspaceFocusSessionId: nextFocus,
+        }
+      }),
+    }))
+  },
+
+  showWorkspaceSessionInView: (tabId, sessionId) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) => {
+        if (tab.id !== tabId || tab.type !== 'workspace') return tab
+        return {
+          ...tab,
+          workspaceHiddenSessionIds: (tab.workspaceHiddenSessionIds || []).filter((id) => id !== sessionId),
+          workspaceActiveSessionId: sessionId,
+        }
+      }),
+    }))
+  },
+
+  setWorkspaceFocusSession: (tabId, sessionId) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) =>
+        tab.id === tabId && tab.type === 'workspace'
+          ? { ...tab, workspaceFocusSessionId: sessionId }
           : tab,
       ),
     }))

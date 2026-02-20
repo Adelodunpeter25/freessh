@@ -12,6 +12,8 @@ export interface Tab {
   workspaceActiveSessionId?: string
   workspacePinnedSessionIds?: string[]
   workspaceSplitDirection?: 'horizontal' | 'vertical'
+  workspaceHiddenSessionIds?: string[]
+  workspaceFocusSessionId?: string
   isPinned?: boolean
   logContent?: string
 }

@@ -6,12 +6,17 @@ import { sshService } from '@/services/ipc/ssh'
 import { toast } from 'sonner'
 
 export function useWorkspaceSessionActions(workspaceTabId: string) {
+  const workspaceTab = useTabStore((state) =>
+    state.tabs.find((tab) => tab.id === workspaceTabId && tab.type === 'workspace'),
+  )
   const getSession = useSessionStore((state) => state.getSession)
   const removeSession = useSessionStore((state) => state.removeSession)
 
   const removeSessionFromWorkspaceTab = useTabStore((state) => state.removeSessionFromWorkspaceTab)
   const toggleWorkspacePinnedSession = useTabStore((state) => state.toggleWorkspacePinnedSession)
   const setWorkspaceSplitDirection = useTabStore((state) => state.setWorkspaceSplitDirection)
+  const hideWorkspaceSessionFromView = useTabStore((state) => state.hideWorkspaceSessionFromView)
+  const setWorkspaceFocusSession = useTabStore((state) => state.setWorkspaceFocusSession)
 
   const openSFTP = useUIStore((state) => state.openSFTP)
 
@@ -50,11 +55,22 @@ export function useWorkspaceSessionActions(workspaceTabId: string) {
     setWorkspaceSplitDirection(workspaceTabId, 'vertical')
   }, [setWorkspaceSplitDirection, workspaceTabId])
 
+  const closeFromView = useCallback((sessionId: string) => {
+    hideWorkspaceSessionFromView(workspaceTabId, sessionId)
+  }, [hideWorkspaceSessionFromView, workspaceTabId])
+
+  const toggleFocus = useCallback((sessionId: string) => {
+    const focused = workspaceTab?.workspaceFocusSessionId
+    setWorkspaceFocusSession(workspaceTabId, focused === sessionId ? undefined : sessionId)
+  }, [setWorkspaceFocusSession, workspaceTab?.workspaceFocusSessionId, workspaceTabId])
+
   return {
     disconnectSession,
     openSessionSFTP,
     togglePinned,
     splitRight,
     splitDown,
+    closeFromView,
+    toggleFocus,
   }
 }
