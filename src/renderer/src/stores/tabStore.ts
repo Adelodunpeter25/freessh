@@ -173,6 +173,16 @@ export const useTabStore = create<TabStore>((set, get) => ({
             ? nextSessionIds[0]
             : tab.workspaceActiveSessionId
 
+        if (nextSessionIds.length === 0) {
+          return {
+            ...tab,
+            workspaceMode: 'picker',
+            workspaceSessionIds: [],
+            workspacePinnedSessionIds: [],
+            workspaceActiveSessionId: undefined,
+          }
+        }
+
         return {
           ...tab,
           workspaceSessionIds: nextSessionIds,
