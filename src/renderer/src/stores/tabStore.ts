@@ -17,7 +17,12 @@ interface TabStore {
   removeSessionFromWorkspaceTab: (tabId: string, sessionId: string) => void
   toggleWorkspacePinnedSession: (tabId: string, sessionId: string) => void
   setWorkspaceSplitDirection: (tabId: string, direction: 'horizontal' | 'vertical') => void
-  reorderWorkspaceSession: (tabId: string, sessionId: string, targetSessionId: string) => void
+  reorderWorkspaceSession: (
+    tabId: string,
+    sessionId: string,
+    targetSessionId: string,
+    position?: 'top' | 'bottom',
+  ) => void
   hideWorkspaceSessionFromView: (tabId: string, sessionId: string) => void
   showWorkspaceSessionInView: (tabId: string, sessionId: string) => void
   setWorkspaceFocusSession: (tabId: string, sessionId?: string) => void
@@ -233,7 +238,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
     }))
   },
 
-  reorderWorkspaceSession: (tabId, sessionId, targetSessionId) => {
+  reorderWorkspaceSession: (tabId, sessionId, targetSessionId, position = 'bottom') => {
     set((state) => ({
       tabs: state.tabs.map((tab) => {
         if (tab.id !== tabId || tab.type !== 'workspace') return tab
@@ -244,7 +249,9 @@ export const useTabStore = create<TabStore>((set, get) => ({
         if (from < 0 || to < 0 || from === to) return tab
 
         source.splice(from, 1)
-        const adjustedTo = from < to ? to : to + 1
+        const adjustedTo = position === 'top'
+          ? (from < to ? to - 1 : to)
+          : (from < to ? to : to + 1)
         source.splice(adjustedTo, 0, sessionId)
 
         return { ...tab, workspaceSessionIds: source }

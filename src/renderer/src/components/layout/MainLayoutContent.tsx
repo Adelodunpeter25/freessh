@@ -209,7 +209,9 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                           onActivateSession={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
                           onCloseSession={workspaceActions.closeFromView}
                           onToggleFocusSession={workspaceActions.toggleFocus}
-                          onReorderSession={(sessionId, targetSessionId) => reorderWorkspaceSession(tab.id, sessionId, targetSessionId)}
+                          onReorderSession={(sessionId, targetSessionId, position) =>
+                            reorderWorkspaceSession(tab.id, sessionId, targetSessionId, position)
+                          }
                           onAttachSession={(sessionId) => addSessionToWorkspaceTab(tab.id, sessionId)}
                           onSplitDown={workspaceActions.splitDown}
                           direction={tab.workspaceSplitDirection || 'horizontal'}
