@@ -28,7 +28,7 @@ export function WorkspaceSplitPanes({ sessionIds, activeSessionId, onActivateSes
     <ResizablePanelGroup direction="horizontal" autoSaveId="workspace-terminal-splits">
       {sessionIds.flatMap((sessionId, index) => {
         const panel = (
-          <ResizablePanel key={`panel-${sessionId}`} defaultSize={100 / sessionIds.length} minSize={15}>
+          <ResizablePanel key={`panel-${sessionId}`} defaultSize={100 / sessionIds.length}>
             <div className="h-full p-2">
               <div
                 className={`h-full overflow-hidden rounded-md border ${activeSessionId === sessionId ? 'border-primary/50' : 'border-border'}`}

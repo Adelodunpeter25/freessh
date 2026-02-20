@@ -10,7 +10,7 @@ export function WorkspaceShell({ title = 'Workspace', sidebar, content, footer }
 
       {sidebar ? (
         <ResizablePanelGroup direction="horizontal" autoSaveId="workspace-shell-layout">
-          <ResizablePanel defaultSize={24} minSize={14} maxSize={40}>
+          <ResizablePanel defaultSize={24}>
             <aside className="h-full border-r border-border bg-muted/20">{sidebar}</aside>
           </ResizablePanel>
           <ResizableHandle withHandle />
