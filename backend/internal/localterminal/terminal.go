@@ -3,6 +3,7 @@ package localterminal
 import (
 	"bufio"
 	"fmt"
+	"freessh-backend/internal/freesshhistory"
 	"os"
 	"os/exec"
 	"os/user"
@@ -16,11 +17,12 @@ import (
 )
 
 type Terminal struct {
-	cmd    *exec.Cmd
-	pty    *PTY
-	io     *IO
-	mu     sync.Mutex
-	closed bool
+	cmd          *exec.Cmd
+	pty          *PTY
+	io           *IO
+	startupHooks []func()
+	mu           sync.Mutex
+	closed       bool
 }
 
 func NewTerminal() *Terminal {
@@ -34,8 +36,17 @@ func (t *Terminal) Initialize(rows, cols int) error {
 	defer t.mu.Unlock()
 
 	shell := getShell()
-	t.cmd = exec.Command(shell)
-	t.cmd.Env = buildTerminalEnv(shell)
+	env := buildTerminalEnv(shell)
+	args, cleanup, err := configureShellStartup(shell, env)
+	if err != nil {
+		return err
+	}
+	if cleanup != nil {
+		t.startupHooks = append(t.startupHooks, cleanup)
+	}
+
+	t.cmd = exec.Command(shell, args...)
+	t.cmd.Env = envMapToSlice(env)
 
 	// Set working directory to user's home directory
 	if homeDir, err := os.UserHomeDir(); err == nil {
@@ -118,6 +129,11 @@ func (t *Terminal) Close() error {
 		}
 	}
 
+	for _, cleanup := range t.startupHooks {
+		cleanup()
+	}
+	t.startupHooks = nil
+
 	return nil
 }
 
@@ -159,7 +175,7 @@ func getShell() string {
 	return "/bin/sh"
 }
 
-func buildTerminalEnv(shell string) []string {
+func buildTerminalEnv(shell string) map[string]string {
 	env := make(map[string]string)
 	for _, pair := range os.Environ() {
 		parts := strings.SplitN(pair, "=", 2)
@@ -184,11 +200,63 @@ func buildTerminalEnv(shell string) []string {
 		}
 	}
 
+	return env
+}
+
+func envMapToSlice(env map[string]string) []string {
 	result := make([]string, 0, len(env))
 	for key, value := range env {
 		result = append(result, key+"="+value)
 	}
 	return result
+}
+
+func configureShellStartup(shell string, env map[string]string) ([]string, func(), error) {
+	name := strings.ToLower(filepath.Base(shell))
+
+	switch {
+	case strings.Contains(name, "bash"):
+		rcFile, err := os.CreateTemp("", "freessh-bashrc-*")
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to create bash startup file: %w", err)
+		}
+
+		content := "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi\n" + freesshhistory.ShellHistoryHookScriptBashZsh + "\n"
+		if _, err := rcFile.WriteString(content); err != nil {
+			rcFile.Close()
+			_ = os.Remove(rcFile.Name())
+			return nil, nil, fmt.Errorf("failed to write bash startup file: %w", err)
+		}
+		if err := rcFile.Close(); err != nil {
+			_ = os.Remove(rcFile.Name())
+			return nil, nil, fmt.Errorf("failed to close bash startup file: %w", err)
+		}
+
+		cleanup := func() { _ = os.Remove(rcFile.Name()) }
+		return []string{"--rcfile", rcFile.Name(), "-i"}, cleanup, nil
+	case strings.Contains(name, "zsh"):
+		dotDir, err := os.MkdirTemp("", "freessh-zdotdir-*")
+		if err != nil {
+			return nil, nil, fmt.Errorf("failed to create zsh startup dir: %w", err)
+		}
+
+		rcPath := filepath.Join(dotDir, ".zshrc")
+		content := "if [ -f ~/.zshrc ]; then source ~/.zshrc; fi\n" + freesshhistory.ShellHistoryHookScriptBashZsh + "\n"
+		if err := os.WriteFile(rcPath, []byte(content), 0o600); err != nil {
+			_ = os.RemoveAll(dotDir)
+			return nil, nil, fmt.Errorf("failed to write zsh startup file: %w", err)
+		}
+
+		env["ZDOTDIR"] = dotDir
+		cleanup := func() { _ = os.RemoveAll(dotDir) }
+		return []string{"-i"}, cleanup, nil
+	case strings.Contains(name, "fish"):
+		return []string{"-C", freesshhistory.ShellHistoryHookScriptFish}, nil, nil
+	case strings.Contains(name, "pwsh"), strings.Contains(name, "powershell"):
+		return []string{"-NoLogo", "-NoExit", "-Command", freesshhistory.ShellHistoryHookScriptPowerShell}, nil, nil
+	default:
+		return nil, nil, nil
+	}
 }
 
 func resolveExecutable(candidate string) string {
