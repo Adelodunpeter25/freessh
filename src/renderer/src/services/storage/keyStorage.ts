@@ -1,13 +1,39 @@
 import { backendService } from '../ipc/backend'
 import { SSHKey } from '../../types/key'
 
+function toError(value: unknown, fallback: string): Error {
+  if (value instanceof Error) {
+    return value
+  }
+
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return new Error(value)
+  }
+
+  if (value && typeof value === 'object') {
+    const maybeError = value as { error?: unknown; data?: { error?: unknown } }
+    if (typeof maybeError.error === 'string' && maybeError.error.trim().length > 0) {
+      return new Error(maybeError.error)
+    }
+    if (
+      maybeError.data &&
+      typeof maybeError.data.error === 'string' &&
+      maybeError.data.error.trim().length > 0
+    ) {
+      return new Error(maybeError.data.error)
+    }
+  }
+
+  return new Error(fallback)
+}
+
 export const keyStorageService = {
   async list(): Promise<SSHKey[]> {
     return new Promise((resolve, reject) => {
       const handler = (message: any) => {
         backendService.off('key:list', handler)
         if (message.type === 'error') {
-          reject(new Error(message.data))
+          reject(toError(message?.data ?? message, 'Failed to load keys'))
         } else {
           resolve(message.data as SSHKey[])
         }
@@ -30,7 +56,7 @@ export const keyStorageService = {
         backendService.off('key:save', handler)
         backendService.off('error', errorHandler)
         if (message.type === 'error') {
-          reject(new Error(message.data))
+          reject(toError(message?.data ?? message, 'Failed to save key'))
         } else {
           resolve(message.data as SSHKey)
         }
@@ -40,7 +66,7 @@ export const keyStorageService = {
         clearTimeout(timeout)
         backendService.off('key:save', handler)
         backendService.off('error', errorHandler)
-        reject(error)
+        reject(toError(error, 'Failed to save key'))
       }
 
       backendService.on('key:save', handler)
@@ -65,7 +91,7 @@ export const keyStorageService = {
         backendService.off('key:import', handler)
         backendService.off('error', errorHandler)
         if (message.type === 'error') {
-          reject(new Error(message.data))
+          reject(toError(message?.data ?? message, 'Failed to import key'))
         } else {
           resolve(message.data as SSHKey)
         }
@@ -75,7 +101,7 @@ export const keyStorageService = {
         clearTimeout(timeout)
         backendService.off('key:import', handler)
         backendService.off('error', errorHandler)
-        reject(error)
+        reject(toError(error, 'Failed to import key'))
       }
 
       backendService.on('key:import', handler)
@@ -92,7 +118,7 @@ export const keyStorageService = {
       const handler = (message: any) => {
         backendService.off('key:update', handler)
         if (message.type === 'error') {
-          reject(new Error(message.data))
+          reject(toError(message?.data ?? message, 'Failed to update key'))
         } else {
           resolve(message.data as SSHKey)
         }
@@ -110,7 +136,7 @@ export const keyStorageService = {
       const handler = (message: any) => {
         backendService.off('key:delete', handler)
         if (message.type === 'error') {
-          reject(new Error(message.data))
+          reject(toError(message?.data ?? message, 'Failed to delete key'))
         } else {
           resolve()
         }
@@ -136,7 +162,7 @@ export const keyStorageService = {
         backendService.off('key:export', handler)
         backendService.off('error', errorHandler)
         if (message.type === 'error') {
-          reject(new Error(message.data))
+          reject(toError(message?.data ?? message, 'Failed to export key'))
         } else {
           resolve()
         }
@@ -146,7 +172,7 @@ export const keyStorageService = {
         clearTimeout(timeout)
         backendService.off('key:export', handler)
         backendService.off('error', errorHandler)
-        reject(error)
+        reject(toError(error, 'Failed to export key'))
       }
 
       backendService.on('key:export', handler)
