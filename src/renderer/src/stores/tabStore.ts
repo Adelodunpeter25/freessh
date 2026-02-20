@@ -168,7 +168,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
           workspacePinnedSessionIds: tab.workspacePinnedSessionIds || [],
           workspaceSplitDirection: tab.workspaceSplitDirection || 'horizontal',
           workspaceHiddenSessionIds: (tab.workspaceHiddenSessionIds || []).filter((id) => id !== sessionId),
-          workspaceFocusSessionId: tab.workspaceFocusSessionId,
+          workspaceFocusSessionId: undefined,
         }
       }),
     }))

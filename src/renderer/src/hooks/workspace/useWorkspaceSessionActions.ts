@@ -49,11 +49,13 @@ export function useWorkspaceSessionActions(workspaceTabId: string) {
 
   const splitRight = useCallback(() => {
     setWorkspaceSplitDirection(workspaceTabId, 'horizontal')
-  }, [setWorkspaceSplitDirection, workspaceTabId])
+    setWorkspaceFocusSession(workspaceTabId, undefined)
+  }, [setWorkspaceFocusSession, setWorkspaceSplitDirection, workspaceTabId])
 
   const splitDown = useCallback(() => {
     setWorkspaceSplitDirection(workspaceTabId, 'vertical')
-  }, [setWorkspaceSplitDirection, workspaceTabId])
+    setWorkspaceFocusSession(workspaceTabId, undefined)
+  }, [setWorkspaceFocusSession, setWorkspaceSplitDirection, workspaceTabId])
 
   const closeFromView = useCallback((sessionId: string) => {
     hideWorkspaceSessionFromView(workspaceTabId, sessionId)
