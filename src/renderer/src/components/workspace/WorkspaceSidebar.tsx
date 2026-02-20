@@ -36,7 +36,7 @@ export function WorkspaceSidebar({ tabs, activeTabId, onSelectTab, onDropSession
 
   return (
     <div
-      className={`flex h-full flex-col transition-colors ${dropActive ? 'bg-primary/5' : ''}`}
+      className={`relative flex h-full flex-col transition-colors ${dropActive ? 'bg-primary/5' : ''}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -54,6 +54,13 @@ export function WorkspaceSidebar({ tabs, activeTabId, onSelectTab, onDropSession
           />
         ))}
       </div>
+      {dropActive ? (
+        <div className="pointer-events-none absolute inset-2 flex items-center justify-center rounded-md border-2 border-dashed border-primary/60 bg-primary/10">
+          <span className="rounded bg-background/90 px-2 py-1 text-xs font-medium text-primary">
+            Drop session to add to workspace
+          </span>
+        </div>
+      ) : null}
     </div>
   )
 }

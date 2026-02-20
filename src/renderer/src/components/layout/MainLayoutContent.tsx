@@ -7,6 +7,7 @@ import { useTabStore } from "@/stores/tabStore";
 import { useSessionStore } from "@/stores/sessionStore";
 import { connectionService } from "@/services/ipc/connection";
 import { Tab } from "@/types";
+import { generateUniqueTitle } from "@/utils/tabNaming";
 import { toast } from "sonner";
 
 type MainView = "home" | "sftp" | "terminal";
@@ -98,29 +99,33 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                   sidebar={
                     tab.workspaceMode === 'workspace' ? (
                       <WorkspaceSidebar
-                        tabs={(tab.workspaceSessionIds || []).map((sessionId) => {
-                          const item = getSession(sessionId)
-                          const connection = item?.connection
-                          const isLocal = item?.session.connection_id === 'local'
-                          const localTitle = 'Local Terminal'
-                          const remoteTitle = connection?.name || (connection?.username && connection?.host
-                            ? `${connection.username}@${connection.host}`
-                            : sessionId)
-                          const title = isLocal ? localTitle : remoteTitle
-                          const subtitle = isLocal
-                            ? sessionId
-                            : connection
-                              ? `${connection.username}@${connection.host}`
-                              : sessionId
+                        tabs={(() => {
+                          const usedTitles: string[] = []
+                          return (tab.workspaceSessionIds || []).map((sessionId) => {
+                            const item = getSession(sessionId)
+                            const connection = item?.connection
+                            const isLocal = item?.session.connection_id === 'local'
+                            const baseTitle = isLocal
+                              ? 'Local Terminal'
+                              : connection?.name || (connection?.username && connection?.host
+                                  ? `${connection.username}@${connection.host}`
+                                  : sessionId)
+                            const title = generateUniqueTitle(baseTitle, usedTitles)
+                            usedTitles.push(title)
 
-                          return {
-                            sessionId,
-                            title,
-                            subtitle,
-                            connectionId: connection?.id,
-                            isLocal,
-                          }
-                        })}
+                            return {
+                              sessionId,
+                              title,
+                              subtitle: isLocal
+                                ? undefined
+                                : connection
+                                  ? `${connection.username}@${connection.host}`
+                                  : sessionId,
+                              connectionId: connection?.id,
+                              isLocal,
+                            }
+                          })
+                        })()}
                         activeTabId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
                         onSelectTab={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
                         onDropSession={(sessionId) => addSessionToWorkspaceTab(tab.id, sessionId)}
