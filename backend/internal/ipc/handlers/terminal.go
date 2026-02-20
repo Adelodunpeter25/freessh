@@ -12,10 +12,16 @@ import (
 	"sync"
 )
 
+type localInputState struct {
+	buffer   []rune
+	inEscape bool
+}
+
 type TerminalHandler struct {
 	manager        *session.Manager
 	historyManager *history.Manager
 	markerBuffers  map[string]string
+	localInputs    map[string]*localInputState
 	mu             sync.Mutex
 }
 
@@ -24,6 +30,7 @@ func NewTerminalHandler(manager *session.Manager, historyStorage *storage.Histor
 		manager:        manager,
 		historyManager: history.NewManager(historyStorage),
 		markerBuffers:  make(map[string]string),
+		localInputs:    make(map[string]*localInputState),
 	}
 }
 
@@ -60,7 +67,7 @@ func (h *TerminalHandler) handleInput(msg *models.IPCMessage, writer ResponseWri
 		return fmt.Errorf("failed to parse input data: %w", err)
 	}
 
-	_ = writer
+	h.captureLocalInputHistory(msg.SessionID, inputData.Data, writer)
 	return h.manager.SendInput(msg.SessionID, []byte(inputData.Data))
 }
 
@@ -133,6 +140,7 @@ func (h *TerminalHandler) StartOutputStreaming(sessionID string, writer Response
 		defer func() {
 			h.mu.Lock()
 			delete(h.markerBuffers, sessionID)
+			delete(h.localInputs, sessionID)
 			h.mu.Unlock()
 		}()
 
@@ -212,4 +220,66 @@ func (h *TerminalHandler) captureShellHistory(sessionID, output string, writer R
 			})
 		}
 	}
+}
+
+func (h *TerminalHandler) captureLocalInputHistory(sessionID, input string, writer ResponseWriter) {
+	activeSession, err := h.manager.GetSession(sessionID)
+	if err != nil || activeSession.LocalTerminal == nil {
+		return
+	}
+
+	h.mu.Lock()
+	state, ok := h.localInputs[sessionID]
+	if !ok {
+		state = &localInputState{}
+		h.localInputs[sessionID] = state
+	}
+
+	flush := false
+	for _, r := range input {
+		switch {
+		case state.inEscape:
+			// Consume VT sequence until a final byte in the @..~ range.
+			if r >= '@' && r <= '~' {
+				state.inEscape = false
+			}
+		case r == 0x1b:
+			state.inEscape = true
+		case r == '\r' || r == '\n':
+			flush = true
+		case r == 0x7f || r == 0x08:
+			if len(state.buffer) > 0 {
+				state.buffer = state.buffer[:len(state.buffer)-1]
+			}
+		case r == 0x15 || r == 0x03: // Ctrl+U clears line, Ctrl+C cancels line.
+			state.buffer = state.buffer[:0]
+		default:
+			if r >= 0x20 {
+				state.buffer = append(state.buffer, r)
+			}
+		}
+	}
+
+	var command string
+	if flush {
+		command = strings.TrimSpace(string(state.buffer))
+		state.buffer = state.buffer[:0]
+	}
+	h.mu.Unlock()
+
+	if command == "" || freesshhistory.IsBootstrapCommand(command) {
+		return
+	}
+
+	entry, addErr := h.historyManager.Add(command)
+	if addErr != nil || entry == nil {
+		return
+	}
+
+	_ = writer.WriteMessage(&models.IPCMessage{
+		Type: models.MsgHistoryAdd,
+		Data: models.HistoryAddResponse{
+			Entry: *entry,
+		},
+	})
 }

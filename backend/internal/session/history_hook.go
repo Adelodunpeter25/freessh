@@ -1,7 +1,6 @@
 package session
 
 import (
-	"os"
 	"strings"
 )
 
@@ -26,17 +25,18 @@ func (m *Manager) initShellHistoryHook(sessionID string) {
 }
 
 func (m *Manager) selectHistoryHookScript(as *ActiveSession) string {
+	// Local terminals use backend input-based history capture to avoid shell bootstrap
+	// injection races that can leak hook commands into the visible prompt.
+	if as.LocalTerminal != nil {
+		return ""
+	}
+
 	// Windows SSH sessions are typically PowerShell-based.
 	if strings.EqualFold(as.Session.OSType, "windows") {
 		return shellHistoryHookScriptPowerShell
 	}
 
-	shellName := ""
-	if as.LocalTerminal != nil {
-		shellName = strings.ToLower(os.Getenv("SHELL"))
-	} else {
-		shellName = strings.ToLower(m.detectRemoteShell(as))
-	}
+	shellName := strings.ToLower(m.detectRemoteShell(as))
 
 	switch {
 	case strings.Contains(shellName, "fish"):
