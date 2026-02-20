@@ -210,6 +210,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                           onCloseSession={workspaceActions.closeFromView}
                           onToggleFocusSession={workspaceActions.toggleFocus}
                           onReorderSession={(sessionId, targetSessionId) => reorderWorkspaceSession(tab.id, sessionId, targetSessionId)}
+                          onAttachSession={(sessionId) => addSessionToWorkspaceTab(tab.id, sessionId)}
                           onSplitDown={workspaceActions.splitDown}
                           direction={tab.workspaceSplitDirection || 'horizontal'}
                         />

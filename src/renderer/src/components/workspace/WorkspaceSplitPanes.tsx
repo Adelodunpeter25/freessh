@@ -12,6 +12,7 @@ interface WorkspaceSplitPanesProps {
   onCloseSession?: (sessionId: string) => void
   onToggleFocusSession?: (sessionId: string) => void
   onReorderSession?: (sessionId: string, targetSessionId: string) => void
+  onAttachSession?: (sessionId: string) => void
   onSplitDown?: () => void
   direction?: 'horizontal' | 'vertical'
 }
@@ -25,31 +26,64 @@ export function WorkspaceSplitPanes({
   onCloseSession,
   onToggleFocusSession,
   onReorderSession,
+  onAttachSession,
   onSplitDown,
   direction = 'horizontal',
 }: WorkspaceSplitPanesProps) {
   const [dragTargetSessionId, setDragTargetSessionId] = useState<string | null>(null)
 
+  const hasSupportedDragType = (event: React.DragEvent) => {
+    const types = Array.from(event.dataTransfer.types || [])
+    return types.includes('application/x-freessh-workspace-session') || types.includes('application/x-freessh-session')
+  }
+
   const handleHeaderDragStart = (event: React.DragEvent, sessionId: string) => {
     event.dataTransfer.effectAllowed = 'move'
     event.dataTransfer.setData('application/x-freessh-workspace-session', sessionId)
+    event.dataTransfer.setData('application/x-freessh-session', JSON.stringify({ sessionId }))
   }
 
   const handleHeaderDragOver = (event: React.DragEvent, sessionId: string) => {
-    const isWorkspaceSession = event.dataTransfer.types.includes('application/x-freessh-workspace-session')
-    if (!isWorkspaceSession) return
+    if (!hasSupportedDragType(event)) return
     event.preventDefault()
     setDragTargetSessionId(sessionId)
+  }
+
+  const handleHeaderDragLeave = (event: React.DragEvent, sessionId: string) => {
+    if (!hasSupportedDragType(event)) return
+    if (dragTargetSessionId === sessionId) {
+      setDragTargetSessionId(null)
+    }
   }
 
   const handleHeaderDrop = (event: React.DragEvent, targetSessionId: string) => {
     event.preventDefault()
     setDragTargetSessionId(null)
-    const sessionId = event.dataTransfer.getData('application/x-freessh-workspace-session')
-    if (!sessionId || sessionId === targetSessionId) return
+
+    let sessionId = event.dataTransfer.getData('application/x-freessh-workspace-session')
+    if (!sessionId) {
+      const payload = event.dataTransfer.getData('application/x-freessh-session')
+      if (payload) {
+        try {
+          const parsed = JSON.parse(payload) as { sessionId?: string }
+          sessionId = parsed.sessionId || ''
+        } catch {
+          sessionId = ''
+        }
+      }
+    }
+
+    if (!sessionId) return
 
     onSplitDown?.()
-    onReorderSession?.(sessionId, targetSessionId)
+    if (sessionIds.includes(sessionId)) {
+      if (sessionId === targetSessionId) return
+      onReorderSession?.(sessionId, targetSessionId)
+      return
+    }
+
+    onAttachSession?.(sessionId)
+    onActivateSession?.(sessionId)
   }
 
   const hiddenSessionIds =
@@ -69,7 +103,7 @@ export function WorkspaceSplitPanes({
     return (
       <div className="h-full w-full p-2">
         <div
-          className="h-full overflow-hidden rounded-md border border-primary/40"
+          className={`relative h-full overflow-hidden rounded-md border ${dragTargetSessionId === onlySessionId ? 'border-primary border-dashed' : 'border-primary/40'}`}
           onClick={() => onActivateSession?.(onlySessionId)}
         >
           <WorkspaceTerminalHeader
@@ -80,8 +114,12 @@ export function WorkspaceSplitPanes({
             draggable={sessionIds.length > 1}
             onDragStart={(event) => handleHeaderDragStart(event, onlySessionId)}
             onDragOver={(event) => handleHeaderDragOver(event, onlySessionId)}
+            onDragLeave={(event) => handleHeaderDragLeave(event, onlySessionId)}
             onDrop={(event) => handleHeaderDrop(event, onlySessionId)}
           />
+          {dragTargetSessionId === onlySessionId ? (
+            <div className="pointer-events-none absolute inset-2 z-20 rounded-md border-2 border-dashed border-primary bg-primary/10" />
+          ) : null}
           <div className="h-[calc(100%-2.25rem)]">
             <TerminalView sessionId={onlySessionId} isActive={true} sidebarOpen={false} />
           </div>
@@ -103,7 +141,7 @@ export function WorkspaceSplitPanes({
             <ResizablePanel key={`panel-${sessionId}`} defaultSize={100 / renderedSessionIds.length}>
               <div className="h-full p-2">
                 <div
-                  className={`h-full overflow-hidden rounded-md border ${
+                  className={`relative h-full overflow-hidden rounded-md border ${
                     dragTargetSessionId === sessionId
                       ? 'border-primary border-dashed'
                       : activeSessionId === sessionId
@@ -120,8 +158,12 @@ export function WorkspaceSplitPanes({
                     draggable
                     onDragStart={(event) => handleHeaderDragStart(event, sessionId)}
                     onDragOver={(event) => handleHeaderDragOver(event, sessionId)}
+                    onDragLeave={(event) => handleHeaderDragLeave(event, sessionId)}
                     onDrop={(event) => handleHeaderDrop(event, sessionId)}
                   />
+                  {dragTargetSessionId === sessionId ? (
+                    <div className="pointer-events-none absolute inset-2 z-20 rounded-md border-2 border-dashed border-primary bg-primary/10" />
+                  ) : null}
                   <div className="h-[calc(100%-2.25rem)]">
                     <TerminalView sessionId={sessionId} isActive={activeSessionId === sessionId} sidebarOpen={false} />
                   </div>
