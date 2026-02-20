@@ -29,6 +29,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const showWorkspaceSessionInView = useTabStore((state) => state.showWorkspaceSessionInView)
   const setWorkspaceFocusSession = useTabStore((state) => state.setWorkspaceFocusSession)
   const reorderWorkspaceSession = useTabStore((state) => state.reorderWorkspaceSession)
+  const setWorkspaceSplitDirection = useTabStore((state) => state.setWorkspaceSplitDirection)
   const getAllSessions = useSessionStore((state) => state.getAllSessions)
   const addSession = useSessionStore((state) => state.addSession)
   const getSession = useSessionStore((state) => state.getSession)
@@ -209,11 +210,20 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                           onActivateSession={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
                           onCloseSession={workspaceActions.closeFromView}
                           onToggleFocusSession={workspaceActions.toggleFocus}
-                          onReorderSession={(sessionId, targetSessionId, position) =>
+                          onReorderSession={(sessionId, targetSessionId, position) => {
                             reorderWorkspaceSession(tab.id, sessionId, targetSessionId, position)
-                          }
-                          onAttachSession={(sessionId) => addSessionToWorkspaceTab(tab.id, sessionId)}
-                          onSplitDown={workspaceActions.splitDown}
+                            setWorkspaceSplitDirection(tab.id, 'vertical')
+                            setWorkspaceFocusSession(tab.id, undefined)
+                          }}
+                          onAttachSession={(sessionId) => {
+                            addSessionToWorkspaceTab(tab.id, sessionId)
+                            setWorkspaceSplitDirection(tab.id, 'vertical')
+                            setWorkspaceFocusSession(tab.id, undefined)
+                          }}
+                          onSplitDown={() => {
+                            setWorkspaceSplitDirection(tab.id, 'vertical')
+                            setWorkspaceFocusSession(tab.id, undefined)
+                          }}
                           direction={tab.workspaceSplitDirection || 'horizontal'}
                         />
                       )
