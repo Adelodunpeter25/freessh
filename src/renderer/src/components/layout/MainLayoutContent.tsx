@@ -28,6 +28,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const addSessionToWorkspaceTab = useTabStore((state) => state.addSessionToWorkspaceTab)
   const showWorkspaceSessionInView = useTabStore((state) => state.showWorkspaceSessionInView)
   const setWorkspaceFocusSession = useTabStore((state) => state.setWorkspaceFocusSession)
+  const reorderWorkspaceSession = useTabStore((state) => state.reorderWorkspaceSession)
   const getAllSessions = useSessionStore((state) => state.getAllSessions)
   const addSession = useSessionStore((state) => state.addSession)
   const getSession = useSessionStore((state) => state.getSession)
@@ -200,17 +201,19 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                           })
 
                           return (
-                            <WorkspaceSplitPanes
-                              sessionIds={renderedSessionIds}
-                              activeSessionId={tab.workspaceActiveSessionId || renderedSessionIds[0] || null}
-                              focusedSessionId={tab.workspaceFocusSessionId}
-                              titleBySessionId={titleBySessionId}
-                              onActivateSession={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
-                              onCloseSession={workspaceActions.closeFromView}
-                              onToggleFocusSession={workspaceActions.toggleFocus}
-                              direction={tab.workspaceSplitDirection || 'horizontal'}
-                            />
-                          )
+                        <WorkspaceSplitPanes
+                          sessionIds={renderedSessionIds}
+                          activeSessionId={tab.workspaceActiveSessionId || renderedSessionIds[0] || null}
+                          focusedSessionId={tab.workspaceFocusSessionId}
+                          titleBySessionId={titleBySessionId}
+                          onActivateSession={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
+                          onCloseSession={workspaceActions.closeFromView}
+                          onToggleFocusSession={workspaceActions.toggleFocus}
+                          onReorderSession={(sessionId, targetSessionId) => reorderWorkspaceSession(tab.id, sessionId, targetSessionId)}
+                          onSplitDown={workspaceActions.splitDown}
+                          direction={tab.workspaceSplitDirection || 'horizontal'}
+                        />
+                      )
                         })()
                       ) : (
                         <WorkspaceEmptyState
