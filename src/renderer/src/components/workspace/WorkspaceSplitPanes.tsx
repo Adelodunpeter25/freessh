@@ -86,6 +86,18 @@ export function WorkspaceSplitPanes({
     onActivateSession?.(sessionId)
   }
 
+  const handlePaneDragOver = (event: React.DragEvent, sessionId: string) => {
+    handleHeaderDragOver(event, sessionId)
+  }
+
+  const handlePaneDragLeave = (event: React.DragEvent, sessionId: string) => {
+    handleHeaderDragLeave(event, sessionId)
+  }
+
+  const handlePaneDrop = (event: React.DragEvent, sessionId: string) => {
+    handleHeaderDrop(event, sessionId)
+  }
+
   const hiddenSessionIds =
     focusedSessionId && sessionIds.includes(focusedSessionId)
       ? sessionIds.filter((id) => id !== focusedSessionId)
@@ -103,8 +115,11 @@ export function WorkspaceSplitPanes({
     return (
       <div className="h-full w-full p-2">
         <div
-          className={`relative h-full overflow-hidden rounded-md border ${dragTargetSessionId === onlySessionId ? 'border-primary border-dashed' : 'border-primary/40'}`}
+          className="relative h-full overflow-hidden rounded-md border border-primary/40"
           onClick={() => onActivateSession?.(onlySessionId)}
+          onDragOver={(event) => handlePaneDragOver(event, onlySessionId)}
+          onDragLeave={(event) => handlePaneDragLeave(event, onlySessionId)}
+          onDrop={(event) => handlePaneDrop(event, onlySessionId)}
         >
           <WorkspaceTerminalHeader
             title={titleBySessionId[onlySessionId] || onlySessionId}
@@ -118,7 +133,7 @@ export function WorkspaceSplitPanes({
             onDrop={(event) => handleHeaderDrop(event, onlySessionId)}
           />
           {dragTargetSessionId === onlySessionId ? (
-            <div className="pointer-events-none absolute inset-2 z-20 rounded-md border-2 border-dashed border-primary bg-primary/10" />
+            <div className="pointer-events-none absolute inset-0 z-20 rounded-md border-2 border-primary/70 bg-primary/10" />
           ) : null}
           <div className="h-[calc(100%-2.25rem)]">
             <TerminalView sessionId={onlySessionId} isActive={true} sidebarOpen={false} />
@@ -142,13 +157,12 @@ export function WorkspaceSplitPanes({
               <div className="h-full p-2">
                 <div
                   className={`relative h-full overflow-hidden rounded-md border ${
-                    dragTargetSessionId === sessionId
-                      ? 'border-primary border-dashed'
-                      : activeSessionId === sessionId
-                        ? 'border-primary/50'
-                        : 'border-border'
+                    activeSessionId === sessionId ? 'border-primary/50' : 'border-border'
                   }`}
                   onClick={() => onActivateSession?.(sessionId)}
+                  onDragOver={(event) => handlePaneDragOver(event, sessionId)}
+                  onDragLeave={(event) => handlePaneDragLeave(event, sessionId)}
+                  onDrop={(event) => handlePaneDrop(event, sessionId)}
                 >
                   <WorkspaceTerminalHeader
                     title={titleBySessionId[sessionId] || sessionId}
@@ -162,7 +176,7 @@ export function WorkspaceSplitPanes({
                     onDrop={(event) => handleHeaderDrop(event, sessionId)}
                   />
                   {dragTargetSessionId === sessionId ? (
-                    <div className="pointer-events-none absolute inset-2 z-20 rounded-md border-2 border-dashed border-primary bg-primary/10" />
+                    <div className="pointer-events-none absolute inset-0 z-20 rounded-md border-2 border-primary/70 bg-primary/10" />
                   ) : null}
                   <div className="h-[calc(100%-2.25rem)]">
                     <TerminalView sessionId={sessionId} isActive={activeSessionId === sessionId} sidebarOpen={false} />
