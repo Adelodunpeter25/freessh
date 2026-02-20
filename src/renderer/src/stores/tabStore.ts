@@ -386,6 +386,10 @@ export const useTabStore = create<TabStore>((set, get) => ({
   },
 
   getTabBySessionId: (sessionId) => {
-    return get().tabs.find((tab) => tab.sessionId === sessionId)
+    return get().tabs.find((tab) => {
+      if (tab.sessionId === sessionId) return true
+      if (tab.type !== 'workspace') return false
+      return (tab.workspaceSessionIds || []).includes(sessionId)
+    })
   }
 }))

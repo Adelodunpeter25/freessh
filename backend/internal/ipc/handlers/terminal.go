@@ -171,7 +171,10 @@ func (h *TerminalHandler) StartOutputStreaming(sessionID string, writer Response
 
 					status := "error"
 					errorMessage := err.Error()
-					if strings.Contains(strings.ToLower(errorMessage), "closed") || strings.Contains(strings.ToLower(errorMessage), "eof") {
+					lowerError := strings.ToLower(errorMessage)
+					if strings.Contains(lowerError, "closed") ||
+						strings.Contains(lowerError, "eof") ||
+						strings.Contains(lowerError, "reconnect failed") {
 						status = "disconnected"
 					}
 

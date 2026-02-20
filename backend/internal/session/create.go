@@ -127,6 +127,23 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 
 	activeSession := NewActiveSession(sessionID, sshClient, term, session)
 	activeSession.Config = config
+
+	sshClient.SetReconnectCallbacks(
+		func(attempt int) {},
+		func() {},
+		func(err error) {
+			if err == nil {
+				err = fmt.Errorf("reconnect failed")
+			}
+			wrapped := fmt.Errorf("reconnect failed: %w", err)
+			select {
+			case activeSession.ErrorChan <- wrapped:
+			default:
+				// Drop duplicate reconnect failure if reader is already processing.
+			}
+		},
+	)
+
 	m.AddSession(activeSession)
 
 	go m.readOutput(activeSession)

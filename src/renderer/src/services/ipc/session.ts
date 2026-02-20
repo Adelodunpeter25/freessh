@@ -27,7 +27,7 @@ export const sessionService = {
     return new Promise((resolve, reject) => {
       const handler = (message: IPCMessage) => {
         if (message.type === 'session_status') {
-          backendService.off('session_status')
+          backendService.off('session_status', handler)
           const session = message.data as Session
           if (session.status === 'error') {
             reject(new Error(session.error || 'Failed to create local terminal'))
