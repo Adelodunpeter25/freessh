@@ -19,6 +19,7 @@ export interface WorkspaceSidebarProps {
   tabs: WorkspaceSidebarItem[]
   activeTabId: string | null
   onSelectTab?: (sessionId: string) => void
+  onDropSession?: (sessionId: string) => void
 }
 
 export interface WorkspaceTabListItemProps {

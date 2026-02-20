@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useState } from "react";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { SFTPPage, TerminalView, LogViewer } from "./MainLayoutRoutes";
-import { WorkspaceEmptyState, WorkspacePicker, WorkspaceShell, WorkspaceSidebar } from "@/components/workspace";
+import { WorkspaceEmptyState, WorkspacePicker, WorkspaceShell, WorkspaceSidebar, WorkspaceSplitPanes } from "@/components/workspace";
 import { useConnectionStore } from "@/stores/connectionStore";
 import { useTabStore } from "@/stores/tabStore";
 import { useSessionStore } from "@/stores/sessionStore";
@@ -23,6 +23,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const updateWorkspaceTabSelection = useTabStore((state) => state.updateWorkspaceTabSelection)
   const openWorkspaceTab = useTabStore((state) => state.openWorkspaceTab)
   const setWorkspaceActiveSession = useTabStore((state) => state.setWorkspaceActiveSession)
+  const addSessionToWorkspaceTab = useTabStore((state) => state.addSessionToWorkspaceTab)
   const getAllSessions = useSessionStore((state) => state.getAllSessions)
   const addSession = useSessionStore((state) => state.addSession)
   const getSession = useSessionStore((state) => state.getSession)
@@ -110,21 +111,18 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                         })}
                         activeTabId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
                         onSelectTab={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
+                        onDropSession={(sessionId) => addSessionToWorkspaceTab(tab.id, sessionId)}
                       />
                     ) : undefined
                   }
                   content={
                     tab.workspaceMode === 'workspace' ? (
                       (tab.workspaceSessionIds?.length ?? 0) > 0 ? (
-                        <div className="h-full w-full p-2">
-                          <div className="h-full overflow-hidden rounded-md border border-border">
-                            <TerminalView
-                              sessionId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || ''}
-                              isActive={activeSessionTabId === tab.id && mainView === "terminal"}
-                              sidebarOpen={false}
-                            />
-                          </div>
-                        </div>
+                        <WorkspaceSplitPanes
+                          sessionIds={tab.workspaceSessionIds || []}
+                          activeSessionId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
+                          onActivateSession={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
+                        />
                       ) : (
                         <WorkspaceEmptyState
                           title="No active sessions"

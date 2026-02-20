@@ -13,6 +13,7 @@ interface TabStore {
   updateWorkspaceTabSelection: (tabId: string, connectionIds: string[]) => void
   openWorkspaceTab: (tabId: string, sessionIds: string[]) => void
   setWorkspaceActiveSession: (tabId: string, sessionId: string) => void
+  addSessionToWorkspaceTab: (tabId: string, sessionId: string) => void
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
@@ -126,6 +127,25 @@ export const useTabStore = create<TabStore>((set, get) => ({
           ? { ...tab, workspaceActiveSessionId: sessionId }
           : tab
       )
+    }))
+  },
+
+  addSessionToWorkspaceTab: (tabId, sessionId) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) => {
+        if (tab.id !== tabId || tab.type !== 'workspace') return tab
+
+        const existing = new Set(tab.workspaceSessionIds || [])
+        existing.add(sessionId)
+        const sessionIds = Array.from(existing)
+
+        return {
+          ...tab,
+          workspaceMode: 'workspace',
+          workspaceSessionIds: sessionIds,
+          workspaceActiveSessionId: tab.workspaceActiveSessionId || sessionId,
+        }
+      }),
     }))
   },
 

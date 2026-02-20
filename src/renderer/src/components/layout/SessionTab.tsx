@@ -28,6 +28,7 @@ interface SessionTabProps {
   onRenameCancel: () => void
   onOpenSFTP: (sessionId: string) => void
   onTogglePin: (id: string) => void
+  canDragSession?: boolean
 }
 
 export const SessionTab = memo(function SessionTab({ 
@@ -47,7 +48,8 @@ export const SessionTab = memo(function SessionTab({
   onRenameSubmit,
   onRenameCancel,
   onOpenSFTP,
-  onTogglePin
+  onTogglePin,
+  canDragSession = false
 }: SessionTabProps) {
   const osType = useOSTypeStore((state) => state.getOSType(connectionId || ''))
   const OSIcon = getOSIcon(osType)
@@ -75,6 +77,13 @@ export const SessionTab = memo(function SessionTab({
         )}
         style={noDrag}
         onClick={() => !isRenaming && onSelect(id)}
+        draggable={canDragSession}
+        onDragStart={(event) => {
+          if (!canDragSession) return
+          event.dataTransfer.effectAllowed = 'copy'
+          event.dataTransfer.setData('application/x-freessh-session', JSON.stringify({ sessionId, tabId: id }))
+          event.dataTransfer.setData('text/plain', title)
+        }}
       >
         <OSIcon className="h-3.5 w-3.5 shrink-0" />
         {isPinned && <Pin className="h-3 w-3 shrink-0" />}

@@ -117,6 +117,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               onRenameCancel={handleRenameCancel}
               onOpenSFTP={handleOpenSFTP}
               onTogglePin={handleTogglePin}
+              canDragSession={tab.type === 'terminal'}
             />
           )
         })}
