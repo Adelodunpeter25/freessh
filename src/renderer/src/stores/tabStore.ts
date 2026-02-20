@@ -23,6 +23,12 @@ interface TabStore {
     targetSessionId: string,
     position?: 'top' | 'bottom',
   ) => void
+  dropSessionIntoWorkspaceTab: (
+    tabId: string,
+    sessionId: string,
+    targetSessionId: string,
+    position: 'top' | 'bottom',
+  ) => void
   hideWorkspaceSessionFromView: (tabId: string, sessionId: string) => void
   showWorkspaceSessionInView: (tabId: string, sessionId: string) => void
   setWorkspaceFocusSession: (tabId: string, sessionId?: string) => void
@@ -255,6 +261,33 @@ export const useTabStore = create<TabStore>((set, get) => ({
         source.splice(adjustedTo, 0, sessionId)
 
         return { ...tab, workspaceSessionIds: source }
+      }),
+    }))
+  },
+
+  dropSessionIntoWorkspaceTab: (tabId, sessionId, targetSessionId, position) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) => {
+        if (tab.id !== tabId || tab.type !== 'workspace') return tab
+
+        const current = [...(tab.workspaceSessionIds || [])]
+        const targetIndex = current.indexOf(targetSessionId)
+        if (targetIndex < 0) return tab
+
+        const withoutSource = current.filter((id) => id !== sessionId)
+        const insertIndex = withoutSource.indexOf(targetSessionId) + (position === 'bottom' ? 1 : 0)
+        withoutSource.splice(Math.max(0, insertIndex), 0, sessionId)
+
+        return {
+          ...tab,
+          workspaceMode: 'workspace',
+          workspaceSessionIds: withoutSource,
+          workspaceActiveSessionId: sessionId,
+          workspaceHiddenSessionIds: (tab.workspaceHiddenSessionIds || []).filter((id) => id !== sessionId),
+          workspaceSplitDirection: 'vertical',
+          workspaceFocusSessionId: undefined,
+          workspacePinnedSessionIds: tab.workspacePinnedSessionIds || [],
+        }
       }),
     }))
   },

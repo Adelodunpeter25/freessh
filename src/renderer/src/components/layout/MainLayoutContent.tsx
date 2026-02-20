@@ -28,7 +28,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const addSessionToWorkspaceTab = useTabStore((state) => state.addSessionToWorkspaceTab)
   const showWorkspaceSessionInView = useTabStore((state) => state.showWorkspaceSessionInView)
   const setWorkspaceFocusSession = useTabStore((state) => state.setWorkspaceFocusSession)
-  const reorderWorkspaceSession = useTabStore((state) => state.reorderWorkspaceSession)
+  const dropSessionIntoWorkspaceTab = useTabStore((state) => state.dropSessionIntoWorkspaceTab)
   const setWorkspaceSplitDirection = useTabStore((state) => state.setWorkspaceSplitDirection)
   const getAllSessions = useSessionStore((state) => state.getAllSessions)
   const addSession = useSessionStore((state) => state.addSession)
@@ -211,14 +211,10 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                           onCloseSession={workspaceActions.closeFromView}
                           onToggleFocusSession={workspaceActions.toggleFocus}
                           onReorderSession={(sessionId, targetSessionId, position) => {
-                            reorderWorkspaceSession(tab.id, sessionId, targetSessionId, position)
-                            setWorkspaceSplitDirection(tab.id, 'vertical')
-                            setWorkspaceFocusSession(tab.id, undefined)
+                            dropSessionIntoWorkspaceTab(tab.id, sessionId, targetSessionId, position)
                           }}
                           onAttachSession={(sessionId) => {
                             addSessionToWorkspaceTab(tab.id, sessionId)
-                            setWorkspaceSplitDirection(tab.id, 'vertical')
-                            setWorkspaceFocusSession(tab.id, undefined)
                           }}
                           onSplitDown={() => {
                             setWorkspaceSplitDirection(tab.id, 'vertical')
