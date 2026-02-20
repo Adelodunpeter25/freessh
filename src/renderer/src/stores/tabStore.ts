@@ -14,6 +14,9 @@ interface TabStore {
   openWorkspaceTab: (tabId: string, sessionIds: string[]) => void
   setWorkspaceActiveSession: (tabId: string, sessionId: string) => void
   addSessionToWorkspaceTab: (tabId: string, sessionId: string) => void
+  removeSessionFromWorkspaceTab: (tabId: string, sessionId: string) => void
+  toggleWorkspacePinnedSession: (tabId: string, sessionId: string) => void
+  setWorkspaceSplitDirection: (tabId: string, direction: 'horizontal' | 'vertical') => void
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
@@ -114,7 +117,14 @@ export const useTabStore = create<TabStore>((set, get) => ({
     set((state) => ({
       tabs: state.tabs.map((tab) =>
         tab.id === tabId && tab.type === 'workspace'
-          ? { ...tab, workspaceMode: 'workspace', workspaceSessionIds: sessionIds, workspaceActiveSessionId: sessionIds[0] }
+          ? {
+              ...tab,
+              workspaceMode: 'workspace',
+              workspaceSessionIds: sessionIds,
+              workspaceActiveSessionId: sessionIds[0],
+              workspacePinnedSessionIds: [],
+              workspaceSplitDirection: 'horizontal',
+            }
           : tab
       )
     }))
@@ -144,8 +154,57 @@ export const useTabStore = create<TabStore>((set, get) => ({
           workspaceMode: 'workspace',
           workspaceSessionIds: sessionIds,
           workspaceActiveSessionId: tab.workspaceActiveSessionId || sessionId,
+          workspacePinnedSessionIds: tab.workspacePinnedSessionIds || [],
+          workspaceSplitDirection: tab.workspaceSplitDirection || 'horizontal',
         }
       }),
+    }))
+  },
+
+  removeSessionFromWorkspaceTab: (tabId, sessionId) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) => {
+        if (tab.id !== tabId || tab.type !== 'workspace') return tab
+
+        const nextSessionIds = (tab.workspaceSessionIds || []).filter((id) => id !== sessionId)
+        const nextPinned = (tab.workspacePinnedSessionIds || []).filter((id) => id !== sessionId)
+        const nextActive =
+          tab.workspaceActiveSessionId === sessionId
+            ? nextSessionIds[0]
+            : tab.workspaceActiveSessionId
+
+        return {
+          ...tab,
+          workspaceSessionIds: nextSessionIds,
+          workspacePinnedSessionIds: nextPinned,
+          workspaceActiveSessionId: nextActive,
+        }
+      }),
+    }))
+  },
+
+  toggleWorkspacePinnedSession: (tabId, sessionId) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) => {
+        if (tab.id !== tabId || tab.type !== 'workspace') return tab
+        const pinned = new Set(tab.workspacePinnedSessionIds || [])
+        if (pinned.has(sessionId)) {
+          pinned.delete(sessionId)
+        } else {
+          pinned.add(sessionId)
+        }
+        return { ...tab, workspacePinnedSessionIds: Array.from(pinned) }
+      }),
+    }))
+  },
+
+  setWorkspaceSplitDirection: (tabId, direction) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) =>
+        tab.id === tabId && tab.type === 'workspace'
+          ? { ...tab, workspaceSplitDirection: direction }
+          : tab,
+      ),
     }))
   },
 

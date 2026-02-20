@@ -20,6 +20,11 @@ export interface WorkspaceSidebarProps {
   activeTabId: string | null
   onSelectTab?: (sessionId: string) => void
   onDropSession?: (sessionId: string) => void
+  onDisconnectSession?: (sessionId: string) => void
+  onOpenSFTP?: (sessionId: string) => void
+  onTogglePin?: (sessionId: string) => void
+  onSplitRight?: () => void
+  onSplitDown?: () => void
 }
 
 export interface WorkspaceTabListItemProps {
@@ -34,6 +39,7 @@ export interface WorkspaceSidebarItem {
   subtitle?: string
   connectionId?: string
   isLocal?: boolean
+  isPinned?: boolean
 }
 
 export interface WorkspaceSplitViewProps {

@@ -2,7 +2,17 @@ import { useState } from 'react'
 import type { WorkspaceSidebarProps } from './types'
 import { WorkspaceTabListItem } from './WorkspaceTabListItem'
 
-export function WorkspaceSidebar({ tabs, activeTabId, onSelectTab, onDropSession }: WorkspaceSidebarProps) {
+export function WorkspaceSidebar({
+  tabs,
+  activeTabId,
+  onSelectTab,
+  onDropSession,
+  onDisconnectSession,
+  onOpenSFTP,
+  onTogglePin,
+  onSplitRight,
+  onSplitDown,
+}: WorkspaceSidebarProps) {
   const [dropActive, setDropActive] = useState(false)
 
   const handleDragOver = (event: React.DragEvent) => {
@@ -51,6 +61,11 @@ export function WorkspaceSidebar({ tabs, activeTabId, onSelectTab, onDropSession
             tab={tab}
             active={activeTabId === tab.sessionId}
             onSelect={onSelectTab}
+            onDisconnectSession={onDisconnectSession}
+            onOpenSFTP={onOpenSFTP}
+            onTogglePin={onTogglePin}
+            onSplitRight={onSplitRight}
+            onSplitDown={onSplitDown}
           />
         ))}
       </div>

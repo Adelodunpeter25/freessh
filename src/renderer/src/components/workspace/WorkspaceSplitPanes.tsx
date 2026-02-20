@@ -5,9 +5,15 @@ interface WorkspaceSplitPanesProps {
   sessionIds: string[]
   activeSessionId: string | null
   onActivateSession?: (sessionId: string) => void
+  direction?: 'horizontal' | 'vertical'
 }
 
-export function WorkspaceSplitPanes({ sessionIds, activeSessionId, onActivateSession }: WorkspaceSplitPanesProps) {
+export function WorkspaceSplitPanes({
+  sessionIds,
+  activeSessionId,
+  onActivateSession,
+  direction = 'horizontal',
+}: WorkspaceSplitPanesProps) {
   if (sessionIds.length === 0) return null
 
   if (sessionIds.length === 1) {
@@ -25,7 +31,7 @@ export function WorkspaceSplitPanes({ sessionIds, activeSessionId, onActivateSes
   }
 
   return (
-    <ResizablePanelGroup direction="horizontal" autoSaveId="workspace-terminal-splits">
+    <ResizablePanelGroup direction={direction} autoSaveId={`workspace-terminal-splits-${direction}`}>
       {sessionIds.flatMap((sessionId, index) => {
         const panel = (
           <ResizablePanel key={`panel-${sessionId}`} defaultSize={100 / sessionIds.length}>

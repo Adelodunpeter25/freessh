@@ -8,6 +8,7 @@ import { useSessionStore } from "@/stores/sessionStore";
 import { connectionService } from "@/services/ipc/connection";
 import { Tab } from "@/types";
 import { generateUniqueTitle } from "@/utils/tabNaming";
+import { useWorkspaceSessionActions } from "@/hooks/workspace";
 import { toast } from "sonner";
 
 type MainView = "home" | "sftp" | "terminal";
@@ -29,6 +30,8 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const addSession = useSessionStore((state) => state.addSession)
   const getSession = useSessionStore((state) => state.getSession)
   const [openingWorkspaceTabs, setOpeningWorkspaceTabs] = useState<Record<string, boolean>>({})
+  const activeWorkspaceTab = tabs.find((tab) => tab.id === activeSessionTabId && tab.type === 'workspace')
+  const workspaceActions = useWorkspaceSessionActions(activeWorkspaceTab?.id || '')
 
   const handleOpenWorkspace = useCallback(async (tab: Tab) => {
     const selectedConnectionIds = tab.workspaceConnectionIds || []
@@ -100,8 +103,13 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                     tab.workspaceMode === 'workspace' ? (
                       <WorkspaceSidebar
                         tabs={(() => {
+                          const pinnedSet = new Set(tab.workspacePinnedSessionIds || [])
                           const usedTitles: string[] = []
-                          return (tab.workspaceSessionIds || []).map((sessionId) => {
+                          const orderedSessionIds = [
+                            ...(tab.workspaceSessionIds || []).filter((id) => pinnedSet.has(id)),
+                            ...(tab.workspaceSessionIds || []).filter((id) => !pinnedSet.has(id)),
+                          ]
+                          return orderedSessionIds.map((sessionId) => {
                             const item = getSession(sessionId)
                             const connection = item?.connection
                             const isLocal = item?.session.connection_id === 'local'
@@ -123,12 +131,18 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                                   : sessionId,
                               connectionId: connection?.id,
                               isLocal,
+                              isPinned: pinnedSet.has(sessionId),
                             }
                           })
                         })()}
                         activeTabId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
                         onSelectTab={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
                         onDropSession={(sessionId) => addSessionToWorkspaceTab(tab.id, sessionId)}
+                        onDisconnectSession={workspaceActions.disconnectSession}
+                        onOpenSFTP={workspaceActions.openSessionSFTP}
+                        onTogglePin={workspaceActions.togglePinned}
+                        onSplitRight={workspaceActions.splitRight}
+                        onSplitDown={workspaceActions.splitDown}
                       />
                     ) : undefined
                   }
@@ -139,6 +153,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                           sessionIds={tab.workspaceSessionIds || []}
                           activeSessionId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
                           onActivateSession={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
+                          direction={tab.workspaceSplitDirection || 'horizontal'}
                         />
                       ) : (
                         <WorkspaceEmptyState

@@ -3,12 +3,30 @@ import { cn } from '@/lib/utils'
 import type { WorkspaceTabListItemProps } from './types'
 import { useOSTypeStore } from '@/stores/osTypeStore'
 import { getOSIcon } from '@/utils/osIcons'
+import { WorkspaceContextMenu } from '@/components/contextmenu'
 
-export function WorkspaceTabListItem({ tab, active = false, onSelect }: WorkspaceTabListItemProps) {
+interface WorkspaceTabListItemActionProps extends WorkspaceTabListItemProps {
+  onDisconnectSession?: (sessionId: string) => void
+  onOpenSFTP?: (sessionId: string) => void
+  onTogglePin?: (sessionId: string) => void
+  onSplitRight?: () => void
+  onSplitDown?: () => void
+}
+
+export function WorkspaceTabListItem({
+  tab,
+  active = false,
+  onSelect,
+  onDisconnectSession,
+  onOpenSFTP,
+  onTogglePin,
+  onSplitRight,
+  onSplitDown,
+}: WorkspaceTabListItemActionProps) {
   const osType = useOSTypeStore((state) => state.getOSType(tab.connectionId || ''))
   const OSIcon = tab.isLocal ? Monitor : getOSIcon(osType)
 
-  return (
+  const content = (
     <button
       type="button"
       onClick={() => onSelect?.(tab.sessionId)}
@@ -23,5 +41,19 @@ export function WorkspaceTabListItem({ tab, active = false, onSelect }: Workspac
       </span>
       <span className="text-xs text-muted-foreground">{tab.subtitle}</span>
     </button>
+  )
+
+  return (
+    <WorkspaceContextMenu
+      isPinned={tab.isPinned || false}
+      isRemote={!tab.isLocal}
+      onDisconnectSession={() => onDisconnectSession?.(tab.sessionId)}
+      onOpenSFTP={() => onOpenSFTP?.(tab.sessionId)}
+      onTogglePin={() => onTogglePin?.(tab.sessionId)}
+      onSplitRight={() => onSplitRight?.()}
+      onSplitDown={() => onSplitDown?.()}
+    >
+      {content}
+    </WorkspaceContextMenu>
   )
 }
