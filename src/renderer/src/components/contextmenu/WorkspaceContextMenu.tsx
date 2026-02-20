@@ -23,12 +23,6 @@ export function WorkspaceContextMenu({
   onSplitDown,
 }: WorkspaceContextMenuProps) {
   const actions: ContextMenuAction[] = [
-    {
-      label: 'Disconnect Session',
-      icon: <PlugZap className="w-4 h-4" />,
-      onClick: onDisconnectSession,
-      destructive: true,
-    },
     ...(isRemote
       ? [
           {
@@ -55,8 +49,14 @@ export function WorkspaceContextMenu({
       icon: <ArrowDown className="w-4 h-4" />,
       onClick: onSplitDown,
     },
+    {
+      label: 'Disconnect Session',
+      icon: <PlugZap className="w-4 h-4" />,
+      onClick: onDisconnectSession,
+      destructive: true,
+      separator: true,
+    },
   ]
 
   return <BaseContextMenu actions={actions}>{children}</BaseContextMenu>
 }
-

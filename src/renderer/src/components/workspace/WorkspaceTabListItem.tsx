@@ -1,4 +1,4 @@
-import { Monitor } from 'lucide-react'
+import { Monitor, Pin } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { WorkspaceTabListItemProps } from './types'
 import { useOSTypeStore } from '@/stores/osTypeStore'
@@ -37,6 +37,7 @@ export function WorkspaceTabListItem({
     >
       <span className="flex min-w-0 items-center gap-2">
         <OSIcon className="h-4 w-4 shrink-0" />
+        {tab.isPinned ? <Pin className="h-3 w-3 shrink-0 text-primary" /> : null}
         <span className="truncate">{tab.title}</span>
       </span>
       <span className="text-xs text-muted-foreground">{tab.subtitle}</span>
