@@ -13,7 +13,7 @@ export function WorkspaceShell({ title = 'Workspace', sidebar, content, footer }
           <ResizablePanel defaultSize={24}>
             <aside className="h-full border-r border-border bg-muted/20">{sidebar}</aside>
           </ResizablePanel>
-          <ResizableHandle withHandle />
+          <ResizableHandle />
           <ResizablePanel defaultSize={76}>
             <main className="min-h-0 h-full">{content}</main>
           </ResizablePanel>

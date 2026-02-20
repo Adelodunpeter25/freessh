@@ -41,7 +41,7 @@ export function WorkspaceSplitPanes({ sessionIds, activeSessionId, onActivateSes
         )
 
         if (index === sessionIds.length - 1) return [panel]
-        return [panel, <ResizableHandle key={`handle-${sessionId}`} withHandle />]
+        return [panel, <ResizableHandle key={`handle-${sessionId}`} />]
       })}
     </ResizablePanelGroup>
   )

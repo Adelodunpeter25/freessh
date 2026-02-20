@@ -101,12 +101,24 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                         tabs={(tab.workspaceSessionIds || []).map((sessionId) => {
                           const item = getSession(sessionId)
                           const connection = item?.connection
+                          const isLocal = item?.session.connection_id === 'local'
+                          const localTitle = 'Local Terminal'
+                          const remoteTitle = connection?.name || (connection?.username && connection?.host
+                            ? `${connection.username}@${connection.host}`
+                            : sessionId)
+                          const title = isLocal ? localTitle : remoteTitle
+                          const subtitle = isLocal
+                            ? sessionId
+                            : connection
+                              ? `${connection.username}@${connection.host}`
+                              : sessionId
+
                           return {
                             sessionId,
-                            title: connection?.name || `${connection?.username}@${connection?.host}` || sessionId,
-                            subtitle: connection ? `${connection.username}@${connection.host}` : sessionId,
+                            title,
+                            subtitle,
                             connectionId: connection?.id,
-                            isLocal: item?.session.connection_id === 'local',
+                            isLocal,
                           }
                         })}
                         activeTabId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
