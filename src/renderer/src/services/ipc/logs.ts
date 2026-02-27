@@ -2,29 +2,24 @@ import { backendService } from './backend'
 import { LogEntry } from '@/types/log'
 
 export const logService = {
-  list(): Promise<LogEntry[]> {
-    return new Promise((resolve) => {
-      const handler = (msg: any) => {
-        backendService.off('log:list')
-        resolve(msg.data)
-      }
-      backendService.on('log:list', handler)
-      backendService.send({ type: 'log:list' })
-    })
+  async list(): Promise<LogEntry[]> {
+    return backendService.request<LogEntry[]>(
+      { type: 'log:list' },
+      'log:list',
+      10000,
+    )
   },
 
-  read(filename: string): Promise<string> {
-    return new Promise((resolve) => {
-      const handler = (msg: any) => {
-        backendService.off('log:read')
-        resolve(msg.data.content)
-      }
-      backendService.on('log:read', handler)
-      backendService.send({
+  async read(filename: string): Promise<string> {
+    const data = await backendService.request<{ content: string }>(
+      {
         type: 'log:read',
         data: { filename }
-      })
-    })
+      },
+      'log:read',
+      10000,
+    )
+    return data.content
   },
 
   delete(filename: string): void {
@@ -34,14 +29,11 @@ export const logService = {
     })
   },
 
-  deleteAll(): Promise<void> {
-    return new Promise((resolve) => {
-      const handler = () => {
-        backendService.off('log:delete_all')
-        resolve()
-      }
-      backendService.on('log:delete_all', handler)
-      backendService.send({ type: 'log:delete_all' })
-    })
+  async deleteAll(): Promise<void> {
+    await backendService.request<void>(
+      { type: 'log:delete_all' },
+      'log:delete_all',
+      10000,
+    )
   }
 }

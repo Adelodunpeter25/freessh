@@ -1,76 +1,40 @@
 import { backendService } from './backend'
-import { ConnectionConfig, Session, IPCMessage } from '../../types'
+import { ConnectionConfig, Session } from '../../types'
 
 export const sshService = {
-  connect(config: ConnectionConfig, timeoutMs: number = 10000): Promise<Session> {
-    return new Promise((resolve, reject) => {
-      let timeoutId: NodeJS.Timeout
-
-      const cleanup = () => {
-        clearTimeout(timeoutId)
-        backendService.off('session_status', handler)
-        backendService.off('error', handler)
-      }
-
-      const handler = (message: IPCMessage) => {
-        if (message.type === 'session_status') {
-          cleanup()
-          resolve(message.data as Session)
-        } else if (message.type === 'error') {
-          cleanup()
-          reject(new Error(message.data.error))
-        }
-      }
-
-      timeoutId = setTimeout(() => {
-        cleanup()
-        reject(new Error('Connection timeout - server did not respond within 10 seconds'))
-      }, timeoutMs)
-
-      backendService.on('session_status', handler)
-      backendService.on('error', handler)
-
-      backendService.send({
+  async connect(config: ConnectionConfig, timeoutMs: number = 10000): Promise<Session> {
+    try {
+      return await backendService.request<Session>(
+        {
         type: 'connect',
         data: { config }
-      })
-    })
+        },
+        'session_status',
+        timeoutMs,
+      )
+    } catch (error) {
+      if (error instanceof Error && error.message.startsWith('Request timeout')) {
+        throw new Error('Connection timeout - server did not respond within 10 seconds')
+      }
+      throw error
+    }
   },
 
-  disconnect(sessionId: string, timeoutMs: number = 10000): Promise<void> {
-    return new Promise((resolve, reject) => {
-      let timeoutId: NodeJS.Timeout
-
-      const cleanup = () => {
-        clearTimeout(timeoutId)
-        backendService.off('session_status', handler)
-        backendService.off('error', handler)
-      }
-
-      const handler = (message: IPCMessage) => {
-        if (message.session_id === sessionId) {
-          if (message.type === 'session_status') {
-            cleanup()
-            resolve()
-          } else if (message.type === 'error') {
-            cleanup()
-            reject(new Error(message.data.error))
-          }
-        }
-      }
-
-      timeoutId = setTimeout(() => {
-        cleanup()
-        reject(new Error('Disconnect timeout'))
-      }, timeoutMs)
-
-      backendService.on('session_status', handler)
-      backendService.on('error', handler)
-
-      backendService.send({
+  async disconnect(sessionId: string, timeoutMs: number = 10000): Promise<void> {
+    try {
+      await backendService.request<Session>(
+        {
         type: 'disconnect',
         session_id: sessionId
-      })
-    })
+        },
+        'session_status',
+        timeoutMs,
+      )
+    } catch (error) {
+      if (error instanceof Error && error.message.startsWith('Request timeout')) {
+        throw new Error('Disconnect timeout')
+      }
+      throw error
+    }
   }
 }

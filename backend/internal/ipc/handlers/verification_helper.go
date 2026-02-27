@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/storage"
+	"log"
 	"sync"
 	"time"
 )
@@ -15,7 +16,11 @@ type HostKeyVerificationHelper struct {
 }
 
 func NewHostKeyVerificationHelper() *HostKeyVerificationHelper {
-	knownHostStorage, _ := storage.NewKnownHostStorage()
+	knownHostStorage, err := storage.NewKnownHostStorage()
+	if err != nil {
+		log.Printf("Warning: failed to initialize known host storage in verification helper: %v", err)
+	}
+
 	return &HostKeyVerificationHelper{
 		verificationChannels: make(map[string]chan bool),
 		knownHostStorage:     knownHostStorage,
@@ -49,6 +54,11 @@ func (h *HostKeyVerificationHelper) CreateVerificationCallback(writer ResponseWr
 			if !trusted {
 				return fmt.Errorf("user rejected host key")
 			}
+
+			if h.knownHostStorage == nil {
+				return fmt.Errorf("known host storage unavailable")
+			}
+
 			// User approved - save the host
 			host := &models.KnownHost{
 				Hostname:    verification.Hostname,

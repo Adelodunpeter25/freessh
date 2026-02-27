@@ -21,6 +21,31 @@ type Server struct {
 	terminalHandler *handlers.TerminalHandler
 }
 
+type requestScopedWriter struct {
+	base      *Writer
+	requestID string
+}
+
+func (w *requestScopedWriter) WriteMessage(msg *models.IPCMessage) error {
+	if msg == nil {
+		return nil
+	}
+
+	if msg.RequestID == "" {
+		msg.RequestID = w.requestID
+	}
+
+	return w.base.WriteMessage(msg)
+}
+
+func (w *requestScopedWriter) WriteError(sessionID string, err error) error {
+	return w.WriteMessage(&models.IPCMessage{
+		Type:      models.MsgError,
+		SessionID: sessionID,
+		Data:      map[string]string{"error": err.Error()},
+	})
+}
+
 func NewServer() *Server {
 	// Initialize log settings storage first
 	logSettingsStorage, err := settings.NewLogSettingsStorage()
@@ -118,10 +143,15 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) handleMessage(msg *models.IPCMessage) {
+	writer := &requestScopedWriter{
+		base:      s.writer,
+		requestID: msg.RequestID,
+	}
+
 	for _, handler := range s.handlers {
 		if handler.CanHandle(msg.Type) {
-			if err := handler.Handle(msg, s.writer); err != nil {
-				s.writer.WriteError(msg.SessionID, err)
+			if err := handler.Handle(msg, writer); err != nil {
+				writer.WriteError(msg.SessionID, err)
 				return
 			}
 
@@ -134,5 +164,5 @@ func (s *Server) handleMessage(msg *models.IPCMessage) {
 		}
 	}
 
-	s.writer.WriteError("", fmt.Errorf("no handler for message type: %s", msg.Type))
+	writer.WriteError("", fmt.Errorf("no handler for message type: %s", msg.Type))
 }

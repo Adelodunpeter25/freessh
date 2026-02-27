@@ -12,22 +12,22 @@ const (
 	MsgError         MessageType = "error"
 	MsgSessionStatus MessageType = "session_status"
 	MsgSessionList   MessageType = "session_list"
-	
+
 	// Terminal logging messages
 	MsgTerminalStartLogging  MessageType = "terminal:start_logging"
 	MsgTerminalStopLogging   MessageType = "terminal:stop_logging"
 	MsgTerminalLoggingStatus MessageType = "terminal:logging_status"
-	
+
 	// Log messages
 	MsgLogList      MessageType = "log:list"
 	MsgLogRead      MessageType = "log:read"
 	MsgLogDelete    MessageType = "log:delete"
 	MsgLogDeleteAll MessageType = "log:delete_all"
-	
+
 	// Log settings messages
 	MsgLogSettingsGet    MessageType = "log_settings:get"
 	MsgLogSettingsUpdate MessageType = "log_settings:update"
-	
+
 	// SFTP messages
 	MsgSFTPList      MessageType = "sftp:list"
 	MsgSFTPUpload    MessageType = "sftp:upload"
@@ -42,10 +42,10 @@ const (
 	MsgSFTPChmod     MessageType = "sftp:chmod"
 
 	// Bulk operations messages
-	MsgBulkDownload  MessageType = "bulk:download"
-	MsgBulkUpload    MessageType = "bulk:upload"
-	MsgBulkDelete    MessageType = "bulk:delete"
-	MsgBulkProgress  MessageType = "bulk:progress"
+	MsgBulkDownload MessageType = "bulk:download"
+	MsgBulkUpload   MessageType = "bulk:upload"
+	MsgBulkDelete   MessageType = "bulk:delete"
+	MsgBulkProgress MessageType = "bulk:progress"
 
 	// Remote-to-remote transfer messages
 	MsgRemoteTransfer     MessageType = "remote:transfer"
@@ -102,11 +102,11 @@ const (
 	MsgKeyExport MessageType = "key:export"
 
 	// Known hosts messages
-	MsgKnownHostList   MessageType = "known_host:list"
-	MsgKnownHostRemove MessageType = "known_host:remove"
-	MsgKnownHostTrust  MessageType = "known_host:trust"
-	MsgKnownHostImport MessageType = "known_host:import"
-	MsgHostKeyVerify   MessageType = "host_key:verify"
+	MsgKnownHostList         MessageType = "known_host:list"
+	MsgKnownHostRemove       MessageType = "known_host:remove"
+	MsgKnownHostTrust        MessageType = "known_host:trust"
+	MsgKnownHostImport       MessageType = "known_host:import"
+	MsgHostKeyVerify         MessageType = "host_key:verify"
 	MsgHostKeyVerifyResponse MessageType = "host_key:verify_response"
 
 	// Group messages
@@ -118,6 +118,7 @@ const (
 
 type IPCMessage struct {
 	Type      MessageType `json:"type"`
+	RequestID string      `json:"request_id,omitempty"`
 	SessionID string      `json:"session_id,omitempty"`
 	Data      interface{} `json:"data,omitempty"`
 }
@@ -161,4 +162,3 @@ type BulkProgress struct {
 	FailedItems    int    `json:"failed_items"`
 	CurrentItem    string `json:"current_item"`
 }
-

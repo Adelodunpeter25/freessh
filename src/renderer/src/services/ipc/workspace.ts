@@ -20,26 +20,14 @@ function withResponse<T>(
   successType: IPCMessage['type'],
   payload: unknown,
 ): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const handler = (message: IPCMessage) => {
-      if (message.type === successType) {
-        backendService.off(successType)
-        backendService.off('error')
-        resolve((message.data ?? {}) as T)
-      } else if (message.type === 'error') {
-        backendService.off(successType)
-        backendService.off('error')
-        reject(new Error(message.data?.error || 'Workspace operation failed'))
-      }
-    }
-
-    backendService.on(successType, handler)
-    backendService.on('error', handler)
-    backendService.send({
+  return backendService.request<T>(
+    {
       type: successType,
       data: payload,
-    })
-  })
+    },
+    successType,
+    10000,
+  )
 }
 
 export const workspaceService = {

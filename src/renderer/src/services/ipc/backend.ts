@@ -9,8 +9,19 @@ class BackendService {
     })
   }
 
-  send(message: IPCMessage): void {
-    window.electron.ipcRenderer.send('backend:send', message)
+  private generateRequestId(): string {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID()
+    }
+
+    return `${Date.now()}-${Math.random().toString(36).slice(2)}`
+  }
+
+  send(message: IPCMessage): string {
+    const requestId = message.request_id ?? this.generateRequestId()
+    const nextMessage: IPCMessage = { ...message, request_id: requestId }
+    window.electron.ipcRenderer.send('backend:send', nextMessage)
+    return requestId
   }
 
   on(type: string, handler: (message: IPCMessage) => void): void {
@@ -36,6 +47,47 @@ class BackendService {
     if (handlers.size === 0) {
       this.messageHandlers.delete(type)
     }
+  }
+
+  request<T = unknown>(
+    message: IPCMessage,
+    expectedType: string,
+    timeoutMs: number,
+  ): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const requestId = this.send(message)
+
+      let timeoutId: ReturnType<typeof setTimeout>
+
+      const cleanup = () => {
+        clearTimeout(timeoutId)
+        this.off(expectedType, handler)
+        this.off('error', handler)
+      }
+
+      const handler = (response: IPCMessage) => {
+        if (response.request_id !== requestId) return
+
+        if (response.type === expectedType) {
+          cleanup()
+          resolve(response.data as T)
+          return
+        }
+
+        if (response.type === 'error') {
+          cleanup()
+          reject(new Error(response.data?.error || 'Request failed'))
+        }
+      }
+
+      timeoutId = setTimeout(() => {
+        cleanup()
+        reject(new Error(`Request timeout after ${Math.round(timeoutMs / 1000)} seconds`))
+      }, timeoutMs)
+
+      this.on(expectedType, handler)
+      this.on('error', handler)
+    })
   }
 
   private handleMessage(message: IPCMessage): void {

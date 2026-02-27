@@ -92,6 +92,7 @@ export type MessageType =
 
 export interface IPCMessage {
   type: MessageType
+  request_id?: string
   session_id?: string
   data?: any
 }

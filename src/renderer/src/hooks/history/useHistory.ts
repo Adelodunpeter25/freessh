@@ -45,7 +45,7 @@ export function useHistory() {
     backendService.on('history:add', handleHistoryAdd)
 
     return () => {
-      backendService.off('history:add')
+      backendService.off('history:add', handleHistoryAdd)
     }
   }, [])
 

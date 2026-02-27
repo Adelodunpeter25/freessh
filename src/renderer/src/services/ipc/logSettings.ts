@@ -3,14 +3,11 @@ import { LogSettings } from '@/types/logSettings'
 
 export const logSettingsService = {
   get(): Promise<LogSettings> {
-    return new Promise((resolve) => {
-      const handler = (msg: any) => {
-        backendService.off('log_settings:get')
-        resolve(msg.data)
-      }
-      backendService.on('log_settings:get', handler)
-      backendService.send({ type: 'log_settings:get' })
-    })
+    return backendService.request<LogSettings>(
+      { type: 'log_settings:get' },
+      'log_settings:get',
+      10000,
+    )
   },
 
   update(settings: LogSettings): void {

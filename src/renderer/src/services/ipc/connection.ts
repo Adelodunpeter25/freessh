@@ -1,126 +1,69 @@
 import { backendService } from './backend'
-import { ConnectionConfig, Session, IPCMessage } from '../../types'
+import { ConnectionConfig, Session } from '../../types'
+
+const DEFAULT_CONNECT_TIMEOUT_MS = 70000
 
 export const connectionService = {
   list(): Promise<ConnectionConfig[]> {
-    return new Promise((resolve, reject) => {
-      const handler = (message: IPCMessage) => {
-        if (message.type === 'connection:list') {
-          backendService.off('connection:list')
-          resolve(message.data as ConnectionConfig[])
-        } else if (message.type === 'error') {
-          backendService.off('error')
-          reject(new Error(message.data.error))
-        }
-      }
-
-      backendService.on('connection:list', handler)
-      backendService.on('error', handler)
-
-      backendService.send({
+    return backendService.request<ConnectionConfig[]>(
+      {
         type: 'connection:list'
-      })
-    })
+      },
+      'connection:list',
+      10000,
+    )
   },
 
   get(id: string): Promise<ConnectionConfig> {
-    return new Promise((resolve, reject) => {
-      const handler = (message: IPCMessage) => {
-        if (message.type === 'connection:get') {
-          backendService.off('connection:get')
-          resolve(message.data as ConnectionConfig)
-        } else if (message.type === 'error') {
-          backendService.off('error')
-          reject(new Error(message.data.error))
-        }
-      }
-
-      backendService.on('connection:get', handler)
-      backendService.on('error', handler)
-
-      backendService.send({
+    return backendService.request<ConnectionConfig>(
+      {
         type: 'connection:get',
         data: { id }
-      })
-    })
+      },
+      'connection:get',
+      10000,
+    )
   },
 
   delete(id: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const handler = (message: IPCMessage) => {
-        if (message.type === 'connection:delete') {
-          backendService.off('connection:delete')
-          resolve()
-        } else if (message.type === 'error') {
-          backendService.off('error')
-          reject(new Error(message.data.error))
-        }
-      }
-
-      backendService.on('connection:delete', handler)
-      backendService.on('error', handler)
-
-      backendService.send({
+    return backendService.request<void>(
+      {
         type: 'connection:delete',
         data: { id }
-      })
-    })
+      },
+      'connection:delete',
+      10000,
+    )
   },
 
   update(config: ConnectionConfig): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const handler = (message: IPCMessage) => {
-        if (message.type === 'connection:update') {
-          backendService.off('connection:update')
-          resolve()
-        } else if (message.type === 'error') {
-          backendService.off('error')
-          reject(new Error(message.data.error))
-        }
-      }
-
-      backendService.on('connection:update', handler)
-      backendService.on('error', handler)
-
-      backendService.send({
+    return backendService.request<void>(
+      {
         type: 'connection:update',
         data: config
-      })
-    })
+      },
+      'connection:update',
+      10000,
+    )
   },
 
-  connect(config: ConnectionConfig, timeoutMs: number = 20000): Promise<Session> {
-    return new Promise((resolve, reject) => {
-      let timeoutId: NodeJS.Timeout
-
-      const cleanup = () => {
-        clearTimeout(timeoutId)
-        backendService.off('session_status', handler)
-        backendService.off('error', handler)
-      }
-
-      const handler = (message: IPCMessage) => {
-        if (message.type === 'session_status') {
-          cleanup()
-          resolve(message.data as Session)
-        } else if (message.type === 'error') {
-          cleanup()
-          reject(new Error(message.data.error))
+  connect(config: ConnectionConfig, timeoutMs: number = DEFAULT_CONNECT_TIMEOUT_MS): Promise<Session> {
+    return backendService
+      .request<Session>(
+        {
+          type: 'connection:connect',
+          data: config
+        },
+        'session_status',
+        timeoutMs,
+      )
+      .catch((error) => {
+        if (error instanceof Error && error.message.startsWith('Request timeout')) {
+          throw new Error(
+            `Connection timeout - server did not respond within ${Math.round(timeoutMs / 1000)} seconds`,
+          )
         }
-      }
-
-      timeoutId = setTimeout(() => {
-        cleanup()
-        reject(new Error('Connection timeout - server did not respond within 20 seconds'))
-      }, timeoutMs)
-
-      backendService.on('session_status', handler)
-      backendService.on('error', handler)
-
-      backendService.send({
-        type: 'connection:connect',
-        data: config
+        throw error
       })
-    })
   }
 }

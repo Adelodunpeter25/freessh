@@ -3,114 +3,48 @@ import { KnownHost } from '@/types/knownHost'
 
 export const knownHostsService = {
   async getAll(): Promise<KnownHost[]> {
-    return new Promise((resolve, reject) => {
-      const handler = (message: any) => {
-        backendService.off('known_host:list', handler)
-        backendService.off('error', errorHandler)
-        if (message.type === 'error') {
-          reject(new Error(message.data))
-        } else {
-          resolve(message.data || [])
-        }
-      }
-
-      const errorHandler = (error: any) => {
-        backendService.off('known_host:list', handler)
-        backendService.off('error', errorHandler)
-        reject(error)
-      }
-
-      backendService.on('known_host:list', handler)
-      backendService.on('error', errorHandler)
-
-      backendService.send({
+    return backendService.request<KnownHost[]>(
+      {
         type: 'known_host:list',
         data: {}
-      })
-    })
+      },
+      'known_host:list',
+      10000,
+    )
   },
 
   async remove(id: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const handler = (message: any) => {
-        backendService.off('known_host:remove', handler)
-        backendService.off('error', errorHandler)
-        if (message.type === 'error') {
-          reject(new Error(message.data))
-        } else {
-          resolve()
-        }
-      }
-
-      const errorHandler = (error: any) => {
-        backendService.off('known_host:remove', handler)
-        backendService.off('error', errorHandler)
-        reject(error)
-      }
-
-      backendService.on('known_host:remove', handler)
-      backendService.on('error', errorHandler)
-
-      backendService.send({
+    await backendService.request<void>(
+      {
         type: 'known_host:remove',
         data: { id }
-      })
-    })
+      },
+      'known_host:remove',
+      10000,
+    )
   },
 
   async trust(hostname: string, port: number, fingerprint: string, publicKey: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const handler = (message: any) => {
-        backendService.off('known_host:trust', handler)
-        backendService.off('error', errorHandler)
-        if (message.type === 'error') {
-          reject(new Error(message.data))
-        } else {
-          resolve()
-        }
-      }
-
-      const errorHandler = (error: any) => {
-        backendService.off('known_host:trust', handler)
-        backendService.off('error', errorHandler)
-        reject(error)
-      }
-
-      backendService.on('known_host:trust', handler)
-      backendService.on('error', errorHandler)
-
-      backendService.send({
+    await backendService.request<void>(
+      {
         type: 'known_host:trust',
         data: { hostname, port, fingerprint, publicKey }
-      })
-    })
+      },
+      'known_host:trust',
+      10000,
+    )
   },
 
   async importFromSSH(): Promise<number> {
-    return new Promise((resolve, reject) => {
-      const handler = (message: any) => {
-        backendService.off('known_host:import', handler)
-        backendService.off('error', errorHandler)
-        if (message.type === 'error') {
-          reject(new Error(message.data))
-        } else {
-          resolve(message.data.count || 0)
-        }
-      }
-
-      const errorHandler = (error: any) => {
-        backendService.off('known_host:import', handler)
-        backendService.off('error', errorHandler)
-        reject(error)
-      }
-
-      backendService.on('known_host:import', handler)
-      backendService.on('error', errorHandler)
-
-      backendService.send({
+    const data = await backendService.request<{ count?: number }>(
+      {
         type: 'known_host:import',
         data: {}
-      })
-    })
+      },
+      'known_host:import',
+      10000,
+    )
+
+    return data.count || 0
   }
 }
