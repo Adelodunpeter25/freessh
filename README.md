@@ -2,7 +2,7 @@
 
 **A free, open-source, local-first SSH client.**
 
-FreeSSH is an always free and open-source alternative to Termius, built for developers and operators who want a fast desktop SSH workflow without vendor lock-in.
+FreeSSH is a local-first, free and open-source alternative to Termius, built for developers and operators who want a fast desktop SSH workflow without vendor lock-in.
 
 ## Why FreeSSH
 

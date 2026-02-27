@@ -26,12 +26,11 @@ func (m *Manager) Get(id string) (*models.Snippet, error) {
 	return m.storage.Get(id)
 }
 
-func (m *Manager) Create(name, command string, tags []string) (*models.Snippet, error) {
+func (m *Manager) Create(name, command string) (*models.Snippet, error) {
 	snippet := models.Snippet{
 		ID:        uuid.New().String(),
 		Name:      name,
 		Command:   command,
-		Tags:      tags,
 		CreatedAt: time.Now(),
 	}
 
@@ -42,7 +41,7 @@ func (m *Manager) Create(name, command string, tags []string) (*models.Snippet, 
 	return &snippet, nil
 }
 
-func (m *Manager) Update(id, name, command string, tags []string) (*models.Snippet, error) {
+func (m *Manager) Update(id, name, command string) (*models.Snippet, error) {
 	existing, err := m.storage.Get(id)
 	if err != nil {
 		return nil, err
@@ -52,7 +51,6 @@ func (m *Manager) Update(id, name, command string, tags []string) (*models.Snipp
 		ID:        id,
 		Name:      name,
 		Command:   command,
-		Tags:      tags,
 		CreatedAt: existing.CreatedAt,
 	}
 

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Snippet } from '@/types/snippet'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Tag, Copy, Check } from 'lucide-react'
+import { Copy, Check } from 'lucide-react'
 
 interface ViewCommandDialogProps {
   isOpen: boolean
@@ -48,23 +48,6 @@ export function ViewCommandDialog({ isOpen, snippet, onClose }: ViewCommandDialo
             </Button>
           </div>
         </div>
-
-        {snippet.tags && snippet.tags.length > 0 && (
-          <div>
-            <label className="text-sm font-medium mb-2 block">Tags</label>
-            <div className="flex flex-wrap gap-2">
-              {snippet.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 text-primary text-sm"
-                >
-                  <Tag className="h-3 w-3" />
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   )

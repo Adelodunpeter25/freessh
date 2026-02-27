@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Snippet } from '@/types/snippet'
-import { Braces, Tag, Pencil } from 'lucide-react'
+import { Braces, Pencil } from 'lucide-react'
 import { SnippetsContextMenu } from '@/components/contextmenu'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -55,20 +55,6 @@ export const SnippetCard = memo(function SnippetCard({
             {snippet.command}
           </p>
         </div>
-
-        {snippet.tags && snippet.tags.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-xs">
-              <Tag className="h-2.5 w-2.5" />
-              {snippet.tags[0]}
-            </span>
-            {snippet.tags.length > 1 && (
-              <span className="text-xs text-muted-foreground">
-                +{snippet.tags.length - 1}
-              </span>
-            )}
-          </div>
-        )}
 
         <TooltipProvider delayDuration={150}>
           <Tooltip>

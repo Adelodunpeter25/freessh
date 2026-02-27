@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { Snippet } from '@/types/snippet'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Search, Code, Tag } from 'lucide-react'
+import { Search, Code } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface SnippetPickerProps {
@@ -22,9 +22,7 @@ export function SnippetPicker({ isOpen, snippets, onClose, onSelect }: SnippetPi
     return snippets.filter(
       (snippet) =>
         snippet.name.toLowerCase().includes(query) ||
-        snippet.command.toLowerCase().includes(query) ||
-        snippet.description?.toLowerCase().includes(query) ||
-        snippet.tags?.some((tag) => tag.toLowerCase().includes(query))
+        snippet.command.toLowerCase().includes(query)
     )
   }, [snippets, search])
 
@@ -71,31 +69,11 @@ export function SnippetPicker({ isOpen, snippets, onClose, onSelect }: SnippetPi
                     <h3 className="font-medium text-sm">{snippet.name}</h3>
                   </div>
                   
-                  {snippet.description && (
-                    <p className="text-xs text-muted-foreground mb-2">
-                      {snippet.description}
-                    </p>
-                  )}
-                  
-                  <div className="bg-muted/50 rounded px-2 py-1 mb-2">
+                  <div className="bg-muted/50 rounded px-2 py-1">
                     <code className="text-xs font-mono text-foreground line-clamp-2">
                       {snippet.command}
                     </code>
                   </div>
-                  
-                  {snippet.tags && snippet.tags.length > 0 && (
-                    <div className="flex items-center gap-1 flex-wrap">
-                      {snippet.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs"
-                        >
-                          <Tag className="h-3 w-3" />
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
                 </button>
               ))}
             </div>

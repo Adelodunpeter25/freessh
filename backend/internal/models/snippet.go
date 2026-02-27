@@ -6,7 +6,6 @@ type Snippet struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Command   string    `json:"command"`
-	Tags      []string  `json:"tags,omitempty"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
@@ -17,9 +16,8 @@ type SnippetListResponse struct {
 }
 
 type SnippetCreateRequest struct {
-	Name    string   `json:"name"`
-	Command string   `json:"command"`
-	Tags    []string `json:"tags,omitempty"`
+	Name    string `json:"name"`
+	Command string `json:"command"`
 }
 
 type SnippetCreateResponse struct {
@@ -27,10 +25,9 @@ type SnippetCreateResponse struct {
 }
 
 type SnippetUpdateRequest struct {
-	ID      string   `json:"id"`
-	Name    string   `json:"name"`
-	Command string   `json:"command"`
-	Tags    []string `json:"tags,omitempty"`
+	ID      string `json:"id"`
+	Name    string `json:"name"`
+	Command string `json:"command"`
 }
 
 type SnippetUpdateResponse struct {

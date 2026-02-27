@@ -66,7 +66,7 @@ func (h *SnippetHandler) handleCreate(msg *models.IPCMessage, writer ResponseWri
 		return fmt.Errorf("failed to parse request: %w", err)
 	}
 
-	snippet, err := h.manager.Create(req.Name, req.Command, req.Tags)
+	snippet, err := h.manager.Create(req.Name, req.Command)
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func (h *SnippetHandler) handleUpdate(msg *models.IPCMessage, writer ResponseWri
 		return fmt.Errorf("failed to parse request: %w", err)
 	}
 
-	snippet, err := h.manager.Update(req.ID, req.Name, req.Command, req.Tags)
+	snippet, err := h.manager.Update(req.ID, req.Name, req.Command)
 	if err != nil {
 		return err
 	}

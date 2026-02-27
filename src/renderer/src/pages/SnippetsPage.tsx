@@ -40,7 +40,6 @@ export function SnippetsPage() {
   const handleSave = async (data: {
     name: string
     command: string
-    tags: string[]
   }) => {
     if (editingSnippet) {
       await updateSnippet({
