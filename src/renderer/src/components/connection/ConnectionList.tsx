@@ -17,6 +17,7 @@ export function ConnectionList() {
     onConnect,
     onOpenSFTP,
     onEdit,
+    onDuplicate,
     onDelete,
     searchQuery,
   } = useConnectionsContext()
@@ -65,6 +66,7 @@ export function ConnectionList() {
             onConnect={onConnect}
             onOpenSFTP={onOpenSFTP}
             onEdit={onEdit}
+            onDuplicate={onDuplicate}
             onDelete={onDelete}
           />
         ))}

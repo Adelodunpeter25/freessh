@@ -20,6 +20,7 @@ export function useConnectionHandlers({
   const openSFTP = useUIStore((state) => state.openSFTP)
   const [showForm, setShowForm] = useState(false)
   const [editingConnection, setEditingConnection] = useState<ConnectionConfig | undefined>()
+  const [formMode, setFormMode] = useState<'create' | 'edit'>('create')
   const [selectedId, setSelectedId] = useState<string | null>(null)
 
   const handleSelect = useCallback((connection: ConnectionConfig | null) => {
@@ -35,7 +36,18 @@ export function useConnectionHandlers({
   }, [openSFTP])
 
   const handleEdit = useCallback((connection: ConnectionConfig) => {
+    setFormMode('edit')
     setEditingConnection(connection)
+    setShowForm(true)
+  }, [])
+
+  const handleDuplicate = useCallback((connection: ConnectionConfig) => {
+    setFormMode('create')
+    setEditingConnection({
+      ...connection,
+      id: crypto.randomUUID(),
+      name: `${connection.name} Copy`,
+    })
     setShowForm(true)
   }, [])
 
@@ -43,12 +55,14 @@ export function useConnectionHandlers({
     await saveAndConnect(config)
     setShowForm(false)
     setEditingConnection(undefined)
+    setFormMode('create')
   }, [saveAndConnect])
 
   const handleFormSave = useCallback(async (config: ConnectionConfig) => {
     await updateConnection(config)
     setShowForm(false)
     setEditingConnection(undefined)
+    setFormMode('create')
     if (refreshGroups) await refreshGroups()
   }, [updateConnection, refreshGroups])
 
@@ -60,9 +74,12 @@ export function useConnectionHandlers({
   const handleCloseForm = useCallback(() => {
     setShowForm(false)
     setEditingConnection(undefined)
+    setFormMode('create')
   }, [])
 
   const handleNewConnection = useCallback(() => {
+    setFormMode('create')
+    setEditingConnection(undefined)
     setShowForm(true)
   }, [])
 
@@ -70,10 +87,12 @@ export function useConnectionHandlers({
     selectedId,
     showForm,
     editingConnection,
+    formMode,
     handleSelect,
     handleConnect,
     handleOpenSFTP,
     handleEdit,
+    handleDuplicate,
     handleFormConnect,
     handleFormSave,
     handleDelete,

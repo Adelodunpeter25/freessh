@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Terminal, FolderOpen, Pencil, Trash2 } from 'lucide-react'
+import { Terminal, FolderOpen, Pencil, Trash2, Copy } from 'lucide-react'
 import { ConnectionConfig } from '@/types'
 import { BaseContextMenu, ContextMenuAction } from './BaseContextMenu'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
@@ -10,6 +10,7 @@ interface ConnectionCardContextMenuProps {
   onConnect: () => void
   onOpenSFTP: () => void
   onEdit: () => void
+  onDuplicate: () => void
   onDelete: () => Promise<void>
 }
 
@@ -19,6 +20,7 @@ export function ConnectionCardContextMenu({
   onConnect,
   onOpenSFTP,
   onEdit,
+  onDuplicate,
   onDelete,
 }: ConnectionCardContextMenuProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
@@ -27,6 +29,7 @@ export function ConnectionCardContextMenu({
     { label: 'Connect', icon: <Terminal className="w-4 h-4" />, onClick: onConnect },
     { label: 'Open SFTP', icon: <FolderOpen className="w-4 h-4" />, onClick: onOpenSFTP },
     { label: 'Edit', icon: <Pencil className="w-4 h-4" />, onClick: onEdit, separator: true },
+    { label: 'Duplicate', icon: <Copy className="w-4 h-4" />, onClick: onDuplicate },
     { label: 'Delete', icon: <Trash2 className="w-4 h-4" />, onClick: () => setShowDeleteConfirm(true), destructive: true, separator: true },
   ]
 

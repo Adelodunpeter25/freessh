@@ -92,6 +92,7 @@ export function ConnectionsPage() {
       onConnect: connectionHandlers.handleConnect,
       onOpenSFTP: connectionHandlers.handleOpenSFTP,
       onEdit: connectionHandlers.handleEdit,
+      onDuplicate: connectionHandlers.handleDuplicate,
       onDelete: connectionHandlers.handleDelete,
       onSearchChange: setSearchQuery,
       onGroupSelect: groupHandlers.handleSelectGroup,
@@ -117,6 +118,7 @@ export function ConnectionsPage() {
       connectionHandlers.handleConnect,
       connectionHandlers.handleOpenSFTP,
       connectionHandlers.handleEdit,
+      connectionHandlers.handleDuplicate,
       connectionHandlers.handleDelete,
       groupHandlers.handleSelectGroup,
       connectionHandlers.handleNewConnection,
@@ -199,6 +201,7 @@ export function ConnectionsPage() {
             <ConnectionForm
               isOpen={connectionHandlers.showForm}
               connection={connectionHandlers.editingConnection}
+              mode={connectionHandlers.formMode}
               onConnect={connectionHandlers.handleFormConnect}
               onSave={connectionHandlers.handleFormSave}
               onClose={connectionHandlers.handleCloseForm}

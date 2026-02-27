@@ -15,10 +15,11 @@ interface ConnectionCardProps {
   onConnect: (connection: ConnectionConfig) => void
   onOpenSFTP: (connection: ConnectionConfig) => void
   onEdit: (connection: ConnectionConfig) => void
+  onDuplicate: (connection: ConnectionConfig) => void
   onDelete: (id: string) => Promise<void>
 }
 
-export const ConnectionCard = memo(function ConnectionCard({ connection, selected, loading, onSelect, onConnect, onOpenSFTP, onEdit, onDelete }: ConnectionCardProps) {
+export const ConnectionCard = memo(function ConnectionCard({ connection, selected, loading, onSelect, onConnect, onOpenSFTP, onEdit, onDuplicate, onDelete }: ConnectionCardProps) {
   const osType = useOSTypeStore((state) => state.getOSType(connection.id))
   const OSIcon = getOSIcon(osType)
   
@@ -28,6 +29,7 @@ export const ConnectionCard = memo(function ConnectionCard({ connection, selecte
       onConnect={() => onConnect(connection)}
       onOpenSFTP={() => onOpenSFTP(connection)}
       onEdit={() => onEdit(connection)}
+      onDuplicate={() => onDuplicate(connection)}
       onDelete={() => onDelete(connection.id)}
     >
       <div

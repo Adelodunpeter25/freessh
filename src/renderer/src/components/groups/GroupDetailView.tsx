@@ -62,6 +62,7 @@ export function GroupDetailView({
       onConnect: connectionHandlers.handleConnect,
       onOpenSFTP: connectionHandlers.handleOpenSFTP,
       onEdit: connectionHandlers.handleEdit,
+      onDuplicate: connectionHandlers.handleDuplicate,
       onDelete: connectionHandlers.handleDelete,
       onSearchChange: setSearchQuery,
       onGroupSelect: () => {},
@@ -118,6 +119,7 @@ export function GroupDetailView({
           <ConnectionForm
             isOpen={connectionHandlers.showForm}
             connection={connectionHandlers.editingConnection}
+            mode={connectionHandlers.formMode}
             onConnect={connectionHandlers.handleFormConnect}
             onSave={connectionHandlers.handleFormSave}
             onClose={connectionHandlers.handleCloseForm}

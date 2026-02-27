@@ -18,6 +18,7 @@ interface ConnectionsContextValue {
   onConnect: (connection: ConnectionConfig) => void
   onOpenSFTP: (connection: ConnectionConfig) => void
   onEdit: (connection: ConnectionConfig) => void
+  onDuplicate: (connection: ConnectionConfig) => void
   onDelete: (id: string) => Promise<void>
   onSearchChange: (query: string) => void
   onGroupSelect: (group: string | null) => void
