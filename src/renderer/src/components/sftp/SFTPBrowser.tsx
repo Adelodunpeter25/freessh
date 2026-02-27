@@ -52,6 +52,8 @@ export function SFTPBrowser() {
           isLeftItemSelected={state.leftMultiSelect.isSelected}
           onLeftClearSelection={state.leftMultiSelect.clearSelection}
           leftBulkOps={state.leftBulkOps}
+          leftShowHidden={state.leftShowHidden}
+          onLeftToggleHidden={() => state.setLeftShowHidden(!state.leftShowHidden)}
           
           rightPanelType={state.rightPanelType}
           rightSessionId={state.rightSessionId}
@@ -65,6 +67,8 @@ export function SFTPBrowser() {
           isRightItemSelected={state.rightMultiSelect.isSelected}
           onRightClearSelection={state.rightMultiSelect.clearSelection}
           rightBulkOps={state.rightBulkOps}
+          rightShowHidden={state.rightShowHidden}
+          onRightToggleHidden={() => state.setRightShowHidden(!state.rightShowHidden)}
           
           selectedLocal={state.selectedLocal}
           selectedRemote={state.selectedRemote}

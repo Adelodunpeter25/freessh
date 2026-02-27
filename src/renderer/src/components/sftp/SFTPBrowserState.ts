@@ -22,8 +22,10 @@ export const useSFTPBrowserState = () => {
   // Panel types and session IDs
   const [leftPanelType, setLeftPanelType] = useState<'local' | 'remote'>('local');
   const [leftSessionId, setLeftSessionId] = useState<string | null>(null);
+  const [leftShowHidden, setLeftShowHidden] = useState(false);
   const [rightPanelType, setRightPanelType] = useState<'local' | 'remote'>('remote');
   const [rightSessionId, setRightSessionId] = useState<string | null>(null);
+  const [rightShowHidden, setRightShowHidden] = useState(false);
   const connections = useConnectionStore((state) => state.connections);
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
   const sftpOpenRequest = useUIStore((state) => state.sftpOpenRequest);
@@ -259,6 +261,8 @@ export const useSFTPBrowserState = () => {
     setShowingSelector,
     leftPanelType,
     leftSessionId,
+    leftShowHidden,
+    setLeftShowHidden,
     leftData,
     leftSftp,
     leftLocal,
@@ -266,6 +270,8 @@ export const useSFTPBrowserState = () => {
     leftBulkOps,
     rightPanelType,
     rightSessionId,
+    rightShowHidden,
+    setRightShowHidden,
     rightData,
     rightSftp,
     rightLocal,

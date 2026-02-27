@@ -14,13 +14,16 @@ import { SearchBar } from "./SearchBar";
 interface FilePanelProps {
   title: string;
   files: FileInfo[];
+  showHidden: boolean;
+  onToggleHidden: () => void;
 }
 
 export function FilePanel({
   title,
   files,
+  showHidden,
+  onToggleHidden,
 }: FilePanelProps) {
-  const [showHidden, setShowHidden] = useState(false);
   const [showNewFolderDialog, setShowNewFolderDialog] = useState(false);
   const { 
     currentPath,
@@ -115,7 +118,7 @@ export function FilePanel({
         onOpenFile={handleOpenFilePath}
         onRefresh={onRefresh}
         onGoBack={handleGoBack}
-        onToggleHidden={() => setShowHidden(!showHidden)}
+        onToggleHidden={onToggleHidden}
         onNewFolder={handleNewFolder}
         onTitleClick={onTitleClick}
         isRemote={isRemote}

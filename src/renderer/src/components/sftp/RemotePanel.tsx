@@ -55,6 +55,7 @@ export function RemotePanel({
 }: RemotePanelProps) {
   const connections = useConnectionStore((state) => state.connections);
   const [connectedConnectionId, setConnectedConnectionId] = useState<string>("");
+  const [showHidden, setShowHidden] = useState(false);
 
   const connectedConnection = connections.find(
     (c) => c.id === connectedConnectionId,
@@ -97,6 +98,8 @@ export function RemotePanel({
       <FilePanel
         title={`Remote: ${connectedConnection?.name || ""}`}
         files={files}
+        showHidden={showHidden}
+        onToggleHidden={() => setShowHidden(!showHidden)}
       />
     </FilePanelProvider>
   )

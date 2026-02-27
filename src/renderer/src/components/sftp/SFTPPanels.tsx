@@ -22,6 +22,8 @@ interface SFTPPanelsProps {
   isLeftItemSelected: (fileName: string) => boolean;
   onLeftClearSelection: () => void;
   leftBulkOps: any;
+  leftShowHidden: boolean;
+  onLeftToggleHidden: () => void;
   
   rightPanelType: 'local' | 'remote';
   rightSessionId: string | null;
@@ -35,6 +37,8 @@ interface SFTPPanelsProps {
   isRightItemSelected: (fileName: string) => boolean;
   onRightClearSelection: () => void;
   rightBulkOps: any;
+  rightShowHidden: boolean;
+  onRightToggleHidden: () => void;
   
   selectedLocal: FileInfo | null;
   selectedRemote: FileInfo | null;
@@ -283,7 +287,12 @@ export function SFTPPanels(props: SFTPPanelsProps) {
         ) : (
           <>
             <FilePanelProvider value={leftContextValue}>
-              <FilePanel title={leftTitle} files={props.leftFiles} />
+              <FilePanel
+                title={leftTitle}
+                files={props.leftFiles}
+                showHidden={props.leftShowHidden}
+                onToggleHidden={props.onLeftToggleHidden}
+              />
             </FilePanelProvider>
             {props.leftSelectedItems.size > 1 && (
               <BulkActionBar
@@ -336,7 +345,12 @@ export function SFTPPanels(props: SFTPPanelsProps) {
         ) : (
           <>
             <FilePanelProvider value={rightContextValue}>
-              <FilePanel title={rightTitle} files={props.rightFiles} />
+              <FilePanel
+                title={rightTitle}
+                files={props.rightFiles}
+                showHidden={props.rightShowHidden}
+                onToggleHidden={props.onRightToggleHidden}
+              />
             </FilePanelProvider>
             {props.rightSelectedItems.size > 1 && (
               <BulkActionBar
