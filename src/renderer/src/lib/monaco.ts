@@ -4,7 +4,6 @@ import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker'
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker'
 import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker'
 import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker'
-import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 
 import 'monaco-editor/esm/vs/language/json/monaco.contribution'
 import 'monaco-editor/esm/vs/language/css/monaco.contribution'
@@ -16,9 +15,6 @@ import 'monaco-editor/esm/vs/basic-languages/markdown/markdown.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/shell/shell.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/dockerfile/dockerfile.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/ini/ini.contribution.js'
-import 'monaco-editor/esm/vs/basic-languages/go/go.contribution.js'
-import 'monaco-editor/esm/vs/basic-languages/cpp/cpp.contribution.js'
-import 'monaco-editor/esm/vs/basic-languages/php/php.contribution.js'
 
 if (!monaco.languages.getLanguages().some((lang) => lang.id === 'toml')) {
   monaco.languages.register({ id: 'toml' })
@@ -54,7 +50,7 @@ if (!monaco.languages.getLanguages().some((lang) => lang.id === 'toml')) {
     if (label === 'json') return new jsonWorker()
     if (label === 'css') return new cssWorker()
     if (label === 'html' || label === 'handlebars' || label === 'razor') return new htmlWorker()
-    if (label === 'typescript' || label === 'javascript') return new tsWorker()
+    if (label === 'typescript' || label === 'javascript') return new editorWorker()
     return new editorWorker()
   },
 }

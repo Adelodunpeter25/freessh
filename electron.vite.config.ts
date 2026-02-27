@@ -18,17 +18,18 @@ export default defineConfig({
       rollupOptions: {
         output: {
           manualChunks: (id) => {
-            // Only include languages we actually use
             if (id.includes('monaco-editor')) {
+              const usedVsLanguage = ['json', 'html', 'css', 'typescript']
+              const usedBasicLanguages = ['xml', 'python', 'markdown', 'shell', 'dockerfile', 'ini']
+
               if (id.includes('/esm/vs/language/')) {
-                const usedLanguages = [
-                  'json', 'html', 'css', 'typescript', 'javascript',
-                  'python', 'markdown', 'yaml', 'xml', 'shell'
-                ]
-                const isUsedLanguage = usedLanguages.some(lang => id.includes(`/language/${lang}/`))
-                if (!isUsedLanguage) {
-                  return 'monaco-unused'
-                }
+                const keep = usedVsLanguage.some((lang) => id.includes(`/language/${lang}/`))
+                if (!keep) return 'monaco-unused'
+              }
+
+              if (id.includes('/esm/vs/basic-languages/')) {
+                const keep = usedBasicLanguages.some((lang) => id.includes(`/basic-languages/${lang}/`))
+                if (!keep) return 'monaco-unused'
               }
             }
           }
