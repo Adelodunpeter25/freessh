@@ -42,6 +42,12 @@ export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
   const language = getLanguageFromFilename(filename)
 
   useEffect(() => {
+    setValue(content)
+    setIsDirty(false)
+    setIsEditing(false)
+  }, [content, filename])
+
+  useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
     const handleChange = (e: MediaQueryListEvent) => {
       setTheme(e.matches ? 'custom-dark' : 'custom-light')
@@ -81,7 +87,6 @@ export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
       />
       <div className="flex-1">
         <Editor
-          key={isEditing ? 'edit' : 'readonly'}
           height="100%"
           language={language}
           value={value}

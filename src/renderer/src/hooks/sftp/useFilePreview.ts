@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import { FileInfo } from '@/types'
 import { isImageFile, isTextFile } from '@/utils/fileTypes'
@@ -15,6 +15,10 @@ export const useFilePreview = () => {
   const [previewContent, setPreviewContent] = useState<string | null>(null)
   const [previewBlobUrl, setPreviewBlobUrl] = useState<string | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
+  const textPreviewCache = useRef<Map<string, string>>(new Map())
+
+  const getCacheKey = (file: FileInfo, isRemote: boolean, sessionId?: string) =>
+    `${isRemote ? `remote:${sessionId ?? 'none'}` : 'local'}:${file.path}`
 
   const openFile = useCallback(async (file: FileInfo, isRemote: boolean, sessionId?: string) => {
     if (file.is_dir) return
@@ -26,7 +30,6 @@ export const useFilePreview = () => {
     }
 
     setPreviewFile({ file, isRemote, sessionId })
-    setPreviewLoading(true)
     setPreviewContent(null)
     setPreviewBlobUrl(prev => {
       if (prev) URL.revokeObjectURL(prev)
@@ -35,11 +38,26 @@ export const useFilePreview = () => {
 
     try {
       if (isTextFile(file.name)) {
+        const cacheKey = getCacheKey(file, isRemote, sessionId)
+        const cached = textPreviewCache.current.get(cacheKey)
+        if (cached !== undefined) {
+          setPreviewContent(cached)
+          setPreviewLoading(false)
+          return
+        }
+
+        setPreviewLoading(true)
         const content = isRemote 
           ? await sftpService.readFile(sessionId!, file.path)
           : await window.electron.ipcRenderer.invoke('fs:readfile', file.path)
+        textPreviewCache.current.set(cacheKey, content)
+        if (textPreviewCache.current.size > 50) {
+          const firstKey = textPreviewCache.current.keys().next().value
+          if (firstKey) textPreviewCache.current.delete(firstKey)
+        }
         setPreviewContent(content)
       } else if (isImageFile(file.name)) {
+        setPreviewLoading(true)
         if (isRemote) {
           const base64 = await sftpService.readFile(sessionId!, file.path, true)
           const binary = atob(base64)
@@ -76,6 +94,10 @@ export const useFilePreview = () => {
     } else {
       await window.electron.ipcRenderer.invoke('fs:writefile', previewFile.file.path, content)
     }
+    textPreviewCache.current.set(
+      getCacheKey(previewFile.file, previewFile.isRemote, previewFile.sessionId),
+      content
+    )
     setPreviewContent(content)
   }, [previewFile])
 
@@ -86,6 +108,7 @@ export const useFilePreview = () => {
     })
     setPreviewFile(null)
     setPreviewContent(null)
+    setPreviewLoading(false)
   }, [])
 
   return {
