@@ -13,7 +13,13 @@ interface OpenFileOptions {
 export async function openFile(options: OpenFileOptions) {
   const { file, isRemote, sessionId, onOpenInEditor, onDownloadToTemp } = options
 
-  // Local files - open in default app
+  // Text files (local + remote) open in built-in editor/preview.
+  if (!shouldOpenInDefaultApp(file.name)) {
+    onOpenInEditor(file)
+    return
+  }
+
+  // Local binary files - open in default app
   if (!isRemote) {
     await window.electron.ipcRenderer.invoke('shell:openPath', file.path)
     return
@@ -25,13 +31,7 @@ export async function openFile(options: OpenFileOptions) {
     return
   }
 
-  // Text files - open in built-in editor
-  if (!shouldOpenInDefaultApp(file.name)) {
-    onOpenInEditor(file)
-    return
-  }
-
-  // Binary files - download and open in default app
+  // Remote binary files - download and open in default app
   try {
     toast.info(`Opening ${file.name}...`)
     const tempPath = await onDownloadToTemp(file.path, file.name)

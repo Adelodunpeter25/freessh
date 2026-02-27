@@ -3,9 +3,23 @@ export function getLanguageFromFilename(filename: string): string {
   const name = filename.toLowerCase()
 
   // Config files by name
-  if (name === '.bashrc' || name === '.zshrc' || name === '.profile') return 'shell'
+  if (
+    name === '.bashrc' ||
+    name === '.zshrc' ||
+    name === '.profile' ||
+    name === '.bash_profile' ||
+    name === '.zprofile' ||
+    name === '.zshenv' ||
+    name === '.bash_aliases'
+  ) return 'shell'
   if (name === '.vimrc') return 'vim'
-  if (name === '.gitignore' || name === '.dockerignore') return 'plaintext'
+  if (
+    name === '.gitignore' ||
+    name === '.dockerignore' ||
+    name === '.npmrc' ||
+    name === '.yarnrc' ||
+    name === '.editorconfig'
+  ) return 'plaintext'
   if (name === 'dockerfile') return 'dockerfile'
   if (name === 'makefile') return 'makefile'
 
@@ -25,6 +39,8 @@ export function getLanguageFromFilename(filename: string): string {
     conf: 'ini',
     cfg: 'ini',
     env: 'plaintext',
+    rc: 'shell',
+    properties: 'ini',
     
     // Web
     html: 'html',
@@ -53,10 +69,24 @@ export function getLanguageFromFilename(filename: string): string {
     // Markup
     md: 'markdown',
     xml: 'xml',
-    
+    csv: 'plaintext',
+    tsv: 'plaintext',
+
+    // Keys and certs
+    pem: 'plaintext',
+    crt: 'plaintext',
+    key: 'plaintext',
+    pub: 'plaintext',
+
+    // Scripts
+    bat: 'plaintext',
+    ps1: 'powershell',
+    psm1: 'powershell',
+
     // Logs
     log: 'plaintext',
     txt: 'plaintext',
+    sql: 'sql',
   }
 
   return extMap[ext] || 'plaintext'
@@ -70,12 +100,30 @@ export function isImageFile(filename: string): boolean {
 export function isTextFile(filename: string): boolean {
   const ext = filename.split('.').pop()?.toLowerCase() || ''
   const name = filename.toLowerCase()
+  const textByName = new Set([
+    '.bashrc',
+    '.zshrc',
+    '.profile',
+    '.bash_profile',
+    '.zprofile',
+    '.zshenv',
+    '.bash_aliases',
+    '.vimrc',
+    '.gitignore',
+    '.dockerignore',
+    '.npmrc',
+    '.yarnrc',
+    '.editorconfig',
+    'dockerfile',
+    'makefile',
+  ])
   const textExts = [
     'txt', 'md', 'json', 'yaml', 'yml', 'toml', 'ini', 'conf', 'cfg',
     'sh', 'bash', 'zsh', 'py', 'js', 'jsx', 'ts', 'tsx', 'html', 'css', 'scss', 'sass', 'less', 'xml',
-    'log', 'env', 'gitignore', 'dockerignore', 'rb', 'pl', 'php', 'go', 'rs', 'java', 'c', 'cpp', 'h', 'hpp'
+    'log', 'env', 'gitignore', 'dockerignore', 'rb', 'pl', 'php', 'go', 'rs', 'java', 'c', 'cpp', 'h', 'hpp',
+    'rc', 'properties', 'pem', 'crt', 'key', 'pub', 'sql', 'csv', 'tsv', 'bat', 'ps1', 'psm1'
   ]
-  return textExts.includes(ext) || filename.startsWith('.') || name === 'dockerfile' || name === 'makefile'
+  return textByName.has(name) || textExts.includes(ext) || filename.startsWith('.')
 }
 
 export function shouldOpenInDefaultApp(filename: string): boolean {
