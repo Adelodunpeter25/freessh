@@ -1,3 +1,3 @@
 export const FEATURE_FLAGS = {
-  DETACHABLE_WORKSPACES: false,
+  DETACHABLE_WORKSPACES: true,
 } as const;
