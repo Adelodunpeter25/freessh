@@ -104,7 +104,7 @@ export function ConnectionForm({ isOpen, connection, mode, onConnect, onSave, on
           <div className="p-4 border-t border-border bg-background">
             <div className="flex gap-2">
               <Button type="submit" className="flex-1" loading={isConnecting}>
-                {isEditMode ? 'Save Changes' : 'Connect'}
+                {isEditMode ? 'Save Changes' : 'Save & Connect'}
               </Button>
               <Button type="button" variant="outline" onClick={handleClose} disabled={isConnecting}>
                 Cancel
