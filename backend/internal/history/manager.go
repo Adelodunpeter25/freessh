@@ -3,6 +3,7 @@ package history
 import (
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/storage"
+	"freessh-backend/internal/utils"
 	"strings"
 
 	"github.com/google/uuid"
@@ -36,13 +37,22 @@ func (m *Manager) Add(command string) (*models.HistoryEntry, error) {
 		return nil, nil
 	}
 
+	// Fast-path duplicate check against the most recent entry.
+	if !utils.ShouldAddToHistory(command, m.storage.GetRecent(1)) {
+		return nil, nil
+	}
+
 	entry := models.HistoryEntry{
 		ID:      uuid.New().String(),
 		Command: command,
 	}
 
-	if err := m.storage.Add(entry); err != nil {
+	added, err := m.storage.Add(entry)
+	if err != nil {
 		return nil, err
+	}
+	if !added {
+		return nil, nil
 	}
 
 	return &entry, nil

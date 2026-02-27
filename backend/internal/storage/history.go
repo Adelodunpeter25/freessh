@@ -66,15 +66,15 @@ func (s *HistoryStorage) List() []models.HistoryEntry {
 	return result
 }
 
-func (s *HistoryStorage) Add(entry models.HistoryEntry) error {
+func (s *HistoryStorage) Add(entry models.HistoryEntry) (bool, error) {
 	s.mu.Lock()
-	
+
 	// Skip if duplicate of last entry
 	if len(s.entries) > 0 && s.entries[len(s.entries)-1].Command == entry.Command {
 		s.mu.Unlock()
-		return nil
+		return false, nil
 	}
-	
+
 	s.entries = append(s.entries, entry)
 
 	// Keep only last 200 entries
@@ -87,7 +87,7 @@ func (s *HistoryStorage) Add(entry models.HistoryEntry) error {
 	// Save asynchronously to avoid blocking terminal input
 	go s.saveSnapshot(snapshot)
 
-	return nil
+	return true, nil
 }
 
 func (s *HistoryStorage) Clear() error {
