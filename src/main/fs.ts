@@ -53,7 +53,6 @@ export function setupFileSystemHandlers(): void {
     const result = await dialog.showOpenDialog({
       properties: ['openFile'],
       filters: [
-        { name: 'SSH Keys', extensions: ['pem', 'key', 'pub'] },
         { name: 'All Files', extensions: ['*'] }
       ]
     })
