@@ -93,21 +93,14 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
                 className="pl-8 h-9"
               />
             </div>
-            <TooltipProvider delayDuration={150}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setShowClearConfirm(true)}
-                    disabled={history.length === 0}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Clear History</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowClearConfirm(true)}
+              disabled={history.length === 0}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 

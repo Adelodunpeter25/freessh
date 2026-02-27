@@ -75,21 +75,14 @@ export function TerminalSnippetsList({ onPasteSnippet, onRunSnippet, onEditSnipp
           value={searchQuery}
           onChange={setSearchQuery}
         />
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onNewSnippet}
-                className="flex-shrink-0"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Add new snippet</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onNewSnippet}
+          className="flex-shrink-0"
+        >
+          <Plus className="h-4 w-4" />
+        </Button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-2 pb-6" onClick={handleClearSelection}>

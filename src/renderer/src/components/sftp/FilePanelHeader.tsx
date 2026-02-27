@@ -135,20 +135,15 @@ export function FilePanelHeader({
           </div>
         </div>
         <div className="flex gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 shrink-0"
-                onClick={onGoBack}
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Go Back</TooltipContent>
-          </Tooltip>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0"
+            onClick={onGoBack}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
           <PathAutocomplete
             value={pathInput}
             onChange={setPathInput}
