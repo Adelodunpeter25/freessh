@@ -90,8 +90,18 @@ export function TerminalHistoryList({ activeSessionId, onCommandRun }: TerminalH
                 placeholder="Search history..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="pl-8 h-9"
+                className="pl-8 pr-8 h-9"
               />
+              {search && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSearch('')}
+                  className="absolute right-0 top-0 h-9 w-9"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
             <Button
               variant="ghost"

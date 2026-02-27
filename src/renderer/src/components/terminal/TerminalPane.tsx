@@ -2,6 +2,7 @@ import { useEffect, useRef, memo, useCallback } from 'react'
 import { Terminal as XTerm } from 'xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { SearchAddon } from '@xterm/addon-search'
+import { WebLinksAddon } from '@xterm/addon-web-links'
 import { useTerminalThemeStore } from '@/stores/terminalThemeStore'
 import { useTerminalFontStore } from '@/stores/terminalFontStore'
 import 'xterm/css/xterm.css'
@@ -111,9 +112,11 @@ export const TerminalPane = memo(function TerminalPane({
 
     const fitAddon = new FitAddon()
     const searchAddon = new SearchAddon()
+    const webLinksAddon = new WebLinksAddon()
 
     xterm.loadAddon(fitAddon)
     xterm.loadAddon(searchAddon)
+    xterm.loadAddon(webLinksAddon)
     xterm.open(terminalRef.current)
 
     searchAddon.onDidChangeResults((results) => {
