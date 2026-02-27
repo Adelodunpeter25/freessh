@@ -109,6 +109,11 @@ export function MainLayout() {
     onCloseTab: handleCloseActiveTab,
     onOpenSettings: () => setShowSettings(true),
     onShowShortcuts: () => setShowShortcuts(true),
+    onToggleTerminalSidebar: () => {
+      if (mainView === 'terminal') {
+        setShowTerminalSettings(true)
+      }
+    },
   })
 
   useMenuActions({

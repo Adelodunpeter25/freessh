@@ -39,6 +39,7 @@ interface ShortcutHandlers {
   onRefreshSFTP?: () => void
   onDeleteFile?: () => void
   onShowShortcuts?: () => void
+  onToggleTerminalSidebar?: () => void
 }
 
 export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true) {
@@ -50,6 +51,10 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
 
     const handleKeyDown = (e: KeyboardEvent) => {
       const shortcutKey = buildShortcutKey(e)
+      const target = e.target as HTMLElement | null
+      const isEditable = target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        !!target?.isContentEditable
       
       // Navigation shortcuts
       if (shortcutKey.match(/^cmd\+[1-9]$/)) {
@@ -98,6 +103,13 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           e.preventDefault()
           handlers.onShowShortcuts?.()
           break
+
+        case 'cmd+s':
+          if (!isEditable) {
+            e.preventDefault()
+            handlers.onToggleTerminalSidebar?.()
+          }
+          break
         
         // Terminal
         case 'cmd+k':
@@ -118,11 +130,6 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
         
         case 'delete':
           // Only if not in input field
-          const target = e.target as HTMLElement | null
-          const isEditable = target instanceof HTMLInputElement ||
-            target instanceof HTMLTextAreaElement ||
-            !!target?.isContentEditable
-
           if (!isEditable) {
             e.preventDefault()
             handlers.onDeleteFile?.()
