@@ -34,6 +34,7 @@ export const TerminalPane = memo(function TerminalPane({
   const onResizeRef = useRef(onResize)
   const onSearchResultsRef = useRef(onSearchResults)
   const fitScheduledRef = useRef(false)
+  const lastResizeRef = useRef<{ cols: number; rows: number } | null>(null)
   const theme = useTerminalThemeStore((state) => state.getTheme())
   const { fontFamily, fontSize, fontWeight } = useTerminalFontStore()
 
@@ -57,7 +58,12 @@ export const TerminalPane = memo(function TerminalPane({
       fitScheduledRef.current = false
       if (!fitAddonRef.current || !xtermRef.current) return
       fitAddonRef.current.fit()
-      onResizeRef.current(xtermRef.current.cols, xtermRef.current.rows)
+      const next = { cols: xtermRef.current.cols, rows: xtermRef.current.rows }
+      const prev = lastResizeRef.current
+      if (!prev || prev.cols !== next.cols || prev.rows !== next.rows) {
+        lastResizeRef.current = next
+        onResizeRef.current(next.cols, next.rows)
+      }
     })
   }, [])
 
