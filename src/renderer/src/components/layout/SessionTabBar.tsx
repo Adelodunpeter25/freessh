@@ -60,8 +60,8 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               className={cn(
                 'flex items-center gap-2 px-8 py-2 rounded-md border cursor-pointer transition-all backdrop-blur-md shrink-0',
                 showHome
-                  ? 'bg-white/20 dark:bg-white/15 border-white/30 dark:border-white/30 text-foreground shadow-sm'
-                  : 'bg-white/5 dark:bg-white/5 border-white/10 dark:border-white/10 text-foreground/70 dark:text-muted-foreground hover:bg-white/10 hover:border-white/20'
+                  ? 'bg-background border-border text-foreground shadow-sm dark:bg-white/15 dark:border-white/30'
+                  : 'bg-background/80 border-border/80 text-foreground/70 hover:bg-muted/40 hover:border-border dark:bg-white/5 dark:border-white/10 dark:text-muted-foreground dark:hover:bg-white/10 dark:hover:border-white/20'
               )}
               style={noDrag}
               onClick={onHomeClick}
@@ -79,8 +79,8 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               className={cn(
                 'flex items-center gap-2 px-8 py-2 rounded-md border cursor-pointer transition-all backdrop-blur-md shrink-0',
                 showSFTP
-                  ? 'bg-white/20 dark:bg-white/15 border-white/30 dark:border-white/30 text-foreground shadow-sm'
-                  : 'bg-white/5 dark:bg-white/5 border-white/10 dark:border-white/10 text-foreground/70 dark:text-muted-foreground hover:bg-white/10 hover:border-white/20'
+                  ? 'bg-background border-border text-foreground shadow-sm dark:bg-white/15 dark:border-white/30'
+                  : 'bg-background/80 border-border/80 text-foreground/70 hover:bg-muted/40 hover:border-border dark:bg-white/5 dark:border-white/10 dark:text-muted-foreground dark:hover:bg-white/10 dark:hover:border-white/20'
               )}
               style={noDrag}
               onClick={onSFTPClick}
@@ -129,7 +129,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
                 type="button"
                 style={noDrag}
                 onClick={handleCreateWorkspaceTab}
-                className="ml-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-white/10 bg-white/5 text-foreground/80 transition-colors hover:border-white/20 hover:bg-white/10"
+                className="ml-1 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border/80 bg-background/80 text-foreground/80 transition-colors hover:border-border hover:bg-muted/40 dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:bg-white/10"
                 aria-label="Open workspace tab"
                 title="Open workspace tab"
               >

@@ -61,7 +61,7 @@ export const ConnectionCard = memo(function ConnectionCard({ connection, selecte
         <div className="flex-1 min-w-0">
           <h3 className="text-base font-semibold text-foreground truncate">{connection.name}</h3>
           <p className="text-xs text-muted-foreground truncate">
-            {loading ? 'Connecting...' : `${connection.username}@${connection.host}:${connection.port}`}
+            {loading ? 'Connecting...' : `${connection.username}, ${connection.host}`}
           </p>
         </div>
 
