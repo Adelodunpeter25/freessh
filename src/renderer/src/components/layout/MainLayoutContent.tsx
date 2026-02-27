@@ -133,20 +133,14 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                             const isLocal = item?.session.connection_id === 'local'
                             const baseTitle = isLocal
                               ? 'Local Terminal'
-                              : connection?.name || (connection?.username && connection?.host
-                                  ? `${connection.username}@${connection.host}`
-                                  : sessionId)
+                              : connection?.name || connection?.host || sessionId
                             const title = generateUniqueTitle(baseTitle, usedTitles)
                             usedTitles.push(title)
 
                             return {
                               sessionId,
                               title,
-                              subtitle: isLocal
-                                ? undefined
-                                : connection
-                                  ? `${connection.username}@${connection.host}`
-                                  : sessionId,
+                              subtitle: undefined,
                               connectionId: connection?.id,
                               isLocal,
                               isPinned: pinnedSet.has(sessionId),

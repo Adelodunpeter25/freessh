@@ -31,7 +31,7 @@ export function WorkspaceTabListItem({
       type="button"
       onClick={() => onSelect?.(tab.sessionId)}
       className={cn(
-        'flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors',
+        'flex w-full items-center rounded-md px-3 py-2 text-left text-sm transition-colors',
         active ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/60',
       )}
     >
@@ -40,7 +40,6 @@ export function WorkspaceTabListItem({
         {tab.isPinned ? <Pin className="h-3 w-3 shrink-0 text-primary" /> : null}
         <span className="truncate">{tab.title}</span>
       </span>
-      <span className="text-xs text-muted-foreground">{tab.subtitle}</span>
     </button>
   )
 

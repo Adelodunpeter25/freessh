@@ -24,13 +24,18 @@ const (
 
 // DetectOS runs commands over SSH to detect the remote operating system
 func DetectOS(session *ssh.Session) (OSType, error) {
-	// First check basic OS type
-	output, err := session.Output("uname -s")
+	// A single SSH session can only run one command; detect in one shell invocation.
+	output, err := session.Output("sh -c 'uname -s 2>/dev/null; cat /etc/os-release 2>/dev/null || cat /etc/lsb-release 2>/dev/null'")
 	if err != nil {
 		return Unknown, err
 	}
 
-	osName := strings.TrimSpace(strings.ToLower(string(output)))
+	lines := strings.SplitN(string(output), "\n", 2)
+	osName := strings.TrimSpace(strings.ToLower(lines[0]))
+	var distroContent string
+	if len(lines) > 1 {
+		distroContent = strings.ToLower(lines[1])
+	}
 
 	// Handle non-Linux systems
 	switch {
@@ -44,39 +49,36 @@ func DetectOS(session *ssh.Session) (OSType, error) {
 		return Unknown, nil
 	}
 
-	// For Linux, detect specific distro
-	distro, err := detectLinuxDistro(session)
-	if err != nil || distro == Unknown {
+	// For Linux, detect specific distro from os-release content.
+	distro := detectLinuxDistro(distroContent)
+	if distro == Unknown {
 		return Linux, nil
 	}
 
 	return distro, nil
 }
 
-func detectLinuxDistro(session *ssh.Session) (OSType, error) {
-	// Try /etc/os-release first (most modern distros)
-	output, err := session.Output("cat /etc/os-release 2>/dev/null || cat /etc/lsb-release 2>/dev/null")
-	if err != nil {
-		return Unknown, err
+func detectLinuxDistro(content string) OSType {
+	content = strings.ToLower(content)
+	if strings.TrimSpace(content) == "" {
+		return Unknown
 	}
-
-	content := strings.ToLower(string(output))
 
 	// Check for specific distros
 	switch {
 	case strings.Contains(content, "ubuntu"):
-		return Ubuntu, nil
+		return Ubuntu
 	case strings.Contains(content, "debian"):
-		return Debian, nil
+		return Debian
 	case strings.Contains(content, "arch"):
-		return Arch, nil
+		return Arch
 	case strings.Contains(content, "fedora"):
-		return Fedora, nil
+		return Fedora
 	case strings.Contains(content, "centos"):
-		return CentOS, nil
+		return CentOS
 	case strings.Contains(content, "rhel") || strings.Contains(content, "red hat"):
-		return RedHat, nil
+		return RedHat
 	}
 
-	return Unknown, nil
+	return Unknown
 }
