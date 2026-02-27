@@ -55,7 +55,7 @@ export const useFilePreview = (
       if (errorMsg.includes('too large to preview')) {
         toast.error('File too large to preview (>5MB)')
       } else {
-        toast.error('Failed to load preview')
+        toast.error(`Failed to load preview: ${errorMsg}`)
       }
       setPreviewFile(null)
     } finally {

@@ -6,12 +6,40 @@ import (
 	"fmt"
 	"io"
 	"os"
+	pathpkg "path"
 	"path/filepath"
+	"strings"
 )
 
 var ErrTransferCancelled = errors.New("transfer cancelled")
 
 type ProgressCallback func(transferred, total int64)
+
+func (c *Client) normalizeRemotePath(remotePath string) (string, error) {
+	trimmed := strings.TrimSpace(remotePath)
+	if trimmed == "" {
+		return trimmed, nil
+	}
+
+	wd, err := c.sftpClient.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("failed to get remote working directory: %w", err)
+	}
+
+	if trimmed == "~" {
+		return wd, nil
+	}
+
+	if strings.HasPrefix(trimmed, "~/") {
+		return pathpkg.Clean(pathpkg.Join(wd, strings.TrimPrefix(trimmed, "~/"))), nil
+	}
+
+	if strings.HasPrefix(trimmed, "/") {
+		return pathpkg.Clean(trimmed), nil
+	}
+
+	return pathpkg.Clean(pathpkg.Join(wd, trimmed)), nil
+}
 
 func (c *Client) Upload(localPath, remotePath string, progress ProgressCallback, cancel <-chan struct{}) error {
 	if !c.IsConnected() {
@@ -36,7 +64,7 @@ func (c *Client) Upload(localPath, remotePath string, progress ProgressCallback,
 	defer remoteFile.Close()
 
 	// Dynamic buffer size based on file size
-	bufSize := 256 * 1024 // 256KB default
+	bufSize := 256 * 1024            // 256KB default
 	if stat.Size() > 100*1024*1024 { // >100MB
 		bufSize = 1024 * 1024 // 1MB
 	}
@@ -109,7 +137,7 @@ func (c *Client) Download(remotePath, localPath string, progress ProgressCallbac
 	defer localFile.Close()
 
 	// Dynamic buffer size based on file size
-	bufSize := 256 * 1024 // 256KB default
+	bufSize := 256 * 1024            // 256KB default
 	if stat.Size() > 100*1024*1024 { // >100MB
 		bufSize = 1024 * 1024 // 1MB
 	}
@@ -161,9 +189,14 @@ func (c *Client) ReadFile(remotePath string, binary bool) (string, error) {
 		return "", fmt.Errorf("SFTP not connected")
 	}
 
-	file, err := c.sftpClient.Open(remotePath)
+	normalizedPath, err := c.normalizeRemotePath(remotePath)
 	if err != nil {
-		return "", fmt.Errorf("failed to open remote file: %w", err)
+		return "", err
+	}
+
+	file, err := c.sftpClient.Open(normalizedPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to open remote file %q: %w", normalizedPath, err)
 	}
 	defer file.Close()
 
@@ -194,9 +227,14 @@ func (c *Client) WriteFile(remotePath, content string) error {
 		return fmt.Errorf("SFTP not connected")
 	}
 
-	file, err := c.sftpClient.Create(remotePath)
+	normalizedPath, err := c.normalizeRemotePath(remotePath)
 	if err != nil {
-		return fmt.Errorf("failed to create remote file: %w", err)
+		return err
+	}
+
+	file, err := c.sftpClient.Create(normalizedPath)
+	if err != nil {
+		return fmt.Errorf("failed to create remote file %q: %w", normalizedPath, err)
 	}
 	defer file.Close()
 
