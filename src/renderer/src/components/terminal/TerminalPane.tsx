@@ -56,9 +56,20 @@ export const TerminalPane = memo(function TerminalPane({
 
     requestAnimationFrame(() => {
       fitScheduledRef.current = false
-      if (!fitAddonRef.current || !xtermRef.current) return
+      if (!fitAddonRef.current || !xtermRef.current || !terminalRef.current) return
+
+      const container = terminalRef.current
+      const width = container.clientWidth
+      const height = container.clientHeight
+      const isVisible = container.offsetParent !== null
+
+      // Avoid resizing PTY to 0x0 when pane is hidden (e.g. workspace focus mode),
+      // which can cause prompt redraw/disappearance artifacts on restore.
+      if (!isVisible || width === 0 || height === 0) return
+
       fitAddonRef.current.fit()
       const next = { cols: xtermRef.current.cols, rows: xtermRef.current.rows }
+      if (next.cols <= 0 || next.rows <= 0) return
       const prev = lastResizeRef.current
       if (!prev || prev.cols !== next.cols || prev.rows !== next.rows) {
         lastResizeRef.current = next
