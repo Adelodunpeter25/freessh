@@ -29,7 +29,6 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const showWorkspaceSessionInView = useTabStore((state) => state.showWorkspaceSessionInView)
   const setWorkspaceFocusSession = useTabStore((state) => state.setWorkspaceFocusSession)
   const dropSessionIntoWorkspaceTab = useTabStore((state) => state.dropSessionIntoWorkspaceTab)
-  const setWorkspaceSplitDirection = useTabStore((state) => state.setWorkspaceSplitDirection)
   const getAllSessions = useSessionStore((state) => state.getAllSessions)
   const addSession = useSessionStore((state) => state.addSession)
   const getSession = useSessionStore((state) => state.getSession)
@@ -209,10 +208,6 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                           }}
                           onAttachSession={(sessionId) => {
                             addSessionToWorkspaceTab(tab.id, sessionId)
-                          }}
-                          onSplitDown={() => {
-                            setWorkspaceSplitDirection(tab.id, 'vertical')
-                            setWorkspaceFocusSession(tab.id, undefined)
                           }}
                           direction={tab.workspaceSplitDirection || 'horizontal'}
                         />

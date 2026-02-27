@@ -9,6 +9,7 @@ interface WorkspaceTerminalHeaderProps {
   draggable?: boolean
   onDragStart?: (event: React.DragEvent) => void
   onDragOver?: (event: React.DragEvent) => void
+  onDragLeave?: (event: React.DragEvent) => void
   onDrop?: (event: React.DragEvent) => void
 }
 
@@ -20,17 +21,21 @@ export function WorkspaceTerminalHeader({
   draggable = false,
   onDragStart,
   onDragOver,
+  onDragLeave,
   onDrop,
 }: WorkspaceTerminalHeaderProps) {
   return (
-    <div
-      className="flex h-9 items-center justify-between border-b border-border bg-muted/20 px-2"
-      draggable={draggable}
-      onDragStart={onDragStart}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-    >
-      <span className="truncate text-xs font-medium text-foreground">{title}</span>
+    <div className="flex h-9 items-center justify-between border-b border-border bg-muted/20 px-2">
+      <div
+        className="min-w-0 flex-1 cursor-grab active:cursor-grabbing"
+        draggable={draggable}
+        onDragStart={onDragStart}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+      >
+        <span className="truncate text-xs font-medium text-foreground">{title}</span>
+      </div>
       <div className="flex items-center gap-1">
         <Button
           variant="ghost"

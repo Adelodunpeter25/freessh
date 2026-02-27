@@ -13,7 +13,6 @@ interface WorkspaceSplitPanesProps {
   onToggleFocusSession?: (sessionId: string) => void
   onReorderSession?: (sessionId: string, targetSessionId: string, position: 'top' | 'bottom') => void
   onAttachSession?: (sessionId: string) => void
-  onSplitDown?: () => void
   direction?: 'horizontal' | 'vertical'
 }
 
@@ -27,11 +26,10 @@ export function WorkspaceSplitPanes({
   onToggleFocusSession,
   onReorderSession,
   onAttachSession,
-  onSplitDown,
   direction = 'horizontal',
 }: WorkspaceSplitPanesProps) {
   const [dragTargetSessionId, setDragTargetSessionId] = useState<string | null>(null)
-  const [dragTargetPosition, setDragTargetPosition] = useState<'top' | 'bottom' | null>(null)
+  const [dragTargetPosition, setDragTargetPosition] = useState<'top' | 'bottom' | 'left' | 'right' | null>(null)
 
   const hasSupportedDragType = (event: React.DragEvent) => {
     const types = Array.from(event.dataTransfer.types || [])
@@ -52,13 +50,19 @@ export function WorkspaceSplitPanes({
 
   const handleHeaderDragLeave = (event: React.DragEvent, sessionId: string) => {
     if (!hasSupportedDragType(event)) return
+    const nextNode = event.relatedTarget as Node | null
+    if (nextNode && (event.currentTarget as HTMLElement).contains(nextNode)) return
     if (dragTargetSessionId === sessionId) {
       setDragTargetSessionId(null)
       setDragTargetPosition(null)
     }
   }
 
-  const handleHeaderDrop = (event: React.DragEvent, targetSessionId: string, position: 'top' | 'bottom') => {
+  const handleHeaderDrop = (
+    event: React.DragEvent,
+    targetSessionId: string,
+    position: 'top' | 'bottom' | 'left' | 'right',
+  ) => {
     event.preventDefault()
     setDragTargetSessionId(null)
     setDragTargetPosition(null)
@@ -78,14 +82,17 @@ export function WorkspaceSplitPanes({
 
     if (!sessionId) return
 
-    onSplitDown?.()
+    const relativePosition: 'top' | 'bottom' =
+      position === 'top' || position === 'left' ? 'top' : 'bottom'
+
     if (sessionIds.includes(sessionId)) {
       if (sessionId === targetSessionId) return
-      onReorderSession?.(sessionId, targetSessionId, position)
+      onReorderSession?.(sessionId, targetSessionId, relativePosition)
       return
     }
 
     onAttachSession?.(sessionId)
+    onReorderSession?.(sessionId, targetSessionId, relativePosition)
     onActivateSession?.(sessionId)
   }
 
@@ -93,12 +100,19 @@ export function WorkspaceSplitPanes({
     if (!hasSupportedDragType(event)) return
 
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
-    const y = event.clientY - rect.top
-    const ratio = rect.height > 0 ? y / rect.height : 0
+    let position: 'top' | 'bottom' | 'left' | 'right' | null = null
 
-    let position: 'top' | 'bottom' | null = null
-    if (ratio <= 0.28) position = 'top'
-    else if (ratio >= 0.72) position = 'bottom'
+    if (direction === 'horizontal') {
+      const x = event.clientX - rect.left
+      const ratio = rect.width > 0 ? x / rect.width : 0
+      if (ratio <= 0.3) position = 'left'
+      else if (ratio >= 0.7) position = 'right'
+    } else {
+      const y = event.clientY - rect.top
+      const ratio = rect.height > 0 ? y / rect.height : 0
+      if (ratio <= 0.3) position = 'top'
+      else if (ratio >= 0.7) position = 'bottom'
+    }
 
     if (!position) {
       if (dragTargetSessionId === sessionId) {
@@ -164,6 +178,12 @@ export function WorkspaceSplitPanes({
           {dragTargetSessionId === onlySessionId && dragTargetPosition === 'bottom' ? (
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1/3 rounded-b-md border-2 border-primary/70 bg-primary/15" />
           ) : null}
+          {dragTargetSessionId === onlySessionId && dragTargetPosition === 'left' ? (
+            <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-1/3 rounded-l-md border-2 border-primary/70 bg-primary/15" />
+          ) : null}
+          {dragTargetSessionId === onlySessionId && dragTargetPosition === 'right' ? (
+            <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-1/3 rounded-r-md border-2 border-primary/70 bg-primary/15" />
+          ) : null}
           <div className="h-[calc(100%-2.25rem)]">
             <TerminalView sessionId={onlySessionId} isActive={true} sidebarOpen={false} />
           </div>
@@ -212,6 +232,12 @@ export function WorkspaceSplitPanes({
                   ) : null}
                   {dragTargetSessionId === sessionId && dragTargetPosition === 'bottom' ? (
                     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-1/3 rounded-b-md border-2 border-primary/70 bg-primary/15" />
+                  ) : null}
+                  {dragTargetSessionId === sessionId && dragTargetPosition === 'left' ? (
+                    <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-1/3 rounded-l-md border-2 border-primary/70 bg-primary/15" />
+                  ) : null}
+                  {dragTargetSessionId === sessionId && dragTargetPosition === 'right' ? (
+                    <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-1/3 rounded-r-md border-2 border-primary/70 bg-primary/15" />
                   ) : null}
                   <div className="h-[calc(100%-2.25rem)]">
                     <TerminalView sessionId={sessionId} isActive={activeSessionId === sessionId} sidebarOpen={false} />
