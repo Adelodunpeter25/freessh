@@ -7,7 +7,7 @@ interface FilePreviewContextType {
   previewContent: string | null
   previewBlobUrl: string | null
   previewLoading: boolean
-  openFile: (file: FileInfo, isRemote: boolean) => Promise<void>
+  openFile: (file: FileInfo, isRemote: boolean, sessionId?: string) => Promise<void>
   saveFile: (content: string) => Promise<void>
   closePreview: () => void
 }

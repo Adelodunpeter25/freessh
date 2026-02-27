@@ -9,7 +9,7 @@ import { useSFTPBrowserState } from "./SFTPBrowserState";
 
 export function SFTPBrowser() {
   const state = useSFTPBrowserState();
-  const preview = useFilePreview(state.sftp.readFile, state.sftp.writeFile);
+  const preview = useFilePreview();
 
   useEffect(() => {
     if (state.sessionId) {

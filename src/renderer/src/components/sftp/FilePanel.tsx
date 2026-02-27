@@ -89,14 +89,14 @@ export function FilePanel({
         file,
         isRemote,
         sessionId,
-        onOpenInEditor: (f) => openFile(f, isRemote),
+        onOpenInEditor: (f) => openFile(f, isRemote, sessionId),
         onDownloadToTemp: onDownloadToTemp || (async () => ''),
       });
     }
   }, [onNavigate, openFile, isRemote, sessionId, onDownloadToTemp]);
 
   const handleOpenFilePath = (path: string) => {
-    openFile({ name: path.split('/').pop() || '', path, is_dir: false, size: 0, mode: 0, mod_time: 0 }, isRemote);
+    openFile({ name: path.split('/').pop() || '', path, is_dir: false, size: 0, mode: 0, mod_time: 0 }, isRemote, sessionId);
   };
 
   return (
