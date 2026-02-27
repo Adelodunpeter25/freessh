@@ -105,10 +105,8 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           break
 
         case 'cmd+s':
-          if (!isEditable) {
-            e.preventDefault()
-            handlers.onToggleTerminalSidebar?.()
-          }
+          e.preventDefault()
+          handlers.onToggleTerminalSidebar?.()
           break
         
         // Terminal
