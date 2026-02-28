@@ -66,7 +66,9 @@ export function GroupSidebar({ isOpen, onClose, group, onSave }: GroupSidebarPro
 
           {isEditMode && group && (
             <div className="text-sm text-muted-foreground">
-              {group.connection_count} {group.connection_count === 1 ? 'connection' : 'connections'}
+              {group.connection_count === 0
+                ? 'No connection'
+                : `${group.connection_count} ${group.connection_count === 1 ? 'connection' : 'connections'}`}
             </div>
           )}
         </div>

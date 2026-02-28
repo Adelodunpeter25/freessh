@@ -22,6 +22,11 @@ export const GroupCard = memo(function GroupCard({
   onDelete,
   onOpen
 }: GroupCardProps) {
+  const connectionSummary =
+    group.connection_count === 0
+      ? 'No connection'
+      : `${group.connection_count} ${group.connection_count === 1 ? 'connection' : 'connections'}`
+
   return (
     <GroupCardContextMenu
       group={group}
@@ -52,9 +57,7 @@ export const GroupCard = memo(function GroupCard({
         
         <div className="flex-1 min-w-0">
           <h3 className="text-base font-semibold text-foreground truncate">{group.name}</h3>
-          <p className="text-xs text-muted-foreground truncate">
-            {group.connection_count} {group.connection_count === 1 ? 'connection' : 'connections'}
-          </p>
+          <p className="text-xs text-muted-foreground truncate">{connectionSummary}</p>
         </div>
 
         <TooltipProvider delayDuration={150}>
