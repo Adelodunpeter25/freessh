@@ -44,7 +44,7 @@ export function MainLayoutDialogs({
   return (
     <>
       <KeyboardShortcutsDialog open={showShortcuts} onOpenChange={setShowShortcuts} />
-      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />
+      {showSettings && <SettingsDialog open={showSettings} onOpenChange={setShowSettings} />}
       <ExportImportDialog isOpen={showExportImport} onClose={() => setShowExportImport(false)} />
 
       {showSnippetForm && (
