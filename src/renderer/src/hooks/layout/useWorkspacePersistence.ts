@@ -67,9 +67,7 @@ function remapRestoredTabs(
         ? sessionMap.get(tab.workspaceFocusSessionId)
         : undefined
 
-      const nextWorkspaceMode = mappedSessionIds.length > 0
-        ? tab.workspaceMode || 'workspace'
-        : 'picker'
+      const nextWorkspaceMode = tab.workspaceMode || (mappedSessionIds.length > 0 ? 'workspace' : 'picker')
 
       const nextTab: Tab = {
         ...tab,
@@ -92,6 +90,27 @@ function remapRestoredTabs(
   }
 
   return { tabs: remapped, tabIdMap }
+}
+
+async function runBoundedReconnects<T>(
+  tasks: T[],
+  concurrency: number,
+  run: (task: T) => Promise<void>,
+): Promise<void> {
+  if (tasks.length === 0) return
+  const limit = Math.max(1, Math.min(concurrency, tasks.length))
+  let index = 0
+
+  const workers = Array.from({ length: limit }, async () => {
+    while (true) {
+      const current = index
+      index += 1
+      if (current >= tasks.length) return
+      await run(tasks[current])
+    }
+  })
+
+  await Promise.all(workers)
 }
 
 function collectRequiredSessionIds(tabs: Tab[]): Set<string> {
@@ -154,46 +173,58 @@ export function useWorkspacePersistence({
         )
         const sessionMap = new Map<string, string>()
         const requiredOldSessionIds = collectRequiredSessionIds(persistedTabs)
+        const refs = clientState.session_refs || {}
 
         clearSessions()
 
-        const refs = clientState.session_refs || {}
-        for (const [oldSessionID, ref] of Object.entries(refs)) {
-          if (!requiredOldSessionIds.has(oldSessionID)) continue
-          try {
-            if ((ref as PersistedSessionRef).is_local) {
-              const localSession = await sessionService.connectLocal()
-              addSession(localSession)
-              sessionMap.set(oldSessionID, localSession.id)
-              continue
-            }
-
-            const connectionID = (ref as PersistedSessionRef).connection_id
-            if (!connectionID) continue
-
-            const connection = connectionByID.get(connectionID) || getConnection(connectionID)
-            if (!connection) continue
-
-            const restored = await connectionService.connect(connection)
-            addSession(restored, connection)
-            sessionMap.set(oldSessionID, restored.id)
-          } catch {
-            // Continue restoring other sessions.
-          }
-        }
-
-        const { tabs: restoredTabs, tabIdMap } = remapRestoredTabs(persistedTabs, sessionMap)
         const { tabs: existingTabs } = useTabStore.getState().exportState()
         if (existingTabs.length > 0) {
           return
         }
 
-        const nextActiveTab = clientState.active_tab_id
-          ? tabIdMap.get(clientState.active_tab_id) || null
-          : null
+        const applyRemappedTabs = () => {
+          const { tabs: restoredTabs, tabIdMap } = remapRestoredTabs(persistedTabs, sessionMap)
+          const currentActiveTabId = useTabStore.getState().activeTabId
+          const mappedActiveTabId = clientState.active_tab_id
+            ? tabIdMap.get(clientState.active_tab_id) || null
+            : null
+          const nextActiveTabId =
+            currentActiveTabId && restoredTabs.some((tab) => tab.id === currentActiveTabId)
+              ? currentActiveTabId
+              : mappedActiveTabId
 
-        prevTabsLengthRef.current = restoredTabs.length
-        replaceTabState(restoredTabs, nextActiveTab)
+          prevTabsLengthRef.current = restoredTabs.length
+          replaceTabState(restoredTabs, nextActiveTabId)
+        }
+
+        // Render persisted tab layout immediately; sessions are attached as reconnects complete.
+        applyRemappedTabs()
+
+        const reconnectTasks = Object.entries(refs).filter(([oldSessionID]) => requiredOldSessionIds.has(oldSessionID))
+        await runBoundedReconnects(reconnectTasks, 3, async ([oldSessionID, ref]) => {
+          try {
+            if ((ref as PersistedSessionRef).is_local) {
+              const localSession = await sessionService.connectLocal()
+              addSession(localSession)
+              sessionMap.set(oldSessionID, localSession.id)
+              applyRemappedTabs()
+              return
+            }
+
+            const connectionID = (ref as PersistedSessionRef).connection_id
+            if (!connectionID) return
+
+            const connection = connectionByID.get(connectionID) || getConnection(connectionID)
+            if (!connection) return
+
+            const restored = await connectionService.connect(connection)
+            addSession(restored, connection)
+            sessionMap.set(oldSessionID, restored.id)
+            applyRemappedTabs()
+          } catch {
+            // Continue restoring other sessions.
+          }
+        })
       } finally {
         if (mounted) {
           isHydratingRef.current = false
