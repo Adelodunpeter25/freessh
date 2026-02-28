@@ -22,6 +22,7 @@ export interface WorkspaceSidebarProps {
   onDropSession?: (sessionId: string, sourceTabId?: string) => void
   onDisconnectSession?: (sessionId: string) => void
   onOpenSFTP?: (sessionId: string) => void
+  onRenameSession?: (sessionId: string, title: string) => void
   onTogglePin?: (sessionId: string) => void
   onSplitRight?: () => void
   onSplitDown?: () => void

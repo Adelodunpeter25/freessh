@@ -18,7 +18,7 @@ const ContextMenuSubTrigger = forwardRef<
   <SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center gap-3 rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground dark:focus:bg-accent/90 dark:data-[highlighted]:bg-accent/90 dark:data-[state=open]:bg-accent/90",
+      "flex cursor-default select-none items-center gap-3 rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground dark:focus:bg-accent dark:data-[highlighted]:bg-accent dark:data-[state=open]:bg-accent",
       inset && "pl-8",
       className
     )}
@@ -69,7 +69,7 @@ const ContextMenuItem = forwardRef<
   <Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-3 rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground dark:focus:bg-accent/90 dark:data-[highlighted]:bg-accent/90 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center gap-3 rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground dark:focus:bg-accent dark:data-[highlighted]:bg-accent data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-9",
       className
     )}
@@ -85,7 +85,7 @@ const ContextMenuCheckboxItem = forwardRef<
   <CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-3 rounded-md py-2 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground dark:focus:bg-accent/90 dark:data-[highlighted]:bg-accent/90 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center gap-3 rounded-md py-2 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground dark:focus:bg-accent dark:data-[highlighted]:bg-accent data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     checked={checked}
@@ -108,7 +108,7 @@ const ContextMenuRadioItem = forwardRef<
   <RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-3 rounded-md py-2 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground dark:focus:bg-accent/90 dark:data-[highlighted]:bg-accent/90 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center gap-3 rounded-md py-2 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground dark:focus:bg-accent dark:data-[highlighted]:bg-accent data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}

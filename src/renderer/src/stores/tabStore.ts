@@ -32,6 +32,7 @@ interface TabStore {
   hideWorkspaceSessionFromView: (tabId: string, sessionId: string) => void
   showWorkspaceSessionInView: (tabId: string, sessionId: string) => void
   setWorkspaceFocusSession: (tabId: string, sessionId?: string) => void
+  renameWorkspaceSession: (tabId: string, sessionId: string, title: string) => void
   removeTab: (tabId: string) => void
   setActiveTab: (tabId: string) => void
   updateTabTitle: (tabId: string, title: string) => void
@@ -141,6 +142,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
               workspaceSplitDirection: 'horizontal',
               workspaceHiddenSessionIds: [],
               workspaceFocusSessionId: undefined,
+              workspaceSessionTitles: {},
             }
           : tab
       )
@@ -175,6 +177,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
           workspaceSplitDirection: tab.workspaceSplitDirection || 'horizontal',
           workspaceHiddenSessionIds: (tab.workspaceHiddenSessionIds || []).filter((id) => id !== sessionId),
           workspaceFocusSessionId: undefined,
+          workspaceSessionTitles: tab.workspaceSessionTitles || {},
         }
       }),
     }))
@@ -194,6 +197,8 @@ export const useTabStore = create<TabStore>((set, get) => ({
             : tab.workspaceActiveSessionId
         const nextFocus =
           tab.workspaceFocusSessionId === sessionId ? undefined : tab.workspaceFocusSessionId
+        const nextTitles = { ...(tab.workspaceSessionTitles || {}) }
+        delete nextTitles[sessionId]
 
         if (nextSessionIds.length === 0) {
           return {
@@ -204,6 +209,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
             workspaceActiveSessionId: undefined,
             workspaceHiddenSessionIds: [],
             workspaceFocusSessionId: undefined,
+            workspaceSessionTitles: {},
           }
         }
 
@@ -214,6 +220,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
           workspaceHiddenSessionIds: nextHidden,
           workspaceActiveSessionId: nextActive,
           workspaceFocusSessionId: nextFocus,
+          workspaceSessionTitles: nextTitles,
         }
       }),
     }))
@@ -287,6 +294,7 @@ export const useTabStore = create<TabStore>((set, get) => ({
           workspaceSplitDirection: 'vertical',
           workspaceFocusSessionId: undefined,
           workspacePinnedSessionIds: tab.workspacePinnedSessionIds || [],
+          workspaceSessionTitles: tab.workspaceSessionTitles || {},
         }
       }),
     }))
@@ -336,6 +344,21 @@ export const useTabStore = create<TabStore>((set, get) => ({
           ? { ...tab, workspaceFocusSessionId: sessionId }
           : tab,
       ),
+    }))
+  },
+
+  renameWorkspaceSession: (tabId, sessionId, title) => {
+    set((state) => ({
+      tabs: state.tabs.map((tab) => {
+        if (tab.id !== tabId || tab.type !== 'workspace') return tab
+        return {
+          ...tab,
+          workspaceSessionTitles: {
+            ...(tab.workspaceSessionTitles || {}),
+            [sessionId]: title,
+          },
+        }
+      }),
     }))
   },
 

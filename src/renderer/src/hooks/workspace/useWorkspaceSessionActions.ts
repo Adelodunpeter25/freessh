@@ -17,6 +17,7 @@ export function useWorkspaceSessionActions(workspaceTabId: string) {
   const setWorkspaceSplitDirection = useTabStore((state) => state.setWorkspaceSplitDirection)
   const hideWorkspaceSessionFromView = useTabStore((state) => state.hideWorkspaceSessionFromView)
   const setWorkspaceFocusSession = useTabStore((state) => state.setWorkspaceFocusSession)
+  const renameWorkspaceSession = useTabStore((state) => state.renameWorkspaceSession)
 
   const openSFTP = useUIStore((state) => state.openSFTP)
 
@@ -66,6 +67,13 @@ export function useWorkspaceSessionActions(workspaceTabId: string) {
     setWorkspaceFocusSession(workspaceTabId, focused === sessionId ? undefined : sessionId)
   }, [setWorkspaceFocusSession, workspaceTab?.workspaceFocusSessionId, workspaceTabId])
 
+  const renameSession = useCallback((sessionId: string, title: string) => {
+    const next = title.trim()
+    if (!next) return
+    renameWorkspaceSession(workspaceTabId, sessionId, next)
+    toast.success('Session renamed in workspace')
+  }, [renameWorkspaceSession, workspaceTabId])
+
   return {
     disconnectSession,
     openSessionSFTP,
@@ -74,5 +82,6 @@ export function useWorkspaceSessionActions(workspaceTabId: string) {
     splitDown,
     closeFromView,
     toggleFocus,
+    renameSession,
   }
 }

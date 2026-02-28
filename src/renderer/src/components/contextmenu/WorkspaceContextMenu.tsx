@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowRight, FolderSync, Pin, PinOff, PlugZap } from 'lucide-react'
+import { ArrowDown, ArrowRight, FolderSync, Pencil, Pin, PinOff, PlugZap } from 'lucide-react'
 import { BaseContextMenu, ContextMenuAction } from './BaseContextMenu'
 
 interface WorkspaceContextMenuProps {
@@ -7,6 +7,7 @@ interface WorkspaceContextMenuProps {
   isRemote: boolean
   onDisconnectSession: () => void
   onOpenSFTP: () => void
+  onRenameSession: () => void
   onTogglePin: () => void
   onSplitRight: () => void
   onSplitDown: () => void
@@ -18,6 +19,7 @@ export function WorkspaceContextMenu({
   isRemote,
   onDisconnectSession,
   onOpenSFTP,
+  onRenameSession,
   onTogglePin,
   onSplitRight,
   onSplitDown,
@@ -32,6 +34,12 @@ export function WorkspaceContextMenu({
           } as ContextMenuAction,
         ]
       : []),
+    {
+      label: 'Rename',
+      icon: <Pencil className="w-4 h-4" />,
+      onClick: onRenameSession,
+      separator: true,
+    },
     {
       label: isPinned ? 'Unpin in Workspace' : 'Pin in Workspace',
       icon: isPinned ? <PinOff className="w-4 h-4" /> : <Pin className="w-4 h-4" />,

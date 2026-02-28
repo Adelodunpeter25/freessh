@@ -8,6 +8,7 @@ import { WorkspaceContextMenu } from '@/components/contextmenu'
 interface WorkspaceTabListItemActionProps extends WorkspaceTabListItemProps {
   onDisconnectSession?: (sessionId: string) => void
   onOpenSFTP?: (sessionId: string) => void
+  onRenameSession?: (sessionId: string, title: string) => void
   onTogglePin?: (sessionId: string) => void
   onSplitRight?: () => void
   onSplitDown?: () => void
@@ -19,6 +20,7 @@ export function WorkspaceTabListItem({
   onSelect,
   onDisconnectSession,
   onOpenSFTP,
+  onRenameSession,
   onTogglePin,
   onSplitRight,
   onSplitDown,
@@ -49,6 +51,10 @@ export function WorkspaceTabListItem({
       isRemote={!tab.isLocal}
       onDisconnectSession={() => onDisconnectSession?.(tab.sessionId)}
       onOpenSFTP={() => onOpenSFTP?.(tab.sessionId)}
+      onRenameSession={() => {
+        const next = window.prompt('Rename workspace session', tab.title)
+        if (next !== null) onRenameSession?.(tab.sessionId, next)
+      }}
       onTogglePin={() => onTogglePin?.(tab.sessionId)}
       onSplitRight={() => onSplitRight?.()}
       onSplitDown={() => onSplitDown?.()}

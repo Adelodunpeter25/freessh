@@ -134,7 +134,8 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                             const baseTitle = isLocal
                               ? 'Local Terminal'
                               : connection?.name || connection?.host || sessionId
-                            const title = generateUniqueTitle(baseTitle, usedTitles)
+                            const preferred = tab.workspaceSessionTitles?.[sessionId]?.trim() || baseTitle
+                            const title = generateUniqueTitle(preferred, usedTitles)
                             usedTitles.push(title)
 
                             return {
@@ -157,6 +158,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                         }}
                         onDisconnectSession={workspaceActions.disconnectSession}
                         onOpenSFTP={workspaceActions.openSessionSFTP}
+                        onRenameSession={workspaceActions.renameSession}
                         onTogglePin={workspaceActions.togglePinned}
                         onSplitRight={workspaceActions.splitRight}
                         onSplitDown={workspaceActions.splitDown}
@@ -195,7 +197,8 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                               : connection?.name || (connection?.username && connection?.host
                                   ? `${connection.username}@${connection.host}`
                                   : sessionId)
-                            const title = generateUniqueTitle(baseTitle, usedTitles)
+                            const preferred = tab.workspaceSessionTitles?.[sessionId]?.trim() || baseTitle
+                            const title = generateUniqueTitle(preferred, usedTitles)
                             usedTitles.push(title)
                             titleBySessionId[sessionId] = title
                           })

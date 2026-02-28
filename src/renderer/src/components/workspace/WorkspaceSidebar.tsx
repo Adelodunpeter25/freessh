@@ -9,6 +9,7 @@ export function WorkspaceSidebar({
   onDropSession,
   onDisconnectSession,
   onOpenSFTP,
+  onRenameSession,
   onTogglePin,
   onSplitRight,
   onSplitDown,
@@ -63,6 +64,7 @@ export function WorkspaceSidebar({
             onSelect={onSelectTab}
             onDisconnectSession={onDisconnectSession}
             onOpenSFTP={onOpenSFTP}
+            onRenameSession={onRenameSession}
             onTogglePin={onTogglePin}
             onSplitRight={onSplitRight}
             onSplitDown={onSplitDown}
