@@ -152,7 +152,7 @@ export function CommandPalette({
         if (!nextOpen) setQuery("");
       }}
     >
-      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:right-5 [&>button]:top-5">
+      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:hidden">
         <DialogHeader className="px-4 pt-4 pb-0 sr-only">
           <DialogTitle>Command Palette</DialogTitle>
         </DialogHeader>

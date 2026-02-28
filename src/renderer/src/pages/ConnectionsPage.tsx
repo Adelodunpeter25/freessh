@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import { ConnectionList } from '@/components/connection/ConnectionList'
 import { ConnectionForm } from '@/components/connection/ConnectionForm'
@@ -128,6 +128,19 @@ export function ConnectionsPage() {
       handleVerificationCancel,
     ]
   )
+
+  useEffect(() => {
+    const handleFocusConnections = () => {
+      groupHandlers.handleCloseGroupDetail()
+      groupHandlers.handleSelectGroup(null)
+      setSearchQuery('')
+    }
+
+    window.addEventListener('connections:focus', handleFocusConnections)
+    return () => {
+      window.removeEventListener('connections:focus', handleFocusConnections)
+    }
+  }, [groupHandlers.handleCloseGroupDetail, groupHandlers.handleSelectGroup])
 
   return (
     <ConnectionsProvider value={contextValue}>
