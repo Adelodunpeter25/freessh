@@ -1,9 +1,13 @@
 import { create } from 'zustand'
 import { ConnectionConfig } from '../types'
+import { connectionService } from '@/services/ipc/connection'
+
+let loadConnectionsPromise: Promise<ConnectionConfig[]> | null = null
 
 interface ConnectionStore {
   connections: ConnectionConfig[]
   selectedConnection: ConnectionConfig | null
+  hasLoadedConnections: boolean
   
   setConnections: (connections: ConnectionConfig[]) => void
   addConnection: (connection: ConnectionConfig) => void
@@ -11,14 +15,16 @@ interface ConnectionStore {
   updateConnection: (id: string, updates: Partial<ConnectionConfig>) => void
   setSelectedConnection: (connection: ConnectionConfig | null) => void
   getConnection: (id: string) => ConnectionConfig | undefined
+  ensureConnectionsLoaded: () => Promise<ConnectionConfig[]>
 }
 
 export const useConnectionStore = create<ConnectionStore>((set, get) => ({
   connections: [],
   selectedConnection: null,
+  hasLoadedConnections: false,
 
   setConnections: (connections) => {
-    set({ connections })
+    set({ connections, hasLoadedConnections: true })
   },
 
   addConnection: (connection) => {
@@ -47,5 +53,27 @@ export const useConnectionStore = create<ConnectionStore>((set, get) => ({
 
   getConnection: (id) => {
     return get().connections.find((conn) => conn.id === id)
-  }
+  },
+
+  ensureConnectionsLoaded: async () => {
+    if (get().hasLoadedConnections) {
+      return get().connections
+    }
+
+    if (loadConnectionsPromise) {
+      return loadConnectionsPromise
+    }
+
+    loadConnectionsPromise = connectionService
+      .list()
+      .then((connections) => {
+        set({ connections, hasLoadedConnections: true })
+        return connections
+      })
+      .finally(() => {
+        loadConnectionsPromise = null
+      })
+
+    return loadConnectionsPromise
+  },
 }))

@@ -125,7 +125,7 @@ export function useWorkspacePersistence({
   const clearSessions = useSessionStore((state) => state.clearSessions)
   const getSession = useSessionStore((state) => state.getSession)
 
-  const setConnections = useConnectionStore((state) => state.setConnections)
+  const ensureConnectionsLoaded = useConnectionStore((state) => state.ensureConnectionsLoaded)
   const getConnection = useConnectionStore((state) => state.getConnection)
 
   const isHydratingRef = useRef(true)
@@ -134,8 +134,7 @@ export function useWorkspacePersistence({
 
     const hydrateWorkspaceState = async () => {
       try {
-        const allConnections = await connectionService.list()
-        setConnections(allConnections)
+        const allConnections = await ensureConnectionsLoaded()
 
         const loaded = await workspacePersistenceService.load()
         const clientState = loaded.state?.client_state as RendererWorkspaceClientState | undefined
@@ -207,7 +206,7 @@ export function useWorkspacePersistence({
     return () => {
       mounted = false
     }
-  }, [addSession, clearSessions, getConnection, replaceTabState, setConnections, prevTabsLengthRef])
+  }, [addSession, clearSessions, ensureConnectionsLoaded, getConnection, replaceTabState, prevTabsLengthRef])
 
   useEffect(() => {
     if (isHydratingRef.current) return

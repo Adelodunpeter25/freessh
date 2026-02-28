@@ -9,12 +9,15 @@ import { useTabStore } from "../../stores/tabStore";
 import { HostKeyVerification } from "@/types/knownHost";
 
 export const useConnections = () => {
-  const [connections, setConnections] = useState<ConnectionConfig[]>([]);
   const [loading, setLoading] = useState(false);
   const [connectingId, setConnectingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pendingVerification, setPendingVerification] = useState<HostKeyVerification | null>(null);
 
+  const connections = useConnectionStore((state) => state.connections);
+  const hasLoadedConnections = useConnectionStore((state) => state.hasLoadedConnections);
+  const setStoreConnections = useConnectionStore((state) => state.setConnections);
+  const ensureConnectionsLoaded = useConnectionStore((state) => state.ensureConnectionsLoaded);
   const addSession = useSessionStore((state) => state.addSession);
   const addTab = useTabStore((state) => state.addTab);
 
@@ -32,14 +35,15 @@ export const useConnections = () => {
     };
   }, []);
 
-  const loadConnections = useCallback(async () => {
+  const loadConnections = useCallback(async (options?: { force?: boolean }) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await connectionService.list();
-      setConnections(data);
-      useConnectionStore.getState().setConnections(data);
+      const data = options?.force
+        ? await connectionService.list()
+        : await ensureConnectionsLoaded();
+      setStoreConnections(data);
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to load connections";
@@ -47,12 +51,14 @@ export const useConnections = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [ensureConnectionsLoaded, setStoreConnections]);
 
   useEffect(() => {
-    loadConnections();
+    if (!hasLoadedConnections) {
+      loadConnections();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [hasLoadedConnections]);
 
   const getConnection = useCallback(async (id: string) => {
     try {
@@ -69,7 +75,7 @@ export const useConnections = () => {
     async (id: string) => {
       try {
         await connectionService.delete(id);
-        await loadConnections();
+        await loadConnections({ force: true });
         toast.success("Connection deleted");
       } catch (err) {
         const errorMessage =
@@ -86,7 +92,7 @@ export const useConnections = () => {
     async (config: ConnectionConfig) => {
       try {
         await connectionService.update(config);
-        await loadConnections();
+        await loadConnections({ force: true });
         toast.success("Connection updated");
       } catch (err) {
         const errorMessage =
@@ -125,7 +131,7 @@ export const useConnections = () => {
     async (config: ConnectionConfig): Promise<void> => {
       try {
         await connectAndOpen(config);
-        await loadConnections();
+        await loadConnections({ force: true });
       } catch (err) {
         throw err;
       }
