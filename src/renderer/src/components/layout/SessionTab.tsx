@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { X, Pin } from 'lucide-react'
+import { X, Pin, Monitor, LayoutDashboard, FileText } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { SessionTabMenu } from './SessionTabMenu'
@@ -13,6 +13,7 @@ const noDrag = { WebkitAppRegion: 'no-drag' } as React.CSSProperties
 interface SessionTabProps {
   id: string
   sessionId: string
+  tabType?: 'terminal' | 'workspace' | 'log'
   title: string
   connectionHost?: string
   connectionId?: string
@@ -34,6 +35,7 @@ interface SessionTabProps {
 export const SessionTab = memo(function SessionTab({ 
   id, 
   sessionId,
+  tabType = 'terminal',
   title,
   connectionHost,
   connectionId,
@@ -53,6 +55,13 @@ export const SessionTab = memo(function SessionTab({
 }: SessionTabProps) {
   const osType = useOSTypeStore((state) => state.getOSType(connectionId || ''))
   const OSIcon = getOSIcon(osType)
+  const TabIcon = tabType === 'workspace'
+    ? LayoutDashboard
+    : tabType === 'log'
+    ? FileText
+    : connectionId
+    ? OSIcon
+    : Monitor
   
   return (
     <SessionTabMenu
@@ -85,7 +94,7 @@ export const SessionTab = memo(function SessionTab({
           event.dataTransfer.setData('text/plain', title)
         }}
       >
-        <OSIcon className="h-3.5 w-3.5 shrink-0" />
+        <TabIcon className="h-3.5 w-3.5 shrink-0" />
         {isPinned && <Pin className="h-3 w-3 shrink-0" />}
         {isRenaming ? (
           <div style={noDrag}>

@@ -111,7 +111,7 @@ export function MainLayout() {
     onShowShortcuts: () => setShowShortcuts(true),
     onToggleTerminalSidebar: () => {
       if (mainView === 'terminal') {
-        setShowTerminalSettings(true)
+        setShowTerminalSettings((prev) => !prev)
       }
     },
   })

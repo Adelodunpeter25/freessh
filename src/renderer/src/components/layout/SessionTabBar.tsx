@@ -102,6 +102,7 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
               key={tab.id}
               id={tab.id}
               sessionId={tab.sessionId}
+              tabType={tab.type}
               title={tab.title}
               connectionHost={connectionHost}
               connectionId={connectionId}
