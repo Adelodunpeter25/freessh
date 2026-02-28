@@ -5,11 +5,13 @@ import { cn } from '@/lib/utils'
 type SidebarTab = 'connections' | 'keys' | 'known-hosts' | 'port-forward' | 'snippets' | 'logs'
 
 interface SidebarProps {
+  activeTab?: SidebarTab
   onTabChange?: (tab: SidebarTab) => void
 }
 
-export function Sidebar({ onTabChange }: SidebarProps) {
-  const [activeTab, setActiveTab] = useState<SidebarTab>('connections')
+export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
+  const [internalActiveTab, setInternalActiveTab] = useState<SidebarTab>('connections')
+  const resolvedActiveTab = activeTab ?? internalActiveTab
 
   const mainTabs = [
     { id: 'connections' as SidebarTab, icon: Server, label: 'Connections' },
@@ -21,7 +23,9 @@ export function Sidebar({ onTabChange }: SidebarProps) {
   ]
 
   const handleTabClick = (tabId: SidebarTab) => {
-    setActiveTab(tabId)
+    if (!activeTab) {
+      setInternalActiveTab(tabId)
+    }
     onTabChange?.(tabId)
   }
 
@@ -30,14 +34,14 @@ export function Sidebar({ onTabChange }: SidebarProps) {
       onClick={() => handleTabClick(id)}
       className={cn(
         'w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all duration-200 rounded-lg group relative',
-        activeTab === id
+        resolvedActiveTab === id
           ? 'text-primary bg-primary/10 shadow-sm'
           : 'text-foreground/70 dark:text-foreground/80 hover:text-foreground hover:bg-muted/50'
       )}
     >
-      <Icon className={cn("h-4 w-4 flex-shrink-0 transition-colors", activeTab === id ? "text-primary" : "group-hover:text-foreground")} />
+      <Icon className={cn("h-4 w-4 flex-shrink-0 transition-colors", resolvedActiveTab === id ? "text-primary" : "group-hover:text-foreground")} />
       <span className="truncate">{label}</span>
-      {activeTab === id && (
+      {resolvedActiveTab === id && (
         <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-3/5 bg-primary rounded-l-full opacity-0" />
       )}
     </button>

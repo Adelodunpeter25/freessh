@@ -89,7 +89,7 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
           handlers.onNewLocalTerminal?.()
           break
 
-        case 'cmd+shift+p':
+        case 'cmd+p':
           e.preventDefault()
           handlers.onOpenCommandPalette?.()
           break

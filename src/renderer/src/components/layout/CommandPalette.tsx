@@ -152,7 +152,7 @@ export function CommandPalette({
         if (!nextOpen) setQuery("");
       }}
     >
-      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:right-2 [&>button]:top-2">
+      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:right-5 [&>button]:top-5">
         <DialogHeader className="px-4 pt-4 pb-0 sr-only">
           <DialogTitle>Command Palette</DialogTitle>
         </DialogHeader>
@@ -180,7 +180,7 @@ export function CommandPalette({
               className="h-10 pl-9 pr-24"
             />
             <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
-              ⌘+Shift+P
+              {modLabel}+P
             </div>
           </div>
 

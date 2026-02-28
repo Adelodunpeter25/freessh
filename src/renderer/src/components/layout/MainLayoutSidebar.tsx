@@ -34,7 +34,7 @@ export function MainLayoutSidebar({ sidebarTab, onSidebarTabChange }: MainLayout
   return (
     <ResizablePanelGroup direction="horizontal" autoSaveId="sidebar-layout">
       <ResizablePanel defaultSize={20} minSize={20}>
-        <Sidebar onTabChange={onSidebarTabChange} />
+        <Sidebar activeTab={sidebarTab} onTabChange={onSidebarTabChange} />
       </ResizablePanel>
       <ResizableHandle />
       <ResizablePanel defaultSize={80}>
