@@ -29,6 +29,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const showWorkspaceSessionInView = useTabStore((state) => state.showWorkspaceSessionInView)
   const setWorkspaceFocusSession = useTabStore((state) => state.setWorkspaceFocusSession)
   const dropSessionIntoWorkspaceTab = useTabStore((state) => state.dropSessionIntoWorkspaceTab)
+  const removeTab = useTabStore((state) => state.removeTab)
   const getAllSessions = useSessionStore((state) => state.getAllSessions)
   const addSession = useSessionStore((state) => state.addSession)
   const getSession = useSessionStore((state) => state.getSession)
@@ -148,7 +149,12 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                         })()}
                         activeTabId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
                         onSelectTab={(sessionId) => handleSidebarSelect(tab, sessionId)}
-                        onDropSession={(sessionId) => addSessionToWorkspaceTab(tab.id, sessionId)}
+                        onDropSession={(sessionId, sourceTabId) => {
+                          addSessionToWorkspaceTab(tab.id, sessionId)
+                          if (sourceTabId) {
+                            removeTab(sourceTabId)
+                          }
+                        }}
                         onDisconnectSession={workspaceActions.disconnectSession}
                         onOpenSFTP={workspaceActions.openSessionSFTP}
                         onTogglePin={workspaceActions.togglePinned}

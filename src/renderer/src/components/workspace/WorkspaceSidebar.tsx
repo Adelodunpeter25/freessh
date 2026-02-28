@@ -35,9 +35,9 @@ export function WorkspaceSidebar({
     if (!payload) return
 
     try {
-      const data = JSON.parse(payload) as { sessionId?: string }
+      const data = JSON.parse(payload) as { sessionId?: string; tabId?: string }
       if (data.sessionId) {
-        onDropSession(data.sessionId)
+        onDropSession(data.sessionId, data.tabId)
       }
     } catch {
       // Ignore malformed drops.
@@ -72,7 +72,7 @@ export function WorkspaceSidebar({
       {dropActive ? (
         <div className="pointer-events-none absolute inset-2 flex items-center justify-center rounded-md border-2 border-dashed border-primary/60 bg-primary/10">
           <span className="rounded bg-background/90 px-2 py-1 text-xs font-medium text-primary">
-            Drop session to add to workspace
+            Drop session to move into workspace
           </span>
         </div>
       ) : null}
