@@ -47,7 +47,7 @@ export function ConnectionList() {
     return (
       <EmptyState
         icon={Server}
-        title="No connections"
+        title="No connection"
         description="Create your first SSH connection to get started"
       />
     )

@@ -15,7 +15,7 @@ export function ConnectionHeaderButton({
   localTerminalLoading 
 }: ConnectionHeaderButtonProps) {
   const buttonClassName =
-    "font-medium border border-zinc-200 bg-zinc-50 text-zinc-800 hover:bg-zinc-100 hover:border-zinc-300 hover:shadow-sm transition-colors transition-shadow dark:border-transparent dark:bg-secondary dark:text-secondary-foreground dark:hover:bg-secondary/80 dark:hover:border-border/80"
+    "font-medium border border-zinc-200 bg-zinc-50 text-zinc-800 hover:bg-zinc-100 hover:border-zinc-300 hover:shadow-sm transition-colors transition-shadow dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700 dark:hover:border-zinc-600"
 
   return (
     <div className="flex items-center gap-2 shrink-0">
