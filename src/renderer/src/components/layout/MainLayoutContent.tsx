@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 import { SFTPPage, TerminalView, LogViewer } from "./MainLayoutRoutes";
 import { WorkspaceEmptyState, WorkspacePicker, WorkspaceShell, WorkspaceSidebar, WorkspaceSplitPanes } from "@/components/workspace";
@@ -34,9 +34,19 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
   const addSession = useSessionStore((state) => state.addSession)
   const getSession = useSessionStore((state) => state.getSession)
   const [openingWorkspaceTabs, setOpeningWorkspaceTabs] = useState<Record<string, boolean>>({})
-  const activeTab = tabs.find((tab) => tab.id === activeSessionTabId) || null
+  const [mountedTabIds, setMountedTabIds] = useState<string[]>([])
   const activeWorkspaceTab = tabs.find((tab) => tab.id === activeSessionTabId && tab.type === 'workspace')
   const workspaceActions = useWorkspaceSessionActions(activeWorkspaceTab?.id || '')
+  const mountedTabs = tabs.filter((tab) => mountedTabIds.includes(tab.id))
+
+  useEffect(() => {
+    if (!activeSessionTabId) return
+    setMountedTabIds((prev) => (prev.includes(activeSessionTabId) ? prev : [...prev, activeSessionTabId]))
+  }, [activeSessionTabId])
+
+  useEffect(() => {
+    setMountedTabIds((prev) => prev.filter((id) => tabs.some((tab) => tab.id === id)))
+  }, [tabs])
 
   const handleOpenWorkspace = useCallback(async (tab: Tab) => {
     const selectedConnectionIds = tab.workspaceConnectionIds || []
@@ -108,22 +118,22 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
       {/* Terminal view */}
       <div className={mainView === "terminal" ? "flex-1 overflow-hidden transition-[padding-right] duration-150 ease-out" : "hidden"} style={{ paddingRight: showTerminalSettings ? '320px' : '0' }}>
         <Suspense fallback={<div className="flex items-center justify-center h-full"><LoadingSpinner /></div>}>
-          {activeTab ? (
-            <div key={activeTab.id} className="h-full w-full">
-              {activeTab.type === 'log' ? (
-                <LogViewer content={activeTab.logContent || ''} />
-              ) : activeTab.type === 'workspace' ? (
+          {mountedTabs.map((tab) => (
+            <div key={tab.id} className={activeSessionTabId === tab.id ? "h-full w-full" : "hidden"}>
+              {tab.type === 'log' ? (
+                <LogViewer content={tab.logContent || ''} />
+              ) : tab.type === 'workspace' ? (
                 <WorkspaceShell
-                  title={activeTab.title}
+                  title={tab.title}
                   sidebar={
-                    activeTab.workspaceMode === 'workspace' ? (
+                    tab.workspaceMode === 'workspace' ? (
                       <WorkspaceSidebar
                         tabs={(() => {
-                          const pinnedSet = new Set(activeTab.workspacePinnedSessionIds || [])
+                          const pinnedSet = new Set(tab.workspacePinnedSessionIds || [])
                           const usedTitles: string[] = []
                           const orderedSessionIds = [
-                            ...(activeTab.workspaceSessionIds || []).filter((id) => pinnedSet.has(id)),
-                            ...(activeTab.workspaceSessionIds || []).filter((id) => !pinnedSet.has(id)),
+                            ...(tab.workspaceSessionIds || []).filter((id) => pinnedSet.has(id)),
+                            ...(tab.workspaceSessionIds || []).filter((id) => !pinnedSet.has(id)),
                           ]
                           return orderedSessionIds.map((sessionId) => {
                             const item = getSession(sessionId)
@@ -132,7 +142,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                             const baseTitle = isLocal
                               ? 'Local Terminal'
                               : connection?.name || connection?.host || sessionId
-                            const preferred = activeTab.workspaceSessionTitles?.[sessionId]?.trim() || baseTitle
+                            const preferred = tab.workspaceSessionTitles?.[sessionId]?.trim() || baseTitle
                             const title = generateUniqueTitle(preferred, usedTitles)
                             usedTitles.push(title)
 
@@ -146,10 +156,10 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                             }
                           })
                         })()}
-                        activeTabId={activeTab.workspaceActiveSessionId || activeTab.workspaceSessionIds?.[0] || null}
-                        onSelectTab={(sessionId) => handleSidebarSelect(activeTab, sessionId)}
+                        activeTabId={tab.workspaceActiveSessionId || tab.workspaceSessionIds?.[0] || null}
+                        onSelectTab={(sessionId) => handleSidebarSelect(tab, sessionId)}
                         onDropSession={(sessionId, sourceTabId) => {
-                          addSessionToWorkspaceTab(activeTab.id, sessionId)
+                          addSessionToWorkspaceTab(tab.id, sessionId)
                           if (sourceTabId) {
                             removeTab(sourceTabId)
                           }
@@ -164,12 +174,12 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                     ) : undefined
                   }
                   content={
-                    activeTab.workspaceMode === 'workspace' ? (
-                      (activeTab.workspaceSessionIds?.length ?? 0) > 0 ? (
+                    tab.workspaceMode === 'workspace' ? (
+                      (tab.workspaceSessionIds?.length ?? 0) > 0 ? (
                         (() => {
-                          const hidden = new Set(activeTab.workspaceHiddenSessionIds || [])
-                          const visibleSessionIds = (activeTab.workspaceSessionIds || []).filter((id) => !hidden.has(id))
-                          const focusedSessionId = activeTab.workspaceFocusSessionId
+                          const hidden = new Set(tab.workspaceHiddenSessionIds || [])
+                          const visibleSessionIds = (tab.workspaceSessionIds || []).filter((id) => !hidden.has(id))
+                          const focusedSessionId = tab.workspaceFocusSessionId
                           const renderedSessionIds =
                             focusedSessionId && visibleSessionIds.includes(focusedSessionId)
                               ? [focusedSessionId]
@@ -186,7 +196,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
 
                           const titleBySessionId: Record<string, string> = {}
                           const usedTitles: string[] = []
-                          ;(activeTab.workspaceSessionIds || []).forEach((sessionId) => {
+                          ;(tab.workspaceSessionIds || []).forEach((sessionId) => {
                             const item = getSession(sessionId)
                             const connection = item?.connection
                             const isLocal = item?.session.connection_id === 'local'
@@ -195,7 +205,7 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                               : connection?.name || (connection?.username && connection?.host
                                   ? `${connection.username}@${connection.host}`
                                   : sessionId)
-                            const preferred = activeTab.workspaceSessionTitles?.[sessionId]?.trim() || baseTitle
+                            const preferred = tab.workspaceSessionTitles?.[sessionId]?.trim() || baseTitle
                             const title = generateUniqueTitle(preferred, usedTitles)
                             usedTitles.push(title)
                             titleBySessionId[sessionId] = title
@@ -204,19 +214,19 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                           return (
                         <WorkspaceSplitPanes
                           sessionIds={renderedSessionIds}
-                          activeSessionId={activeTab.workspaceActiveSessionId || renderedSessionIds[0] || null}
-                          focusedSessionId={activeTab.workspaceFocusSessionId}
+                          activeSessionId={tab.workspaceActiveSessionId || renderedSessionIds[0] || null}
+                          focusedSessionId={tab.workspaceFocusSessionId}
                           titleBySessionId={titleBySessionId}
-                          onActivateSession={(sessionId) => setWorkspaceActiveSession(activeTab.id, sessionId)}
+                          onActivateSession={(sessionId) => setWorkspaceActiveSession(tab.id, sessionId)}
                           onCloseSession={workspaceActions.closeFromView}
                           onToggleFocusSession={workspaceActions.toggleFocus}
                           onReorderSession={(sessionId, targetSessionId, position) => {
-                            dropSessionIntoWorkspaceTab(activeTab.id, sessionId, targetSessionId, position)
+                            dropSessionIntoWorkspaceTab(tab.id, sessionId, targetSessionId, position)
                           }}
                           onAttachSession={(sessionId) => {
-                            addSessionToWorkspaceTab(activeTab.id, sessionId)
+                            addSessionToWorkspaceTab(tab.id, sessionId)
                           }}
-                          direction={activeTab.workspaceSplitDirection || 'horizontal'}
+                          direction={tab.workspaceSplitDirection || 'horizontal'}
                         />
                       )
                         })()
@@ -229,23 +239,23 @@ export function MainLayoutContent({ mainView, tabs, activeSessionTabId, showTerm
                     ) : (
                       <WorkspacePicker
                         connections={connections}
-                        selectedIds={activeTab.workspaceConnectionIds || []}
-                        onSelectionChange={(ids) => updateWorkspaceTabSelection(activeTab.id, ids)}
-                        onOpenWorkspace={() => handleOpenWorkspace(activeTab)}
-                        opening={openingWorkspaceTabs[activeTab.id] === true}
+                        selectedIds={tab.workspaceConnectionIds || []}
+                        onSelectionChange={(ids) => updateWorkspaceTabSelection(tab.id, ids)}
+                        onOpenWorkspace={() => handleOpenWorkspace(tab)}
+                        opening={openingWorkspaceTabs[tab.id] === true}
                       />
                     )
                   }
                 />
               ) : (
                 <TerminalView
-                  sessionId={activeTab.sessionId}
-                  isActive={mainView === "terminal"}
+                  sessionId={tab.sessionId}
+                  isActive={activeSessionTabId === tab.id && mainView === "terminal"}
                   sidebarOpen={showTerminalSettings}
                 />
               )}
             </div>
-          ) : null}
+          ))}
         </Suspense>
       </div>
     </>
