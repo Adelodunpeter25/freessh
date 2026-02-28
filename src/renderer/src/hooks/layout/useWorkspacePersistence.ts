@@ -118,6 +118,22 @@ export function useWorkspacePersistence({
   const getConnection = useConnectionStore((state) => state.getConnection)
 
   const isHydratingRef = useRef(true)
+  const initialUIRef = useRef({
+    mainView,
+    sidebarTab,
+    showTerminalSettings,
+  })
+  const uiInteractedRef = useRef(false)
+
+  useEffect(() => {
+    if (
+      mainView !== initialUIRef.current.mainView ||
+      sidebarTab !== initialUIRef.current.sidebarTab ||
+      showTerminalSettings !== initialUIRef.current.showTerminalSettings
+    ) {
+      uiInteractedRef.current = true
+    }
+  }, [mainView, sidebarTab, showTerminalSettings])
 
   useEffect(() => {
     let mounted = true
@@ -165,6 +181,11 @@ export function useWorkspacePersistence({
         }
 
         const { tabs: restoredTabs, tabIdMap } = remapRestoredTabs(clientState.tabs, sessionMap)
+        const { tabs: existingTabs } = useTabStore.getState().exportState()
+        if (existingTabs.length > 0) {
+          return
+        }
+
         const nextActiveTab = clientState.active_tab_id
           ? tabIdMap.get(clientState.active_tab_id) || null
           : null
@@ -172,10 +193,12 @@ export function useWorkspacePersistence({
         prevTabsLengthRef.current = restoredTabs.length
         replaceTabState(restoredTabs, nextActiveTab)
 
-        if (clientState.main_view) setMainView(clientState.main_view)
-        if (clientState.sidebar_tab) setSidebarTab(clientState.sidebar_tab)
-        if (typeof clientState.show_terminal_settings === 'boolean') {
-          setShowTerminalSettings(clientState.show_terminal_settings)
+        if (!uiInteractedRef.current) {
+          if (clientState.main_view) setMainView(clientState.main_view)
+          if (clientState.sidebar_tab) setSidebarTab(clientState.sidebar_tab)
+          if (typeof clientState.show_terminal_settings === 'boolean') {
+            setShowTerminalSettings(clientState.show_terminal_settings)
+          }
         }
       } finally {
         if (mounted) {
