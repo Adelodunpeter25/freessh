@@ -14,13 +14,16 @@ export function ConnectionHeaderButton({
   onNewGroup,
   localTerminalLoading 
 }: ConnectionHeaderButtonProps) {
+  const buttonClassName =
+    "font-medium border border-zinc-200 bg-zinc-50 text-zinc-800 hover:bg-zinc-100 hover:border-zinc-300 hover:shadow-sm transition-colors transition-shadow dark:border-transparent dark:bg-secondary dark:text-secondary-foreground dark:hover:bg-secondary/80 dark:hover:border-border/80"
+
   return (
     <div className="flex items-center gap-2 shrink-0">
       <Button 
         onClick={onNewConnection}
         variant="secondary" 
         size="sm"
-        className="font-medium border border-transparent hover:bg-secondary/80 hover:border-border/80 hover:shadow-sm transition-colors transition-shadow"
+        className={buttonClassName}
       >
         <Server className="h-4 w-4 mr-2" />
         NEW CONNECTION
@@ -31,7 +34,7 @@ export function ConnectionHeaderButton({
         variant="secondary" 
         size="sm"
         disabled={localTerminalLoading}
-        className="font-medium border border-transparent hover:bg-secondary/80 hover:border-border/80 hover:shadow-sm transition-colors transition-shadow"
+        className={buttonClassName}
       >
         {localTerminalLoading ? (
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -45,7 +48,7 @@ export function ConnectionHeaderButton({
         onClick={onNewGroup}
         variant="secondary" 
         size="sm"
-        className="font-medium border border-transparent hover:bg-secondary/80 hover:border-border/80 hover:shadow-sm transition-colors transition-shadow"
+        className={buttonClassName}
       >
         <FolderPlus className="h-4 w-4 mr-2" />
         NEW GROUP
