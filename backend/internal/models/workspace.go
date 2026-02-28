@@ -92,3 +92,39 @@ type WorkspaceMoveTabResponse struct {
 	TargetWindow  string `json:"target_window"`
 	CompletedAt   string `json:"completed_at"`
 }
+
+type WorkspaceStateSaveRequest struct {
+	ClientState map[string]interface{} `json:"client_state,omitempty"`
+}
+
+type WorkspaceStateLoadRequest struct{}
+
+type WorkspaceStateClearRequest struct{}
+
+type WorkspaceStateSnapshotModel struct {
+	Workspaces    map[string]WorkspaceModel    `json:"workspaces"`
+	WindowToSpace map[string]string            `json:"window_to_space"`
+	Tabs          map[string]WorkspaceTabModel `json:"tabs"`
+	WindowMode    map[string]string            `json:"window_mode"`
+}
+
+type WorkspaceStateModel struct {
+	Version     int                         `json:"version"`
+	SavedAt     string                      `json:"saved_at"`
+	Snapshot    WorkspaceStateSnapshotModel `json:"snapshot"`
+	ClientState map[string]interface{}      `json:"client_state,omitempty"`
+}
+
+type WorkspaceStateSaveResponse struct {
+	Status string              `json:"status"`
+	State  WorkspaceStateModel `json:"state"`
+}
+
+type WorkspaceStateLoadResponse struct {
+	Found bool                 `json:"found"`
+	State *WorkspaceStateModel `json:"state,omitempty"`
+}
+
+type WorkspaceStateClearResponse struct {
+	Status string `json:"status"`
+}

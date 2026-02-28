@@ -61,6 +61,15 @@ func NewServer() *Server {
 
 	manager := session.NewManager(logSettingsStorage)
 	workspaceManager := workspace.NewManager(config.FeatureDetachableWorkspaces)
+	workspaceStateStore, err := workspace.NewStateStore()
+	if err != nil {
+		log.Printf("Warning: Failed to initialize workspace state storage: %v", err)
+	} else {
+		workspaceManager.SetStateStore(workspaceStateStore)
+		if _, loadErr := workspaceManager.LoadPersistedState(); loadErr != nil && loadErr != workspace.ErrStateNotFound {
+			log.Printf("Warning: Failed to restore workspace state: %v", loadErr)
+		}
+	}
 	terminalHandler := handlers.NewTerminalHandler(manager, historyStorage)
 
 	// Initialize known hosts storage
@@ -118,6 +127,7 @@ func NewServer() *Server {
 			handlers.NewExportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 			handlers.NewImportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
 			handlers.NewWorkspaceHandler(workspaceManager),
+			handlers.NewWorkspacePersistenceHandler(workspaceManager),
 		},
 	}
 }

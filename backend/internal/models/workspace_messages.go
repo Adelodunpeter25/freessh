@@ -9,4 +9,7 @@ const (
 	MsgWorkspaceRemoveTab      MessageType = "workspace:remove_tab"
 	MsgWorkspaceListTabs       MessageType = "workspace:list_tabs"
 	MsgWorkspaceMoveTab        MessageType = "workspace:move_tab"
+	MsgWorkspaceStateSave      MessageType = "workspace_state:save"
+	MsgWorkspaceStateLoad      MessageType = "workspace_state:load"
+	MsgWorkspaceStateClear     MessageType = "workspace_state:clear"
 )

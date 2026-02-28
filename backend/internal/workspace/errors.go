@@ -9,4 +9,5 @@ var (
 	ErrOwnershipMismatch  = errors.New("tab ownership mismatch")
 	ErrSameWindowTransfer = errors.New("source and target windows are the same")
 	ErrFeatureDisabled    = errors.New("workspace feature disabled")
+	ErrStateNotFound      = errors.New("workspace state not found")
 )
