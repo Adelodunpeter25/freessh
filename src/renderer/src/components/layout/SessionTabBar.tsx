@@ -54,24 +54,19 @@ export function SessionTabBar({ showHome, showSFTP, onHomeClick, onSFTPClick, on
   return (
     <div className="flex items-center gap-2 flex-1 overflow-x-auto scrollbar-hide">
       <TooltipProvider delayDuration={400}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div
-              className={cn(
-                'flex items-center gap-2 px-8 py-2 rounded-md border cursor-pointer transition-all backdrop-blur-md shrink-0',
-                showHome
-                  ? 'bg-card border-zinc-400 text-foreground shadow-sm dark:bg-white/15 dark:border-white/30'
-                  : 'bg-card/90 border-zinc-300 text-foreground/70 hover:bg-muted/40 hover:border-zinc-400 dark:bg-white/5 dark:border-white/10 dark:text-muted-foreground dark:hover:bg-white/10 dark:hover:border-white/20'
-              )}
-              style={noDrag}
-              onClick={onHomeClick}
-            >
-              <Home className="h-4 w-4" />
-              <span className="text-sm font-medium">Home</span>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>Connections</TooltipContent>
-        </Tooltip>
+        <div
+          className={cn(
+            'flex items-center gap-2 px-8 py-2 rounded-md border cursor-pointer transition-all backdrop-blur-md shrink-0',
+            showHome
+              ? 'bg-card border-zinc-400 text-foreground shadow-sm dark:bg-white/15 dark:border-white/30'
+              : 'bg-card/90 border-zinc-300 text-foreground/70 hover:bg-muted/40 hover:border-zinc-400 dark:bg-white/5 dark:border-white/10 dark:text-muted-foreground dark:hover:bg-white/10 dark:hover:border-white/20'
+          )}
+          style={noDrag}
+          onClick={onHomeClick}
+        >
+          <Home className="h-4 w-4" />
+          <span className="text-sm font-medium">Home</span>
+        </div>
 
         <Tooltip>
           <TooltipTrigger asChild>
