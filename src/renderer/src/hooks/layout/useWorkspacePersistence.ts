@@ -5,6 +5,7 @@ import { useSessionStore } from '@/stores/sessionStore'
 import { useTabStore } from '@/stores/tabStore'
 import { ConnectionConfig, Tab } from '@/types'
 import { PersistedSessionRef, RendererWorkspaceClientState } from '@/types/workspacePersistence'
+import { FEATURE_FLAGS } from '@/constants/features'
 
 type SidebarTab = 'connections' | 'keys' | 'known-hosts' | 'port-forward' | 'snippets' | 'logs' | 'settings'
 type MainView = 'home' | 'sftp' | 'terminal'
@@ -96,6 +97,22 @@ function remapRestoredTabs(
   return { tabs: remapped, tabIdMap }
 }
 
+function collectRequiredSessionIds(tabs: Tab[]): Set<string> {
+  const ids = new Set<string>()
+  for (const tab of tabs) {
+    if (tab.type === 'terminal' || tab.type === 'sftp') {
+      ids.add(tab.sessionId)
+      continue
+    }
+    if (tab.type === 'workspace') {
+      for (const sessionId of tab.workspaceSessionIds || []) {
+        ids.add(sessionId)
+      }
+    }
+  }
+  return ids
+}
+
 export function useWorkspacePersistence({
   mainView,
   sidebarTab,
@@ -149,15 +166,24 @@ export function useWorkspacePersistence({
           return
         }
 
+        const persistedTabs = FEATURE_FLAGS.DETACHABLE_WORKSPACES
+          ? clientState.tabs
+          : clientState.tabs.filter((tab) => tab.type !== 'workspace')
+        if (persistedTabs.length === 0) {
+          return
+        }
+
         const connectionByID = new Map<string, ConnectionConfig>(
           allConnections.map((connection) => [connection.id, connection]),
         )
         const sessionMap = new Map<string, string>()
+        const requiredOldSessionIds = collectRequiredSessionIds(persistedTabs)
 
         clearSessions()
 
         const refs = clientState.session_refs || {}
         for (const [oldSessionID, ref] of Object.entries(refs)) {
+          if (!requiredOldSessionIds.has(oldSessionID)) continue
           try {
             if ((ref as PersistedSessionRef).is_local) {
               const localSession = await sessionService.connectLocal()
@@ -180,7 +206,7 @@ export function useWorkspacePersistence({
           }
         }
 
-        const { tabs: restoredTabs, tabIdMap } = remapRestoredTabs(clientState.tabs, sessionMap)
+        const { tabs: restoredTabs, tabIdMap } = remapRestoredTabs(persistedTabs, sessionMap)
         const { tabs: existingTabs } = useTabStore.getState().exportState()
         if (existingTabs.length > 0) {
           return
@@ -218,7 +244,14 @@ export function useWorkspacePersistence({
     if (isHydratingRef.current) return
 
     const timer = setTimeout(() => {
-      const { tabs: currentTabs, activeTabId } = exportTabState()
+      const { tabs: storeTabs, activeTabId: storeActiveTabId } = exportTabState()
+      const currentTabs = FEATURE_FLAGS.DETACHABLE_WORKSPACES
+        ? storeTabs
+        : storeTabs.filter((tab) => tab.type !== 'workspace')
+      const activeTabId =
+        storeActiveTabId && currentTabs.some((tab) => tab.id === storeActiveTabId)
+          ? storeActiveTabId
+          : null
       const sessionRefs: Record<string, PersistedSessionRef> = {}
 
       const addRef = (sessionId: string) => {
