@@ -72,30 +72,6 @@ func NewServer() *Server {
 	}
 	terminalHandler := handlers.NewTerminalHandler(manager, historyStorage)
 
-	// Initialize known hosts storage
-	knownHostStorage, err := storage.NewKnownHostStorage()
-	if err != nil {
-		log.Printf("Warning: Failed to initialize known hosts storage: %v", err)
-	}
-
-	// Initialize port forward config storage
-	portForwardStorage, err := storage.NewPortForwardStorage()
-	if err != nil {
-		log.Printf("Warning: Failed to initialize port forward storage: %v", err)
-	}
-
-	// Initialize group storage
-	groupStorage, err := storage.NewGroupStorage()
-	if err != nil {
-		log.Printf("Warning: Failed to initialize group storage: %v", err)
-	}
-
-	// Initialize snippet storage
-	snippetStorage, err := storage.NewSnippetStorage()
-	if err != nil {
-		log.Printf("Warning: Failed to initialize snippet storage: %v", err)
-	}
-
 	// Create shared verification helper
 	verificationHelper := handlers.NewHostKeyVerificationHelper()
 
@@ -112,20 +88,129 @@ func NewServer() *Server {
 			handlers.NewBulkHandler(manager),
 			handlers.NewRemoteHandler(manager),
 			handlers.NewPortForwardHandler(manager),
-			handlers.NewPortForwardConfigHandler(portForwardStorage),
+			handlers.NewLazyHandler(
+				[]models.MessageType{
+					models.MsgPortForwardConfigList,
+					models.MsgPortForwardConfigGet,
+					models.MsgPortForwardConfigCreate,
+					models.MsgPortForwardConfigUpdate,
+					models.MsgPortForwardConfigDelete,
+				},
+				func() (handlers.Handler, error) {
+					portForwardStorage, storageErr := storage.NewPortForwardStorage()
+					if storageErr != nil {
+						return nil, fmt.Errorf("failed to initialize port forward storage: %w", storageErr)
+					}
+					return handlers.NewPortForwardConfigHandler(portForwardStorage), nil
+				},
+			),
 			handlers.NewKeychainHandler(),
 			handlers.NewKeygenHandler(),
 			keys.NewHandler(manager),
-			handlers.NewKnownHostsHandler(knownHostStorage),
-			handlers.NewGroupHandler(groupStorage, manager.GetConnectionStorage()),
+			handlers.NewLazyHandler(
+				[]models.MessageType{
+					models.MsgKnownHostList,
+					models.MsgKnownHostRemove,
+					models.MsgKnownHostTrust,
+					models.MsgKnownHostImport,
+				},
+				func() (handlers.Handler, error) {
+					knownHostStorage, storageErr := storage.NewKnownHostStorage()
+					if storageErr != nil {
+						return nil, fmt.Errorf("failed to initialize known hosts storage: %w", storageErr)
+					}
+					return handlers.NewKnownHostsHandler(knownHostStorage), nil
+				},
+			),
+			handlers.NewLazyHandler(
+				[]models.MessageType{
+					models.MsgGroupList,
+					models.MsgGroupCreate,
+					models.MsgGroupRename,
+					models.MsgGroupDelete,
+				},
+				func() (handlers.Handler, error) {
+					groupStorage, storageErr := storage.NewGroupStorage()
+					if storageErr != nil {
+						return nil, fmt.Errorf("failed to initialize group storage: %w", storageErr)
+					}
+					return handlers.NewGroupHandler(groupStorage, manager.GetConnectionStorage()), nil
+				},
+			),
 			handlers.NewLogHandler(),
 			handlers.NewLogSettingsHandler(logSettingsStorage),
-			handlers.NewSnippetHandler(snippetStorage),
+			handlers.NewLazyHandler(
+				[]models.MessageType{
+					models.MsgSnippetList,
+					models.MsgSnippetCreate,
+					models.MsgSnippetUpdate,
+					models.MsgSnippetDelete,
+				},
+				func() (handlers.Handler, error) {
+					snippetStorage, storageErr := storage.NewSnippetStorage()
+					if storageErr != nil {
+						return nil, fmt.Errorf("failed to initialize snippet storage: %w", storageErr)
+					}
+					return handlers.NewSnippetHandler(snippetStorage), nil
+				},
+			),
 			handlers.NewHistoryHandler(historyStorage),
-			handlers.NewExportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
-			handlers.NewImportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
-			handlers.NewExportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
-			handlers.NewImportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage),
+			handlers.NewLazyHandler(
+				[]models.MessageType{models.MsgExportFreeSSH},
+				func() (handlers.Handler, error) {
+					groupStorage, groupErr := storage.NewGroupStorage()
+					if groupErr != nil {
+						return nil, fmt.Errorf("failed to initialize group storage: %w", groupErr)
+					}
+					portForwardStorage, portErr := storage.NewPortForwardStorage()
+					if portErr != nil {
+						return nil, fmt.Errorf("failed to initialize port forward storage: %w", portErr)
+					}
+					return handlers.NewExportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage), nil
+				},
+			),
+			handlers.NewLazyHandler(
+				[]models.MessageType{models.MsgImportFreeSSH},
+				func() (handlers.Handler, error) {
+					groupStorage, groupErr := storage.NewGroupStorage()
+					if groupErr != nil {
+						return nil, fmt.Errorf("failed to initialize group storage: %w", groupErr)
+					}
+					portForwardStorage, portErr := storage.NewPortForwardStorage()
+					if portErr != nil {
+						return nil, fmt.Errorf("failed to initialize port forward storage: %w", portErr)
+					}
+					return handlers.NewImportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage), nil
+				},
+			),
+			handlers.NewLazyHandler(
+				[]models.MessageType{models.MsgExportOpenSSH},
+				func() (handlers.Handler, error) {
+					groupStorage, groupErr := storage.NewGroupStorage()
+					if groupErr != nil {
+						return nil, fmt.Errorf("failed to initialize group storage: %w", groupErr)
+					}
+					portForwardStorage, portErr := storage.NewPortForwardStorage()
+					if portErr != nil {
+						return nil, fmt.Errorf("failed to initialize port forward storage: %w", portErr)
+					}
+					return handlers.NewExportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage), nil
+				},
+			),
+			handlers.NewLazyHandler(
+				[]models.MessageType{models.MsgImportOpenSSH},
+				func() (handlers.Handler, error) {
+					groupStorage, groupErr := storage.NewGroupStorage()
+					if groupErr != nil {
+						return nil, fmt.Errorf("failed to initialize group storage: %w", groupErr)
+					}
+					portForwardStorage, portErr := storage.NewPortForwardStorage()
+					if portErr != nil {
+						return nil, fmt.Errorf("failed to initialize port forward storage: %w", portErr)
+					}
+					return handlers.NewImportOpenSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage), nil
+				},
+			),
 			handlers.NewWorkspaceHandler(workspaceManager),
 			handlers.NewWorkspacePersistenceHandler(workspaceManager),
 		},
