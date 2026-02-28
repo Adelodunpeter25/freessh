@@ -18,6 +18,7 @@ interface CommandPaletteItem {
   section: string;
   keywords: string[];
   icon: ReactNode;
+  shortcut?: string;
   action: () => void;
 }
 
@@ -44,6 +45,7 @@ export function CommandPalette({
 }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const modLabel = navigator.platform.toUpperCase().includes("MAC") ? "⌘" : "Ctrl";
 
   const items = useMemo<CommandPaletteItem[]>(
     () => [
@@ -53,6 +55,7 @@ export function CommandPalette({
         section: "Quick Create",
         keywords: ["new", "connection", "ssh", "host"],
         icon: <Plus className="h-4 w-4 text-muted-foreground" />,
+        shortcut: `${modLabel}+T`,
         action: onNewConnection,
       },
       {
@@ -97,6 +100,7 @@ export function CommandPalette({
       },
     ],
     [
+      modLabel,
       onNewConnection,
       onNewLocalTerminal,
       onNewWorkspaceTab,
@@ -148,7 +152,7 @@ export function CommandPalette({
         if (!nextOpen) setQuery("");
       }}
     >
-      <DialogContent className="max-w-xl p-0 overflow-hidden">
+      <DialogContent className="max-w-xl p-0 overflow-hidden [&>button]:right-2 [&>button]:top-2">
         <DialogHeader className="px-4 pt-4 pb-0 sr-only">
           <DialogTitle>Command Palette</DialogTitle>
         </DialogHeader>
@@ -180,12 +184,6 @@ export function CommandPalette({
             </div>
           </div>
 
-          <div className="mt-4">
-            <span className="inline-flex items-center rounded-full bg-muted text-muted-foreground px-3 py-1 text-xs">
-              Jump To <span className="ml-2">⌘+J</span>
-            </span>
-          </div>
-
           <div className="mt-4 max-h-80 overflow-y-auto space-y-4 pr-1">
             {groupedItems.length > 0 ? (
               groupedItems.map(([section, sectionItems]) => (
@@ -208,6 +206,9 @@ export function CommandPalette({
                         >
                           <span className="mr-2">{item.icon}</span>
                           <span className="text-base">{item.label}</span>
+                          {item.shortcut ? (
+                            <span className="ml-auto text-xs text-muted-foreground">{item.shortcut}</span>
+                          ) : null}
                         </Button>
                       );
                     })}
