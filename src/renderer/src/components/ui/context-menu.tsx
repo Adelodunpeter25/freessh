@@ -18,7 +18,7 @@ const ContextMenuSubTrigger = forwardRef<
   <SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center gap-3 rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground data-[state=open]:bg-accent data-[state=open]:text-accent-foreground dark:focus:bg-white/20 dark:data-[highlighted]:bg-white/20 dark:data-[state=open]:bg-white/20",
+      "flex cursor-default select-none items-center gap-3 rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors focus:bg-black/10 focus:text-foreground data-[highlighted]:bg-black/10 data-[highlighted]:text-foreground data-[state=open]:bg-black/10 data-[state=open]:text-foreground dark:focus:bg-white/20 dark:focus:text-accent-foreground dark:data-[highlighted]:bg-white/20 dark:data-[highlighted]:text-accent-foreground dark:data-[state=open]:bg-white/20 dark:data-[state=open]:text-accent-foreground",
       inset && "pl-8",
       className
     )}
@@ -69,7 +69,7 @@ const ContextMenuItem = forwardRef<
   <Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-3 rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground dark:focus:bg-white/20 dark:data-[highlighted]:bg-white/20 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center gap-3 rounded-md px-3 py-2 text-sm font-medium outline-none transition-colors focus:bg-black/10 focus:text-foreground data-[highlighted]:bg-black/10 data-[highlighted]:text-foreground dark:focus:bg-white/20 dark:focus:text-accent-foreground dark:data-[highlighted]:bg-white/20 dark:data-[highlighted]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       inset && "pl-9",
       className
     )}
@@ -85,7 +85,7 @@ const ContextMenuCheckboxItem = forwardRef<
   <CheckboxItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-3 rounded-md py-2 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground dark:focus:bg-white/20 dark:data-[highlighted]:bg-white/20 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center gap-3 rounded-md py-2 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:bg-black/10 focus:text-foreground data-[highlighted]:bg-black/10 data-[highlighted]:text-foreground dark:focus:bg-white/20 dark:focus:text-accent-foreground dark:data-[highlighted]:bg-white/20 dark:data-[highlighted]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     checked={checked}
@@ -108,7 +108,7 @@ const ContextMenuRadioItem = forwardRef<
   <RadioItem
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-3 rounded-md py-2 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground dark:focus:bg-white/20 dark:data-[highlighted]:bg-white/20 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "relative flex cursor-default select-none items-center gap-3 rounded-md py-2 pl-9 pr-3 text-sm font-medium outline-none transition-colors focus:bg-black/10 focus:text-foreground data-[highlighted]:bg-black/10 data-[highlighted]:text-foreground dark:focus:bg-white/20 dark:focus:text-accent-foreground dark:data-[highlighted]:bg-white/20 dark:data-[highlighted]:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}
