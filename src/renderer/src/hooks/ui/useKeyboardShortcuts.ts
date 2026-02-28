@@ -32,6 +32,7 @@ interface ShortcutHandlers {
   onSwitchTab?: (index: number) => void
   onNewConnection?: () => void
   onNewLocalTerminal?: () => void
+  onOpenCommandPalette?: () => void
   onCloseTab?: () => void
   onOpenSettings?: () => void
   onClearTerminal?: () => void
@@ -86,6 +87,11 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
         case 'cmd+l':
           e.preventDefault()
           handlers.onNewLocalTerminal?.()
+          break
+
+        case 'cmd+shift+p':
+          e.preventDefault()
+          handlers.onOpenCommandPalette?.()
           break
         
         case 'cmd+w':

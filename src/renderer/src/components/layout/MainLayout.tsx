@@ -4,6 +4,7 @@ import { MainLayoutSidebar } from "./MainLayoutSidebar";
 import { MainLayoutContent } from "./MainLayoutContent";
 import { MainLayoutTerminalSidebar } from "./MainLayoutTerminalSidebar";
 import { MainLayoutDialogs } from "./MainLayoutDialogs";
+import { CommandPalette } from "./CommandPalette";
 import { DisconnectNotifications } from "@/components/terminal/DisconnectNotifications";
 import { useTabStore } from "@/stores/tabStore";
 import { useUIStore } from "@/stores/uiStore";
@@ -15,6 +16,7 @@ import { Snippet } from "@/types/snippet";
 import { useSessionLifecycle } from "@/hooks/layout/useSessionLifecycle";
 import { useWorkspacePersistence } from "@/hooks/layout/useWorkspacePersistence";
 import { sshService } from "@/services/ipc/ssh";
+import { FEATURE_FLAGS } from "@/constants/features";
 
 type SidebarTab = "connections" | "keys" | "known-hosts" | "port-forward" | "snippets" | "logs" | "settings";
 type MainView = "home" | "sftp" | "terminal";
@@ -27,11 +29,13 @@ export function MainLayout() {
   const [showSettings, setShowSettings] = useState(false);
   const [showExportImport, setShowExportImport] = useState(false);
   const [showSnippetForm, setShowSnippetForm] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
   const [editingSnippet, setEditingSnippet] = useState<Snippet | null>(null);
   const [deletingSnippet, setDeletingSnippet] = useState<Snippet | null>(null);
   const activeSessionTabId = useTabStore((state) => state.activeTabId);
   const tabs = useTabStore((state) => state.tabs);
   const removeTab = useTabStore((state) => state.removeTab);
+  const addWorkspaceTab = useTabStore((state) => state.addWorkspaceTab);
   const currentTab = tabs.find(tab => tab.id === activeSessionTabId);
   const activeSessionId = currentTab?.sessionId;
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
@@ -114,6 +118,7 @@ export function MainLayout() {
       setSidebarTab('connections')
     },
     onNewLocalTerminal: handleNewLocalTerminal,
+    onOpenCommandPalette: () => setShowCommandPalette(true),
     onCloseTab: handleCloseActiveTab,
     onOpenSettings: () => setShowSettings(true),
     onShowShortcuts: () => setShowShortcuts(true),
@@ -210,6 +215,24 @@ export function MainLayout() {
             setDeletingSnippet(null)
           }
         }}
+      />
+
+      <CommandPalette
+        open={showCommandPalette}
+        onOpenChange={setShowCommandPalette}
+        onNewConnection={() => {
+          handleHomeClick()
+          setSidebarTab("connections")
+        }}
+        onNewLocalTerminal={handleNewLocalTerminal}
+        onNewWorkspaceTab={() => {
+          if (!FEATURE_FLAGS.DETACHABLE_WORKSPACES) return
+          addWorkspaceTab()
+          handleSessionClick()
+        }}
+        onOpenSettings={() => setShowSettings(true)}
+        onOpenKeyboardShortcuts={() => setShowShortcuts(true)}
+        onOpenExportImport={() => setShowExportImport(true)}
       />
 
       <DisconnectNotifications
