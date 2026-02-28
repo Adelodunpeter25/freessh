@@ -16,6 +16,7 @@ export function GroupSidebar({ isOpen, onClose, group, onSave }: GroupSidebarPro
   const [name, setName] = useState('')
   const [saving, setSaving] = useState(false)
   const isEditMode = !!group
+  const connectionCount = group?.connection_count ?? 0
 
   useEffect(() => {
     if (isOpen) {
@@ -66,9 +67,9 @@ export function GroupSidebar({ isOpen, onClose, group, onSave }: GroupSidebarPro
 
           {isEditMode && group && (
             <div className="text-sm text-muted-foreground">
-              {group.connection_count === 0
+              {connectionCount === 0
                 ? 'No connection'
-                : `${group.connection_count} ${group.connection_count === 1 ? 'connection' : 'connections'}`}
+                : `${connectionCount} ${connectionCount === 1 ? 'connection' : 'connections'}`}
             </div>
           )}
         </div>

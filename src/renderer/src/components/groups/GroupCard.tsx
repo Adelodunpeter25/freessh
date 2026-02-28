@@ -22,10 +22,11 @@ export const GroupCard = memo(function GroupCard({
   onDelete,
   onOpen
 }: GroupCardProps) {
+  const connectionCount = group.connection_count ?? 0
   const connectionSummary =
-    group.connection_count === 0
+    connectionCount === 0
       ? 'No connection'
-      : `${group.connection_count} ${group.connection_count === 1 ? 'connection' : 'connections'}`
+      : `${connectionCount} ${connectionCount === 1 ? 'connection' : 'connections'}`
 
   return (
     <GroupCardContextMenu
