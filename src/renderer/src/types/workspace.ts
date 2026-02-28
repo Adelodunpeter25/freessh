@@ -80,3 +80,39 @@ export interface WorkspaceMoveTabResponse {
 export interface WorkspaceStatusResponse {
   status: string
 }
+
+export interface WorkspaceStateSaveRequest {
+  client_state?: Record<string, unknown>
+}
+
+export interface WorkspaceStateLoadRequest {}
+
+export interface WorkspaceStateClearRequest {}
+
+export interface WorkspaceStateSnapshotModel {
+  workspaces: Record<string, WorkspaceModel>
+  window_to_space: Record<string, string>
+  tabs: Record<string, WorkspaceTabModel>
+  window_mode: Record<string, string>
+}
+
+export interface WorkspaceStateModel {
+  version: number
+  saved_at: string
+  snapshot: WorkspaceStateSnapshotModel
+  client_state?: Record<string, unknown>
+}
+
+export interface WorkspaceStateSaveResponse {
+  status: string
+  state: WorkspaceStateModel
+}
+
+export interface WorkspaceStateLoadResponse {
+  found: boolean
+  state?: WorkspaceStateModel
+}
+
+export interface WorkspaceStateClearResponse {
+  status: string
+}

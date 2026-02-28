@@ -15,6 +15,8 @@ interface SessionStore {
   updateSession: (sessionId: string, updates: Partial<Session>) => void
   getSession: (sessionId: string) => SessionWithConnection | undefined
   getAllSessions: () => SessionWithConnection[]
+  clearSessions: () => void
+  replaceSessions: (items: SessionWithConnection[]) => void
 }
 
 export const useSessionStore = create<SessionStore>((set, get) => ({
@@ -61,5 +63,17 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
 
   getAllSessions: () => {
     return Array.from(get().sessions.values())
-  }
+  },
+
+  clearSessions: () => {
+    set({ sessions: new Map() })
+  },
+
+  replaceSessions: (items) => {
+    const next = new Map<string, SessionWithConnection>()
+    for (const item of items) {
+      next.set(item.session.id, item)
+    }
+    set({ sessions: next })
+  },
 }))

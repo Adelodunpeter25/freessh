@@ -39,6 +39,8 @@ interface TabStore {
   updateTabSession: (tabId: string, sessionId: string) => void
   togglePinTab: (tabId: string) => void
   getTabBySessionId: (sessionId: string) => Tab | undefined
+  replaceState: (tabs: Tab[], activeTabId: string | null) => void
+  exportState: () => { tabs: Tab[]; activeTabId: string | null }
 }
 
 export const useTabStore = create<TabStore>((set, get) => ({
@@ -414,5 +416,17 @@ export const useTabStore = create<TabStore>((set, get) => ({
       if (tab.type !== 'workspace') return false
       return (tab.workspaceSessionIds || []).includes(sessionId)
     })
-  }
+  },
+
+  replaceState: (tabs, activeTabId) => {
+    set({
+      tabs,
+      activeTabId,
+    })
+  },
+
+  exportState: () => ({
+    tabs: get().tabs,
+    activeTabId: get().activeTabId,
+  }),
 }))
