@@ -83,11 +83,16 @@ export function MainLayout() {
     clearSFTPConnection();
   }, [clearSFTPConnection]);
 
-  const handleOpenConnectionsSidebar = useCallback(() => {
+  const handleOpenConnectionsSidebar = useCallback((openNewConnectionForm: boolean = false) => {
     setMainView("home");
     clearSFTPConnection();
     setSidebarTab("connections");
-    window.dispatchEvent(new CustomEvent("connections:focus"));
+    window.setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("connections:focus"));
+      if (openNewConnectionForm) {
+        window.dispatchEvent(new CustomEvent("connections:new"));
+      }
+    }, 0);
   }, [clearSFTPConnection]);
 
   const handleSFTPClick = useCallback(() => setMainView("sftp"), []);
@@ -120,7 +125,7 @@ export function MainLayout() {
       else if (index === 1) handleSFTPClick()
       else handleSessionClick()
     },
-    onNewConnection: handleOpenConnectionsSidebar,
+    onNewConnection: () => handleOpenConnectionsSidebar(true),
     onNewLocalTerminal: handleNewLocalTerminal,
     onOpenCommandPalette: () => setShowCommandPalette(true),
     onCloseTab: handleCloseActiveTab,
@@ -134,7 +139,7 @@ export function MainLayout() {
   })
 
   useMenuActions({
-    onNewConnection: handleOpenConnectionsSidebar,
+    onNewConnection: () => handleOpenConnectionsSidebar(true),
     onCloseTab: () => {
       handleCloseActiveTab()
     },
@@ -222,7 +227,7 @@ export function MainLayout() {
         open={showCommandPalette}
         onOpenChange={setShowCommandPalette}
         onNewConnection={() => {
-          handleOpenConnectionsSidebar()
+          handleOpenConnectionsSidebar(true)
         }}
         onNewLocalTerminal={handleNewLocalTerminal}
         onNewWorkspaceTab={() => {

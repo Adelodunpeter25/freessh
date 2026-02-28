@@ -136,11 +136,22 @@ export function ConnectionsPage() {
       setSearchQuery('')
     }
 
+    const handleNewConnection = () => {
+      handleFocusConnections()
+      connectionHandlers.handleNewConnection()
+    }
+
     window.addEventListener('connections:focus', handleFocusConnections)
+    window.addEventListener('connections:new', handleNewConnection)
     return () => {
       window.removeEventListener('connections:focus', handleFocusConnections)
+      window.removeEventListener('connections:new', handleNewConnection)
     }
-  }, [groupHandlers.handleCloseGroupDetail, groupHandlers.handleSelectGroup])
+  }, [
+    connectionHandlers.handleNewConnection,
+    groupHandlers.handleCloseGroupDetail,
+    groupHandlers.handleSelectGroup,
+  ])
 
   return (
     <ConnectionsProvider value={contextValue}>
