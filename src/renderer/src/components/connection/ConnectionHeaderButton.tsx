@@ -20,7 +20,7 @@ export function ConnectionHeaderButton({
         onClick={onNewConnection}
         variant="secondary" 
         size="sm"
-        className="font-medium hover:bg-secondary/80 transition-colors"
+        className="font-medium border border-transparent hover:bg-secondary/80 hover:border-border/80 hover:shadow-sm transition-colors transition-shadow"
       >
         <Server className="h-4 w-4 mr-2" />
         NEW CONNECTION
@@ -31,7 +31,7 @@ export function ConnectionHeaderButton({
         variant="secondary" 
         size="sm"
         disabled={localTerminalLoading}
-        className="font-medium hover:bg-secondary/80 transition-colors"
+        className="font-medium border border-transparent hover:bg-secondary/80 hover:border-border/80 hover:shadow-sm transition-colors transition-shadow"
       >
         {localTerminalLoading ? (
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -45,7 +45,7 @@ export function ConnectionHeaderButton({
         onClick={onNewGroup}
         variant="secondary" 
         size="sm"
-        className="font-medium hover:bg-secondary/80 transition-colors"
+        className="font-medium border border-transparent hover:bg-secondary/80 hover:border-border/80 hover:shadow-sm transition-colors transition-shadow"
       >
         <FolderPlus className="h-4 w-4 mr-2" />
         NEW GROUP
