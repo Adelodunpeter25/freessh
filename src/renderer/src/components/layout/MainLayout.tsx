@@ -63,9 +63,6 @@ export function MainLayout() {
     mainView,
     sidebarTab,
     showTerminalSettings,
-    setMainView,
-    setSidebarTab,
-    setShowTerminalSettings,
     prevTabsLengthRef: prevTabsLength,
   })
 

@@ -14,9 +14,6 @@ interface UseWorkspacePersistenceParams {
   mainView: MainView
   sidebarTab: SidebarTab
   showTerminalSettings: boolean
-  setMainView: (view: MainView) => void
-  setSidebarTab: (tab: SidebarTab) => void
-  setShowTerminalSettings: (show: boolean) => void
   prevTabsLengthRef: MutableRefObject<number>
 }
 
@@ -117,9 +114,6 @@ export function useWorkspacePersistence({
   mainView,
   sidebarTab,
   showTerminalSettings,
-  setMainView,
-  setSidebarTab,
-  setShowTerminalSettings,
   prevTabsLengthRef,
 }: UseWorkspacePersistenceParams) {
   const tabs = useTabStore((state) => state.tabs)
@@ -135,23 +129,6 @@ export function useWorkspacePersistence({
   const getConnection = useConnectionStore((state) => state.getConnection)
 
   const isHydratingRef = useRef(true)
-  const initialUIRef = useRef({
-    mainView,
-    sidebarTab,
-    showTerminalSettings,
-  })
-  const uiInteractedRef = useRef(false)
-
-  useEffect(() => {
-    if (
-      mainView !== initialUIRef.current.mainView ||
-      sidebarTab !== initialUIRef.current.sidebarTab ||
-      showTerminalSettings !== initialUIRef.current.showTerminalSettings
-    ) {
-      uiInteractedRef.current = true
-    }
-  }, [mainView, sidebarTab, showTerminalSettings])
-
   useEffect(() => {
     let mounted = true
 
@@ -218,14 +195,6 @@ export function useWorkspacePersistence({
 
         prevTabsLengthRef.current = restoredTabs.length
         replaceTabState(restoredTabs, nextActiveTab)
-
-        if (!uiInteractedRef.current) {
-          if (clientState.main_view) setMainView(clientState.main_view)
-          if (clientState.sidebar_tab) setSidebarTab(clientState.sidebar_tab)
-          if (typeof clientState.show_terminal_settings === 'boolean') {
-            setShowTerminalSettings(clientState.show_terminal_settings)
-          }
-        }
       } finally {
         if (mounted) {
           isHydratingRef.current = false
@@ -238,7 +207,7 @@ export function useWorkspacePersistence({
     return () => {
       mounted = false
     }
-  }, [addSession, clearSessions, getConnection, replaceTabState, setConnections, setMainView, setSidebarTab, setShowTerminalSettings, prevTabsLengthRef])
+  }, [addSession, clearSessions, getConnection, replaceTabState, setConnections, prevTabsLengthRef])
 
   useEffect(() => {
     if (isHydratingRef.current) return
