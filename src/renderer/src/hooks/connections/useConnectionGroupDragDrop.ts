@@ -47,12 +47,12 @@ export function useConnectionGroupDragDrop({
   const handleGroupDragLeave = useCallback((event: DragEvent<HTMLElement>) => {
     event.preventDefault()
     event.stopPropagation()
-    setDropTargetGroupId((current) => {
-      if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
-        return current
-      }
-      return null
-    })
+
+    const currentTarget = event.currentTarget
+    const relatedTarget = event.relatedTarget as Node | null
+    if (!relatedTarget || !currentTarget.contains(relatedTarget)) {
+      setDropTargetGroupId(null)
+    }
   }, [])
 
   const handleGroupDrop = useCallback(
