@@ -5,6 +5,8 @@ import { toast } from 'sonner'
 import type { HistoryEntry } from '@renderer/types/history'
 import type { IPCMessage } from '@renderer/types'
 
+const normalizeCommand = (command: string): string => command.trim()
+
 export function useHistory() {
   const [history, setHistory] = useState<HistoryEntry[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,6 +39,10 @@ export function useHistory() {
       if (message.type !== 'history:add' || !message.data?.entry) return
       const entry = message.data.entry as HistoryEntry
       setHistory((prev) => {
+        const normalizedIncoming = normalizeCommand(entry.command)
+        if (prev.length > 0 && normalizeCommand(prev[0].command) === normalizedIncoming) {
+          return prev
+        }
         const withoutDuplicate = prev.filter((item) => item.id !== entry.id)
         return [entry, ...withoutDuplicate]
       })

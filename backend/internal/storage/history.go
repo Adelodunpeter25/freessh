@@ -2,6 +2,7 @@ package storage
 
 import (
 	"freessh-backend/internal/models"
+	"freessh-backend/internal/utils"
 	"sync"
 )
 
@@ -69,8 +70,15 @@ func (s *HistoryStorage) List() []models.HistoryEntry {
 func (s *HistoryStorage) Add(entry models.HistoryEntry) (bool, error) {
 	s.mu.Lock()
 
+	normalized := utils.NormalizeHistoryCommand(entry.Command)
+	if normalized == "" {
+		s.mu.Unlock()
+		return false, nil
+	}
+	entry.Command = normalized
+
 	// Skip if duplicate of last entry
-	if len(s.entries) > 0 && s.entries[len(s.entries)-1].Command == entry.Command {
+	if len(s.entries) > 0 && utils.NormalizeHistoryCommand(s.entries[len(s.entries)-1].Command) == normalized {
 		s.mu.Unlock()
 		return false, nil
 	}

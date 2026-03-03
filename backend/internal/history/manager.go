@@ -4,7 +4,6 @@ import (
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/storage"
 	"freessh-backend/internal/utils"
-	"strings"
 
 	"github.com/google/uuid"
 )
@@ -24,8 +23,8 @@ func (m *Manager) List() ([]models.HistoryEntry, error) {
 }
 
 func (m *Manager) Add(command string) (*models.HistoryEntry, error) {
-	// Trim whitespace and newlines
-	command = strings.TrimSpace(command)
+	// Normalize command before dedupe/storage checks.
+	command = utils.NormalizeHistoryCommand(command)
 
 	// Ignore empty commands
 	if command == "" {
@@ -37,8 +36,9 @@ func (m *Manager) Add(command string) (*models.HistoryEntry, error) {
 		return nil, nil
 	}
 
-	// Fast-path duplicate check against the most recent entry.
-	if !utils.ShouldAddToHistory(command, m.storage.GetRecent(1)) {
+	// Fast-path duplicate check against a short recent window to absorb
+	// shell hook retries and split marker replays.
+	if !utils.ShouldAddToHistory(command, m.storage.GetRecent(10)) {
 		return nil, nil
 	}
 
