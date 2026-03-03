@@ -1,12 +1,14 @@
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { toast } from 'sonner'
 import { ConnectionConfig } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Sheet } from '@/components/ui/sheet'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { useFormDirty } from '@/hooks'
 import { ConnectionFormGeneral } from './ConnectionFormGeneral'
 import { ConnectionFormCredentials } from './ConnectionFormCredentials'
+import { ConnectionFormProfile } from './ConnectionFormProfile'
 import { keychainService } from '@/services/ipc/keychain'
 
 interface ConnectionFormProps {
@@ -27,7 +29,13 @@ export function ConnectionForm({ isOpen, connection, mode, onConnect, onSave, on
     port: 22,
     username: '',
     auth_method: 'password',
-    private_key: ''
+    private_key: '',
+    profile: {
+      term: '',
+      font_size: undefined,
+      startup_command: '',
+      startup_command_delay_ms: undefined,
+    }
   }, [connection])
 
   const [formData, setFormData] = useState<Partial<ConnectionConfig>>(initialData)
@@ -35,8 +43,28 @@ export function ConnectionForm({ isOpen, connection, mode, onConnect, onSave, on
   const [passphrase, setPassphrase] = useState('')
   const [isConnecting, setIsConnecting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [activeTab, setActiveTab] = useState<'general' | 'credentials' | 'profile'>('general')
 
   const isDirty = useFormDirty(initialData, formData)
+
+  useEffect(() => {
+    setFormData(initialData)
+    setPassword('')
+    setPassphrase('')
+    setActiveTab('general')
+  }, [initialData, isOpen])
+
+  const validateForm = useCallback((config: ConnectionConfig): string | null => {
+    if (!config.name?.trim()) return 'Connection name is required'
+    if (!config.host?.trim()) return 'Host is required'
+    if (!Number.isFinite(config.port) || config.port <= 0) return 'Port must be a positive number'
+    if (!config.username?.trim()) return 'Username is required'
+    if (!config.auth_method) return 'Authentication method is required'
+    if (config.auth_method === 'publickey' && !config.key_id && !config.private_key?.trim()) {
+      return 'Private key or saved key selection is required for public key authentication'
+    }
+    return null
+  }, [])
 
   const handleClose = useCallback(() => {
     if (isDirty) {
@@ -51,6 +79,11 @@ export function ConnectionForm({ isOpen, connection, mode, onConnect, onSave, on
     setIsConnecting(true)
     try {
       const config = formData as ConnectionConfig
+      const validationError = validateForm(config)
+      if (validationError) {
+        toast.error(validationError)
+        return
+      }
       
       // Store credentials in keychain
       if (config.auth_method === 'password' && password) {
@@ -70,7 +103,7 @@ export function ConnectionForm({ isOpen, connection, mode, onConnect, onSave, on
     } finally {
       setIsConnecting(false)
     }
-  }, [isEditMode, onSave, formData, password, passphrase, onClose, onConnect])
+  }, [isEditMode, onSave, formData, password, passphrase, onClose, onConnect, validateForm])
 
   return (
     <>
@@ -90,15 +123,32 @@ export function ConnectionForm({ isOpen, connection, mode, onConnect, onSave, on
       >
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
-            <ConnectionFormGeneral formData={formData} onChange={setFormData} />
-            <ConnectionFormCredentials 
-              formData={formData} 
-              onChange={setFormData}
-              password={password}
-              onPasswordChange={setPassword}
-              passphrase={passphrase}
-              onPassphraseChange={setPassphrase}
-            />
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'general' | 'credentials' | 'profile')}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="general">General</TabsTrigger>
+                <TabsTrigger value="credentials">Credentials</TabsTrigger>
+                <TabsTrigger value="profile">Profile</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="general">
+                <ConnectionFormGeneral formData={formData} onChange={setFormData} />
+              </TabsContent>
+
+              <TabsContent value="credentials">
+                <ConnectionFormCredentials
+                  formData={formData}
+                  onChange={setFormData}
+                  password={password}
+                  onPasswordChange={setPassword}
+                  passphrase={passphrase}
+                  onPassphraseChange={setPassphrase}
+                />
+              </TabsContent>
+
+              <TabsContent value="profile">
+                <ConnectionFormProfile formData={formData} onChange={setFormData} />
+              </TabsContent>
+            </Tabs>
           </div>
 
           <div className="p-4 border-t border-border bg-background">

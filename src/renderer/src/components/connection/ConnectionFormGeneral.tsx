@@ -15,7 +15,6 @@ export function ConnectionFormGeneral({ formData, onChange }: ConnectionFormGene
         value={formData.name}
         onChange={(e) => onChange({ ...formData, name: e.target.value })}
         placeholder="Connection Name"
-        required
       />
 
       <GroupSelect
@@ -27,7 +26,6 @@ export function ConnectionFormGeneral({ formData, onChange }: ConnectionFormGene
         value={formData.host}
         onChange={(e) => onChange({ ...formData, host: e.target.value })}
         placeholder="Host"
-        required
       />
 
       <div className="flex items-center gap-2">
@@ -37,7 +35,6 @@ export function ConnectionFormGeneral({ formData, onChange }: ConnectionFormGene
           value={formData.port}
           onChange={(e) => onChange({ ...formData, port: parseInt(e.target.value) })}
           className="w-24"
-          required
         />
         <span className="text-sm text-muted-foreground">port</span>
       </div>

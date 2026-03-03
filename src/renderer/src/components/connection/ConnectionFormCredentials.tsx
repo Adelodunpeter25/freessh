@@ -55,7 +55,6 @@ export function ConnectionFormCredentials({
         value={formData.username}
         onChange={(e) => onChange({ ...formData, username: e.target.value })}
         placeholder="Username"
-        required
       />
 
       <Select

@@ -45,6 +45,7 @@ export function useConnectionHandlers({
     setFormMode('create')
     setEditingConnection({
       ...connection,
+      profile: connection.profile ? { ...connection.profile } : undefined,
       id: crypto.randomUUID(),
       name: `${connection.name} Copy`,
     })
