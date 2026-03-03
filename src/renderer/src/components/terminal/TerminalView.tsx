@@ -5,6 +5,7 @@ import { TerminalContextMenu } from '@/components/contextmenu/TerminalContextMen
 import { useTerminal } from '@/hooks'
 import { useTerminalActions } from '@/hooks'
 import { useKeyboardShortcuts } from '@/hooks'
+import { useSessionStore } from '@/stores/sessionStore'
 import { SearchAddon } from '@xterm/addon-search'
 import { Terminal as XTerm } from 'xterm'
 
@@ -16,6 +17,9 @@ interface TerminalViewProps {
 
 export function TerminalView({ sessionId, isActive = true, sidebarOpen = false }: TerminalViewProps) {
   const { sendInput, resize, setXterm } = useTerminal(sessionId)
+  const sessionItem = useSessionStore(useCallback((state) => state.getSession(sessionId), [sessionId]))
+  const profileFontSize = sessionItem?.connection?.profile?.font_size
+  const resolvedFontSize = typeof profileFontSize === 'number' && profileFontSize > 0 ? profileFontSize : undefined
   const [showSearch, setShowSearch] = useState(false)
   const [searchResults, setSearchResults] = useState<{ index: number, total: number } | null>(null)
   const searchAddonRef = useRef<SearchAddon | null>(null)
@@ -94,6 +98,7 @@ export function TerminalView({ sessionId, isActive = true, sidebarOpen = false }
         <TerminalPane
           key={sessionId}
           sessionId={sessionId}
+          fontSizeOverride={resolvedFontSize}
           onData={sendInput}
           onResize={handleResize}
           onReady={handleReady}

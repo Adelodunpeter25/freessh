@@ -10,6 +10,7 @@ import './terminal-search.css'
 
 interface TerminalPaneProps {
   sessionId: string
+  fontSizeOverride?: number
   onData: (data: string) => void
   onResize: (cols: number, rows: number) => void
   onReady: (xterm: XTerm, searchAddon: SearchAddon) => void
@@ -20,6 +21,7 @@ interface TerminalPaneProps {
 
 export const TerminalPane = memo(function TerminalPane({
   sessionId,
+  fontSizeOverride,
   onData,
   onResize,
   onReady,
@@ -37,6 +39,7 @@ export const TerminalPane = memo(function TerminalPane({
   const lastResizeRef = useRef<{ cols: number; rows: number } | null>(null)
   const theme = useTerminalThemeStore((state) => state.getTheme())
   const { fontFamily, fontSize, fontWeight } = useTerminalFontStore()
+  const effectiveFontSize = fontSizeOverride && fontSizeOverride > 0 ? fontSizeOverride : fontSize
 
   useEffect(() => {
     onDataRef.current = onData
@@ -105,13 +108,13 @@ export const TerminalPane = memo(function TerminalPane({
   useEffect(() => {
     if (xtermRef.current) {
       xtermRef.current.options.fontFamily = fontFamily
-      xtermRef.current.options.fontSize = fontSize
+      xtermRef.current.options.fontSize = effectiveFontSize
       xtermRef.current.options.fontWeight = fontWeight as any
 
       // Refit after font change
       scheduleFit()
     }
-  }, [fontFamily, fontSize, fontWeight, scheduleFit])
+  }, [effectiveFontSize, fontFamily, fontWeight, scheduleFit])
 
   useEffect(() => {
     if (!terminalRef.current) return
@@ -119,7 +122,7 @@ export const TerminalPane = memo(function TerminalPane({
     const xterm = new XTerm({
       cursorBlink: true,
       allowProposedApi: true,
-      fontSize,
+      fontSize: effectiveFontSize,
       fontFamily: fontFamily || 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
       fontWeight: fontWeight as any,
       letterSpacing: 0,
@@ -176,7 +179,7 @@ export const TerminalPane = memo(function TerminalPane({
       xtermRef.current = null
       fitAddonRef.current = null
     }
-  }, [onReady, scheduleFit, sessionId])
+  }, [effectiveFontSize, fontFamily, fontWeight, onReady, scheduleFit, sessionId])
 
   return (
     <div className="h-full w-full" style={{ backgroundColor: theme.background }}>
