@@ -15,9 +15,9 @@ type ImportOpenSSHHandler struct {
 func NewImportOpenSSHHandler(connStorage *storage.ConnectionStorage, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *ImportOpenSSHHandler {
 	keyStorage, _ := storage.NewKeyStorage()
 	keyFileStorage, _ := storage.NewKeyFileStorage()
-	
+
 	return &ImportOpenSSHHandler{
-		importManager: importpkg.NewManager(connStorage, groupStorage, pfStorage, keyStorage, keyFileStorage),
+		importManager: importpkg.NewManager(connStorage, groupStorage, pfStorage, nil, nil, keyStorage, keyFileStorage),
 	}
 }
 

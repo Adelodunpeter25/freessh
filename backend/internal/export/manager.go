@@ -13,27 +13,41 @@ type Manager struct {
 	connectionStorage *storage.ConnectionStorage
 	groupStorage      *storage.GroupStorage
 	pfStorage         *storage.PortForwardStorage
+	snippetStorage    *storage.SnippetStorage
+	knownHostStorage  *storage.KnownHostStorage
 	keyStorage        *storage.KeyStorage
 	keyFileStorage    *storage.KeyFileStorage
 }
 
-func NewManager(connStorage *storage.ConnectionStorage, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage, keyStorage *storage.KeyStorage, keyFileStorage *storage.KeyFileStorage) *Manager {
+func NewManager(
+	connStorage *storage.ConnectionStorage,
+	groupStorage *storage.GroupStorage,
+	pfStorage *storage.PortForwardStorage,
+	snippetStorage *storage.SnippetStorage,
+	knownHostStorage *storage.KnownHostStorage,
+	keyStorage *storage.KeyStorage,
+	keyFileStorage *storage.KeyFileStorage,
+) *Manager {
 	return &Manager{
 		connectionStorage: connStorage,
 		groupStorage:      groupStorage,
 		pfStorage:         pfStorage,
+		snippetStorage:    snippetStorage,
+		knownHostStorage:  knownHostStorage,
 		keyStorage:        keyStorage,
 		keyFileStorage:    keyFileStorage,
 	}
 }
 
 type ExportData struct {
-	Version      string                       `json:"version"`
-	ExportedAt   time.Time                    `json:"exported_at"`
-	Connections  []models.ConnectionConfig    `json:"connections"`
-	Groups       []models.Group               `json:"groups"`
-	PortForwards []models.PortForwardConfig   `json:"port_forwards"`
-	Keys         []ExportedKey                `json:"keys,omitempty"`
+	Version      string                     `json:"version"`
+	ExportedAt   time.Time                  `json:"exported_at"`
+	Connections  []models.ConnectionConfig  `json:"connections"`
+	Groups       []models.Group             `json:"groups"`
+	PortForwards []models.PortForwardConfig `json:"port_forwards"`
+	Snippets     []models.Snippet           `json:"snippets,omitempty"`
+	KnownHosts   []models.KnownHost         `json:"known_hosts,omitempty"`
+	Keys         []ExportedKey              `json:"keys,omitempty"`
 }
 
 type ExportedKey struct {
@@ -69,6 +83,19 @@ func (m *Manager) exportFreeSSH() ([]byte, error) {
 	connections := m.connectionStorage.List()
 	groups := m.groupStorage.List()
 	portForwards := m.pfStorage.GetAll()
+	snippets := make([]models.Snippet, 0)
+	if m.snippetStorage != nil {
+		snippets = m.snippetStorage.List()
+	}
+	knownHosts := make([]models.KnownHost, 0)
+	if m.knownHostStorage != nil {
+		for _, host := range m.knownHostStorage.GetAll() {
+			if host == nil {
+				continue
+			}
+			knownHosts = append(knownHosts, *host)
+		}
+	}
 
 	// Convert pointer slice to value slice
 	pfConfigs := make([]models.PortForwardConfig, len(portForwards))
@@ -115,6 +142,8 @@ func (m *Manager) exportFreeSSH() ([]byte, error) {
 		Connections:  connections,
 		Groups:       groups,
 		PortForwards: pfConfigs,
+		Snippets:     snippets,
+		KnownHosts:   knownHosts,
 		Keys:         exportedKeys,
 	}
 

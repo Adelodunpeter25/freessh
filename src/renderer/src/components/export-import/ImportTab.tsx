@@ -56,7 +56,7 @@ export function ImportTab() {
             <label htmlFor="import-format-freessh" className="flex-1 cursor-pointer">
               <div className="font-medium">FreeSSH Format</div>
               <div className="text-xs text-muted-foreground">
-                Import connections, groups, port forwards, and keys from JSON
+                Import connections, groups, port forwards, snippets, known hosts, and keys from JSON
               </div>
             </label>
           </div>
@@ -74,7 +74,7 @@ export function ImportTab() {
             <label htmlFor="import-format-openssh" className="flex-1 cursor-pointer">
               <div className="font-medium">OpenSSH Config</div>
               <div className="text-xs text-muted-foreground">
-                Import connections from OpenSSH config file (~/.ssh/config)
+                Import connection hosts from OpenSSH config file (~/.ssh/config)
               </div>
             </label>
           </div>

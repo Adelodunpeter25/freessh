@@ -12,12 +12,18 @@ type ImportFreeSSHHandler struct {
 	importManager *importpkg.Manager
 }
 
-func NewImportFreeSSHHandler(connStorage *storage.ConnectionStorage, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *ImportFreeSSHHandler {
+func NewImportFreeSSHHandler(
+	connStorage *storage.ConnectionStorage,
+	groupStorage *storage.GroupStorage,
+	pfStorage *storage.PortForwardStorage,
+	snippetStorage *storage.SnippetStorage,
+	knownHostStorage *storage.KnownHostStorage,
+) *ImportFreeSSHHandler {
 	keyStorage, _ := storage.NewKeyStorage()
 	keyFileStorage, _ := storage.NewKeyFileStorage()
-	
+
 	return &ImportFreeSSHHandler{
-		importManager: importpkg.NewManager(connStorage, groupStorage, pfStorage, keyStorage, keyFileStorage),
+		importManager: importpkg.NewManager(connStorage, groupStorage, pfStorage, snippetStorage, knownHostStorage, keyStorage, keyFileStorage),
 	}
 }
 
@@ -48,6 +54,8 @@ func (h *ImportFreeSSHHandler) Handle(msg *models.IPCMessage, writer ResponseWri
 			GroupsImported:       result.GroupsImported,
 			PortForwardsImported: result.PortForwardsImported,
 			KeysImported:         result.KeysImported,
+			SnippetsImported:     result.SnippetsImported,
+			KnownHostsImported:   result.KnownHostsImported,
 			Errors:               result.Errors,
 		},
 	})

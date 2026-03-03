@@ -166,7 +166,21 @@ func NewServer() *Server {
 					if portErr != nil {
 						return nil, fmt.Errorf("failed to initialize port forward storage: %w", portErr)
 					}
-					return handlers.NewExportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage), nil
+					snippetStorage, snippetErr := storage.NewSnippetStorage()
+					if snippetErr != nil {
+						return nil, fmt.Errorf("failed to initialize snippet storage: %w", snippetErr)
+					}
+					knownHostStorage, knownHostErr := storage.NewKnownHostStorage()
+					if knownHostErr != nil {
+						return nil, fmt.Errorf("failed to initialize known host storage: %w", knownHostErr)
+					}
+					return handlers.NewExportFreeSSHHandler(
+						manager.GetConnectionStorage(),
+						groupStorage,
+						portForwardStorage,
+						snippetStorage,
+						knownHostStorage,
+					), nil
 				},
 			),
 			handlers.NewLazyHandler(
@@ -180,7 +194,21 @@ func NewServer() *Server {
 					if portErr != nil {
 						return nil, fmt.Errorf("failed to initialize port forward storage: %w", portErr)
 					}
-					return handlers.NewImportFreeSSHHandler(manager.GetConnectionStorage(), groupStorage, portForwardStorage), nil
+					snippetStorage, snippetErr := storage.NewSnippetStorage()
+					if snippetErr != nil {
+						return nil, fmt.Errorf("failed to initialize snippet storage: %w", snippetErr)
+					}
+					knownHostStorage, knownHostErr := storage.NewKnownHostStorage()
+					if knownHostErr != nil {
+						return nil, fmt.Errorf("failed to initialize known host storage: %w", knownHostErr)
+					}
+					return handlers.NewImportFreeSSHHandler(
+						manager.GetConnectionStorage(),
+						groupStorage,
+						portForwardStorage,
+						snippetStorage,
+						knownHostStorage,
+					), nil
 				},
 			),
 			handlers.NewLazyHandler(

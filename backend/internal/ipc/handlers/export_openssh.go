@@ -15,9 +15,9 @@ type ExportOpenSSHHandler struct {
 func NewExportOpenSSHHandler(connStorage *storage.ConnectionStorage, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *ExportOpenSSHHandler {
 	keyStorage, _ := storage.NewKeyStorage()
 	keyFileStorage, _ := storage.NewKeyFileStorage()
-	
+
 	return &ExportOpenSSHHandler{
-		exportManager: export.NewManager(connStorage, groupStorage, pfStorage, keyStorage, keyFileStorage),
+		exportManager: export.NewManager(connStorage, groupStorage, pfStorage, nil, nil, keyStorage, keyFileStorage),
 	}
 }
 

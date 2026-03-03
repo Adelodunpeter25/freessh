@@ -17,7 +17,9 @@ export const useImport = () => {
         `${result.connections_imported} connections`,
         `${result.groups_imported} groups`,
         `${result.port_forwards_imported} port forwards`,
-        `${result.keys_imported} keys`
+        `${result.keys_imported} keys`,
+        `${result.snippets_imported} snippets`,
+        `${result.known_hosts_imported} known hosts`
       ]
       
       if (result.errors && result.errors.length > 0) {
@@ -52,8 +54,7 @@ export const useImport = () => {
       const result = await importOpenSSHService.import(data)
       
       const messages = [
-        `${result.connections_imported} connections`,
-        `${result.keys_imported} keys`
+        `${result.connections_imported} connections`
       ]
       
       if (result.errors && result.errors.length > 0) {

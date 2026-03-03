@@ -12,12 +12,18 @@ type ExportFreeSSHHandler struct {
 	exportManager *export.Manager
 }
 
-func NewExportFreeSSHHandler(connStorage *storage.ConnectionStorage, groupStorage *storage.GroupStorage, pfStorage *storage.PortForwardStorage) *ExportFreeSSHHandler {
+func NewExportFreeSSHHandler(
+	connStorage *storage.ConnectionStorage,
+	groupStorage *storage.GroupStorage,
+	pfStorage *storage.PortForwardStorage,
+	snippetStorage *storage.SnippetStorage,
+	knownHostStorage *storage.KnownHostStorage,
+) *ExportFreeSSHHandler {
 	keyStorage, _ := storage.NewKeyStorage()
 	keyFileStorage, _ := storage.NewKeyFileStorage()
-	
+
 	return &ExportFreeSSHHandler{
-		exportManager: export.NewManager(connStorage, groupStorage, pfStorage, keyStorage, keyFileStorage),
+		exportManager: export.NewManager(connStorage, groupStorage, pfStorage, snippetStorage, knownHostStorage, keyStorage, keyFileStorage),
 	}
 }
 

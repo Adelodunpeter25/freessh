@@ -16,6 +16,9 @@ export interface ImportFreeSSHResponse {
   connections_imported: number
   groups_imported: number
   port_forwards_imported: number
+  keys_imported: number
+  snippets_imported: number
+  known_hosts_imported: number
   errors?: string[]
 }
 

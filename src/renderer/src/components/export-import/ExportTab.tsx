@@ -34,7 +34,7 @@ export function ExportTab() {
             <label htmlFor="format-freessh" className="flex-1 cursor-pointer">
               <div className="font-medium">FreeSSH Format</div>
               <div className="text-xs text-muted-foreground">
-                Export all connections, groups, port forwards, and keys to JSON
+                Export connections, groups, port forwards, snippets, known hosts, and keys to JSON
               </div>
             </label>
           </div>
