@@ -1,5 +1,5 @@
 import sharp from 'sharp'
-import { mkdirSync, rmSync } from 'fs'
+import { mkdirSync, rmSync, writeFileSync } from 'fs'
 import { execSync } from 'child_process'
 import { join } from 'path'
 
@@ -8,6 +8,26 @@ const inputSvg = 'src/renderer/src/assets/icon.svg'
 const iconsetDir = 'build/icon.iconset'
 const outputIcns = 'build/icon.icns'
 const outputPng = 'build/icon.png'
+const outputIco = 'build/icon.ico'
+
+function buildIcoFromPng(png: Buffer): Buffer {
+  const header = Buffer.alloc(6)
+  header.writeUInt16LE(0, 0) // reserved
+  header.writeUInt16LE(1, 2) // type: icon
+  header.writeUInt16LE(1, 4) // image count
+
+  const entry = Buffer.alloc(16)
+  entry.writeUInt8(0, 0) // width: 0 means 256
+  entry.writeUInt8(0, 1) // height: 0 means 256
+  entry.writeUInt8(0, 2) // color count
+  entry.writeUInt8(0, 3) // reserved
+  entry.writeUInt16LE(1, 4) // planes
+  entry.writeUInt16LE(32, 6) // bits per pixel
+  entry.writeUInt32LE(png.length, 8) // image size
+  entry.writeUInt32LE(6 + 16, 12) // image offset
+
+  return Buffer.concat([header, entry, png])
+}
 
 async function generateIcons() {
   // Clean and create iconset directory
@@ -37,11 +57,12 @@ async function generateIcons() {
     .png()
     .toFile(outputPng)
 
-  // Generate .ico for Windows
-  await sharp(inputSvg)
+  // Generate .ico for Windows (valid ICO container with PNG payload)
+  const png256 = await sharp(inputSvg)
     .resize(256, 256)
     .png()
-    .toFile('build/icon.ico')
+    .toBuffer()
+  writeFileSync(outputIco, buildIcoFromPng(png256))
 
   // Generate .icns using iconutil (macOS only)
   try {
@@ -55,6 +76,7 @@ async function generateIcons() {
   rmSync(iconsetDir, { recursive: true, force: true })
 
   console.log('Generated:', outputPng)
+  console.log('Generated:', outputIco)
   console.log('Done!')
 }
 
