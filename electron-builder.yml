@@ -34,6 +34,7 @@ win:
         - x64
 linux:
   category: Utility
+  maintainer: Adelodun Peter <adelodunpeter69@gmail.com>
   target:
     - target: deb
       arch:

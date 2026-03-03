@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Free SSH Client Application",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": {
+    "name": "Adelodun Peter",
+    "email": "adelodunpeter69@gmail.com"
+  },
   "homepage": "https://electron-vite.org",
   "scripts": {
     "start": "electron-vite preview",
