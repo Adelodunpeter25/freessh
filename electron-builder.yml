@@ -25,6 +25,21 @@ mac:
     - target: dmg
       arch:
         - x64
+        - arm64
+win:
+  target:
+    - target: msi
+      arch:
+        - x64
+linux:
+  category: Utility
+  target:
+    - target: deb
+      arch:
+        - x64
+    - target: AppImage
+      arch:
+        - x64
 dmg:
   title: FreeSSH
 npmRebuild: false
