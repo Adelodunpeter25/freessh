@@ -6,7 +6,7 @@ All notable changes to this project are documented in this file.
 
 Initial public release of FreeSSH.
 
-### Added
+### Features
 - Local-first SSH client for macOS, Windows, and Linux.
 - Saved connection management with create, edit, duplicate, delete, and quick connect flows.
 - Connection groups for organizing hosts, including drag-and-drop move to group.
@@ -14,10 +14,7 @@ Initial public release of FreeSSH.
 - Known-host verification dialog and trusted host management.
 - Local terminal and remote SSH terminal sessions.
 - Multi-session tab workflow with session context actions.
-- Terminal profile settings per connection:
-  - TERM preset/custom value
-  - Per-connection font size
-  - Startup command and startup delay
+- Terminal profile settings per connection.
 - Command history capture and reusable command snippets with placeholders.
 - SFTP file manager for remote browsing and transfer workflows.
 - Remote file preview with text/code highlighting support.
@@ -27,9 +24,7 @@ Initial public release of FreeSSH.
 - Import/Export support:
   - FreeSSH format (connections, groups, keys, snippets, known hosts, port-forwards)
   - OpenSSH import/export compatibility flows.
-- Workspace persistence foundation and session restoration support.
 - Multi-platform desktop release pipeline via GitHub Actions:
   - macOS DMG (x64, arm64)
   - Windows MSI (x64)
   - Linux DEB and AppImage (x64)
-
