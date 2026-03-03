@@ -130,15 +130,17 @@ export function ConnectionForm({ isOpen, connection, mode, onConnect, onSave, on
               </TabsList>
 
               <TabsContent value="general">
-                <ConnectionFormGeneral formData={formData} onChange={setFormData} />
-                <ConnectionFormCredentials
-                  formData={formData}
-                  onChange={setFormData}
-                  password={password}
-                  onPasswordChange={setPassword}
-                  passphrase={passphrase}
-                  onPassphraseChange={setPassphrase}
-                />
+                <div className="space-y-6">
+                  <ConnectionFormGeneral formData={formData} onChange={setFormData} />
+                  <ConnectionFormCredentials
+                    formData={formData}
+                    onChange={setFormData}
+                    password={password}
+                    onPasswordChange={setPassword}
+                    passphrase={passphrase}
+                    onPassphraseChange={setPassphrase}
+                  />
+                </div>
               </TabsContent>
 
               <TabsContent value="profile">
