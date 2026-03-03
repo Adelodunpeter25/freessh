@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Server } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet } from '@/components/ui/sheet'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useConnections } from '@/hooks'
+import { useOSTypeStore } from '@/stores/osTypeStore'
+import { getOSIcon } from '@/utils/osIcons'
 
 interface ExportKeySidebarProps {
   keyId: string
@@ -15,6 +16,7 @@ interface ExportKeySidebarProps {
 
 export function ExportKeySidebar({ keyId, keyName, isOpen, onClose, onExport }: ExportKeySidebarProps) {
   const { connections, loading } = useConnections()
+  const getOSType = useOSTypeStore((state) => state.getOSType)
   const [selectedConnectionId, setSelectedConnectionId] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
 
@@ -54,29 +56,34 @@ export function ExportKeySidebar({ keyId, keyName, isOpen, onClose, onExport }: 
                 <p className="text-muted-foreground">No connections available</p>
               </div>
             ) : (
-              connections.map((connection) => (
-                <div
-                  key={connection.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-                    selectedConnectionId === connection.id
-                      ? 'bg-primary/10 border-primary'
-                      : 'border-border hover:bg-muted/50'
-                  }`}
-                  onClick={() => setSelectedConnectionId(connection.id)}
-                >
-                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
-                    <Server className="h-5 w-5 text-primary" />
+              connections.map((connection) => {
+                const osType = getOSType(connection.id)
+                const OSIcon = getOSIcon(osType)
+
+                return (
+                  <div
+                    key={connection.id}
+                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                      selectedConnectionId === connection.id
+                        ? 'bg-primary/10 border-primary'
+                        : 'border-border hover:bg-muted/50'
+                    }`}
+                    onClick={() => setSelectedConnectionId(connection.id)}
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+                      <OSIcon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-semibold text-foreground truncate">
+                        {connection.name}
+                      </h3>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {connection.username}@{connection.host}:{connection.port}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-foreground truncate">
-                      {connection.name}
-                    </h3>
-                    <p className="text-xs text-muted-foreground truncate">
-                      {connection.username}@{connection.host}:{connection.port}
-                    </p>
-                  </div>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         </ScrollArea>
