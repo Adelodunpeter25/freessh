@@ -1,5 +1,6 @@
 appId: com.freessh.app
 productName: FreeSSH
+artifactName: ${productName}-${version}-${os}-${arch}.${ext}
 directories:
   buildResources: build
 files:
@@ -25,7 +26,6 @@ mac:
       arch:
         - x64
 dmg:
-  artifactName: ${name}.${ext}
   title: FreeSSH
 npmRebuild: false
 extraMetadata:
