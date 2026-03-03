@@ -221,7 +221,7 @@ func configureShellStartup(shell string, env map[string]string) ([]string, func(
 			return nil, nil, fmt.Errorf("failed to create bash startup file: %w", err)
 		}
 
-		content := "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi\n" + freesshhistory.ShellHistoryHookScriptBashZsh + "\n"
+		content := "if [ -f ~/.bashrc ]; then . ~/.bashrc; fi\n" + freesshhistory.ShellHistoryHookScriptBash + "\n"
 		if _, err := rcFile.WriteString(content); err != nil {
 			rcFile.Close()
 			_ = os.Remove(rcFile.Name())
@@ -241,7 +241,7 @@ func configureShellStartup(shell string, env map[string]string) ([]string, func(
 		}
 
 		rcPath := filepath.Join(dotDir, ".zshrc")
-		content := "if [ -f ~/.zshrc ]; then source ~/.zshrc; fi\n" + freesshhistory.ShellHistoryHookScriptBashZsh + "\n"
+		content := "if [ -f ~/.zshrc ]; then source ~/.zshrc; fi\n" + freesshhistory.ShellHistoryHookScriptZsh + "\n"
 		if err := os.WriteFile(rcPath, []byte(content), 0o600); err != nil {
 			_ = os.RemoveAll(dotDir)
 			return nil, nil, fmt.Errorf("failed to write zsh startup file: %w", err)
