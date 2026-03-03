@@ -1,32 +1,8 @@
 import { useEffect } from 'react'
 import { useTabStore } from '@/stores/tabStore'
-
-const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0
-
-const normalizeKey = (key: string): string => {
-  return key.toLowerCase()
-}
-
-const getModifierKey = (e: KeyboardEvent): string => {
-  const modifiers: string[] = []
-  
-  if (e.ctrlKey || (isMac && e.metaKey)) modifiers.push('cmd')
-  if (e.shiftKey) modifiers.push('shift')
-  if (e.altKey) modifiers.push('alt')
-  
-  return modifiers.join('+')
-}
-
-const buildShortcutKey = (e: KeyboardEvent): string => {
-  const modifier = getModifierKey(e)
-  const key = normalizeKey(e.key)
-  
-  if (modifier) {
-    return `${modifier}+${key}`
-  }
-  
-  return key
-}
+import { useShortcutSettings } from '@/hooks/keyboardshortcuts'
+import { buildShortcutKeyFromEvent, isEditableTarget } from '@/hooks/keyboardshortcuts'
+import type { ShortcutAction } from '@/hooks/keyboardshortcuts'
 
 interface ShortcutHandlers {
   onSwitchTab?: (index: number) => void
@@ -46,16 +22,14 @@ interface ShortcutHandlers {
 export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true) {
   const tabs = useTabStore((state) => state.tabs)
   const setActiveTab = useTabStore((state) => state.setActiveTab)
+  const { actionByShortcut } = useShortcutSettings()
 
   useEffect(() => {
     if (!enabled) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      const shortcutKey = buildShortcutKey(e)
-      const target = e.target as HTMLElement | null
-      const isEditable = target instanceof HTMLInputElement ||
-        target instanceof HTMLTextAreaElement ||
-        !!target?.isContentEditable
+      const shortcutKey = buildShortcutKeyFromEvent(e)
+      const isEditable = isEditableTarget(e.target)
       
       // Navigation shortcuts
       if (shortcutKey.match(/^cmd\+[1-9]$/)) {
@@ -77,62 +51,60 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
         return
       }
 
-      switch (shortcutKey) {
-        // Navigation
-        case 'cmd+t':
+      const action = actionByShortcut.get(shortcutKey)
+
+      switch (action as ShortcutAction | undefined) {
+        case 'new_connection':
           e.preventDefault()
           handlers.onNewConnection?.()
           break
         
-        case 'cmd+l':
+        case 'new_local_terminal':
           e.preventDefault()
           handlers.onNewLocalTerminal?.()
           break
 
-        case 'cmd+p':
+        case 'open_command_palette':
           e.preventDefault()
           handlers.onOpenCommandPalette?.()
           break
         
-        case 'cmd+w':
+        case 'close_tab':
           e.preventDefault()
           handlers.onCloseTab?.()
           break
         
-        case 'cmd+,':
+        case 'open_settings':
           e.preventDefault()
           handlers.onOpenSettings?.()
           break
         
-        case 'cmd+?':
-        case 'cmd+shift+/':
+        case 'show_shortcuts':
           e.preventDefault()
           handlers.onShowShortcuts?.()
           break
 
-        case 'cmd+s':
+        case 'toggle_terminal_sidebar':
           e.preventDefault()
           handlers.onToggleTerminalSidebar?.()
           break
         
-        // Terminal
-        case 'cmd+k':
+        case 'clear_terminal':
           e.preventDefault()
           handlers.onClearTerminal?.()
           break
         
-        case 'cmd+f':
+        case 'search_terminal':
           e.preventDefault()
           handlers.onSearchTerminal?.()
           break
         
-        // SFTP
-        case 'cmd+r':
+        case 'refresh_sftp':
           e.preventDefault()
           handlers.onRefreshSFTP?.()
           break
         
-        case 'delete':
+        case 'delete_file':
           // Only if not in input field
           if (!isEditable) {
             e.preventDefault()
@@ -144,5 +116,5 @@ export function useKeyboardShortcuts(handlers: ShortcutHandlers, enabled = true)
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handlers, enabled, tabs, setActiveTab])
+  }, [handlers, enabled, tabs, setActiveTab, actionByShortcut])
 }
