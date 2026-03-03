@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -12,12 +13,23 @@ interface ConnectionFormProfileProps {
 export function ConnectionFormProfile({ formData, onChange }: ConnectionFormProfileProps) {
   const profile = formData.profile || {}
   const selectedTerm = profile.term || ''
-  const termSelectValue =
-    selectedTerm === ''
+  const [isCustomTerm, setIsCustomTerm] = useState<boolean>(selectedTerm !== '' && !isKnownTermValue(selectedTerm))
+
+  useEffect(() => {
+    if (selectedTerm === '') {
+      setIsCustomTerm(false)
+      return
+    }
+    if (!isKnownTermValue(selectedTerm)) {
+      setIsCustomTerm(true)
+    }
+  }, [selectedTerm])
+
+  const termSelectValue = isCustomTerm
+    ? CUSTOM_TERM_VALUE
+    : selectedTerm === ''
       ? DEFAULT_TERM_VALUE
-      : isKnownTermValue(selectedTerm)
-        ? selectedTerm
-        : CUSTOM_TERM_VALUE
+      : selectedTerm
 
   return (
     <div className="space-y-4">
@@ -27,15 +39,34 @@ export function ConnectionFormProfile({ formData, onChange }: ConnectionFormProf
         <p className="text-xs text-muted-foreground">TERM</p>
         <Select
           value={termSelectValue}
-          onValueChange={(value) =>
+          onValueChange={(value) => {
+            if (value === DEFAULT_TERM_VALUE) {
+              setIsCustomTerm(false)
+              onChange({
+                ...formData,
+                profile: { ...profile, term: '' },
+              })
+              return
+            }
+
+            if (value === CUSTOM_TERM_VALUE) {
+              setIsCustomTerm(true)
+              onChange({
+                ...formData,
+                profile: {
+                  ...profile,
+                  term: selectedTerm && !isKnownTermValue(selectedTerm) ? selectedTerm : '',
+                },
+              })
+              return
+            }
+
+            setIsCustomTerm(false)
             onChange({
               ...formData,
-              profile: {
-                ...profile,
-                term: value === DEFAULT_TERM_VALUE ? '' : value === CUSTOM_TERM_VALUE ? selectedTerm : value,
-              },
+              profile: { ...profile, term: value },
             })
-          }
+          }}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select TERM value" />
@@ -50,7 +81,7 @@ export function ConnectionFormProfile({ formData, onChange }: ConnectionFormProf
             <SelectItem value={CUSTOM_TERM_VALUE}>Custom value</SelectItem>
           </SelectContent>
         </Select>
-        {termSelectValue === CUSTOM_TERM_VALUE && (
+        {isCustomTerm && (
           <Input
             value={selectedTerm}
             onChange={(e) =>
