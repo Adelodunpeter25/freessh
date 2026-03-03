@@ -34,7 +34,6 @@ jobs:
             pack_cmd: bunx electron-builder --mac dmg --arm64 --publish never
             artifact_glob: |
               dist/*.dmg
-              dist/latest-mac.yml
           - name: Windows MSI (x64)
             os: windows-latest
             goos: windows
