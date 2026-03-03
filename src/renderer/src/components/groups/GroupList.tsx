@@ -1,5 +1,6 @@
 import { GroupCard } from './GroupCard'
 import { Group } from '@/types'
+import { DragEvent } from 'react'
 
 interface GroupListProps {
   groups: Group[]
@@ -8,6 +9,10 @@ interface GroupListProps {
   onEdit: (group: Group) => void
   onDelete: (id: string) => void
   onOpen: (group: Group) => void
+  dropTargetGroupId: string | null
+  onDragOver: (group: Group, event: DragEvent<HTMLElement>) => void
+  onDragLeave: (event: DragEvent<HTMLElement>) => void
+  onDrop: (group: Group, event: DragEvent<HTMLElement>) => void
 }
 
 export function GroupList({ 
@@ -16,7 +21,11 @@ export function GroupList({
   onSelect, 
   onEdit, 
   onDelete,
-  onOpen
+  onOpen,
+  dropTargetGroupId,
+  onDragOver,
+  onDragLeave,
+  onDrop,
 }: GroupListProps) {
   if (groups.length === 0) {
     return (
@@ -38,6 +47,10 @@ export function GroupList({
           onEdit={onEdit}
           onDelete={onDelete}
           onOpen={onOpen}
+          isDropTarget={dropTargetGroupId === group.id}
+          onDragOver={onDragOver}
+          onDragLeave={onDragLeave}
+          onDrop={onDrop}
         />
       ))}
     </div>

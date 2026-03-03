@@ -4,6 +4,7 @@ import { Group } from '@/types'
 import { GroupCardContextMenu } from '@/components/contextmenu'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { DragEvent } from 'react'
 
 interface GroupCardProps {
   group: Group
@@ -12,6 +13,10 @@ interface GroupCardProps {
   onEdit: (group: Group) => void
   onDelete: (id: string) => void
   onOpen: (group: Group) => void
+  isDropTarget: boolean
+  onDragOver: (group: Group, event: DragEvent<HTMLElement>) => void
+  onDragLeave: (event: DragEvent<HTMLElement>) => void
+  onDrop: (group: Group, event: DragEvent<HTMLElement>) => void
 }
 
 export const GroupCard = memo(function GroupCard({ 
@@ -20,7 +25,11 @@ export const GroupCard = memo(function GroupCard({
   onSelect, 
   onEdit, 
   onDelete,
-  onOpen
+  onOpen,
+  isDropTarget,
+  onDragOver,
+  onDragLeave,
+  onDrop,
 }: GroupCardProps) {
   const connectionCount = group.connection_count ?? 0
   const connectionSummary =
@@ -36,6 +45,9 @@ export const GroupCard = memo(function GroupCard({
     >
       <div
         className={`group flex items-center gap-4 p-4 rounded-xl border transition-all select-none animate-scale-in ${
+          isDropTarget
+            ? 'bg-primary/10 border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)]'
+            :
           selected 
             ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)] cursor-pointer' 
             : 'bg-card border-border hover:border-primary/30 shadow-sm hover:shadow-md cursor-pointer'
@@ -51,6 +63,9 @@ export const GroupCard = memo(function GroupCard({
         onDoubleClick={() => {
           onOpen(group)
         }}
+        onDragOver={(event) => onDragOver(group, event)}
+        onDragLeave={onDragLeave}
+        onDrop={(event) => onDrop(group, event)}
       >
         <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
           <Folder className="h-5 w-5 text-primary" />

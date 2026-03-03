@@ -5,6 +5,7 @@ import { Group } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
+import { DragEvent } from 'react'
 
 interface GroupsSectionProps {
   groups: Group[]
@@ -14,6 +15,10 @@ interface GroupsSectionProps {
   onEditGroup: (group: Group) => void
   onDeleteGroup: (id: string) => void
   onOpenGroup: (group: Group) => void
+  dropTargetGroupId: string | null
+  onGroupDragOver: (group: Group, event: DragEvent<HTMLElement>) => void
+  onGroupDragLeave: (event: DragEvent<HTMLElement>) => void
+  onGroupDrop: (group: Group, event: DragEvent<HTMLElement>) => void
 }
 
 export function GroupsSection({ 
@@ -23,7 +28,11 @@ export function GroupsSection({
   onSelectGroup, 
   onEditGroup, 
   onDeleteGroup,
-  onOpenGroup
+  onOpenGroup,
+  dropTargetGroupId,
+  onGroupDragOver,
+  onGroupDragLeave,
+  onGroupDrop,
 }: GroupsSectionProps) {
   const [collapsed, setCollapsed] = useState(false)
 
@@ -71,6 +80,10 @@ export function GroupsSection({
             onEdit={onEditGroup}
             onDelete={onDeleteGroup}
             onOpen={onOpenGroup}
+            dropTargetGroupId={dropTargetGroupId}
+            onDragOver={onGroupDragOver}
+            onDragLeave={onGroupDragLeave}
+            onDrop={onGroupDrop}
           />
         )}
       </div>

@@ -1,4 +1,4 @@
-import { createContext, useContext, ReactNode } from 'react'
+import { createContext, useContext, ReactNode, DragEvent } from 'react'
 import { ConnectionConfig } from '@/types'
 import { HostKeyVerification } from '@/types/knownHost'
 
@@ -27,6 +27,8 @@ interface ConnectionsContextValue {
   onNewGroup: () => void
   onVerificationTrust: () => void
   onVerificationCancel: () => void
+  onConnectionDragStart: (connection: ConnectionConfig, event: DragEvent<HTMLElement>) => void
+  onConnectionDragEnd: () => void
 }
 
 const ConnectionsContext = createContext<ConnectionsContextValue | null>(null)

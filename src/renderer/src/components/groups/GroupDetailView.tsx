@@ -71,6 +71,8 @@ export function GroupDetailView({
       onNewGroup: () => {},
       onVerificationTrust: handleVerificationTrust,
       onVerificationCancel: handleVerificationCancel,
+      onConnectionDragStart: () => {},
+      onConnectionDragEnd: () => {},
     }),
     [
       connections,

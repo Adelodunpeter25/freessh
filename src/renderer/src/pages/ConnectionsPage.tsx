@@ -17,6 +17,7 @@ import {
   useGroupHandlers,
   useLocalTerminal,
   useConnectionFilters,
+  useConnectionGroupDragDrop,
 } from '@/hooks/connections'
 
 export function ConnectionsPage() {
@@ -40,6 +41,11 @@ export function ConnectionsPage() {
 
   const groupHandlers = useGroupHandlers()
   const localTerminal = useLocalTerminal()
+  const connectionGroupDragDrop = useConnectionGroupDragDrop({
+    connections,
+    updateConnection,
+    refreshGroups: groupHandlers.refresh,
+  })
   
   const connectionHandlers = useConnectionHandlers({
     deleteConnection,
@@ -101,6 +107,8 @@ export function ConnectionsPage() {
       onNewGroup: groupHandlers.handleNewGroup,
       onVerificationTrust: handleVerificationTrust,
       onVerificationCancel: handleVerificationCancel,
+      onConnectionDragStart: connectionGroupDragDrop.handleConnectionDragStart,
+      onConnectionDragEnd: connectionGroupDragDrop.handleConnectionDragEnd,
     }),
     [
       connections,
@@ -126,6 +134,8 @@ export function ConnectionsPage() {
       groupHandlers.handleNewGroup,
       handleVerificationTrust,
       handleVerificationCancel,
+      connectionGroupDragDrop.handleConnectionDragStart,
+      connectionGroupDragDrop.handleConnectionDragEnd,
     ]
   )
 
@@ -187,6 +197,10 @@ export function ConnectionsPage() {
               onEditGroup={groupHandlers.handleEditGroup}
               onDeleteGroup={groupHandlers.handleDeleteGroup}
               onOpenGroup={groupHandlers.handleOpenGroup}
+              dropTargetGroupId={connectionGroupDragDrop.dropTargetGroupId}
+              onGroupDragOver={connectionGroupDragDrop.handleGroupDragOver}
+              onGroupDragLeave={connectionGroupDragDrop.handleGroupDragLeave}
+              onGroupDrop={connectionGroupDragDrop.handleGroupDrop}
             />
           </div>
           {showStandaloneConnections && (

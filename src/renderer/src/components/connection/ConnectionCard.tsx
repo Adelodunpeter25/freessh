@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import { Pencil, Loader2 } from 'lucide-react'
 import { ConnectionConfig } from '@/types'
+import { DragEvent } from 'react'
 import { ConnectionCardContextMenu } from '@/components/contextmenu'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -17,9 +18,23 @@ interface ConnectionCardProps {
   onEdit: (connection: ConnectionConfig) => void
   onDuplicate: (connection: ConnectionConfig) => void
   onDelete: (id: string) => Promise<void>
+  onDragStart: (connection: ConnectionConfig, event: DragEvent<HTMLElement>) => void
+  onDragEnd: () => void
 }
 
-export const ConnectionCard = memo(function ConnectionCard({ connection, selected, loading, onSelect, onConnect, onOpenSFTP, onEdit, onDuplicate, onDelete }: ConnectionCardProps) {
+export const ConnectionCard = memo(function ConnectionCard({
+  connection,
+  selected,
+  loading,
+  onSelect,
+  onConnect,
+  onOpenSFTP,
+  onEdit,
+  onDuplicate,
+  onDelete,
+  onDragStart,
+  onDragEnd,
+}: ConnectionCardProps) {
   const osType = useOSTypeStore((state) => state.getOSType(connection.id))
   const OSIcon = getOSIcon(osType)
   
@@ -40,6 +55,7 @@ export const ConnectionCard = memo(function ConnectionCard({ connection, selecte
               ? 'bg-card border-primary/50 shadow-[0_0_0_1px_hsl(var(--primary)/0.5)] cursor-pointer' 
               : 'bg-card border-border hover:bg-muted/50 shadow-sm hover:shadow-md cursor-pointer'
         }`}
+        draggable={!loading}
         onClick={(e) => {
           e.stopPropagation()
           if (!loading) onSelect(connection)
@@ -51,6 +67,10 @@ export const ConnectionCard = memo(function ConnectionCard({ connection, selecte
         onDoubleClick={() => {
           if (!loading) onConnect(connection)
         }}
+        onDragStart={(event) => {
+          if (!loading) onDragStart(connection, event)
+        }}
+        onDragEnd={onDragEnd}
       >
         <div className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
           {loading ? (

@@ -20,6 +20,8 @@ export function ConnectionList() {
     onDuplicate,
     onDelete,
     searchQuery,
+    onConnectionDragStart,
+    onConnectionDragEnd,
   } = useConnectionsContext()
 
   const isSearching = searchQuery.trim().length > 0
@@ -68,6 +70,8 @@ export function ConnectionList() {
             onEdit={onEdit}
             onDuplicate={onDuplicate}
             onDelete={onDelete}
+            onDragStart={onConnectionDragStart}
+            onDragEnd={onConnectionDragEnd}
           />
         ))}
       </div>
