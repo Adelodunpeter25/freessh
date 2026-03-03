@@ -43,7 +43,7 @@ export function ConnectionForm({ isOpen, connection, mode, onConnect, onSave, on
   const [passphrase, setPassphrase] = useState('')
   const [isConnecting, setIsConnecting] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
-  const [activeTab, setActiveTab] = useState<'general' | 'credentials' | 'profile'>('general')
+  const [activeTab, setActiveTab] = useState<'general' | 'profile'>('general')
 
   const isDirty = useFormDirty(initialData, formData)
 
@@ -123,18 +123,14 @@ export function ConnectionForm({ isOpen, connection, mode, onConnect, onSave, on
       >
         <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'general' | 'credentials' | 'profile')}>
-              <TabsList className="grid w-full grid-cols-3">
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'general' | 'profile')}>
+              <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="general">General</TabsTrigger>
-                <TabsTrigger value="credentials">Credentials</TabsTrigger>
                 <TabsTrigger value="profile">Profile</TabsTrigger>
               </TabsList>
 
               <TabsContent value="general">
                 <ConnectionFormGeneral formData={formData} onChange={setFormData} />
-              </TabsContent>
-
-              <TabsContent value="credentials">
                 <ConnectionFormCredentials
                   formData={formData}
                   onChange={setFormData}
