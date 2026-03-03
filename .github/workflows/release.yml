@@ -18,7 +18,7 @@ jobs:
       matrix:
         include:
           - name: macOS DMG (x64)
-            os: macos-13
+            os: macos-latest
             goos: darwin
             goarch: amd64
             backend_binary: server
@@ -27,7 +27,7 @@ jobs:
               dist/*.dmg
               dist/latest-mac.yml
           - name: macOS DMG (arm64)
-            os: macos-14
+            os: macos-latest
             goos: darwin
             goarch: arm64
             backend_binary: server
@@ -78,8 +78,9 @@ jobs:
       - name: Build backend binary
         shell: bash
         run: |
-          mkdir -p backend/bin
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o backend/bin/${{ matrix.backend_binary }} ./backend/cmd/server
+          mkdir -p bin
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o bin/${{ matrix.backend_binary }} ./cmd/server
+        working-directory: backend
 
       - name: Build renderer/main
         run: bun run build
