@@ -42,6 +42,7 @@ func (s *ConnectionStorage) load() error {
 	defer s.mu.Unlock()
 
 	for _, conn := range connections {
+		conn.Profile = models.NormalizeSessionProfile(conn.Profile)
 		s.connections[conn.ID] = conn
 	}
 
@@ -71,6 +72,7 @@ func (s *ConnectionStorage) Save(config models.ConnectionConfig) error {
 	if config.ID == "" {
 		config.ID = uuid.New().String()
 	}
+	config.Profile = models.NormalizeSessionProfile(config.Profile)
 
 	s.connections[config.ID] = config
 
@@ -126,6 +128,7 @@ func (s *ConnectionStorage) Update(config models.ConnectionConfig) error {
 		return fmt.Errorf("connection not found: %s", config.ID)
 	}
 
+	config.Profile = models.NormalizeSessionProfile(config.Profile)
 	s.connections[config.ID] = config
 
 	return s.save()

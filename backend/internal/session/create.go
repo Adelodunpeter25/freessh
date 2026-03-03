@@ -20,6 +20,7 @@ func (m *Manager) CreateSession(config models.ConnectionConfig) (*models.Session
 }
 
 func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, verificationCallback func(*models.HostKeyVerification) error) (*models.Session, error) {
+	config.Profile = models.NormalizeSessionProfile(config.Profile)
 	sessionID := uuid.New().String()
 
 	session := models.Session{
@@ -105,8 +106,12 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 		return &session, err
 	}
 
+	profileTerm := ""
+	if config.Profile != nil {
+		profileTerm = config.Profile.Term
+	}
 	term := terminal.NewTerminal(sshClient)
-	if err := term.Initialize(24, 80); err != nil {
+	if err := term.Initialize(profileTerm, 24, 80); err != nil {
 		sshClient.Disconnect()
 		session.Status = models.SessionError
 		session.Error = err.Error()
@@ -148,6 +153,7 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 
 	go m.readOutput(activeSession)
 	m.initShellHistoryHook(sessionID)
+	m.applySessionProfile(activeSession)
 
 	// Auto-start logging if enabled
 	if m.logSettings != nil && m.logSettings.GetAutoLogging() {

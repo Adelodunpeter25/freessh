@@ -19,7 +19,7 @@ type ConnectionHandler struct {
 func NewConnectionHandler(manager *session.Manager, verificationHelper *HostKeyVerificationHelper) *ConnectionHandler {
 	keyStorage, _ := storage.NewKeyStorage()
 	keyFileStorage, _ := storage.NewKeyFileStorage()
-	
+
 	return &ConnectionHandler{
 		manager:            manager,
 		verificationHelper: verificationHelper,
@@ -30,8 +30,8 @@ func NewConnectionHandler(manager *session.Manager, verificationHelper *HostKeyV
 
 func (h *ConnectionHandler) CanHandle(msgType models.MessageType) bool {
 	switch msgType {
-	case models.MsgConnectionList, models.MsgConnectionGet, models.MsgConnectionDelete, 
-	     models.MsgConnectionUpdate, models.MsgConnectionConnect:
+	case models.MsgConnectionList, models.MsgConnectionGet, models.MsgConnectionDelete,
+		models.MsgConnectionUpdate, models.MsgConnectionConnect:
 		return true
 	}
 	return false
@@ -119,6 +119,7 @@ func (h *ConnectionHandler) handleUpdate(msg *models.IPCMessage, writer Response
 	if err := json.Unmarshal(jsonData, &config); err != nil {
 		return fmt.Errorf("failed to parse connection config: %w", err)
 	}
+	config.Profile = models.NormalizeSessionProfile(config.Profile)
 
 	// Migrate embedded key to key storage if present
 	if h.keyStorage != nil && h.keyFileStorage != nil {
@@ -147,6 +148,7 @@ func (h *ConnectionHandler) handleConnect(msg *models.IPCMessage, writer Respons
 	if err := json.Unmarshal(jsonData, &config); err != nil {
 		return fmt.Errorf("failed to parse connection config: %w", err)
 	}
+	config.Profile = models.NormalizeSessionProfile(config.Profile)
 
 	// Migrate embedded key to key storage if present
 	if h.keyStorage != nil && h.keyFileStorage != nil {

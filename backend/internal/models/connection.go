@@ -8,16 +8,17 @@ const (
 )
 
 type ConnectionConfig struct {
-	ID         string     `json:"id"`
-	Name       string     `json:"name"`
-	Host       string     `json:"host"`
-	Port       int        `json:"port"`
-	Username   string     `json:"username"`
-	AuthMethod AuthMethod `json:"auth_method"`
-	PrivateKey string     `json:"private_key,omitempty"`
-	KeyID      string     `json:"key_id,omitempty"`
-	Group      string     `json:"group,omitempty"`
-	
+	ID         string          `json:"id"`
+	Name       string          `json:"name"`
+	Host       string          `json:"host"`
+	Port       int             `json:"port"`
+	Username   string          `json:"username"`
+	AuthMethod AuthMethod      `json:"auth_method"`
+	PrivateKey string          `json:"private_key,omitempty"`
+	KeyID      string          `json:"key_id,omitempty"`
+	Group      string          `json:"group,omitempty"`
+	Profile    *SessionProfile `json:"profile,omitempty"`
+
 	// Runtime-only fields (not persisted to JSON)
 	Password   string `json:"-"`
 	Passphrase string `json:"-"`

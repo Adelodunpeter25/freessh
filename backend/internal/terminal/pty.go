@@ -2,6 +2,7 @@ package terminal
 
 import (
 	"fmt"
+	"strings"
 
 	sshpkg "golang.org/x/crypto/ssh"
 )
@@ -16,9 +17,12 @@ func NewPTY(session *sshpkg.Session) *PTY {
 	}
 }
 
-func (p *PTY) Request(rows, cols int) error {
+func (p *PTY) Request(termType string, rows, cols int) error {
 	if p.session == nil {
 		return fmt.Errorf("no active session")
+	}
+	if strings.TrimSpace(termType) == "" {
+		termType = "xterm-256color"
 	}
 
 	modes := sshpkg.TerminalModes{
@@ -27,7 +31,7 @@ func (p *PTY) Request(rows, cols int) error {
 		sshpkg.TTY_OP_OSPEED: 14400,
 	}
 
-	return p.session.RequestPty("xterm-256color", rows, cols, modes)
+	return p.session.RequestPty(termType, rows, cols, modes)
 }
 
 func (p *PTY) Resize(rows, cols int) error {

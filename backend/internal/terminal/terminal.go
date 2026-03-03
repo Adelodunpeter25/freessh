@@ -23,7 +23,7 @@ func NewTerminal(sshClient *ssh.Client) *Terminal {
 	}
 }
 
-func (t *Terminal) Initialize(rows, cols int) error {
+func (t *Terminal) Initialize(termType string, rows, cols int) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
@@ -41,7 +41,7 @@ func (t *Terminal) Initialize(rows, cols int) error {
 	t.io = io
 
 	t.pty = NewPTY(session)
-	if err := t.pty.Request(rows, cols); err != nil {
+	if err := t.pty.Request(termType, rows, cols); err != nil {
 		session.Close()
 		return err
 	}
