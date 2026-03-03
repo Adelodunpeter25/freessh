@@ -4,6 +4,8 @@
 
 FreeSSH is a local-first, free and open-source alternative to Termius, built for developers and operators who want a fast desktop SSH workflow without vendor lock-in.
 
+![FreeSSH Preview](resources/preview.png)
+
 ## Why FreeSSH
 
 - Always free and open source
