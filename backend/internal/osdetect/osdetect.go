@@ -22,40 +22,34 @@ const (
 	Unknown OSType = "unknown"
 )
 
-// DetectOS runs commands over SSH to detect the remote operating system
-func DetectOS(session *ssh.Session) (OSType, error) {
-	// A single SSH session can only run one command; detect in one shell invocation.
-	output, err := session.Output("sh -c 'uname -s 2>/dev/null; cat /etc/os-release 2>/dev/null || cat /etc/lsb-release 2>/dev/null'")
-	if err != nil {
-		return Unknown, err
+// DetectOS runs commands over SSH to detect the remote operating system.
+func DetectOS(client *ssh.Client) (OSType, error) {
+	commands := []string{
+		// Keep command successful on macOS where /etc/os-release is absent.
+		"sh -lc 'uname -s 2>/dev/null; cat /etc/os-release 2>/dev/null || cat /etc/lsb-release 2>/dev/null || true'",
+		// Windows fallbacks for OpenSSH-on-Windows hosts.
+		"cmd /c ver",
+		"powershell -NoProfile -Command \"$PSVersionTable.OS\"",
+		"ver",
 	}
 
-	lines := strings.SplitN(string(output), "\n", 2)
-	osName := strings.TrimSpace(strings.ToLower(lines[0]))
-	var distroContent string
-	if len(lines) > 1 {
-		distroContent = strings.ToLower(lines[1])
+	var lastErr error
+	for _, cmd := range commands {
+		output, err := runCommand(client, cmd)
+		if err != nil {
+			lastErr = err
+		}
+		detected := detectFromOutput(string(output))
+		if detected != Unknown {
+			return detected, nil
+		}
 	}
 
-	// Handle non-Linux systems
-	switch {
-	case strings.Contains(osName, "darwin"):
-		return MacOS, nil
-	case strings.Contains(osName, "freebsd"):
-		return FreeBSD, nil
-	case strings.Contains(osName, "windows"), strings.Contains(osName, "mingw"), strings.Contains(osName, "cygwin"):
-		return Windows, nil
-	case !strings.Contains(osName, "linux"):
-		return Unknown, nil
+	if lastErr != nil {
+		return Unknown, lastErr
 	}
 
-	// For Linux, detect specific distro from os-release content.
-	distro := detectLinuxDistro(distroContent)
-	if distro == Unknown {
-		return Linux, nil
-	}
-
-	return distro, nil
+	return Unknown, nil
 }
 
 func detectLinuxDistro(content string) OSType {
@@ -78,6 +72,42 @@ func detectLinuxDistro(content string) OSType {
 		return CentOS
 	case strings.Contains(content, "rhel") || strings.Contains(content, "red hat"):
 		return RedHat
+	}
+
+	return Unknown
+}
+
+func runCommand(client *ssh.Client, command string) ([]byte, error) {
+	session, err := client.NewSession()
+	if err != nil {
+		return nil, err
+	}
+	defer session.Close()
+	return session.Output(command)
+}
+
+func detectFromOutput(output string) OSType {
+	content := strings.ToLower(strings.TrimSpace(output))
+	if content == "" {
+		return Unknown
+	}
+
+	switch {
+	case strings.Contains(content, "darwin"), strings.Contains(content, "macos"), strings.Contains(content, "mac os"):
+		return MacOS
+	case strings.Contains(content, "freebsd"):
+		return FreeBSD
+	case strings.Contains(content, "windows"), strings.Contains(content, "microsoft"), strings.Contains(content, "mingw"), strings.Contains(content, "cygwin"):
+		return Windows
+	}
+
+	distro := detectLinuxDistro(content)
+	if distro != Unknown {
+		return distro
+	}
+
+	if strings.Contains(content, "linux") {
+		return Linux
 	}
 
 	return Unknown

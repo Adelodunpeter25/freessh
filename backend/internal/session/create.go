@@ -119,12 +119,8 @@ func (m *Manager) CreateSessionWithVerification(config models.ConnectionConfig, 
 	}
 
 	// Detect OS type
-	osSession, err := sshClient.GetSSHClient().NewSession()
-	if err == nil {
-		osType, _ := osdetect.DetectOS(osSession)
-		session.OSType = string(osType)
-		osSession.Close()
-	}
+	osType, _ := osdetect.DetectOS(sshClient.GetSSHClient())
+	session.OSType = string(osType)
 
 	session.Status = models.SessionConnected
 	session.ConnectedAt = time.Now()

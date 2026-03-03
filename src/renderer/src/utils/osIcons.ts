@@ -18,10 +18,12 @@ export const getOSIcon = (osType?: string) => {
     case 'linux':
       return LinuxIcon
     case 'macos':
+    case 'darwin':
       return AppleIcon
     case 'freebsd':
       return FreeBSDIcon
     case 'windows':
+    case 'win32':
       return WindowsIcon
     default:
       return Server
