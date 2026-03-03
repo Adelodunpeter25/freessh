@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DEFAULT_SHORTCUTS, SHORTCUT_STORAGE_KEY } from './defaults'
-import type { ShortcutAction, ShortcutMap } from './types'
+import type { ShortcutAction, ShortcutMap } from '@/types/keyboardshortcuts'
 import { formatShortcutForStorage } from './utils'
 
 const RESERVED_SHORTCUTS = new Set([

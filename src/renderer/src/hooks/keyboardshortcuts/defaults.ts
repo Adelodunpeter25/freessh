@@ -1,4 +1,4 @@
-import type { ShortcutDefinition, ShortcutMap } from './types'
+import type { ShortcutDefinition, ShortcutMap } from '@/types/keyboardshortcuts'
 
 export const DEFAULT_SHORTCUTS: ShortcutMap = {
   new_connection: 'cmd+t',

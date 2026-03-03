@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useTabStore } from '@/stores/tabStore'
 import { useShortcutSettings } from '@/hooks/keyboardshortcuts'
 import { buildShortcutKeyFromEvent, isEditableTarget } from '@/hooks/keyboardshortcuts'
-import type { ShortcutAction } from '@/hooks/keyboardshortcuts'
+import type { ShortcutAction } from '@/types/keyboardshortcuts'
 
 interface ShortcutHandlers {
   onSwitchTab?: (index: number) => void

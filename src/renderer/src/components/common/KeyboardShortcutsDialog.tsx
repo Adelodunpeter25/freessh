@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { useShortcutSettings, SHORTCUT_DEFINITIONS, buildShortcutKeyFromEvent, displayShortcut } from '@/hooks/keyboardshortcuts'
-import type { ShortcutAction } from '@/hooks/keyboardshortcuts'
+import type { ShortcutAction } from '@/types/keyboardshortcuts'
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -13,6 +13,7 @@ interface KeyboardShortcutsDialogProps {
 export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcutsDialogProps) {
   const { shortcuts, setShortcut, resetShortcut, resetAllShortcuts } = useShortcutSettings()
   const [editingAction, setEditingAction] = useState<ShortcutAction | null>(null)
+  const [capturedShortcutPreview, setCapturedShortcutPreview] = useState<string | null>(null)
 
   const groupedShortcuts = useMemo(() => {
     const groups = new Map<string, typeof SHORTCUT_DEFINITIONS>()
@@ -28,6 +29,7 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcut
   useEffect(() => {
     if (!open) {
       setEditingAction(null)
+      setCapturedShortcutPreview(null)
     }
   }, [open])
 
@@ -40,14 +42,22 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcut
 
       if (e.key === 'Escape') {
         setEditingAction(null)
+        setCapturedShortcutPreview(null)
         return
       }
 
+      const modifierParts: string[] = []
+      if (e.ctrlKey || e.metaKey) modifierParts.push('cmd')
+      if (e.shiftKey) modifierParts.push('shift')
+      if (e.altKey) modifierParts.push('alt')
+
       if (['Control', 'Shift', 'Alt', 'Meta'].includes(e.key)) {
+        setCapturedShortcutPreview(modifierParts.join('+'))
         return
       }
 
       const shortcut = buildShortcutKeyFromEvent(e)
+      setCapturedShortcutPreview(shortcut)
       try {
         setShortcut(editingAction, shortcut)
         toast.success('Shortcut updated')
@@ -55,6 +65,7 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcut
         toast.error(error instanceof Error ? error.message : 'Failed to update shortcut')
       } finally {
         setEditingAction(null)
+        setCapturedShortcutPreview(null)
       }
     }
 
@@ -105,14 +116,17 @@ export function KeyboardShortcutsDialog({ open, onOpenChange }: KeyboardShortcut
                         }`}
                       >
                         {editingAction === item.action
-                          ? 'Press keys...'
+                          ? (capturedShortcutPreview ? displayShortcut(capturedShortcutPreview) : 'Press keys...')
                           : displayShortcut(shortcuts[item.action])}
                       </kbd>
                       <Button
                         variant="ghost"
                         size="sm"
                         className="h-7 px-2 text-xs"
-                        onClick={() => setEditingAction(item.action)}
+                        onClick={() => {
+                          setEditingAction(item.action)
+                          setCapturedShortcutPreview(null)
+                        }}
                       >
                         Edit
                       </Button>
