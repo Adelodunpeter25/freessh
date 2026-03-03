@@ -55,7 +55,7 @@ export function ConnectionList() {
 
   return (
     <ScrollArea className="h-full" onClick={() => onSelect(null)}>
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4 p-6">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4 p-6">
         {filteredConnections.map((connection) => (
           <ConnectionCard
             key={connection.id}
