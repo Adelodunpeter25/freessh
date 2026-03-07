@@ -13,6 +13,82 @@ app.setName("FreeSSH");
 let goBackend: ChildProcess | null = null;
 let stdoutBuffer = "";
 const windowModes = new Map<number, AppWindowMode>();
+const requestOwners = new Map<string, number>();
+const sessionOwners = new Map<string, number>();
+
+type BackendMessage = {
+  type?: string;
+  request_id?: string;
+  session_id?: string;
+  data?: unknown;
+};
+
+function getWindowForMessage(message: BackendMessage): BrowserWindow | null {
+  const requestId = typeof message.request_id === "string" ? message.request_id : "";
+  if (requestId) {
+    const ownerWindowId = requestOwners.get(requestId);
+    if (ownerWindowId !== undefined) {
+      const ownerWindow = BrowserWindow.fromId(ownerWindowId);
+      if (ownerWindow && !ownerWindow.isDestroyed()) {
+        return ownerWindow;
+      }
+      requestOwners.delete(requestId);
+    }
+  }
+
+  const sessionId = typeof message.session_id === "string" ? message.session_id : "";
+  if (sessionId) {
+    const ownerWindowId = sessionOwners.get(sessionId);
+    if (ownerWindowId !== undefined) {
+      const ownerWindow = BrowserWindow.fromId(ownerWindowId);
+      if (ownerWindow && !ownerWindow.isDestroyed()) {
+        return ownerWindow;
+      }
+      sessionOwners.delete(sessionId);
+    }
+  }
+
+  return null;
+}
+
+function getSessionIdFromMessage(message: BackendMessage): string | null {
+  if (typeof message.session_id === "string" && message.session_id) {
+    return message.session_id;
+  }
+
+  if (
+    message.type === "session_status" &&
+    message.data &&
+    typeof message.data === "object" &&
+    "id" in message.data &&
+    typeof (message.data as { id?: unknown }).id === "string"
+  ) {
+    return (message.data as { id: string }).id;
+  }
+
+  return null;
+}
+
+function rememberSessionOwner(message: BackendMessage, windowId: number): void {
+  const sessionId = getSessionIdFromMessage(message);
+  if (!sessionId) return;
+
+  sessionOwners.set(sessionId, windowId);
+}
+
+function clearWindowOwnership(windowId: number): void {
+  for (const [requestId, ownerWindowId] of requestOwners.entries()) {
+    if (ownerWindowId === windowId) {
+      requestOwners.delete(requestId);
+    }
+  }
+
+  for (const [sessionId, ownerWindowId] of sessionOwners.entries()) {
+    if (ownerWindowId === windowId) {
+      sessionOwners.delete(sessionId);
+    }
+  }
+}
 
 // Start Go backend
 function startBackend() {
@@ -36,7 +112,30 @@ function startBackend() {
     for (const line of lines) {
       if (!line.trim()) continue;
       try {
-        const message = JSON.parse(line);
+        const message = JSON.parse(line) as BackendMessage;
+        const targetWindow = getWindowForMessage(message);
+
+        if (targetWindow) {
+          rememberSessionOwner(message, targetWindow.id);
+          targetWindow.webContents.send("backend:message", message);
+
+          const sessionId = getSessionIdFromMessage(message);
+          if (
+            sessionId &&
+            message.type === "session_status" &&
+            message.data &&
+            typeof message.data === "object" &&
+            "status" in message.data
+          ) {
+            const status = (message.data as { status?: unknown }).status;
+            if (status === "disconnected") {
+              sessionOwners.delete(sessionId);
+            }
+          }
+
+          continue;
+        }
+
         BrowserWindow.getAllWindows().forEach((win) => {
           win.webContents.send("backend:message", message);
         });
@@ -79,6 +178,20 @@ function resolveBackendPath(isDev: boolean, binaryName: string): string {
 // Send message to Go backend
 ipcMain.on("backend:send", (event, message) => {
   if (goBackend && goBackend.stdin) {
+    if (message && typeof message.request_id === "string" && message.request_id) {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (window) {
+        requestOwners.set(message.request_id, window.id);
+      }
+    }
+
+    if (message && typeof message.session_id === "string" && message.session_id) {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (window) {
+        sessionOwners.set(message.session_id, window.id);
+      }
+    }
+
     const json = JSON.stringify(message) + "\n";
     goBackend.stdin.write(json);
   }
@@ -101,6 +214,7 @@ app.whenReady().then(() => {
     const window = createWindow({ mode: "workspace" });
     windowModes.set(window.id, "workspace");
     window.on("closed", () => {
+      clearWindowOwnership(window.id);
       windowModes.delete(window.id);
     });
 
@@ -124,6 +238,7 @@ app.whenReady().then(() => {
   const window = createWindow({ mode: "primary" });
   windowModes.set(window.id, "primary");
   window.on("closed", () => {
+    clearWindowOwnership(window.id);
     windowModes.delete(window.id);
   });
 
@@ -132,6 +247,7 @@ app.whenReady().then(() => {
       const newWindow = createWindow({ mode: "primary" });
       windowModes.set(newWindow.id, "primary");
       newWindow.on("closed", () => {
+        clearWindowOwnership(newWindow.id);
         windowModes.delete(newWindow.id);
       });
     }
