@@ -35,7 +35,7 @@ func (t *Terminal) Initialize(rows, cols int) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 
-	shell := getShell()
+	shell, shellArgs := getShellCommand()
 	env := buildTerminalEnv(shell)
 	args, cleanup, err := configureShellStartup(shell, env)
 	if err != nil {
@@ -45,7 +45,7 @@ func (t *Terminal) Initialize(rows, cols int) error {
 		t.startupHooks = append(t.startupHooks, cleanup)
 	}
 
-	t.cmd = exec.Command(shell, args...)
+	t.cmd = exec.Command(shell, append(shellArgs, args...)...)
 	t.cmd.Env = envMapToSlice(env)
 
 	// Set working directory to user's home directory
@@ -137,21 +137,21 @@ func (t *Terminal) Close() error {
 	return nil
 }
 
-func getShell() string {
+func getShellCommand() (string, []string) {
 	if runtime.GOOS == "windows" {
 		for _, candidate := range []string{"pwsh.exe", "powershell.exe"} {
 			if p, err := exec.LookPath(candidate); err == nil {
-				return p
+				return p, []string{"-NoLogo", "-NoExit"}
 			}
 		}
 
 		if comspec := os.Getenv("COMSPEC"); comspec != "" {
-			return comspec
+			return comspec, []string{"/K"}
 		}
 		if p, err := exec.LookPath("cmd.exe"); err == nil {
-			return p
+			return p, []string{"/K"}
 		}
-		return "cmd.exe"
+		return "cmd.exe", []string{"/K"}
 	}
 
 	candidates := []string{
@@ -164,15 +164,15 @@ func getShell() string {
 			continue
 		}
 		if resolved := resolveExecutable(candidate); resolved != "" {
-			return resolved
+			return resolved, nil
 		}
 	}
 
 	// Last-resort portable fallback.
 	if p, err := exec.LookPath("sh"); err == nil {
-		return p
+		return p, nil
 	}
-	return "/bin/sh"
+	return "/bin/sh", nil
 }
 
 func buildTerminalEnv(shell string) map[string]string {

@@ -2,14 +2,11 @@ import { useEffect } from "react";
 import { SFTPPanels } from "./SFTPPanels";
 import { SFTPTransferQueue } from "./SFTPTransferQueue";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
-import { useFilePreview } from "@/hooks";
 import { useKeyboardShortcuts } from "@/hooks";
-import { FilePreviewProvider } from "@/contexts/FilePreviewContext";
 import { useSFTPBrowserState } from "./SFTPBrowserState";
 
 export function SFTPBrowser() {
   const state = useSFTPBrowserState();
-  const preview = useFilePreview();
 
   useEffect(() => {
     if (state.sessionId) {
@@ -37,58 +34,56 @@ export function SFTPBrowser() {
   })
 
   return (
-    <FilePreviewProvider value={preview}>
-      <div className="flex flex-col h-full gap-4 overflow-hidden">
-        <SFTPPanels
-          leftPanelType={state.leftPanelType}
-          leftSessionId={state.leftSessionId}
-          leftFiles={state.leftData.files}
-          leftCurrentPath={state.leftData.currentPath}
-          leftLoading={state.leftData.loading}
-          leftSftp={state.leftSftp}
-          leftLocal={state.leftLocal}
-          leftSelectedItems={state.leftMultiSelect.selectedItems}
-          onLeftItemSelect={state.leftMultiSelect.handleSelect}
-          isLeftItemSelected={state.leftMultiSelect.isSelected}
-          onLeftClearSelection={state.leftMultiSelect.clearSelection}
-          leftBulkOps={state.leftBulkOps}
-          leftShowHidden={state.leftShowHidden}
-          onLeftToggleHidden={() => state.setLeftShowHidden(!state.leftShowHidden)}
-          
-          rightPanelType={state.rightPanelType}
-          rightSessionId={state.rightSessionId}
-          rightFiles={state.rightData.files}
-          rightCurrentPath={state.rightData.currentPath}
-          rightLoading={state.rightData.loading}
-          rightSftp={state.rightSftp}
-          rightLocal={state.rightLocal}
-          rightSelectedItems={state.rightMultiSelect.selectedItems}
-          onRightItemSelect={state.rightMultiSelect.handleSelect}
-          isRightItemSelected={state.rightMultiSelect.isSelected}
-          onRightClearSelection={state.rightMultiSelect.clearSelection}
-          rightBulkOps={state.rightBulkOps}
-          rightShowHidden={state.rightShowHidden}
-          onRightToggleHidden={() => state.setRightShowHidden(!state.rightShowHidden)}
-          
-          selectedLocal={state.selectedLocal}
-          selectedRemote={state.selectedRemote}
-          onSelectLocal={state.setSelectedLocal}
-          onSelectRemote={state.setSelectedRemote}
-          transferActive={state.transferActive}
-          
-          onLeftTitleClick={() => state.setShowingSelector('left')}
-          onRightTitleClick={() => state.setShowingSelector('right')}
-          showingSelector={state.showingSelector}
-          onSelectorClose={() => state.setShowingSelector(null)}
-          onPanelSelect={state.handlePanelSelect}
-          connectingConnectionId={state.connectingConnectionId}
-        />
-        <SFTPTransferQueue
-          transfers={state.sftp.transfers}
-          onCancel={state.sftp.cancelTransfer}
-          onClearCompleted={state.sftp.clearCompleted}
-        />
-      </div>
+    <div className="flex flex-col h-full gap-4 overflow-hidden">
+      <SFTPPanels
+        leftPanelType={state.leftPanelType}
+        leftSessionId={state.leftSessionId}
+        leftFiles={state.leftData.files}
+        leftCurrentPath={state.leftData.currentPath}
+        leftLoading={state.leftData.loading}
+        leftSftp={state.leftSftp}
+        leftLocal={state.leftLocal}
+        leftSelectedItems={state.leftMultiSelect.selectedItems}
+        onLeftItemSelect={state.leftMultiSelect.handleSelect}
+        isLeftItemSelected={state.leftMultiSelect.isSelected}
+        onLeftClearSelection={state.leftMultiSelect.clearSelection}
+        leftBulkOps={state.leftBulkOps}
+        leftShowHidden={state.leftShowHidden}
+        onLeftToggleHidden={() => state.setLeftShowHidden(!state.leftShowHidden)}
+        
+        rightPanelType={state.rightPanelType}
+        rightSessionId={state.rightSessionId}
+        rightFiles={state.rightData.files}
+        rightCurrentPath={state.rightData.currentPath}
+        rightLoading={state.rightData.loading}
+        rightSftp={state.rightSftp}
+        rightLocal={state.rightLocal}
+        rightSelectedItems={state.rightMultiSelect.selectedItems}
+        onRightItemSelect={state.rightMultiSelect.handleSelect}
+        isRightItemSelected={state.rightMultiSelect.isSelected}
+        onRightClearSelection={state.rightMultiSelect.clearSelection}
+        rightBulkOps={state.rightBulkOps}
+        rightShowHidden={state.rightShowHidden}
+        onRightToggleHidden={() => state.setRightShowHidden(!state.rightShowHidden)}
+        
+        selectedLocal={state.selectedLocal}
+        selectedRemote={state.selectedRemote}
+        onSelectLocal={state.setSelectedLocal}
+        onSelectRemote={state.setSelectedRemote}
+        transferActive={state.transferActive}
+        
+        onLeftTitleClick={() => state.setShowingSelector('left')}
+        onRightTitleClick={() => state.setShowingSelector('right')}
+        showingSelector={state.showingSelector}
+        onSelectorClose={() => state.setShowingSelector(null)}
+        onPanelSelect={state.handlePanelSelect}
+        connectingConnectionId={state.connectingConnectionId}
+      />
+      <SFTPTransferQueue
+        transfers={state.sftp.transfers}
+        onCancel={state.sftp.cancelTransfer}
+        onClearCompleted={state.sftp.clearCompleted}
+      />
       <ConfirmDialog
         open={state.showDeleteConfirm}
         onOpenChange={state.setShowDeleteConfirm}
@@ -107,6 +102,6 @@ export function SFTPBrowser() {
         destructive
         onConfirm={state.handleConfirmBulkDelete}
       />
-    </FilePreviewProvider>
+    </div>
   );
 }

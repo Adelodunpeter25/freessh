@@ -3,10 +3,12 @@ import { FilePanel } from "./FilePanel";
 import { BulkActionBar } from "./BulkActionBar";
 import { PanelSelector } from "./PanelSelector";
 import { FilePanelProvider } from "@/contexts/FilePanelContext";
+import { FilePreviewProvider } from "@/contexts/FilePreviewContext";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { FileInfo } from "@/types";
 import { isRemoteToRemote } from "@/utils/remoteTransferDetector";
 import { useRemoteTransfer, useRemoteDragDrop } from "@/hooks";
+import { useFilePreview } from "@/hooks";
 import { useSessionStore } from "@/stores/sessionStore";
 
 interface SFTPPanelsProps {
@@ -58,6 +60,8 @@ export function SFTPPanels(props: SFTPPanelsProps) {
   const [showLeftDeleteConfirm, setShowLeftDeleteConfirm] = useState(false)
   const [showRightDeleteConfirm, setShowRightDeleteConfirm] = useState(false)
   const getSession = useSessionStore((state) => state.getSession)
+  const leftPreview = useFilePreview()
+  const rightPreview = useFilePreview()
   
   // Use the first available SFTP setTransfers (prefer left, then right)
   const setTransfers = props.leftPanelType === 'remote' && props.leftSftp?.setTransfers
@@ -286,14 +290,16 @@ export function SFTPPanels(props: SFTPPanelsProps) {
           </div>
         ) : (
           <>
-            <FilePanelProvider value={leftContextValue}>
-              <FilePanel
-                title={leftTitle}
-                files={props.leftFiles}
-                showHidden={props.leftShowHidden}
-                onToggleHidden={props.onLeftToggleHidden}
-              />
-            </FilePanelProvider>
+            <FilePreviewProvider value={leftPreview}>
+              <FilePanelProvider value={leftContextValue}>
+                <FilePanel
+                  title={leftTitle}
+                  files={props.leftFiles}
+                  showHidden={props.leftShowHidden}
+                  onToggleHidden={props.onLeftToggleHidden}
+                />
+              </FilePanelProvider>
+            </FilePreviewProvider>
             {props.leftSelectedItems.size > 1 && (
               <BulkActionBar
                 selectedCount={props.leftSelectedItems.size}
@@ -344,14 +350,16 @@ export function SFTPPanels(props: SFTPPanelsProps) {
           </div>
         ) : (
           <>
-            <FilePanelProvider value={rightContextValue}>
-              <FilePanel
-                title={rightTitle}
-                files={props.rightFiles}
-                showHidden={props.rightShowHidden}
-                onToggleHidden={props.onRightToggleHidden}
-              />
-            </FilePanelProvider>
+            <FilePreviewProvider value={rightPreview}>
+              <FilePanelProvider value={rightContextValue}>
+                <FilePanel
+                  title={rightTitle}
+                  files={props.rightFiles}
+                  showHidden={props.rightShowHidden}
+                  onToggleHidden={props.onRightToggleHidden}
+                />
+              </FilePanelProvider>
+            </FilePreviewProvider>
             {props.rightSelectedItems.size > 1 && (
               <BulkActionBar
                 selectedCount={props.rightSelectedItems.size}

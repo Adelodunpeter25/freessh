@@ -21,7 +21,12 @@ export function useLocalFiles() {
   }, [])
 
   useEffect(() => {
-    const homePath = window.electron.process.env.HOME || '/'
+    const env = window.electron.process.env
+    const homePath =
+      env.HOME ||
+      env.USERPROFILE ||
+      (env.HOMEDRIVE && env.HOMEPATH ? `${env.HOMEDRIVE}${env.HOMEPATH}` : '') ||
+      '/'
     loadFiles(homePath)
   }, [loadFiles])
 
