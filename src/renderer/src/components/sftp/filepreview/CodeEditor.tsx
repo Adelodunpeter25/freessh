@@ -5,6 +5,7 @@ import { monaco } from '@/lib/monaco'
 import { getLanguageFromFilename } from '@/utils/fileTypes'
 import { FilePreviewHeader } from './FilePreviewHeader'
 import { monacoOptions, readOnlyOptions } from './config'
+import { useThemeStore } from '@/stores/themeStore'
 
 loader.config({ monaco })
 
@@ -36,9 +37,8 @@ export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
   const [value, setValue] = useState(content)
   const [isEditing, setIsEditing] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
-  const [theme, setTheme] = useState(() => 
-    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'custom-dark' : 'custom-light'
-  )
+  const effectiveTheme = useThemeStore((state) => state.effectiveTheme)
+  const theme = effectiveTheme === 'dark' ? 'custom-dark' : 'custom-light'
   const language = getLanguageFromFilename(filename)
 
   useEffect(() => {
@@ -46,15 +46,6 @@ export function CodeEditor({ filename, content, onSave }: CodeEditorProps) {
     setIsDirty(false)
     setIsEditing(false)
   }, [content, filename])
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const handleChange = (e: MediaQueryListEvent) => {
-      setTheme(e.matches ? 'custom-dark' : 'custom-light')
-    }
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [])
 
   const handleChange = (newValue: string | undefined) => {
     if (newValue !== undefined) {
