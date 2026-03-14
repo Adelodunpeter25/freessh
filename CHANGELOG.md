@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented in this file.
 
+## [Unreleased]
+
+### Features
+- Per-connection terminal theme override in connection profiles, using the full theme picker UI.
+- Improved Monaco editor theming to match app theme.
+- JSONC and Fish support in the built-in editor.
+- Backend message routing scoped to the owning window (multi-window correctness).
+
+### Fixes
+- Correct group connection counts in FreeSSH format exports.
+- Windows path navigation fixes for SFTP preview panels and local shell args.
+
+### Internal
+- Cross-platform parent path helper extracted.
+- Mobile workspace folder added.
+- Docs updates (README download/run locally, installation docs submodule).
+
 ## [1.0.0] - 2026-03-03
 
 Initial public release of FreeSSH.
