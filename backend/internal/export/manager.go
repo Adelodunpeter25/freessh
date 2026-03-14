@@ -83,6 +83,19 @@ func (m *Manager) exportFreeSSH() ([]byte, error) {
 	connections := m.connectionStorage.List()
 	groups := m.groupStorage.List()
 	portForwards := m.pfStorage.GetAll()
+
+	// Ensure group connection counts reflect the exported connections.
+	// GroupStorage persists groups, but connection_count is derived state.
+	counts := make(map[string]int)
+	for _, conn := range connections {
+		if conn.Group != "" {
+			counts[conn.Group]++
+		}
+	}
+	for i := range groups {
+		groups[i].ConnectionCount = counts[groups[i].Name]
+	}
+
 	snippets := make([]models.Snippet, 0)
 	if m.snippetStorage != nil {
 		snippets = m.snippetStorage.List()
