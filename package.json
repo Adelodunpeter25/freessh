@@ -1,13 +1,13 @@
 {
   "name": "freessh",
   "version": "1.0.0",
-  "description": "Free SSH Client Application",
+  "description": "Free, open-source, local-first SSH client.",
   "main": "./out/main/index.js",
   "author": {
     "name": "Adelodun Peter",
     "email": "adelodunpeter69@gmail.com"
   },
-  "homepage": "https://electron-vite.org",
+  "homepage": "https://docs-freessh.vercel.app",
   "scripts": {
     "start": "electron-vite preview",
     "dev": "electron-vite dev",

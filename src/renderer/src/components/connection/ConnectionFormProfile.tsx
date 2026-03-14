@@ -15,6 +15,7 @@ export function ConnectionFormProfile({ formData, onChange }: ConnectionFormProf
   const profile = formData.profile || {}
   const selectedTerm = profile.term || ''
   const selectedTheme = typeof profile.terminal_theme === 'string' ? profile.terminal_theme : ''
+  const GLOBAL_THEME_VALUE = '__global__'
   const [isCustomTerm, setIsCustomTerm] = useState<boolean>(selectedTerm !== '' && !isKnownTermValue(selectedTerm))
 
   useEffect(() => {
@@ -119,11 +120,11 @@ export function ConnectionFormProfile({ formData, onChange }: ConnectionFormProf
       <div className="space-y-2">
         <p className="text-xs text-muted-foreground">Terminal theme</p>
         <Select
-          value={selectedTheme}
+          value={selectedTheme === '' ? GLOBAL_THEME_VALUE : selectedTheme}
           onValueChange={(value) =>
             onChange({
               ...formData,
-              profile: { ...profile, terminal_theme: value },
+              profile: { ...profile, terminal_theme: value === GLOBAL_THEME_VALUE ? '' : value },
             })
           }
         >
@@ -131,7 +132,7 @@ export function ConnectionFormProfile({ formData, onChange }: ConnectionFormProf
             <SelectValue placeholder="Use global theme" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Use global theme</SelectItem>
+            <SelectItem value={GLOBAL_THEME_VALUE}>Use global theme</SelectItem>
             {terminalThemePresets.map((preset) => (
               <SelectItem key={preset.name} value={preset.name}>
                 {preset.name}
