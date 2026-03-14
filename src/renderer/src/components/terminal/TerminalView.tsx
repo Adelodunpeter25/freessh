@@ -20,6 +20,8 @@ export function TerminalView({ sessionId, isActive = true, sidebarOpen = false }
   const sessionItem = useSessionStore(useCallback((state) => state.getSession(sessionId), [sessionId]))
   const profileFontSize = sessionItem?.connection?.profile?.font_size
   const resolvedFontSize = typeof profileFontSize === 'number' && profileFontSize > 0 ? profileFontSize : undefined
+  const profileThemeName = sessionItem?.connection?.profile?.terminal_theme
+  const resolvedThemeName = typeof profileThemeName === 'string' && profileThemeName.trim() ? profileThemeName : undefined
   const [showSearch, setShowSearch] = useState(false)
   const [searchResults, setSearchResults] = useState<{ index: number, total: number } | null>(null)
   const searchAddonRef = useRef<SearchAddon | null>(null)
@@ -99,6 +101,7 @@ export function TerminalView({ sessionId, isActive = true, sidebarOpen = false }
           key={sessionId}
           sessionId={sessionId}
           fontSizeOverride={resolvedFontSize}
+          themeNameOverride={resolvedThemeName}
           onData={sendInput}
           onResize={handleResize}
           onReady={handleReady}

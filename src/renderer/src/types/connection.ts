@@ -5,6 +5,7 @@ export interface SessionProfile {
   font_size?: number
   startup_command?: string
   startup_command_delay_ms?: number
+  terminal_theme?: string
 }
 
 export interface ConnectionConfig {

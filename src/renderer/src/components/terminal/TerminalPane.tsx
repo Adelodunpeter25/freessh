@@ -1,16 +1,18 @@
-import { useEffect, useRef, memo, useCallback } from 'react'
+import { useEffect, useRef, memo, useCallback, useMemo } from 'react'
 import { Terminal as XTerm } from 'xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { SearchAddon } from '@xterm/addon-search'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { useTerminalThemeStore } from '@/stores/terminalThemeStore'
 import { useTerminalFontStore } from '@/stores/terminalFontStore'
+import { terminalThemePresets } from '@/utils/terminalThemes'
 import 'xterm/css/xterm.css'
 import './terminal-search.css'
 
 interface TerminalPaneProps {
   sessionId: string
   fontSizeOverride?: number
+  themeNameOverride?: string
   onData: (data: string) => void
   onResize: (cols: number, rows: number) => void
   onReady: (xterm: XTerm, searchAddon: SearchAddon) => void
@@ -22,6 +24,7 @@ interface TerminalPaneProps {
 export const TerminalPane = memo(function TerminalPane({
   sessionId,
   fontSizeOverride,
+  themeNameOverride,
   onData,
   onResize,
   onReady,
@@ -37,9 +40,17 @@ export const TerminalPane = memo(function TerminalPane({
   const onSearchResultsRef = useRef(onSearchResults)
   const fitScheduledRef = useRef(false)
   const lastResizeRef = useRef<{ cols: number; rows: number } | null>(null)
-  const theme = useTerminalThemeStore((state) => state.getTheme())
+  const globalTheme = useTerminalThemeStore((state) => state.getTheme())
   const { fontFamily, fontSize, fontWeight } = useTerminalFontStore()
   const effectiveFontSize = fontSizeOverride && fontSizeOverride > 0 ? fontSizeOverride : fontSize
+  const theme = useMemo(() => {
+    const name = typeof themeNameOverride === 'string' ? themeNameOverride.trim() : ''
+    if (name) {
+      const preset = terminalThemePresets.find((p) => p.name === name)
+      if (preset?.theme) return preset.theme
+    }
+    return globalTheme
+  }, [globalTheme, themeNameOverride])
 
   useEffect(() => {
     onDataRef.current = onData

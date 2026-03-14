@@ -9,6 +9,7 @@ type SessionProfile struct {
 	FontSize              int    `json:"font_size,omitempty"`
 	StartupCommand        string `json:"startup_command,omitempty"`
 	StartupCommandDelayMs int    `json:"startup_command_delay_ms,omitempty"`
+	TerminalTheme         string `json:"terminal_theme,omitempty"`
 }
 
 func NormalizeSessionProfile(profile *SessionProfile) *SessionProfile {
@@ -38,11 +39,17 @@ func NormalizeSessionProfile(profile *SessionProfile) *SessionProfile {
 		normalized.StartupCommandDelayMs = 60000
 	}
 
+	normalized.TerminalTheme = strings.TrimSpace(normalized.TerminalTheme)
+	if len(normalized.TerminalTheme) > 128 {
+		normalized.TerminalTheme = normalized.TerminalTheme[:128]
+	}
+
 	// Drop empty profile payload to keep saved JSON clean.
 	if normalized.Term == "" &&
 		normalized.FontSize == 0 &&
 		normalized.StartupCommand == "" &&
-		normalized.StartupCommandDelayMs == 0 {
+		normalized.StartupCommandDelayMs == 0 &&
+		normalized.TerminalTheme == "" {
 		return nil
 	}
 

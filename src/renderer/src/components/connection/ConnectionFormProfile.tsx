@@ -4,6 +4,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ConnectionConfig } from '@/types'
 import { CUSTOM_TERM_VALUE, DEFAULT_TERM_VALUE, isKnownTermValue, TERM_DEFAULTS } from '@/utils/termDefaults'
+import { terminalThemePresets } from '@/utils/terminalThemes'
 
 interface ConnectionFormProfileProps {
   formData: Partial<ConnectionConfig>
@@ -13,6 +14,7 @@ interface ConnectionFormProfileProps {
 export function ConnectionFormProfile({ formData, onChange }: ConnectionFormProfileProps) {
   const profile = formData.profile || {}
   const selectedTerm = profile.term || ''
+  const selectedTheme = typeof profile.terminal_theme === 'string' ? profile.terminal_theme : ''
   const [isCustomTerm, setIsCustomTerm] = useState<boolean>(selectedTerm !== '' && !isKnownTermValue(selectedTerm))
 
   useEffect(() => {
@@ -112,6 +114,31 @@ export function ConnectionFormProfile({ formData, onChange }: ConnectionFormProf
           }
           placeholder="14"
         />
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-xs text-muted-foreground">Terminal theme</p>
+        <Select
+          value={selectedTheme}
+          onValueChange={(value) =>
+            onChange({
+              ...formData,
+              profile: { ...profile, terminal_theme: value },
+            })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Use global theme" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Use global theme</SelectItem>
+            {terminalThemePresets.map((preset) => (
+              <SelectItem key={preset.name} value={preset.name}>
+                {preset.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="space-y-2">
