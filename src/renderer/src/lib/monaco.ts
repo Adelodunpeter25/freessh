@@ -13,7 +13,6 @@ import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/python/python.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/markdown/markdown.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/shell/shell.contribution.js'
-import 'monaco-editor/esm/vs/basic-languages/fish/fish.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/dockerfile/dockerfile.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/ini/ini.contribution.js'
 
@@ -41,6 +40,61 @@ if (!monaco.languages.getLanguages().some((lang) => lang.id === 'toml')) {
         [/'([^'\\]|\\.)*'/, 'string'],
         [/\b(true|false)\b/, 'keyword'],
         [/\b\d+(\.\d+)?\b/, 'number'],
+      ],
+    },
+	})
+}
+
+if (!monaco.languages.getLanguages().some((lang) => lang.id === 'fish')) {
+  monaco.languages.register({ id: 'fish' })
+
+  monaco.languages.setLanguageConfiguration('fish', {
+    comments: { lineComment: '#' },
+    brackets: [['{', '}'], ['[', ']'], ['(', ')']],
+    autoClosingPairs: [
+      { open: '"', close: '"' },
+      { open: "'", close: "'" },
+      { open: '{', close: '}' },
+      { open: '[', close: ']' },
+      { open: '(', close: ')' },
+    ],
+  })
+
+  // Lightweight fish syntax highlighting (Monaco doesn't ship a fish grammar here).
+  monaco.languages.setMonarchTokensProvider('fish', {
+    keywords: [
+      'and', 'or', 'not',
+      'if', 'else', 'end',
+      'for', 'while', 'break', 'continue',
+      'function', 'return',
+      'switch', 'case',
+      'set', 'setenv', 'export',
+      'echo', 'printf',
+      'begin',
+    ],
+    tokenizer: {
+      root: [
+        [/#.*$/, 'comment'],
+        [/\$[A-Za-z_][A-Za-z0-9_]*/, 'variable'],
+        [/[;|&<>]/, 'delimiter'],
+        [/\b\d+(\.\d+)?\b/, 'number'],
+        [/"/, { token: 'string.quote', bracket: '@open', next: '@string_double' }],
+        [/'/, { token: 'string.quote', bracket: '@open', next: '@string_single' }],
+        [/\b[A-Za-z_][A-Za-z0-9_]*\b/, {
+          cases: {
+            '@keywords': 'keyword',
+            '@default': 'identifier',
+          },
+        }],
+      ],
+      string_double: [
+        [/[^\\"]+/, 'string'],
+        [/\\./, 'string.escape'],
+        [/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }],
+      ],
+      string_single: [
+        [/[^']+/, 'string'],
+        [/'/, { token: 'string.quote', bracket: '@close', next: '@pop' }],
       ],
     },
   })
