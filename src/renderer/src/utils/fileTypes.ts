@@ -28,10 +28,11 @@ export function getLanguageFromFilename(filename: string): string {
     sh: 'shell',
     bash: 'shell',
     zsh: 'shell',
-    fish: 'shell',
+    fish: 'fish',
     
     // Config
     json: 'json',
+    jsonc: 'jsonc',
     yaml: 'yaml',
     yml: 'yaml',
     toml: 'toml',
@@ -118,8 +119,8 @@ export function isTextFile(filename: string): boolean {
     'makefile',
   ])
   const textExts = [
-    'txt', 'md', 'json', 'yaml', 'yml', 'toml', 'ini', 'conf', 'cfg',
-    'sh', 'bash', 'zsh', 'py', 'js', 'jsx', 'ts', 'tsx', 'html', 'css', 'scss', 'sass', 'less', 'xml',
+    'txt', 'md', 'json', 'jsonc', 'yaml', 'yml', 'toml', 'ini', 'conf', 'cfg',
+    'sh', 'bash', 'zsh', 'fish', 'py', 'js', 'jsx', 'ts', 'tsx', 'html', 'css', 'scss', 'sass', 'less', 'xml',
     'log', 'env', 'gitignore', 'dockerignore', 'rb', 'pl', 'php', 'go', 'rs', 'java', 'c', 'cpp', 'h', 'hpp',
     'rc', 'properties', 'pem', 'crt', 'key', 'pub', 'sql', 'csv', 'tsv', 'bat', 'ps1', 'psm1'
   ]

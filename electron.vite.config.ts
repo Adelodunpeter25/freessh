@@ -20,7 +20,7 @@ export default defineConfig({
           manualChunks: (id) => {
             if (id.includes('monaco-editor')) {
               const usedVsLanguage = ['json', 'html', 'css', 'typescript']
-              const usedBasicLanguages = ['xml', 'python', 'markdown', 'shell', 'dockerfile', 'ini']
+              const usedBasicLanguages = ['xml', 'python', 'markdown', 'shell', 'fish', 'dockerfile', 'ini']
 
               if (id.includes('/esm/vs/language/')) {
                 const keep = usedVsLanguage.some((lang) => id.includes(`/language/${lang}/`))

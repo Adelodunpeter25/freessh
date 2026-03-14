@@ -13,6 +13,7 @@ import 'monaco-editor/esm/vs/basic-languages/xml/xml.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/python/python.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/markdown/markdown.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/shell/shell.contribution.js'
+import 'monaco-editor/esm/vs/basic-languages/fish/fish.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/dockerfile/dockerfile.contribution.js'
 import 'monaco-editor/esm/vs/basic-languages/ini/ini.contribution.js'
 
