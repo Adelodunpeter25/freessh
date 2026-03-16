@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@react-navigation/bottom-tabs": "^7.15.5",
-    "@react-navigation/native": "^6.1.18",
-    "@react-navigation/native-stack": "^6.10.0",
+    "@react-navigation/native": "^7.0.0",
+    "@react-navigation/native-stack": "^7.0.0",
     "@tamagui/config": "2.0.0-rc.26",
     "@tamagui/static": "2.0.0-rc.26",
     "@tamagui/theme-base": "2.0.0-rc.26",
@@ -24,6 +24,7 @@
     "react-native-safe-area-context": "~5.6.0",
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
+    "react-native-reanimated": "~3.16.1",
     "tamagui": "2.0.0-rc.26",
     "zeego": "^1.10.0",
     "zustand": "^5.0.10"
