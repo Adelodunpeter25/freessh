@@ -38,6 +38,7 @@ func ParseMarkers(chunk string) ([]string, string) {
 func IsBootstrapCommand(command string) bool {
 	c := strings.TrimSpace(command)
 	return strings.Contains(c, "__freessh_emit_history") ||
+		strings.Contains(c, "local histno cmd") ||
 		strings.Contains(c, "__FREESSH_LAST_CMD") ||
 		strings.Contains(c, "fish_prompt") ||
 		strings.Contains(c, "__freessh_precmd") ||
@@ -67,6 +68,8 @@ func ContainsBootstrapFragment(content string) bool {
 		"__FREESSH_LAST_HISTNO",
 		"__FREESSH_LAST_CMD",
 		"freessh-history=%s",
+		"local histno cmd",
+		"fc -ln -1",
 		"histno=\"$HISTCMD\"",
 		"cmd=\"$(fc -ln -1",
 		"add-zsh-hook precmd",
