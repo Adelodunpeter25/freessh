@@ -25,6 +25,7 @@
     "react-native-screens": "~4.16.0",
     "react-native-svg": "15.12.1",
     "tamagui": "2.0.0-rc.26",
+    "zeego": "^1.10.0",
     "zustand": "^5.0.10"
   },
   "devDependencies": {

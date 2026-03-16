@@ -1,8 +1,10 @@
 import '@tamagui/native/setup-zeego'
 import { StatusBar } from 'expo-status-bar';
-import { TamaguiProvider, Theme } from 'tamagui';
+import { TamaguiProvider, Theme, setConfig } from 'tamagui';
 import { AppNavigator } from './src/navigation/AppNavigator';
 import tamaguiConfig from './tamagui.config';
+
+setConfig(tamaguiConfig);
 
 export default function App() {
   return (
