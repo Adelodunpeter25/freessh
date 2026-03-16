@@ -1,7 +1,8 @@
 import { NavigationContainer } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { enableScreens } from 'react-native-screens'
 
+// enableScreens() is integrated into the native stack and bottom tabs in v7
+ 
 import {
   ConnectionsScreen,
   SessionsScreen,
@@ -9,8 +10,6 @@ import {
   SnippetsScreen,
   SettingsScreen,
 } from '../screens'
-
-enableScreens()
 
 export type RootTabParamList = {
   Connections: undefined
