@@ -1,6 +1,7 @@
 import { Text, XStack } from 'tamagui'
 
-import { Input, IconButton } from '../'
+import { Input } from '../Input'
+import { IconButton } from '../IconButton'
 
 type SearchBarProps = {
   value: string

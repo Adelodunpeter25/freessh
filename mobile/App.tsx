@@ -1,3 +1,4 @@
+import '@tamagui/native/setup-zeego'
 import { StatusBar } from 'expo-status-bar';
 import { TamaguiProvider, Theme } from 'tamagui';
 import { AppNavigator } from './src/navigation/AppNavigator';
