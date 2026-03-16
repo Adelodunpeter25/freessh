@@ -1,4 +1,5 @@
-import { Tabs as TTabs, styled } from 'tamagui'
+import { Tabs as TTabs } from '@tamagui/tabs'
+import { styled } from 'tamagui'
 
 export const Tabs = TTabs
 
