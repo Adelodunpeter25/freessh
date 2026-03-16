@@ -2,7 +2,7 @@ import '@tamagui/native/setup-zeego'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
 import { Appearance } from 'react-native'
-import { TamaguiProvider } from 'tamagui'
+import { TamaguiProvider, Theme } from 'tamagui'
 
 import { AppNavigator } from './src/navigation/AppNavigator'
 import { useThemeStore } from './src/stores'
@@ -22,8 +22,10 @@ export default function App() {
 
   return (
     <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
-      <AppNavigator />
-      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+      <Theme name={theme}>
+        <AppNavigator />
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+      </Theme>
     </TamaguiProvider>
   )
 }
