@@ -1,4 +1,4 @@
-import { AnimatePresence, Stack, Text, XStack } from 'tamagui'
+import { AnimatePresence, Text, XStack } from 'tamagui'
 
 export type SnackbarProps = {
   open: boolean

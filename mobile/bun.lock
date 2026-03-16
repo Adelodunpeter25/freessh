@@ -10,6 +10,7 @@
         "@react-navigation/native-stack": "^6.10.0",
         "@tamagui/config": "^2.0.0-rc.26",
         "@tamagui/static": "^2.0.0-rc.26",
+        "@tamagui/tabs": "^2.0.0-rc.26",
         "@tamagui/theme-base": "^2.0.0-rc.26",
         "@tamagui/theme-builder": "^2.0.0-rc.26",
         "expo": "^54.0.0",

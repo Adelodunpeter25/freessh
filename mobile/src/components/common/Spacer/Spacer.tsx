@@ -1,5 +1,5 @@
-import { Stack, styled } from 'tamagui'
+import { YStack, styled } from 'tamagui'
 
-export const Spacer = styled(Stack, {
+export const Spacer = styled(YStack, {
   name: 'AppSpacer',
 })
