@@ -24,7 +24,14 @@ type ContextMenuProps = {
 
 export function ContextMenu({ title, items, triggerOnLongPress = true, children }: ContextMenuProps) {
   return (
-    <Menu>
+    <Menu
+      onOpen={() => {
+        console.log('[ContextMenu] open', title ?? 'untitled')
+      }}
+      onClose={() => {
+        console.log('[ContextMenu] close', title ?? 'untitled')
+      }}
+    >
       <MenuTrigger triggerOnLongPress={triggerOnLongPress}>
         {children}
       </MenuTrigger>
@@ -65,7 +72,10 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, children 
             return (
               <MenuOption
                 key={item.key}
-                onSelect={item.onPress}
+                onSelect={() => {
+                  console.log('[ContextMenu] select', title ?? 'untitled', item.key)
+                  item.onPress()
+                }}
                 disabled={item.disabled}
                 customStyles={{
                   optionWrapper: {
