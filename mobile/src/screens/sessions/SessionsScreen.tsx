@@ -25,20 +25,20 @@ export function SessionsScreen() {
   const t = useTheme();
   const isDark = useThemeStore((s) => s.theme === "dark");
 
-  const terminalColors = useMemo(
-    () => ({
-      background: t.background.get(),
-      foreground: t.color.get(),
-      cursor: t.accent.get(),
-      selection: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
-    }),
-    [t, isDark],
-  );
-
   const activeSession = useMemo(
     () => sessions.find((s) => s.id === activeSessionId) ?? null,
     [sessions, activeSessionId],
   );
+
+  const terminalColors = useMemo(() => {
+    if (!activeSession) return undefined;
+    return {
+      background: t.background?.get() ?? "#0b0b0b",
+      foreground: t.color?.get() ?? "#e5e7eb",
+      cursor: t.accent?.get() ?? "#f97316",
+      selection: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+    };
+  }, [activeSession, t, isDark]);
 
   useEffect(() => {
     if (!activeSessionId) return;
