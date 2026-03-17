@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import type { ConnectionConfig } from '@/types'
-import { connectionService } from '../services/crud'
+import { connectionService, keyService } from '../services/crud'
+import { sshService } from '@/services'
 
 type ConnectionState = {
   connections: ConnectionConfig[]
@@ -10,6 +11,8 @@ type ConnectionState = {
   duplicateConnection: (connection: ConnectionConfig) => Promise<ConnectionConfig>
   updateConnection: (connection: ConnectionConfig) => Promise<void>
   removeConnection: (id: string) => Promise<void>
+  connect: (connection: ConnectionConfig) => Promise<void>
+  connectSftp: (connection: ConnectionConfig) => Promise<void>
 }
 
 export const useConnectionStore = create<ConnectionState>((set, get) => ({
@@ -52,5 +55,72 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
     set((state) => ({
       connections: state.connections.filter((item) => item.id !== id),
     }))
+  },
+
+  connect: async (connection) => {
+    const port = connection.port ?? 22
+    let client
+    if (connection.auth_method === 'password') {
+      if (!connection.password) {
+        throw new Error('Missing password')
+      }
+      client = await sshService.connectWithPassword(
+        connection.host,
+        port,
+        connection.username,
+        connection.password
+      )
+    } else {
+      let privateKey = connection.private_key
+      if (!privateKey && connection.key_id) {
+        const key = await keyService.getById(connection.key_id)
+        privateKey = key?.private_key || ''
+      }
+      if (!privateKey) {
+        throw new Error('Missing private key')
+      }
+      client = await sshService.connectWithKey(
+        connection.host,
+        port,
+        connection.username,
+        privateKey
+      )
+    }
+
+    sshService.disconnect(client)
+  },
+
+  connectSftp: async (connection) => {
+    const port = connection.port ?? 22
+    let client
+    if (connection.auth_method === 'password') {
+      if (!connection.password) {
+        throw new Error('Missing password')
+      }
+      client = await sshService.connectWithPassword(
+        connection.host,
+        port,
+        connection.username,
+        connection.password
+      )
+    } else {
+      let privateKey = connection.private_key
+      if (!privateKey && connection.key_id) {
+        const key = await keyService.getById(connection.key_id)
+        privateKey = key?.private_key || ''
+      }
+      if (!privateKey) {
+        throw new Error('Missing private key')
+      }
+      client = await sshService.connectWithKey(
+        connection.host,
+        port,
+        connection.username,
+        privateKey
+      )
+    }
+
+    await sshService.connectSftp(client)
+    sshService.disconnect(client)
   },
 }))
