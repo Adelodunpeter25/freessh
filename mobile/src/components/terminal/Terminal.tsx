@@ -119,11 +119,24 @@ const buildHtml = (theme: Required<NonNullable<TerminalProps["theme"]>>) => `
         },
         allowTransparency: true,
         convertEol: true,
+        rightClickSelectsWord: false,
+        macOptionIsMeta: false,
+        macOptionClickForcesSelection: false,
       });
 
       const fitAddon = new FitAddon.FitAddon();
       terminal.loadAddon(fitAddon);
       terminal.open(document.getElementById('terminal'));
+
+      setTimeout(() => {
+        const inputs = document.querySelectorAll('input, textarea, .xterm-helper-textarea');
+        inputs.forEach((input) => {
+          input.setAttribute('autocomplete', 'off');
+          input.setAttribute('autocorrect', 'off');
+          input.setAttribute('autocapitalize', 'off');
+          input.setAttribute('spellcheck', 'false');
+        });
+      }, 100);
 
       function post(type, data) {
         if (!window.ReactNativeWebView) return;
@@ -169,6 +182,10 @@ const buildHtml = (theme: Required<NonNullable<TerminalProps["theme"]>>) => `
         try { terminal.focus(); } catch (e) {}
       };
 
+      window.resetScroll = function() {
+        try { terminal.scrollToBottom(); } catch (e) {}
+      };
+
       window.updateTheme = function(nextTheme) {
         try {
           terminal.options.theme = nextTheme;
@@ -199,6 +216,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
     const webViewRef = useRef<WebView>(null);
     const isReadyRef = useRef(false);
     const pendingWritesRef = useRef<string[]>([]);
+    const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const resolvedTheme = useMemo(
       () => ({
@@ -221,11 +239,28 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       );
     }, []);
 
+    const scheduleFlush = useCallback(() => {
+      if (flushTimerRef.current) return;
+      flushTimerRef.current = setTimeout(() => {
+        flushTimerRef.current = null;
+        flushPendingWrites();
+      }, 16);
+    }, [flushPendingWrites]);
+
     useEffect(() => {
       webViewRef.current?.injectJavaScript(
         `window.updateTheme(${JSON.stringify(resolvedTheme)}); true;`,
       );
     }, [resolvedTheme]);
+
+    useEffect(() => {
+      return () => {
+        if (flushTimerRef.current) {
+          clearTimeout(flushTimerRef.current);
+          flushTimerRef.current = null;
+        }
+      };
+    }, []);
 
     const handleMessage = useCallback(
       (event: any) => {
@@ -240,6 +275,9 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
             isReadyRef.current = true;
             onReady?.(message.cols, message.rows);
             flushPendingWrites();
+            webViewRef.current?.injectJavaScript(
+              "window.focusTerminal(); window.resetScroll && window.resetScroll(); true;",
+            );
             return;
           }
 
@@ -255,14 +293,9 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
     useImperativeHandle(ref, () => ({
       write: (data: string) => {
-        if (!isReadyRef.current) {
-          pendingWritesRef.current.push(data);
-          return;
-        }
-
-        webViewRef.current?.injectJavaScript(
-          `window.writeToTerminal(${JSON.stringify(data)}); true;`,
-        );
+        pendingWritesRef.current.push(data);
+        if (!isReadyRef.current) return;
+        scheduleFlush();
       },
       clear: () => {
         pendingWritesRef.current = [];
