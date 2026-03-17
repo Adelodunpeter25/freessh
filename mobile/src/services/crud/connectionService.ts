@@ -64,6 +64,18 @@ export const connectionService = {
     await db.runAsync('DELETE FROM connections WHERE id = ?', [id])
   },
 
+  async duplicate(connection: ConnectionConfig): Promise<ConnectionConfig> {
+    const id = Date.now().toString()
+    const name = `${connection.name} (copy)`
+    const copy: ConnectionConfig = {
+      ...connection,
+      id,
+      name,
+    }
+    await this.create(copy)
+    return copy
+  },
+
   async getByGroup(groupId: string): Promise<ConnectionConfig[]> {
     const results = await db.getAllAsync('SELECT * FROM connections WHERE "group" = ?', [groupId])
     return results.map((row: any) => ({
