@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useCallback } from "react";
 import { YStack, useTheme } from "tamagui";
 import { useNavigation } from "@react-navigation/native";
 
@@ -21,6 +21,7 @@ export function SessionsScreen() {
   const sendInput = useTerminalStore((s) => s.sendInput);
   const subscribeOutput = useTerminalStore((s) => s.subscribeOutput);
   const terminalRef = useRef<TerminalHandle>(null);
+  const isMountedRef = useRef(true);
 
   const t = useTheme();
   const isDark = useThemeStore((s) => s.theme === "dark");
@@ -40,24 +41,43 @@ export function SessionsScreen() {
     };
   }, [activeSession, t, isDark]);
 
-  useEffect(() => {
-    if (!activeSessionId) return;
+  const handleCloseSession = useCallback(async (id: string) => {
+    try {
+      await closeSession(id);
+    } catch (error) {
+      console.error("Failed to close session:", error);
+    }
+  }, [closeSession]);
 
-    // Clear terminal first for fresh session UI
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!activeSessionId || !isMountedRef.current) return;
+
     terminalRef.current?.clear();
 
     const unsubscribe = subscribeOutput(activeSessionId, (data) => {
-      terminalRef.current?.write(data);
+      if (isMountedRef.current && terminalRef.current) {
+        terminalRef.current.write(data);
+      }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+    };
   }, [activeSessionId, subscribeOutput]);
 
   const handleTerminalReady = (cols: number, rows: number) => {
-    // Reserved for future PTY resize support.
     void cols;
     void rows;
   };
+
+  const hasSessions = sessions.length > 0;
 
   return (
     <>
@@ -67,7 +87,7 @@ export function SessionsScreen() {
         onBackPress={() => navigation.goBack()}
       />
       <TerminalScreen keyboardOffset={48}>
-        {sessions.length === 0 ? (
+        {!hasSessions ? (
           <YStack gap="$3" p="$4">
             <EmptyState
               title="No active sessions"
@@ -81,9 +101,7 @@ export function SessionsScreen() {
               activeSessionId={activeSessionId}
               isDark={isDark}
               onSelect={setActiveSession}
-              onClose={(id) => {
-                void closeSession(id);
-              }}
+              onClose={handleCloseSession}
             />
 
             {activeSession ? (
@@ -98,7 +116,7 @@ export function SessionsScreen() {
                 <Terminal
                   ref={terminalRef}
                   onInput={(data) => {
-                    if (!activeSessionId) return;
+                    if (!activeSessionId || !isMountedRef.current) return;
                     sendInput(activeSessionId, data);
                   }}
                   onReady={handleTerminalReady}

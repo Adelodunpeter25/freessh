@@ -216,6 +216,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
     const isReadyRef = useRef(false);
     const pendingWritesRef = useRef<string[]>([]);
     const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isMountedRef = useRef(true);
 
     const resolvedTheme = useMemo(
       () => ({
@@ -223,14 +224,41 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
         foreground: theme?.foreground ?? "#e5e7eb",
         cursor: theme?.cursor ?? theme?.foreground ?? "#e5e7eb",
         selection: theme?.selection ?? "rgba(255,255,255,0.2)",
+        black: '#000000',
+        red: '#ff5555',
+        green: '#50fa7b',
+        yellow: '#f1fa8c',
+        blue: '#bd93f9',
+        magenta: '#ff79c6',
+        cyan: '#8be9fd',
+        white: '#bfbfbf',
+        brightBlack: '#4d4d4d',
+        brightRed: '#ff6e67',
+        brightGreen: '#5af78e',
+        brightYellow: '#f4f99d',
+        brightBlue: '#caa9fa',
+        brightMagenta: '#ff92d0',
+        brightCyan: '#9aedfe',
+        brightWhite: '#e6e6e6',
       }),
       [theme],
     );
 
     const html = useMemo(() => buildHtml(resolvedTheme), []);
 
+    useEffect(() => {
+      isMountedRef.current = true;
+      return () => {
+        isMountedRef.current = false;
+        if (flushTimerRef.current) {
+          clearTimeout(flushTimerRef.current);
+          flushTimerRef.current = null;
+        }
+      };
+    }, []);
+
     const flushPendingWrites = useCallback(() => {
-      if (!webViewRef.current || pendingWritesRef.current.length === 0) return;
+      if (!webViewRef.current || pendingWritesRef.current.length === 0 || !isMountedRef.current) return;
       const payload = pendingWritesRef.current.join("");
       pendingWritesRef.current = [];
       webViewRef.current.injectJavaScript(
@@ -247,22 +275,15 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
     }, [flushPendingWrites]);
 
     useEffect(() => {
+      if (!isMountedRef.current) return;
       webViewRef.current?.injectJavaScript(
         `window.updateTheme(${JSON.stringify(resolvedTheme)}); true;`,
       );
     }, [resolvedTheme]);
 
-    useEffect(() => {
-      return () => {
-        if (flushTimerRef.current) {
-          clearTimeout(flushTimerRef.current);
-          flushTimerRef.current = null;
-        }
-      };
-    }, []);
-
     const handleMessage = useCallback(
       (event: any) => {
+        if (!isMountedRef.current) return;
         try {
           const message: TerminalMessage = JSON.parse(event.nativeEvent.data);
           if (message.type === "input") {
@@ -292,18 +313,22 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
     useImperativeHandle(ref, () => ({
       write: (data: string) => {
+        if (!isMountedRef.current) return;
         pendingWritesRef.current.push(data);
         if (!isReadyRef.current) return;
         scheduleFlush();
       },
       clear: () => {
+        if (!isMountedRef.current) return;
         pendingWritesRef.current = [];
         webViewRef.current?.injectJavaScript("window.clearTerminal(); true;");
       },
       fit: () => {
+        if (!isMountedRef.current) return;
         webViewRef.current?.injectJavaScript("window.fitTerminal(); true;");
       },
       focus: () => {
+        if (!isMountedRef.current) return;
         webViewRef.current?.injectJavaScript("window.focusTerminal(); true;");
       },
     }));
@@ -318,6 +343,8 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
         javaScriptEnabled
         scrollEnabled={false}
         keyboardDisplayRequiresUserAction={false}
+        onError={(e) => console.error("WebView error:", e)}
+        onHttpError={(e) => console.error("WebView HTTP error:", e)}
       />
     );
   },
