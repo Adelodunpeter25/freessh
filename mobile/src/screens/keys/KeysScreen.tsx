@@ -6,7 +6,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import { AddButton, EmptyState, Screen, AppHeader, KeyCard, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
-import { useKeyStore } from '@/stores'
+import { useKeyStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function KeysScreen() {
@@ -14,6 +14,7 @@ export function KeysScreen() {
   const keys = useKeyStore((state) => state.keys)
   const loadKeys = useKeyStore((state) => state.initialize)
   const removeKey = useKeyStore((state) => state.removeKey)
+  const showSnackbar = useSnackbarStore((state) => state.show)
   const [refreshing, setRefreshing] = useState(false)
   const [confirmState, setConfirmState] = useState<{
     title: string
@@ -78,7 +79,14 @@ export function KeysScreen() {
                       setConfirmState({
                         title: 'Delete key?',
                         description: `This will remove "${key.name}" from your keychain.`,
-                        onConfirm: () => removeKey(key.id),
+                        onConfirm: async () => {
+                          try {
+                            await removeKey(key.id)
+                            showSnackbar(`Deleted "${key.name}"`, 'success')
+                          } catch {
+                            showSnackbar('Failed to delete key', 'error')
+                          }
+                        },
                       })
                     }
                   />

@@ -5,13 +5,14 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import { AddButton, Screen, SearchBar, SearchEmptyState, SectionHeader, SnippetCard, AppHeader, EmptyState, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
-import { useSnippetStore } from '@/stores'
+import { useSnippetStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function SnippetsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const snippets = useSnippetStore((state) => state.snippets)
   const removeSnippet = useSnippetStore((state) => state.removeSnippet)
+  const showSnackbar = useSnackbarStore((state) => state.show)
   const [confirmState, setConfirmState] = useState<{
     title: string
     description?: string
@@ -62,7 +63,14 @@ export function SnippetsScreen() {
                       setConfirmState({
                         title: 'Delete snippet?',
                         description: `This will remove "${snippet.name}".`,
-                        onConfirm: () => removeSnippet(snippet.id),
+                        onConfirm: async () => {
+                          try {
+                            await removeSnippet(snippet.id)
+                            showSnackbar(`Deleted "${snippet.name}"`, 'success')
+                          } catch {
+                            showSnackbar('Failed to delete snippet', 'error')
+                          }
+                        },
                       })
                     }
                   />

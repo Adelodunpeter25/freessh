@@ -6,12 +6,13 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import { AppHeader, Screen, EmptyState, KnownHostCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
-import { useKnownHostStore } from '@/stores'
+import { useKnownHostStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function KnownHostsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const { knownHosts, loading, initialize, removeKnownHost } = useKnownHostStore()
+  const showSnackbar = useSnackbarStore((state) => state.show)
   const [refreshing, setRefreshing] = useState(false)
   const [confirmState, setConfirmState] = useState<{
     title: string
@@ -80,7 +81,14 @@ export function KnownHostsScreen() {
                           setConfirmState({
                             title: 'Delete known host?',
                             description: `This will remove "${host.hostname}".`,
-                            onConfirm: () => removeKnownHost(host.id),
+                            onConfirm: async () => {
+                              try {
+                                await removeKnownHost(host.id)
+                                showSnackbar(`Deleted "${host.hostname}"`, 'success')
+                              } catch {
+                                showSnackbar('Failed to delete host', 'error')
+                              }
+                            },
                           })
                         }
                       />

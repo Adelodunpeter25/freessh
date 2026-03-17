@@ -6,12 +6,13 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
 import { AppHeader, Screen, EmptyState, LogCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
-import { useLogStore } from '@/stores'
+import { useLogStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function LogsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const { logs, loading, initialize, removeLog } = useLogStore()
+  const showSnackbar = useSnackbarStore((state) => state.show)
   const [refreshing, setRefreshing] = useState(false)
   const [confirmState, setConfirmState] = useState<{
     title: string
@@ -80,7 +81,14 @@ export function LogsScreen() {
                           setConfirmState({
                             title: 'Delete log?',
                             description: `This will remove "${log.filename}".`,
-                            onConfirm: () => removeLog(log.filename),
+                            onConfirm: async () => {
+                              try {
+                                await removeLog(log.filename)
+                                showSnackbar(`Deleted "${log.filename}"`, 'success')
+                              } catch {
+                                showSnackbar('Failed to delete log', 'error')
+                              }
+                            },
                           })
                         }
                       />

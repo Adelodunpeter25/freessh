@@ -112,7 +112,14 @@ export function ConnectionsScreen() {
                           setConfirmState({
                             title: 'Delete group?',
                             description: `This will remove "${group.name}" and ungroup its connections.`,
-                            onConfirm: () => removeGroup(group.id),
+                            onConfirm: async () => {
+                              try {
+                                await removeGroup(group.id)
+                                showSnackbar(`Deleted "${group.name}"`, 'success')
+                              } catch {
+                                showSnackbar('Failed to delete group', 'error')
+                              }
+                            },
                           })
                         }
                       />
@@ -135,12 +142,23 @@ export function ConnectionsScreen() {
                           setConfirmState({
                             title: 'Delete connection?',
                             description: `This will remove "${connection.name}" from your saved connections.`,
-                            onConfirm: () => removeConnection(connection.id),
+                            onConfirm: async () => {
+                              try {
+                                await removeConnection(connection.id)
+                                showSnackbar(`Deleted "${connection.name}"`, 'success')
+                              } catch {
+                                showSnackbar('Failed to delete connection', 'error')
+                              }
+                            },
                           })
                         }
                         onDuplicate={async () => {
-                          const copy = await duplicateConnection(connection)
-                          showSnackbar(`Created "${copy.name}"`, 'success')
+                          try {
+                            const copy = await duplicateConnection(connection)
+                            showSnackbar(`Created "${copy.name}"`, 'success')
+                          } catch {
+                            showSnackbar('Failed to duplicate connection', 'error')
+                          }
                         }}
                       />
                     ))}
