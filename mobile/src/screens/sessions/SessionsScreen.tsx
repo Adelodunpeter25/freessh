@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useRef } from "react";
-import { useColorScheme } from "react-native";
 import { Pressable } from "react-native";
 import { ScrollView, Text, XStack, YStack, useTheme } from "tamagui";
 import { useNavigation } from "@react-navigation/native";
@@ -50,14 +49,9 @@ export function SessionsScreen() {
   }, [activeSessionId, subscribeOutput]);
 
   const handleTerminalReady = (cols: number, rows: number) => {
-    // If we had a way to send pty resize, we'd do it here.
-    // For now, we just ensure it fits nicely in the container.
-    terminalRef.current?.fit();
-
-    // Attempt to normalize the terminal on the server
-    if (activeSessionId) {
-      sendInput(activeSessionId, `stty cols ${cols} rows ${rows}\n`);
-    }
+    // Reserved for future PTY resize support.
+    void cols;
+    void rows;
   };
 
   return (
