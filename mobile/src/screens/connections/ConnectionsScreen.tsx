@@ -18,7 +18,7 @@ import {
   ConfirmDialog,
 } from '@/components'
 import { useSearch } from '@/hooks'
-import { useConnectionStore, useGroupStore, useSnackbarStore } from '@/stores'
+import { useConnectionStore, useGroupStore, useSnackbarStore, useTerminalStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 import type { ConnectionConfig, Group } from '@/types'
 
@@ -32,10 +32,11 @@ export function ConnectionsScreen() {
   const removeGroup = useGroupStore((state) => state.removeGroup)
   const removeConnection = useConnectionStore((state) => state.removeConnection)
   const duplicateConnection = useConnectionStore((state) => state.duplicateConnection)
-  const connect = useConnectionStore((state) => state.connect)
   const connectSftp = useConnectionStore((state) => state.connectSftp)
-  const connectingIds = useConnectionStore((state) => state.connectingIds)
   const showSnackbar = useSnackbarStore((state) => state.show)
+  const openTerminalSession = useTerminalStore((state) => state.openSession)
+  const setActiveSession = useTerminalStore((state) => state.setActiveSession)
+  const connectingByConnectionId = useTerminalStore((state) => state.connectingByConnectionId)
   const [showAddSheet, setShowAddSheet] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [confirmState, setConfirmState] = useState<{
@@ -50,13 +51,16 @@ export function ConnectionsScreen() {
         await connectSftp(connection)
         showSnackbar(`SFTP connected to "${connection.name}"`, 'success')
       } else {
-        await connect(connection)
+        const sessionId = await openTerminalSession(connection)
+        setActiveSession(sessionId)
         showSnackbar(`Connected to "${connection.name}"`, 'success')
+        // @ts-ignore
+        navigation.navigate('Sessions')
       }
     } catch {
       showSnackbar(`Failed to connect to "${connection.name}"`, 'error')
     }
-  }, [connect, connectSftp, showSnackbar])
+  }, [connectSftp, openTerminalSession, setActiveSession, showSnackbar, navigation])
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -154,7 +158,7 @@ export function ConnectionsScreen() {
                       <ConnectionCard 
                         key={connection.id} 
                         connection={connection}
-                        loading={!!connectingIds[connection.id]}
+                        loading={!!connectingByConnectionId[connection.id]}
                         onPress={() => handleConnect(connection, 'ssh')}
                         onEdit={() => navigation.navigate('ConnectionForm', { connection })}
                         onDelete={() =>
