@@ -5,6 +5,7 @@ import {
   Theme,
 } from '@react-navigation/native'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import {
   Code,
   Folder,
@@ -16,6 +17,7 @@ import { enableScreens } from 'react-native-screens'
 
 import {
   ConnectionsScreen,
+  GroupDetailsScreen,
   SessionsScreen,
   SftpScreen,
   SnippetsScreen,
@@ -24,6 +26,11 @@ import {
 import { useThemeStore } from '../stores'
 
 enableScreens()
+
+export type ConnectionsStackParamList = {
+  ConnectionsHome: undefined
+  GroupDetails: { groupId: string }
+}
 
 export type RootTabParamList = {
   Connections: undefined
@@ -34,6 +41,7 @@ export type RootTabParamList = {
 }
 
 const Tab = createBottomTabNavigator<RootTabParamList>()
+const ConnectionsStack = createNativeStackNavigator<ConnectionsStackParamList>()
 
 const lightNavTheme: Theme = {
   ...DefaultTheme,
@@ -57,6 +65,23 @@ const darkNavTheme: Theme = {
     border: '#1f2937',
     primary: '#f97316',
   },
+}
+
+function ConnectionsStackNavigator() {
+  return (
+    <ConnectionsStack.Navigator>
+      <ConnectionsStack.Screen
+        name="ConnectionsHome"
+        component={ConnectionsScreen}
+        options={{ title: 'Connections' }}
+      />
+      <ConnectionsStack.Screen
+        name="GroupDetails"
+        component={GroupDetailsScreen}
+        options={{ title: 'Group Details' }}
+      />
+    </ConnectionsStack.Navigator>
+  )
 }
 
 export function AppNavigator() {
@@ -86,8 +111,9 @@ export function AppNavigator() {
       >
         <Tab.Screen
           name="Connections"
-          component={ConnectionsScreen}
+          component={ConnectionsStackNavigator}
           options={{
+            headerShown: false,
             tabBarIcon: ({ color, size }) => (
               <Folder size={size} color={color} />
             ),
