@@ -61,7 +61,7 @@ export function SessionsScreen() {
 
     terminalRef.current?.clear();
 
-    const unsubscribe = subscribeOutput(activeSessionId, (data) => {
+    const unsubscribe = subscribeOutput(activeSessionId, (data: string) => {
       if (isMountedRef.current && terminalRef.current) {
         terminalRef.current.write(data);
       }
@@ -72,10 +72,11 @@ export function SessionsScreen() {
     };
   }, [activeSessionId, subscribeOutput]);
 
-  const handleTerminalReady = (cols: number, rows: number) => {
+  const handleTerminalReady = useCallback((cols: number, rows: number) => {
+    // Reserved for future PTY resize support.
     void cols;
     void rows;
-  };
+  }, []);
 
   const hasSessions = sessions.length > 0;
 
@@ -115,13 +116,15 @@ export function SessionsScreen() {
               >
                 <Terminal
                   ref={terminalRef}
-                  onInput={(data) => {
+                  onInput={(data: string) => {
                     if (!activeSessionId || !isMountedRef.current) return;
                     sendInput(activeSessionId, data);
                   }}
                   onReady={handleTerminalReady}
                   style={{ flex: 1 }}
                   theme={terminalColors}
+                  showLoading={activeSession.status === "connecting"}
+                  connectionName={activeSession.name}
                 />
               </YStack>
             ) : null}
