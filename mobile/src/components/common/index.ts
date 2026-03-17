@@ -1,3 +1,4 @@
+export * from './AddButton'
 export * from './AppHeader'
 export * from './Badge'
 export * from './Button'
