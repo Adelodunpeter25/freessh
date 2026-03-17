@@ -1,15 +1,33 @@
-import { useEffect } from 'react'
-import { YStack, ScrollView, Text } from 'tamagui'
+import { useEffect, useState, useCallback } from 'react'
+import { YStack, ScrollView, RefreshControl } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen, EmptyState, LogCard, LoadingState } from '@/components'
+import { AppHeader, Screen, EmptyState, LogCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader } from '@/components'
+import { useSearch } from '@/hooks'
 import { useLogStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function LogsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const { logs, loading, initialize, removeLog } = useLogStore()
+  const [refreshing, setRefreshing] = useState(false)
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      await initialize()
+    } finally {
+      setRefreshing(false)
+    }
+  }, [initialize])
+
+  const { query, filtered, setQuery, clearQuery, isEmpty } = useSearch({
+    items: logs,
+    fields: ['filename', 'connection_name'],
+  })
+
+  const showEmpty = query.length > 0 && isEmpty
 
   useEffect(() => {
     initialize()
@@ -26,21 +44,42 @@ export function LogsScreen() {
       <Screen>
         {loading ? (
           <LoadingState />
-        ) : logs.length === 0 ? (
-          <EmptyState 
-            title="No logs found" 
-            description="Stored session logs will appear here." 
-          />
         ) : (
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <YStack gap="$3" pb="$4">
-              {logs.map((log) => (
-                <LogCard 
-                  key={log.filename} 
-                  log={log} 
-                  onDelete={() => removeLog(log.filename)}
+          <ScrollView 
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+          >
+            <YStack gap="$4" padding="$4">
+              <SearchBar
+                value={query}
+                onChangeText={setQuery}
+                onClear={clearQuery}
+                placeholder="Search logs"
+              />
+
+              {logs.length === 0 ? (
+                <EmptyState 
+                  title="No logs found" 
+                  description="Stored session logs will appear here." 
                 />
-              ))}
+              ) : showEmpty ? (
+                <SearchEmptyState query={query} />
+              ) : (
+                <>
+                  <SectionHeader title="Session Logs" />
+                  <YStack gap="$3">
+                    {filtered.map((log) => (
+                      <LogCard 
+                        key={log.filename} 
+                        log={log} 
+                        onDelete={() => removeLog(log.filename)}
+                      />
+                    ))}
+                  </YStack>
+                </>
+              )}
             </YStack>
           </ScrollView>
         )}
