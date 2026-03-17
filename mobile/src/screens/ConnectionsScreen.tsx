@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -6,9 +5,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import {
   AddButton,
   ConnectionCard,
-  ConnectionForm,
   GroupCard,
-  GroupForm,
   Screen,
   SearchBar,
   SearchEmptyState,
@@ -24,16 +21,7 @@ export function ConnectionsScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const connections = useConnectionStore((state) => state.connections)
-  const addConnection = useConnectionStore((state) => state.addConnection)
-  const updateConnection = useConnectionStore((state) => state.updateConnection)
   const groups = useGroupStore((state) => state.groups)
-  const addGroup = useGroupStore((state) => state.addGroup)
-  const updateGroup = useGroupStore((state) => state.updateGroup)
-  
-  const [connectionFormVisible, setConnectionFormVisible] = useState(false)
-  const [groupFormVisible, setGroupFormVisible] = useState(false)
-  const [editingConnection, setEditingConnection] = useState<ConnectionConfig | undefined>()
-  const [editingGroup, setEditingGroup] = useState<Group | undefined>()
 
   const { query, filtered, setQuery, clearQuery, isEmpty } = useSearch({
     items: connections,
@@ -41,34 +29,6 @@ export function ConnectionsScreen() {
   })
 
   const showEmpty = query.length > 0 && isEmpty
-
-  const handleConnectionSubmit = (data: ConnectionConfig) => {
-    if (editingConnection) {
-      updateConnection(data)
-    } else {
-      addConnection(data)
-    }
-    setEditingConnection(undefined)
-  }
-
-  const handleGroupSubmit = (data: Group) => {
-    if (editingGroup) {
-      updateGroup(data)
-    } else {
-      addGroup(data)
-    }
-    setEditingGroup(undefined)
-  }
-
-  const openConnectionForm = (connection?: ConnectionConfig) => {
-    setEditingConnection(connection)
-    setConnectionFormVisible(true)
-  }
-
-  const openGroupForm = (group?: Group) => {
-    setEditingGroup(group)
-    setGroupFormVisible(true)
-  }
 
   return (
     <>
@@ -94,7 +54,7 @@ export function ConnectionsScreen() {
                     onPress={() =>
                       navigation.navigate('GroupDetails', { groupId: group.id })
                     }
-                    onEdit={() => openGroupForm(group)}
+                    onEdit={() => navigation.navigate('GroupForm', { group })}
                   />
                 ))}
               </YStack>
@@ -107,7 +67,7 @@ export function ConnectionsScreen() {
                   <ConnectionCard 
                     key={connection.id} 
                     connection={connection}
-                    onEdit={() => openConnectionForm(connection)}
+                    onEdit={() => navigation.navigate('ConnectionForm', { connection })}
                   />
                 ))}
               </YStack>
@@ -116,27 +76,7 @@ export function ConnectionsScreen() {
         </YStack>
       </Screen>
 
-      <AddButton onPress={() => openConnectionForm()} />
-
-      <ConnectionForm
-        visible={connectionFormVisible}
-        onClose={() => {
-          setConnectionFormVisible(false)
-          setEditingConnection(undefined)
-        }}
-        onSubmit={handleConnectionSubmit}
-        initialData={editingConnection}
-      />
-
-      <GroupForm
-        visible={groupFormVisible}
-        onClose={() => {
-          setGroupFormVisible(false)
-          setEditingGroup(undefined)
-        }}
-        onSubmit={handleGroupSubmit}
-        initialData={editingGroup}
-      />
+      <AddButton onPress={() => navigation.navigate('ConnectionForm', {})} />
     </>
   )
 }

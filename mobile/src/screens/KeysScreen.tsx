@@ -1,23 +1,12 @@
-import { useState } from 'react'
 import { YStack } from 'tamagui'
+import { useNavigation } from '@react-navigation/native'
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AddButton, EmptyState, Screen, KeyForm } from '@/components'
-import type { Key } from '@/types'
+import { AddButton, EmptyState, Screen } from '@/components'
+import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function KeysScreen() {
-  const [formVisible, setFormVisible] = useState(false)
-  const [editingKey, setEditingKey] = useState<Key | undefined>()
-
-  const handleSubmit = (data: Key) => {
-    // TODO: Add to key store when implemented
-    console.log('Key submitted:', data)
-    setEditingKey(undefined)
-  }
-
-  const openForm = (key?: Key) => {
-    setEditingKey(key)
-    setFormVisible(true)
-  }
+  const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
 
   return (
     <>
@@ -30,17 +19,7 @@ export function KeysScreen() {
         </YStack>
       </Screen>
 
-      <AddButton onPress={() => openForm()} />
-
-      <KeyForm
-        visible={formVisible}
-        onClose={() => {
-          setFormVisible(false)
-          setEditingKey(undefined)
-        }}
-        onSubmit={handleSubmit}
-        initialData={editingKey}
-      />
+      <AddButton onPress={() => navigation.navigate('KeyForm', {})} />
     </>
   )
 }

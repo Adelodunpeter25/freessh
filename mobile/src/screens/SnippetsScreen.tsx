@@ -1,18 +1,15 @@
-import { useState } from 'react'
 import { YStack } from 'tamagui'
+import { useNavigation } from '@react-navigation/native'
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AddButton, Screen, SearchBar, SearchEmptyState, SectionHeader, SnippetCard, SnippetForm } from '@/components'
+import { AddButton, Screen, SearchBar, SearchEmptyState, SectionHeader, SnippetCard } from '@/components'
 import { useSearch } from '@/hooks'
 import { useSnippetStore } from '@/stores'
-import type { Snippet } from '@/types'
+import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function SnippetsScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const snippets = useSnippetStore((state) => state.snippets)
-  const addSnippet = useSnippetStore((state) => state.addSnippet)
-  const updateSnippet = useSnippetStore((state) => state.updateSnippet)
-  
-  const [formVisible, setFormVisible] = useState(false)
-  const [editingSnippet, setEditingSnippet] = useState<Snippet | undefined>()
 
   const { query, filtered, setQuery, clearQuery, isEmpty } = useSearch({
     items: snippets,
@@ -20,20 +17,6 @@ export function SnippetsScreen() {
   })
 
   const showEmpty = query.length > 0 && isEmpty
-
-  const handleSubmit = (data: Snippet) => {
-    if (editingSnippet) {
-      updateSnippet(data)
-    } else {
-      addSnippet(data)
-    }
-    setEditingSnippet(undefined)
-  }
-
-  const openForm = (snippet?: Snippet) => {
-    setEditingSnippet(snippet)
-    setFormVisible(true)
-  }
 
   return (
     <>
@@ -56,7 +39,7 @@ export function SnippetsScreen() {
                   <SnippetCard 
                     key={snippet.id} 
                     snippet={snippet}
-                    onEdit={() => openForm(snippet)}
+                    onEdit={() => navigation.navigate('SnippetForm', { snippet })}
                   />
                 ))}
               </YStack>
@@ -65,17 +48,7 @@ export function SnippetsScreen() {
         </YStack>
       </Screen>
 
-      <AddButton onPress={() => openForm()} />
-
-      <SnippetForm
-        visible={formVisible}
-        onClose={() => {
-          setFormVisible(false)
-          setEditingSnippet(undefined)
-        }}
-        onSubmit={handleSubmit}
-        initialData={editingSnippet}
-      />
+      <AddButton onPress={() => navigation.navigate('SnippetForm', {})} />
     </>
   )
 }

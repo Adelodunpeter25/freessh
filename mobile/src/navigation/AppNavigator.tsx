@@ -7,15 +7,26 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { enableScreens } from 'react-native-screens'
 
-import { GroupDetailsScreen } from '../screens'
+import { 
+  GroupDetailsScreen,
+  ConnectionFormScreen,
+  GroupFormScreen,
+  SnippetFormScreen,
+  KeyFormScreen,
+} from '../screens'
 import { useThemeStore } from '../stores'
 import { BottomTabNavigator } from './BottomTabNavigator'
+import type { ConnectionConfig, Group, Snippet, Key } from '@/types'
 
 enableScreens()
 
 export type ConnectionsStackParamList = {
   Main: undefined
   GroupDetails: { groupId: string }
+  ConnectionForm: { connection?: ConnectionConfig }
+  GroupForm: { group?: Group }
+  SnippetForm: { snippet?: Snippet }
+  KeyForm: { key?: Key }
 }
 
 const Stack = createNativeStackNavigator<ConnectionsStackParamList>()
@@ -63,6 +74,22 @@ export function AppNavigator() {
         <Stack.Screen
           name="GroupDetails"
           component={GroupDetailsScreen}
+        />
+        <Stack.Screen
+          name="ConnectionForm"
+          component={ConnectionFormScreen}
+        />
+        <Stack.Screen
+          name="GroupForm"
+          component={GroupFormScreen}
+        />
+        <Stack.Screen
+          name="SnippetForm"
+          component={SnippetFormScreen}
+        />
+        <Stack.Screen
+          name="KeyForm"
+          component={KeyFormScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
