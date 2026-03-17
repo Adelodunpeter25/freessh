@@ -35,69 +35,57 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
       />
       <Screen>
         <YStack gap="$4">
-          <YStack gap="$2">
-            <Text fontSize={14} fontWeight="500" color="$color">Name</Text>
+          <Input
+            value={formData.name}
+            onChangeText={(value) => updateField('name', value)}
+            placeholder="Connection Name"
+            borderColor={errors.name ? '$red10' : '$borderColor'}
+          />
+          {errors.name && <Text fontSize={12} color="$red10">{errors.name}</Text>}
+
+          <Input
+            value={formData.host}
+            onChangeText={(value) => updateField('host', value)}
+            placeholder="Host"
+            borderColor={errors.host ? '$red10' : '$borderColor'}
+          />
+          {errors.host && <Text fontSize={12} color="$red10">{errors.host}</Text>}
+
+          <XStack gap="$2" alignItems="center">
+            <Text fontSize={14} color="$placeholderColor">SSH on</Text>
             <Input
-              value={formData.name}
-              onChangeText={(value) => updateField('name', value)}
-              placeholder="Connection name"
-              borderColor={errors.name ? '$red10' : '$borderColor'}
+              flex={1}
+              value={formData.port}
+              onChangeText={(value) => updateField('port', value)}
+              placeholder="22"
+              keyboardType="numeric"
+              borderColor={errors.port ? '$red10' : '$borderColor'}
             />
-            {errors.name && <Text fontSize={12} color="$red10">{errors.name}</Text>}
-          </YStack>
-
-          <YStack gap="$2">
-            <Text fontSize={14} fontWeight="500" color="$color">Host</Text>
-            <Input
-              value={formData.host}
-              onChangeText={(value) => updateField('host', value)}
-              placeholder="hostname or IP address"
-              borderColor={errors.host ? '$red10' : '$borderColor'}
-            />
-            {errors.host && <Text fontSize={12} color="$red10">{errors.host}</Text>}
-          </YStack>
-
-          <XStack gap="$3">
-            <YStack flex={1} gap="$2">
-              <Text fontSize={14} fontWeight="500" color="$color">Port</Text>
-              <Input
-                value={formData.port}
-                onChangeText={(value) => updateField('port', value)}
-                placeholder="22"
-                keyboardType="numeric"
-                borderColor={errors.port ? '$red10' : '$borderColor'}
-              />
-              {errors.port && <Text fontSize={12} color="$red10">{errors.port}</Text>}
-            </YStack>
-
-            <YStack flex={1} gap="$2">
-              <Text fontSize={14} fontWeight="500" color="$color">Username</Text>
-              <Input
-                value={formData.username}
-                onChangeText={(value) => updateField('username', value)}
-                placeholder="username"
-                borderColor={errors.username ? '$red10' : '$borderColor'}
-              />
-              {errors.username && <Text fontSize={12} color="$red10">{errors.username}</Text>}
-            </YStack>
+            <Text fontSize={14} color="$placeholderColor">port</Text>
           </XStack>
+          {errors.port && <Text fontSize={12} color="$red10">{errors.port}</Text>}
 
-          <YStack gap="$2">
-            <Text fontSize={14} fontWeight="500" color="$color">Authentication</Text>
-            <Select value={formData.auth_method} onValueChange={(value) => updateField('auth_method', value)}>
-              <Select.Trigger>
-                <Select.Value placeholder="Select auth method" />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item index={0} value="password">
-                  <Select.ItemText>Password</Select.ItemText>
-                </Select.Item>
-                <Select.Item index={1} value="publickey">
-                  <Select.ItemText>Public Key</Select.ItemText>
-                </Select.Item>
-              </Select.Content>
-            </Select>
-          </YStack>
+          <Input
+            value={formData.username}
+            onChangeText={(value) => updateField('username', value)}
+            placeholder="Username"
+            borderColor={errors.username ? '$red10' : '$borderColor'}
+          />
+          {errors.username && <Text fontSize={12} color="$red10">{errors.username}</Text>}
+
+          <Select value={formData.auth_method} onValueChange={(value) => updateField('auth_method', value)}>
+            <Select.Trigger>
+              <Select.Value placeholder="Authentication Method" />
+            </Select.Trigger>
+            <Select.Content>
+              <Select.Item index={0} value="password">
+                <Select.ItemText>Password</Select.ItemText>
+              </Select.Item>
+              <Select.Item index={1} value="publickey">
+                <Select.ItemText>Public Key</Select.ItemText>
+              </Select.Item>
+            </Select.Content>
+          </Select>
 
           <Button 
             backgroundColor="$accent" 
