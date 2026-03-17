@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { ConnectionConfig } from "@/types";
 import { sshService } from "@/services";
 import { keyService } from "@/services/crud";
+import type { SSHClientInstance } from "@/services/ssh/sshService";
 
 export type TerminalSession = {
   id: string;
@@ -13,10 +14,7 @@ export type TerminalSession = {
 
 type OutputListener = (data: string) => void;
 
-const clientMap = new Map<
-  string,
-  ReturnType<typeof sshService.connectWithPassword>
->();
+const clientMap = new Map<string, SSHClientInstance>();
 const outputListeners = new Map<string, Set<OutputListener>>();
 
 type TerminalState = {
