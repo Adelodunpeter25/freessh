@@ -45,7 +45,7 @@ export function KeyFormScreen({ route, navigation }: Props) {
         showBackButton 
         onBackPress={() => navigation.goBack()} 
       />
-      <Screen>
+      <Screen keyboardAvoiding keyboardOffset={48}>
         <YStack gap="$4">
           <YStack gap="$2">
             <XStack ai="center" gap="$1">
