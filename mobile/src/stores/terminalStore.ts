@@ -110,6 +110,9 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       });
 
       await sshService.startShell(client, "xterm");
+      
+      // Send a newline to ensure shell is ready and prompt appears
+      await sshService.writeToShell(client, "\n");
 
       set((state) => ({
         sessions: state.sessions.map((s) =>
@@ -176,6 +179,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
   sendInput: async (id, data) => {
     const client = clientMap.get(id);
     if (!client) return;
+    console.log('Sending to SSH shell:', JSON.stringify(data));
     await sshService.writeToShell(client, data);
   },
 

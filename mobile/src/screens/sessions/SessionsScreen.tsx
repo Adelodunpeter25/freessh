@@ -118,6 +118,7 @@ export function SessionsScreen() {
                   ref={terminalRef}
                   onInput={(data: string) => {
                     if (!activeSessionId || !isMountedRef.current) return;
+                    console.log('SessionsScreen: sending input:', JSON.stringify(data));
                     sendInput(activeSessionId, data);
                   }}
                   onReady={handleTerminalReady}

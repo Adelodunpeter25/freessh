@@ -195,9 +195,20 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
 
     window.writeToTerminal = function(data) {
       try { 
-        terminal.write(data); 
+        terminal.write(data);
+        terminal.scrollToBottom();
       } catch(e) {
         console.error('Error writing to terminal:', e);
+      }
+    };
+
+    window.setPrompt = function() {
+      try {
+        // Force a newline and ensure prompt is visible
+        terminal.write('\r\n');
+        terminal.scrollToBottom();
+      } catch(e) {
+        console.error('Error setting prompt:', e);
       }
     };
 
@@ -231,6 +242,8 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
 
     terminal.onData((data) => {
       if (window.ReactNativeWebView) {
+        // Log for debugging
+        console.log('Terminal input:', JSON.stringify(data));
         window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'input', data }));
       }
     });
