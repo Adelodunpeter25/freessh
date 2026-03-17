@@ -1,4 +1,4 @@
-import { Button, Input, Text, TextArea, XStack, YStack, View, Separator, RadioGroup } from 'tamagui'
+import { Button, Input, Text, TextArea, XStack, YStack, View, Separator, RadioGroup, useTheme } from 'tamagui'
 import { ChevronDown, Eye, EyeOff } from 'lucide-react-native'
 import { useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
@@ -11,6 +11,7 @@ import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 type Props = NativeStackScreenProps<ConnectionsStackParamList, 'ConnectionForm'>
 
 export function ConnectionFormScreen({ route, navigation }: Props) {
+  const t = useTheme()
   const { connection } = route.params
   const isEdit = !!connection
   const addConnection = useConnectionStore((state) => state.addConnection)
@@ -132,7 +133,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
                     chromeless
                     onPress={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? <EyeOff size={20} color="$placeholderColor" /> : <Eye size={20} color="$placeholderColor" />}
+                    {showPassword ? <EyeOff size={20} color={t.placeholderColor.get()} /> : <Eye size={20} color={t.placeholderColor.get()} />}
                   </Button>
                 </XStack>
               </YStack>
@@ -194,7 +195,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
                     chromeless
                     onPress={() => setShowPassphrase(!showPassphrase)}
                   >
-                    {showPassphrase ? <EyeOff size={20} color="$placeholderColor" /> : <Eye size={20} color="$placeholderColor" />}
+                    {showPassphrase ? <EyeOff size={20} color={t.placeholderColor.get()} /> : <Eye size={20} color={t.placeholderColor.get()} />}
                   </Button>
                 </XStack>
               </YStack>

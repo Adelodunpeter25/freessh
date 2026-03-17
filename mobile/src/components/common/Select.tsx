@@ -1,4 +1,4 @@
-import { Select as TSelect, Adapt, Sheet, YStack, Text } from 'tamagui'
+import { Select as TSelect, Adapt, Sheet, YStack, Text, useTheme } from 'tamagui'
 import { ChevronDown, Check } from 'lucide-react-native'
 import { useState } from 'react'
 
@@ -12,6 +12,7 @@ type SelectProps = {
 }
 
 export function Select({ value, onValueChange, placeholder, label, options, error }: SelectProps) {
+  const theme = useTheme()
   return (
     <YStack gap="$2">
       {label && (
@@ -51,7 +52,7 @@ export function Select({ value, onValueChange, placeholder, label, options, erro
                 <TSelect.Item index={i} key={option.value} value={option.value}>
                   <TSelect.ItemText>{option.label}</TSelect.ItemText>
                   <TSelect.ItemIndicator marginLeft="auto">
-                    <Check size={16} color="$accent" />
+                    <Check size={16} color={theme.accent.get()} />
                   </TSelect.ItemIndicator>
                 </TSelect.Item>
               ))}
