@@ -118,6 +118,7 @@ export function ConnectionsScreen() {
             </>
           )}
         </YStack>
+        </ScrollView>
       </Screen>
 
       <AddButton onPress={() => setShowAddSheet(true)} />
