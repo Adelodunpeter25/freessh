@@ -54,9 +54,9 @@ export function BottomTabNavigator() {
         name="Home"
         component={HomeScreen}
         options={{
-          headerTitle: 'Vault',
-          tabBarLabel: 'Vault',
-          tabBarIcon: ({ color }) => <Shield size={22} color={color} />,
+          headerTitle: 'Home',
+          tabBarLabel: 'Home',
+          tabBarIcon: ({ color }) => <Home size={22} color={color} />,
         }}
       />
       <Tab.Screen

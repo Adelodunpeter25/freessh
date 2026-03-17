@@ -51,26 +51,18 @@ export function HomeScreen() {
 
   return (
     <ScrollView backgroundColor="$background" flex={1}>
-      <YStack p="$4" pt="$8" gap="$6">
-        {/* Header Section */}
-        <XStack ai="center" jc="center" gap="$3" mb="$4">
-          <View scale={1.2}>
-            <ShieldCheck size={32} color={t.accent.get()} />
-          </View>
-          <H3 fontWeight="800" color="$color" letterSpacing={-0.5}>Vault</H3>
-        </XStack>
-
+      <YStack p="$4" pt="$2" gap="$4">
         {/* List Section */}
-        <YStack gap="$3">
+        <YStack gap="$2">
           {items.map((item) => (
             <Card
               key={item.id}
-              p="$4"
-              borderRadius={20}
+              p="$3"
+              px="$4"
+              borderRadius={16}
               backgroundColor="$backgroundStrong"
               borderWidth={1}
               borderColor="$borderColor"
-              elevation={2}
               pressStyle={{ scale: 0.98, backgroundColor: '$backgroundHover' }}
               onPress={() => {
                 if (item.id === 'hosts') {
@@ -83,22 +75,22 @@ export function HomeScreen() {
               }}
             >
               <XStack ai="center" jc="space-between">
-                <XStack ai="center" gap="$4">
-                  <Circle size={48} bg="$borderColor" opacity={0.5} ai="center" jc="center">
-                    <item.icon size={24} color={t.color.get()} />
+                <XStack ai="center" gap="$3">
+                  <Circle size={40} bg="$borderColor" opacity={0.5} ai="center" jc="center">
+                    <item.icon size={20} color={t.color.get()} />
                   </Circle>
-                  <Text fontSize={16} fontWeight="600" color="$color">
+                  <Text fontSize={15} fontWeight="600" color="$color">
                     {item.title}
                   </Text>
                 </XStack>
                 
                 <XStack ai="center" gap="$3">
                   {item.count !== undefined && (
-                    <Text fontSize={14} fontWeight="500" color="$placeholderColor">
+                    <Text fontSize={13} fontWeight="500" color="$placeholderColor">
                       {item.count}
                     </Text>
                   )}
-                  <ChevronRight size={18} color={t.placeholderColor.get()} />
+                  <ChevronRight size={16} color={t.placeholderColor.get()} />
                 </XStack>
               </XStack>
             </Card>
