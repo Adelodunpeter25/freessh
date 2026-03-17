@@ -16,9 +16,16 @@
 2. Open the installed **custom dev client** app on your device.
 3. It should connect to Metro and load the app.
 
+## USB Device (Android)
+1. Install Android Studio (for SDK + platform tools).
+2. On your phone: enable **Developer options** and **USB debugging**.
+3. Plug in via USB and verify:
+   - `adb devices`
+4. Build/install the dev client:
+   - `npx expo run:android`
+
 ## Common Issues
 - If you still see `Cannot read property 'connectToHostByPassword' of null`,
   you’re running in Expo Go or an old dev client build.
 - Rebuild the dev client after adding/updating native modules:
   - `npx expo run:android`
-
