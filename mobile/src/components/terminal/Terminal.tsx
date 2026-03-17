@@ -93,7 +93,7 @@ const buildHtml = (theme: Required<NonNullable<TerminalProps["theme"]>>) => `
         cursorBlink: true,
         scrollback: 10000,
         fontSize: 14,
-        lineHeight: 1.2,
+        lineHeight: 1,
         fontFamily: 'SF Mono, Menlo, Monaco, Consolas, "Courier New", monospace',
         theme: {
           background: '${theme.background}',
@@ -118,7 +118,6 @@ const buildHtml = (theme: Required<NonNullable<TerminalProps["theme"]>>) => `
           brightWhite: '#e6e6e6'
         },
         allowTransparency: true,
-        convertEol: true,
         rightClickSelectsWord: false,
         macOptionIsMeta: false,
         macOptionClickForcesSelection: false,

@@ -43,7 +43,7 @@ export function SessionTabs({
                     paddingLeft="$3"
                     paddingRight="$2.5"
                     paddingVertical="$2"
-                    borderRadius={14}
+                    borderRadius={10}
                     alignItems="center"
                     gap="$2"
                     backgroundColor={isActive ? "#3f3f46" : "#27272a"}
@@ -70,10 +70,7 @@ export function SessionTabs({
                         onClose(session.id);
                       }}
                     >
-                      <X
-                        size={14}
-                        color={isActive ? "#fafafa" : "#a1a1aa"}
-                      />
+                      <X size={14} color={isActive ? "#fafafa" : "#a1a1aa"} />
                     </Pressable>
                   </XStack>
                 </Pressable>
@@ -85,7 +82,7 @@ export function SessionTabs({
         <XStack
           width={32}
           height={32}
-          borderRadius={10}
+          borderRadius={8}
           alignItems="center"
           justifyContent="center"
           backgroundColor={isDark ? "#27272a" : "#d4d4d8"}
