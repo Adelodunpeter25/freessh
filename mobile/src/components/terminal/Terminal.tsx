@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { ViewStyle } from "react-native";
+import type { ViewStyle } from "react-native";
 import { WebView } from "react-native-webview";
 
 export type TerminalHandle = {
@@ -52,23 +52,37 @@ const buildHtml = (theme: Required<NonNullable<TerminalProps["theme"]>>) => `
         background: ${theme.background};
         overflow: hidden;
       }
+
       #terminal {
         width: 100vw;
         height: 100vh;
+        min-height: 100vh;
         padding: 6px 6px 20px 6px;
+        margin: 0;
         box-sizing: border-box;
+        background: ${theme.background};
       }
+
       .xterm {
         width: 100% !important;
         height: 100% !important;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
       }
+
       .xterm-viewport {
         width: 100% !important;
         height: 100% !important;
       }
+
       .xterm .xterm-viewport::-webkit-scrollbar {
-        width: 0px;
+        width: 8px;
         background: transparent;
+      }
+
+      .xterm .xterm-viewport::-webkit-scrollbar-thumb {
+        background: rgba(180,180,180,0.55);
+        border-radius: 4px;
       }
     </style>
   </head>
@@ -78,8 +92,9 @@ const buildHtml = (theme: Required<NonNullable<TerminalProps["theme"]>>) => `
       const terminal = new Terminal({
         cursorBlink: true,
         scrollback: 10000,
-        fontSize: 13,
-        fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+        fontSize: 14,
+        lineHeight: 1.2,
+        fontFamily: 'SF Mono, Menlo, Monaco, Consolas, "Courier New", monospace',
         theme: {
           background: '${theme.background}',
           foreground: '${theme.foreground}',
@@ -105,16 +120,63 @@ const buildHtml = (theme: Required<NonNullable<TerminalProps["theme"]>>) => `
         allowTransparency: true,
         convertEol: true,
       });
+
       const fitAddon = new FitAddon.FitAddon();
       terminal.loadAddon(fitAddon);
       terminal.open(document.getElementById('terminal'));
 
-      function notifyResize(type = 'resize') {
+      function post(type, data) {
+        if (!window.ReactNativeWebView) return;
+        window.ReactNativeWebView.postMessage(JSON.stringify({ type, ...data }));
+      }
+
+      function notifyResize(type) {
         try {
           fitAddon.fit();
-          post(type, { cols: terminal.cols, rows: terminal.rows });
+          post(type || 'resize', { cols: terminal.cols, rows: terminal.rows });
         } catch (e) {}
       }
+
+      let resizeTimer = null;
+      function debouncedResize(type) {
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          resizeTimer = null;
+          notifyResize(type || 'resize');
+        }, 80);
+      }
+
+      terminal.onData((data) => {
+        post('input', { data });
+      });
+
+      window.writeToTerminal = function(data) {
+        try { terminal.write(data); } catch (e) {}
+      };
+
+      window.clearTerminal = function() {
+        try {
+          terminal.clear();
+          terminal.reset();
+        } catch (e) {}
+      };
+
+      window.fitTerminal = function() {
+        debouncedResize('resize');
+      };
+
+      window.focusTerminal = function() {
+        try { terminal.focus(); } catch (e) {}
+      };
+
+      window.updateTheme = function(nextTheme) {
+        try {
+          terminal.options.theme = nextTheme;
+          document.body.style.background = nextTheme.background;
+          const root = document.getElementById('terminal');
+          if (root) root.style.background = nextTheme.background;
+        } catch (e) {}
+      };
 
       terminal.clear();
       terminal.reset();
@@ -123,43 +185,9 @@ const buildHtml = (theme: Required<NonNullable<TerminalProps["theme"]>>) => `
         notifyResize('terminalReady');
       }, 150);
 
-      function post(type, data) {
-        if (window.ReactNativeWebView) {
-          window.ReactNativeWebView.postMessage(JSON.stringify({ type, ...data }));
-        }
-      }
-
-      terminal.onData((data) => {
-        post('input', { data });
-      });
-
-      window.writeToTerminal = function(data) {
-        try { terminal.write(data); } catch (e) { console.error(e); }
-      };
-
-      window.clearTerminal = function() {
-        try { terminal.reset(); } catch (e) {}
-      };
-
-      window.fitTerminal = function() {
-        notifyResize('resize');
-      };
-
-      window.focusTerminal = function() {
-        try { terminal.focus(); } catch (e) {}
-      };
-
-      window.updateTheme = function(newTheme) {
-        try {
-          terminal.options.theme = newTheme;
-          document.body.style.background = newTheme.background;
-          const root = document.getElementById('terminal');
-          if (root) root.style.background = newTheme.background;
-        } catch (e) {}
-      };
-
-      window.addEventListener('resize', () => {
-        notifyResize('resize');
+      window.addEventListener('resize', () => debouncedResize('resize'));
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => debouncedResize('resize'), 100);
       });
     </script>
   </body>
@@ -169,6 +197,9 @@ const buildHtml = (theme: Required<NonNullable<TerminalProps["theme"]>>) => `
 export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
   ({ style, onInput, onReady, onResize, theme }, ref) => {
     const webViewRef = useRef<WebView>(null);
+    const isReadyRef = useRef(false);
+    const pendingWritesRef = useRef<string[]>([]);
+
     const resolvedTheme = useMemo(
       () => ({
         background: theme?.background ?? "#0b0b0b",
@@ -179,14 +210,22 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       [theme],
     );
 
-    // Update theme without reloading WebView
+    const html = useMemo(() => buildHtml(resolvedTheme), []);
+
+    const flushPendingWrites = useCallback(() => {
+      if (!webViewRef.current || pendingWritesRef.current.length === 0) return;
+      const payload = pendingWritesRef.current.join("");
+      pendingWritesRef.current = [];
+      webViewRef.current.injectJavaScript(
+        `window.writeToTerminal(${JSON.stringify(payload)}); true;`,
+      );
+    }, []);
+
     useEffect(() => {
       webViewRef.current?.injectJavaScript(
         `window.updateTheme(${JSON.stringify(resolvedTheme)}); true;`,
       );
     }, [resolvedTheme]);
-
-    const html = useMemo(() => buildHtml(resolvedTheme), []); // Only initial HTML
 
     const handleMessage = useCallback(
       (event: any) => {
@@ -194,32 +233,46 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
           const message: TerminalMessage = JSON.parse(event.nativeEvent.data);
           if (message.type === "input") {
             onInput?.(message.data);
-          } else if (message.type === "terminalReady") {
+            return;
+          }
+
+          if (message.type === "terminalReady") {
+            isReadyRef.current = true;
             onReady?.(message.cols, message.rows);
-          } else if (message.type === "resize") {
+            flushPendingWrites();
+            return;
+          }
+
+          if (message.type === "resize") {
             onResize?.(message.cols, message.rows);
           }
         } catch {
-          // ignore invalid messages
+          // ignore malformed messages
         }
       },
-      [onInput, onReady, onResize],
+      [flushPendingWrites, onInput, onReady, onResize],
     );
 
     useImperativeHandle(ref, () => ({
       write: (data: string) => {
+        if (!isReadyRef.current) {
+          pendingWritesRef.current.push(data);
+          return;
+        }
+
         webViewRef.current?.injectJavaScript(
           `window.writeToTerminal(${JSON.stringify(data)}); true;`,
         );
       },
       clear: () => {
+        pendingWritesRef.current = [];
         webViewRef.current?.injectJavaScript("window.clearTerminal(); true;");
       },
       fit: () => {
         webViewRef.current?.injectJavaScript("window.fitTerminal(); true;");
       },
       focus: () => {
-        webViewRef.current?.injectJavaScript("window.focusTerminal?.(); true;");
+        webViewRef.current?.injectJavaScript("window.focusTerminal(); true;");
       },
     }));
 
