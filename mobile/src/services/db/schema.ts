@@ -3,8 +3,11 @@ import * as SQLite from 'expo-sqlite'
 const DATABASE_NAME = 'freessh_mobile.db'
 
 export let db: SQLite.SQLiteDatabase
+let isInitialized = false
 
 export async function initDatabase() {
+  if (isInitialized) return
+  
   db = await SQLite.openDatabaseAsync(DATABASE_NAME)
 
   // Enable foreign keys
@@ -88,5 +91,6 @@ export async function initDatabase() {
     );
   `)
 
-  console.log('Database initialized with exact types')
+  isInitialized = true
+  console.log('Database initialized successfully')
 }
