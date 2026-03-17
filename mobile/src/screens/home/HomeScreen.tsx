@@ -23,7 +23,7 @@ import {
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
-import { useConnectionStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore } from '@/stores'
+import { useConnectionStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore, useTerminalStore } from '@/stores'
 
 type HubItem = {
   id: string
@@ -41,10 +41,11 @@ export function HomeScreen() {
   const keys = useKeyStore((state) => state.keys)
   const logs = useLogStore((state) => state.logs)
   const knownHosts = useKnownHostStore((state) => state.knownHosts)
+  const sessions = useTerminalStore((state) => state.sessions)
 
   const items: HubItem[] = [
     { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Connections', count: connections.length },
-    { id: 'sessions', title: 'Active Sessions', icon: History, screen: 'Sessions', count: 0 },
+    { id: 'sessions', title: 'Active Sessions', icon: History, screen: 'Sessions', count: sessions.length },
     { id: 'keychain', title: 'Keychain', icon: Key, screen: 'Keys', count: keys.length },
     { id: 'forwarding', title: 'Port forwarding', icon: ArrowRightLeft, screen: 'Main' }, // Placeholder
     { id: 'snippets', title: 'Snippets', icon: Code2, screen: 'Snippets', count: snippets.length },

@@ -3,7 +3,7 @@ import { Pressable } from 'react-native'
 import { ScrollView, Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 
-import { EmptyState, Screen, AppHeader, Terminal } from '@/components'
+import { EmptyState, AppHeader, Terminal, TerminalScreen } from '@/components'
 import type { TerminalHandle } from '@/components'
 import { useTerminalStore } from '@/stores'
 
@@ -38,16 +38,16 @@ export function SessionsScreen() {
         showBackButton 
         onBackPress={() => navigation.goBack()} 
       />
-      <Screen>
+      <TerminalScreen keyboardOffset={48}>
         {sessions.length === 0 ? (
-          <YStack gap="$3">
+          <YStack gap="$3" p="$4">
             <EmptyState
               title="No active sessions"
               description="Connect to a host to start a session."
             />
           </YStack>
         ) : (
-          <YStack gap="$2" flex={1}>
+          <YStack flex={1} gap="$2" p="$4" pt="$2">
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <XStack gap="$2" paddingVertical="$2">
                 {sessions.map((session) => (
@@ -94,7 +94,7 @@ export function SessionsScreen() {
             ) : null}
           </YStack>
         )}
-      </Screen>
+      </TerminalScreen>
     </>
   )
 }
