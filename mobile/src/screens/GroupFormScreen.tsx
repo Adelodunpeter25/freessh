@@ -18,9 +18,9 @@ export function GroupFormScreen({ route, navigation }: Props) {
     initialData: group,
     onSubmit: async (data) => {
       if (isEdit) {
-        updateGroup(data)
+        await updateGroup(data)
       } else {
-        addGroup(data)
+        await addGroup(data)
       }
       navigation.goBack()
     },

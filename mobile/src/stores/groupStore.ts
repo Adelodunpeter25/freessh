@@ -1,36 +1,45 @@
 import { create } from 'zustand'
-
-import type { Group } from '../types'
+import type { Group } from '@/types'
+import { groupService } from '../services/crud'
 
 type GroupState = {
   groups: Group[]
-  addGroup: (group: Group) => void
-  updateGroup: (group: Group) => void
-  removeGroup: (id: string) => void
+  loading: boolean
+  initialize: () => Promise<void>
+  addGroup: (group: Group) => Promise<void>
+  updateGroup: (group: Group) => Promise<void>
+  removeGroup: (id: string) => Promise<void>
 }
 
-const seedGroups: Group[] = [
-  { 
-    id: 'grp-1', 
-    name: 'Production', 
-    connection_count: 2,
-    created_at: new Date().toISOString()
-  },
-  { 
-    id: 'grp-2', 
-    name: 'Personal', 
-    connection_count: 1,
-    created_at: new Date().toISOString()
-  },
-]
-
 export const useGroupStore = create<GroupState>((set) => ({
-  groups: seedGroups,
-  addGroup: (group) => set((state) => ({ groups: [...state.groups, group] })),
-  updateGroup: (group) =>
+  groups: [],
+  loading: false,
+
+  initialize: async () => {
+    set({ loading: true })
+    try {
+      const groups = await groupService.getAll()
+      set({ groups, loading: false })
+    } catch (error) {
+      console.error('Failed to load groups:', error)
+      set({ loading: false })
+    }
+  },
+
+  addGroup: async (group) => {
+    await groupService.create(group)
+    set((state) => ({ groups: [...state.groups, group] }))
+  },
+
+  updateGroup: async (group) => {
+    await groupService.update(group)
     set((state) => ({
       groups: state.groups.map((item) => (item.id === group.id ? group : item)),
-    })),
-  removeGroup: (id) =>
-    set((state) => ({ groups: state.groups.filter((item) => item.id !== id) })),
+    }))
+  },
+
+  removeGroup: async (id) => {
+    await groupService.delete(id)
+    set((state) => ({ groups: state.groups.filter((item) => item.id !== id) }))
+  },
 }))

@@ -5,6 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 import { AppHeader, Screen, Select, Input, IconButton, Button } from '@/components'
 import { useKeyForm } from '@/hooks'
+import { useKeyStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 type Props = NativeStackScreenProps<ConnectionsStackParamList, 'KeyForm'>
@@ -15,11 +16,17 @@ export function KeyFormScreen({ route, navigation }: Props) {
   const isEdit = !!key
   const [showPassphrase, setShowPassphrase] = useState(false)
 
+  const addKey = useKeyStore((state) => state.addKey)
+  const updateKey = useKeyStore((state) => state.updateKey)
+
   const { formData, errors, isSubmitting, updateField, handleSubmit } = useKeyForm({
     initialData: key,
     onSubmit: async (data) => {
-      // TODO: Add to key store when implemented
-      console.log('Key submitted:', data)
+      if (isEdit) {
+        await updateKey(data)
+      } else {
+        await addKey(data)
+      }
       navigation.goBack()
     },
   })

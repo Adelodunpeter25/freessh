@@ -1,5 +1,6 @@
 export * from './connectionStore'
 export * from './groupStore'
 export * from './snippetStore'
+export * from './keyStore'
 export * from './themeStore'
 export * from './uiStore'

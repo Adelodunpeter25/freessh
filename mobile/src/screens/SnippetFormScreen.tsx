@@ -18,9 +18,9 @@ export function SnippetFormScreen({ route, navigation }: Props) {
     initialData: snippet,
     onSubmit: async (data) => {
       if (isEdit) {
-        updateSnippet(data)
+        await updateSnippet(data)
       } else {
-        addSnippet(data)
+        await addSnippet(data)
       }
       navigation.goBack()
     },

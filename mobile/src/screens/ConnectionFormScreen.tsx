@@ -26,9 +26,9 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
     initialData: connection,
     onSubmit: async (data) => {
       if (isEdit) {
-        updateConnection(data)
+        await updateConnection(data)
       } else {
-        addConnection(data)
+        await addConnection(data)
       }
       navigation.goBack()
     },

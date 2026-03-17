@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { Key } from '@/types'
+import type { SSHKey } from '@/types'
+import { keyGenerator } from '@/services'
 
 export type KeyFormData = {
   name: string
@@ -14,14 +15,14 @@ export type KeyFormErrors = {
 }
 
 type UseKeyFormProps = {
-  initialData?: Key
-  onSubmit: (data: Key) => void
+  initialData?: SSHKey
+  onSubmit: (data: SSHKey & { private_key?: string, passphrase?: string }) => void
 }
 
 export function useKeyForm({ initialData, onSubmit }: UseKeyFormProps) {
   const [formData, setFormData] = useState<KeyFormData>({
     name: initialData?.name || '',
-    type: (initialData?.type as 'rsa' | 'ed25519') || 'ed25519',
+    type: (initialData?.algorithm as 'rsa' | 'ed25519') || 'ed25519',
     bits: initialData?.bits || 2048,
     passphrase: '',
   })
@@ -52,18 +53,33 @@ export function useKeyForm({ initialData, onSubmit }: UseKeyFormProps) {
 
     setIsSubmitting(true)
     try {
-      const keyData: Key = {
-        id: initialData?.id || `key-${Date.now()}`,
-        name: formData.name.trim(),
-        type: formData.type,
-        bits: formData.bits,
-        fingerprint: initialData?.fingerprint || '',
-        public_key: initialData?.public_key || '',
-        private_key: initialData?.private_key || '',
-        created_at: initialData?.created_at || new Date().toISOString(),
+      let keyResult;
+      
+      // If we are creating a new key, we generate it
+      if (!initialData) {
+        if (formData.type === 'ed25519') {
+          keyResult = await keyGenerator.generateEd25519(formData.name.trim())
+        } else {
+          keyResult = await keyGenerator.generateRSA(formData.name.trim(), formData.bits)
+        }
+        
+        await onSubmit({
+           ...keyResult.key,
+           private_key: keyResult.privateKey,
+           passphrase: formData.passphrase || undefined
+        })
+      } else {
+        // Updating existing (only metadata usually)
+        await onSubmit({
+           ...initialData,
+           name: formData.name.trim(),
+           algorithm: formData.type,
+           bits: formData.type === 'rsa' ? formData.bits : undefined,
+           passphrase: formData.passphrase || undefined
+        })
       }
-
-      await onSubmit(keyData)
+    } catch (error) {
+      console.error('Failed to generate key:', error)
     } finally {
       setIsSubmitting(false)
     }

@@ -1,38 +1,47 @@
 import { create } from 'zustand'
-
-import type { Snippet } from '../types'
+import type { Snippet } from '@/types'
+import { snippetService } from '../services/crud'
 
 type SnippetState = {
   snippets: Snippet[]
-  addSnippet: (snippet: Snippet) => void
-  updateSnippet: (snippet: Snippet) => void
-  removeSnippet: (id: string) => void
+  loading: boolean
+  initialize: () => Promise<void>
+  addSnippet: (snippet: Snippet) => Promise<void>
+  updateSnippet: (snippet: Snippet) => Promise<void>
+  removeSnippet: (id: string) => Promise<void>
 }
 
-const seedSnippets: Snippet[] = [
-  {
-    id: 'snip-1',
-    name: 'Restart Nginx',
-    command: 'sudo systemctl restart nginx',
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'snip-2',
-    name: 'Check Disk Usage',
-    command: 'df -h',
-    created_at: new Date().toISOString(),
-  },
-]
-
 export const useSnippetStore = create<SnippetState>((set) => ({
-  snippets: seedSnippets,
-  addSnippet: (snippet) => set((state) => ({ snippets: [...state.snippets, snippet] })),
-  updateSnippet: (snippet) =>
+  snippets: [],
+  loading: false,
+
+  initialize: async () => {
+    set({ loading: true })
+    try {
+      const snippets = await snippetService.getAll()
+      set({ snippets, loading: false })
+    } catch (error) {
+      console.error('Failed to load snippets:', error)
+      set({ loading: false })
+    }
+  },
+
+  addSnippet: async (snippet) => {
+    await snippetService.create(snippet)
+    set((state) => ({ snippets: [...state.snippets, snippet] }))
+  },
+
+  updateSnippet: async (snippet) => {
+    await snippetService.update(snippet)
     set((state) => ({
       snippets: state.snippets.map((item) =>
         item.id === snippet.id ? snippet : item
       ),
-    })),
-  removeSnippet: (id) =>
-    set((state) => ({ snippets: state.snippets.filter((item) => item.id !== id) })),
+    }))
+  },
+
+  removeSnippet: async (id) => {
+    await snippetService.delete(id)
+    set((state) => ({ snippets: state.snippets.filter((item) => item.id !== id) }))
+  },
 }))

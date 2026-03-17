@@ -23,13 +23,13 @@ import {
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
-import { useConnectionStore, useSnippetStore } from '@/stores'
+import { useConnectionStore, useSnippetStore, useKeyStore } from '@/stores'
 
 type HubItem = {
   id: string
   title: string
   icon: any
-  screen: keyof ConnectionsStackParamList
+  screen: keyof ConnectionsStackParamList | 'Connections'
   count?: number
 }
 
@@ -38,11 +38,12 @@ export function HomeScreen() {
   const t = useTheme()
   const connections = useConnectionStore((state) => state.connections)
   const snippets = useSnippetStore((state) => state.snippets)
+  const keys = useKeyStore((state) => state.keys)
 
   const items: HubItem[] = [
-    { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Main', count: connections.length },
+    { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Connections', count: connections.length },
     { id: 'sessions', title: 'Active Sessions', icon: History, screen: 'Sessions', count: 0 },
-    { id: 'keychain', title: 'Keychain', icon: Key, screen: 'Keys', count: 0 },
+    { id: 'keychain', title: 'Keychain', icon: Key, screen: 'Keys', count: keys.length },
     { id: 'forwarding', title: 'Port forwarding', icon: ArrowRightLeft, screen: 'Main' },
     { id: 'snippets', title: 'Snippets', icon: Code2, screen: 'Snippets', count: snippets.length },
     { id: 'known_hosts', title: 'Known hosts', icon: Fingerprint, screen: 'Main', count: 0 },

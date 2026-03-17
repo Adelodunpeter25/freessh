@@ -5,18 +5,30 @@ import { Appearance } from 'react-native'
 import { TamaguiProvider } from 'tamagui'
 
 import { AppNavigator } from './src/navigation/AppNavigator'
-import { useThemeStore } from './src/stores'
+import { useThemeStore, useConnectionStore, useGroupStore, useSnippetStore, useKeyStore } from './src/stores'
 import tamaguiConfig from './tamagui.config'
 
 export default function App() {
   const theme = useThemeStore((state) => state.theme)
   const setSystemTheme = useThemeStore((state) => state.setSystemTheme)
+  
+  const initConnections = useConnectionStore(s => s.initialize)
+  const initGroups = useGroupStore(s => s.initialize)
+  const initSnippets = useSnippetStore(s => s.initialize)
+  const initKeys = useKeyStore(s => s.initialize)
 
   useEffect(() => {
     // Initializing SQLite
     const init = async () => {
        try {
-         await import('./src/services/db/schema').then(m => m.initDatabase())
+         await import('./src/services/db/schema').then(async (m) => {
+           await m.initDatabase()
+           // Initialize stores after DB is ready
+           initConnections()
+           initGroups()
+           initSnippets()
+           initKeys()
+         })
        } catch (error) {
          console.error('Failed to init database:', error)
        }
