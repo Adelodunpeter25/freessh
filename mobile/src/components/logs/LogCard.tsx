@@ -1,18 +1,16 @@
-import { FileText, Pencil, Trash2 } from 'lucide-react-native'
+import { FileText, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { Text, XStack, useTheme, View } from 'tamagui'
 import { BaseCard } from '../common'
 import type { LogEntry } from '@/types'
-import { ContextMenu } from '../common'
 
 type LogCardProps = {
   log: LogEntry
   onPress?: () => void
   onDelete?: () => void
-  onEdit?: () => void
 }
 
-export function LogCard({ log, onPress, onDelete, onEdit }: LogCardProps) {
+export function LogCard({ log, onPress, onDelete }: LogCardProps) {
   const theme = useTheme()
 
   const formatDate = (isoString: string) => {
@@ -29,58 +27,38 @@ export function LogCard({ log, onPress, onDelete, onEdit }: LogCardProps) {
   }
 
   return (
-    <ContextMenu
+    <BaseCard
       title={log.connection_name}
+      subtitle={
+        <XStack gap="$2" ai="center">
+          <Text fontSize={12} color="$placeholderColor">
+            {formatDate(log.timestamp)}
+          </Text>
+          <Text fontSize={12} color="$placeholderColor" opacity={0.5}>•</Text>
+          <Text fontSize={12} color="$placeholderColor">
+            {formatSize(log.size)}
+          </Text>
+        </XStack>
+      }
+      icon={<FileText size={20} color={theme.color.get()} />}
       onPress={onPress}
-      items={[
-        {
-          key: 'edit',
-          label: 'Edit',
-          onPress: () => onEdit?.(),
-          icon: <Pencil size={16} color={theme.color.get()} />,
-        },
-        { type: 'separator', key: 'sep-1' },
-        {
-          key: 'delete',
-          label: 'Delete',
-          destructive: true,
-          onPress: () => onDelete?.(),
-          icon: <Trash2 size={16} color="#ef4444" />,
-        },
-      ]}
-    >
-      <BaseCard
-        title={log.connection_name}
-        subtitle={
-          <XStack gap="$2" ai="center">
-            <Text fontSize={12} color="$placeholderColor">
-              {formatDate(log.timestamp)}
-            </Text>
-            <Text fontSize={12} color="$placeholderColor" opacity={0.5}>•</Text>
-            <Text fontSize={12} color="$placeholderColor">
-              {formatSize(log.size)}
-            </Text>
-          </XStack>
-        }
-        icon={<FileText size={20} color={theme.color.get()} />}
-        pressable={false}
-        action={onDelete && (
-          <Pressable onPress={(e) => {
-            e.stopPropagation()
-            onDelete()
-          }}>
-            <View
-              width={32}
-              height={32}
-              alignItems="center"
-              justifyContent="center"
-              borderRadius="$2"
-            >
-              <Trash2 size={16} color="$red10" />
-            </View>
-          </Pressable>
-        )}
-      />
-    </ContextMenu>
+      action={onDelete && (
+        <Pressable onPress={(e) => {
+          e.stopPropagation()
+          onDelete()
+        }}>
+          <View
+            width={32}
+            height={32}
+            alignItems="center"
+            justifyContent="center"
+            borderRadius="$2"
+            backgroundColor="$red10"
+          >
+            <Trash2 size={16} color="$red1" />
+          </View>
+        </Pressable>
+      )}
+    />
   )
 }

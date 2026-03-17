@@ -83,7 +83,6 @@ export function LogsScreen() {
                             onConfirm: () => removeLog(log.filename),
                           })
                         }
-                        onEdit={() => {}}
                       />
                     ))}
                   </YStack>

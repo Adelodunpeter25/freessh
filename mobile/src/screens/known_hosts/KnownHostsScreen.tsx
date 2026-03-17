@@ -83,7 +83,6 @@ export function KnownHostsScreen() {
                             onConfirm: () => removeKnownHost(host.id),
                           })
                         }
-                        onEdit={() => {}}
                       />
                     ))}
                   </YStack>
