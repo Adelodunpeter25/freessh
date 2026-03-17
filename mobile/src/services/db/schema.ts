@@ -1,17 +1,17 @@
-import * as SQLite from 'expo-sqlite'
+import * as SQLite from "expo-sqlite";
 
-const DATABASE_NAME = 'freessh_mobile.db'
+const DATABASE_NAME = "freessh_mobile.db";
 
-export let db: SQLite.SQLiteDatabase
-let isInitialized = false
+export let db: SQLite.SQLiteDatabase;
+let isInitialized = false;
 
 export async function initDatabase() {
-  if (isInitialized) return
-  
-  db = await SQLite.openDatabaseAsync(DATABASE_NAME)
+  if (isInitialized) return;
+
+  db = await SQLite.openDatabaseAsync(DATABASE_NAME);
 
   // Enable foreign keys
-  await db.execAsync('PRAGMA foreign_keys = ON;')
+  await db.execAsync("PRAGMA foreign_keys = ON;");
 
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS groups (
@@ -40,6 +40,7 @@ export async function initDatabase() {
       username TEXT NOT NULL,
       auth_method TEXT NOT NULL, -- 'password' | 'publickey'
       private_key TEXT,
+      passphrase TEXT,
       key_id TEXT,
       password TEXT,
       'group' TEXT, -- Matches 'group' field in ConnectionConfig
@@ -89,8 +90,15 @@ export async function initDatabase() {
       fingerprint TEXT NOT NULL,
       publicKey TEXT NOT NULL
     );
-  `)
+  `);
 
-  isInitialized = true
-  console.log('Database initialized successfully')
+  // Lightweight schema migration for older installs.
+  try {
+    await db.execAsync("ALTER TABLE connections ADD COLUMN passphrase TEXT;");
+  } catch {
+    // Column already exists.
+  }
+
+  isInitialized = true;
+  console.log("Database initialized successfully");
 }

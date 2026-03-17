@@ -1,85 +1,90 @@
-import { useState } from 'react'
-import type { ConnectionConfig, AuthMethod } from '@/types'
+import { useState } from "react";
+import type { ConnectionConfig, AuthMethod } from "@/types";
 
 export type ConnectionFormData = {
-  name: string
-  host: string
-  port: string
-  username: string
-  auth_method: AuthMethod
-  private_key?: string
-  key_id?: string
-  password?: string
-  group?: string
-}
+  name: string;
+  host: string;
+  port: string;
+  username: string;
+  auth_method: AuthMethod;
+  private_key?: string;
+  passphrase?: string;
+  key_id?: string;
+  password?: string;
+  group?: string;
+};
 
 export type ConnectionFormErrors = {
-  name?: string
-  host?: string
-  port?: string
-  username?: string
-}
+  name?: string;
+  host?: string;
+  port?: string;
+  username?: string;
+};
 
 type UseConnectionFormProps = {
-  initialData?: ConnectionConfig
-  onSubmit: (data: ConnectionConfig) => void
-}
+  initialData?: ConnectionConfig;
+  onSubmit: (data: ConnectionConfig) => void;
+};
 
-export function useConnectionForm({ initialData, onSubmit }: UseConnectionFormProps) {
+export function useConnectionForm({
+  initialData,
+  onSubmit,
+}: UseConnectionFormProps) {
   const [formData, setFormData] = useState<ConnectionFormData>({
-    name: initialData?.name || '',
-    host: initialData?.host || '',
-    port: initialData?.port?.toString() || '22',
-    username: initialData?.username || '',
-    auth_method: initialData?.auth_method || 'password',
-    private_key: initialData?.private_key || '',
-    key_id: initialData?.key_id || '',
-    password: initialData?.password || '',
-    group: initialData?.group || '',
-  })
+    name: initialData?.name || "",
+    host: initialData?.host || "",
+    port: initialData?.port?.toString() || "22",
+    username: initialData?.username || "",
+    auth_method: initialData?.auth_method || "password",
+    private_key: initialData?.private_key || "",
+    passphrase: initialData?.passphrase || "",
+    key_id: initialData?.key_id || "",
+    password: initialData?.password || "",
+    group: initialData?.group || "",
+  });
 
-  const [errors, setErrors] = useState<ConnectionFormErrors>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState<ConnectionFormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = (): boolean => {
-    const newErrors: ConnectionFormErrors = {}
+    const newErrors: ConnectionFormErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = 'Name is required'
+      newErrors.name = "Name is required";
     }
 
     if (!formData.host.trim()) {
-      newErrors.host = 'Host is required'
+      newErrors.host = "Host is required";
     }
 
     if (!formData.port.trim()) {
-      newErrors.port = 'Port is required'
+      newErrors.port = "Port is required";
     } else {
-      const port = parseInt(formData.port)
+      const port = parseInt(formData.port);
       if (isNaN(port) || port < 1 || port > 65535) {
-        newErrors.port = 'Port must be between 1 and 65535'
+        newErrors.port = "Port must be between 1 and 65535";
       }
     }
 
     if (!formData.username.trim()) {
-      newErrors.username = 'Username is required'
+      newErrors.username = "Username is required";
     }
 
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const updateField = (field: keyof ConnectionFormData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field as keyof ConnectionFormErrors]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }))
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
-  }
+  };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return
+    if (!validateForm()) return;
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     try {
       const connectionData: ConnectionConfig = {
         id: initialData?.id || `conn-${Date.now()}`,
@@ -89,31 +94,33 @@ export function useConnectionForm({ initialData, onSubmit }: UseConnectionFormPr
         username: formData.username.trim(),
         auth_method: formData.auth_method,
         private_key: formData.private_key || undefined,
+        passphrase: formData.passphrase || undefined,
         key_id: formData.key_id || undefined,
         password: formData.password || undefined,
         group: formData.group || undefined,
-      }
+      };
 
-      await onSubmit(connectionData)
+      await onSubmit(connectionData);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const reset = () => {
     setFormData({
-      name: '',
-      host: '',
-      port: '22',
-      username: '',
-      auth_method: 'password',
-      private_key: '',
-      key_id: '',
-      password: '',
-      group: '',
-    })
-    setErrors({})
-  }
+      name: "",
+      host: "",
+      port: "22",
+      username: "",
+      auth_method: "password",
+      private_key: "",
+      passphrase: "",
+      key_id: "",
+      password: "",
+      group: "",
+    });
+    setErrors({});
+  };
 
   return {
     formData,
@@ -123,5 +130,5 @@ export function useConnectionForm({ initialData, onSubmit }: UseConnectionFormPr
     handleSubmit,
     reset,
     isValid: Object.keys(errors).length === 0,
-  }
+  };
 }

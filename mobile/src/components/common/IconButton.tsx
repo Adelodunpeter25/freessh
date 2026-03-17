@@ -1,15 +1,14 @@
-import { Button, styled } from 'tamagui'
+import { Button, styled } from "tamagui";
 
 export const IconButton = styled(Button, {
-  name: 'AppIconButton',
+  name: "AppIconButton",
   circular: true,
-  size: '$3',
+  size: "$3",
   chromeless: true,
-  color: '$color',
   hoverStyle: {
-    bg: '$borderColor',
+    bg: "$borderColor",
   },
   pressStyle: {
-    bg: '$borderColor',
+    bg: "$borderColor",
   },
-})
+});

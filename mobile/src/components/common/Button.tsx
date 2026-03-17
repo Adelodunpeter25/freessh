@@ -1,15 +1,13 @@
-import { Button as TButton, styled } from 'tamagui'
+import { Button as TButton, styled } from "tamagui";
 
 export const Button = styled(TButton, {
-  name: 'AppButton',
+  name: "AppButton",
   borderRadius: 12,
-  fontWeight: '600',
-  bg: '$accent',
-  color: '$accentText',
+  bg: "$accent",
   pressStyle: {
-    bg: '$accentPress',
+    bg: "$accentPress",
   },
   hoverStyle: {
-    bg: '$accentHover',
+    bg: "$accentHover",
   },
-})
+});

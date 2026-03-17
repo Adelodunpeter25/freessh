@@ -1,32 +1,31 @@
-import { Tabs as TTabs } from '@tamagui/tabs'
-import { styled } from 'tamagui'
+import { Tabs as TTabs } from "@tamagui/tabs";
+import { styled } from "tamagui";
 
-export const Tabs = TTabs
+export const Tabs = TTabs;
 
 export const TabsList = styled(TTabs.List, {
-  name: 'AppTabsList',
-  backgroundColor: '$background',
-  borderColor: '$borderColor',
+  name: "AppTabsList",
+  backgroundColor: "$background",
+  borderColor: "$borderColor",
   borderWidth: 1,
   borderRadius: 12,
   padding: 4,
-})
+});
 
 export const TabsTrigger = styled(TTabs.Tab, {
-  name: 'AppTabsTrigger',
+  name: "AppTabsTrigger",
   borderRadius: 8,
   paddingVertical: 6,
   paddingHorizontal: 10,
-  color: '$color',
   focusStyle: {
-    bg: '$borderColor',
+    bg: "$borderColor",
   },
   pressStyle: {
-    bg: '$borderColor',
+    bg: "$borderColor",
   },
-})
+});
 
 export const TabsContent = styled(TTabs.Content, {
-  name: 'AppTabsContent',
+  name: "AppTabsContent",
   paddingTop: 12,
-})
+});

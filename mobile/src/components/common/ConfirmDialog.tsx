@@ -1,24 +1,24 @@
-import { Button as TButton, Dialog, Text, XStack, YStack } from 'tamagui'
-import { Button } from './Button'
+import { Button as TButton, Dialog, Text, XStack, YStack } from "tamagui";
+import { Button } from "./Button";
 
 type ConfirmDialogProps = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  title: string
-  description?: string
-  confirmText?: string
-  cancelText?: string
-  destructive?: boolean
-  onConfirm: () => void
-}
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description?: string;
+  confirmText?: string;
+  cancelText?: string;
+  destructive?: boolean;
+  onConfirm: () => void;
+};
 
 export function ConfirmDialog({
   open,
   onOpenChange,
   title,
   description,
-  confirmText = 'Delete',
-  cancelText = 'Cancel',
+  confirmText = "Delete",
+  cancelText = "Cancel",
   destructive = false,
   onConfirm,
 }: ConfirmDialogProps) {
@@ -58,28 +58,28 @@ export function ConfirmDialog({
               <Dialog.Close asChild>
                 <TButton
                   bg="$background"
-                  color="$color"
                   borderWidth={1}
                   borderColor="$borderColor"
                 >
-                  {cancelText}
+                  <Text color="$color">{cancelText}</Text>
                 </TButton>
               </Dialog.Close>
               <Button
-                bg={destructive ? '$red10' : '$accent'}
-                color={destructive ? '$red1' : '$accentText'}
-                pressStyle={{ bg: destructive ? '$red9' : '$accentPress' }}
+                bg={destructive ? "$red10" : "$accent"}
+                pressStyle={{ bg: destructive ? "$red9" : "$accentPress" }}
                 onPress={() => {
-                  onConfirm()
-                  onOpenChange(false)
+                  onConfirm();
+                  onOpenChange(false);
                 }}
               >
-                {confirmText}
+                <Text color={destructive ? "$red1" : "$accentText"}>
+                  {confirmText}
+                </Text>
               </Button>
             </XStack>
           </YStack>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog>
-  )
+  );
 }
