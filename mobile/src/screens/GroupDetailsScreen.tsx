@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { YStack } from 'tamagui'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
@@ -12,8 +13,10 @@ export function GroupDetailsScreen({ route }: Props) {
   const group = useGroupStore((state) =>
     state.groups.find((item) => item.id === groupId)
   )
-  const connections = useConnectionStore((state) =>
-    state.connections.filter((item) => item.groupId === groupId)
+  const allConnections = useConnectionStore((state) => state.connections)
+  const connections = useMemo(
+    () => allConnections.filter((item) => item.groupId === groupId),
+    [allConnections, groupId]
   )
 
   return (
