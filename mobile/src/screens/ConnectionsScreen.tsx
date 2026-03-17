@@ -1,4 +1,6 @@
-import { YStack } from 'tamagui'
+import { Sheet, YStack, Text, ListItem } from 'tamagui'
+import { Plus, FolderPlus, Server } from 'lucide-react-native'
+import { useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
@@ -23,6 +25,7 @@ export function ConnectionsScreen() {
     useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const connections = useConnectionStore((state) => state.connections)
   const groups = useGroupStore((state) => state.groups)
+  const [showAddSheet, setShowAddSheet] = useState(false)
 
   const { query, filtered, setQuery, clearQuery, isEmpty } = useSearch({
     items: connections,
@@ -94,7 +97,44 @@ export function ConnectionsScreen() {
         </YStack>
       </Screen>
 
-      <AddButton onPress={() => navigation.navigate('ConnectionForm', {})} />
+      <AddButton onPress={() => setShowAddSheet(true)} />
+
+      <Sheet
+        modal
+        open={showAddSheet}
+        onOpenChange={setShowAddSheet}
+        snapPoints={[25]}
+        dismissOnSnapToBottom
+      >
+        <Sheet.Overlay />
+        <Sheet.Frame p="$4" backgroundColor="$background">
+          <Sheet.Handle />
+          <YStack gap="$2" pt="$4">
+            <ListItem
+              hoverStyle={{ backgroundColor: '$backgroundHover' }}
+              pressStyle={{ backgroundColor: '$backgroundPress' }}
+              title="New Connection"
+              subTitle="Add a new SSH host"
+              icon={<Server size={20} />}
+              onPress={() => {
+                setShowAddSheet(false)
+                navigation.navigate('ConnectionForm', {})
+              }}
+            />
+            <ListItem
+              hoverStyle={{ backgroundColor: '$backgroundHover' }}
+              pressStyle={{ backgroundColor: '$backgroundPress' }}
+              title="New Group"
+              subTitle="Organize your hosts"
+              icon={<FolderPlus size={20} />}
+              onPress={() => {
+                setShowAddSheet(false)
+                navigation.navigate('GroupForm', {})
+              }}
+            />
+          </YStack>
+        </Sheet.Frame>
+      </Sheet>
     </>
   )
 }

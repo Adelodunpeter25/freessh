@@ -5,7 +5,7 @@ import { Appearance } from 'react-native'
 import { TamaguiProvider } from 'tamagui'
 
 import { AppNavigator } from './src/navigation/AppNavigator'
-import { useThemeStore, useConnectionStore, useGroupStore, useSnippetStore, useKeyStore } from './src/stores'
+import { useThemeStore, useConnectionStore, useGroupStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore } from './src/stores'
 import tamaguiConfig from './tamagui.config'
 
 export default function App() {
@@ -16,6 +16,8 @@ export default function App() {
   const initGroups = useGroupStore(s => s.initialize)
   const initSnippets = useSnippetStore(s => s.initialize)
   const initKeys = useKeyStore(s => s.initialize)
+  const initLogs = useLogStore(s => s.initialize)
+  const initKnownHosts = useKnownHostStore(s => s.initialize)
 
   useEffect(() => {
     // Initializing SQLite
@@ -28,6 +30,8 @@ export default function App() {
            initGroups()
            initSnippets()
            initKeys()
+           initLogs()
+           initKnownHosts()
          })
        } catch (error) {
          console.error('Failed to init database:', error)

@@ -1,4 +1,4 @@
-import { Button, Input, Text, YStack } from 'tamagui'
+import { Button, Input, Text, YStack, XStack } from 'tamagui'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 import { AppHeader, Screen } from '@/components'
@@ -36,7 +36,10 @@ export function GroupFormScreen({ route, navigation }: Props) {
       <Screen>
         <YStack gap="$4">
           <YStack gap="$2">
-            <Text fontSize={14} fontWeight="500" color="$color">Name *</Text>
+            <XStack ai="center" gap="$1">
+              <Text fontSize={14} fontWeight="500" color="$color">Name</Text>
+              <Text fontSize={14} fontWeight="500" color="$red10">*</Text>
+            </XStack>
             <Input
               value={formData.name}
               onChangeText={(value) => updateField('name', value)}

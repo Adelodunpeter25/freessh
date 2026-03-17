@@ -16,6 +16,8 @@ import {
   KeysScreen,
   SnippetsScreen,
   SessionsScreen,
+  LogsScreen,
+  KnownHostsScreen,
 } from '../screens'
 import { useThemeStore } from '../stores'
 import { BottomTabNavigator } from './BottomTabNavigator'
@@ -34,6 +36,8 @@ export type ConnectionsStackParamList = {
   Snippets: undefined
   Sessions: undefined
   History: undefined
+  Logs: undefined
+  KnownHosts: undefined
 }
 
 const Stack = createNativeStackNavigator<ConnectionsStackParamList>()
@@ -108,6 +112,14 @@ export function AppNavigator() {
         <Stack.Screen
           name="Sessions"
           component={SessionsScreen}
+        />
+        <Stack.Screen
+          name="Logs"
+          component={LogsScreen}
+        />
+        <Stack.Screen
+          name="KnownHosts"
+          component={KnownHostsScreen}
         />
         {/* We can use KeysScreen as a placeholder for History if it doesn't exist yet */}
       </Stack.Navigator>

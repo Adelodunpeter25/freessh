@@ -41,7 +41,10 @@ export function KeyFormScreen({ route, navigation }: Props) {
       <Screen>
         <YStack gap="$4">
           <YStack gap="$2">
-            <Text fontSize={13} fontWeight="600" color="$color">Name *</Text>
+            <XStack ai="center" gap="$1">
+              <Text fontSize={13} fontWeight="600" color="$color">Name</Text>
+              <Text fontSize={13} fontWeight="600" color="$red10">*</Text>
+            </XStack>
             <Input
               value={formData.name}
               onChangeText={(value) => updateField('name', value)}
