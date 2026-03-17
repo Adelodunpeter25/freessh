@@ -16,7 +16,7 @@ export function KnownHostCard({ host, onDelete }: KnownHostCardProps) {
     <BaseCard
       title={host.hostname}
       subtitle={host.fingerprint}
-      icon={<ShieldCheck size={20} color={theme.color.get()} />}
+      icon={<ShieldCheck size={20} color={theme.accent.get()} />}
       action={onDelete && (
         <Pressable onPress={(e) => {
           e.stopPropagation()

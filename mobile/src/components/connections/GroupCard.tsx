@@ -34,7 +34,7 @@ export function GroupCard({
           key: 'edit',
           label: 'Edit',
           onPress: () => onEdit?.(),
-          icon: <Pencil size={16} color={theme.color.get()} />,
+          icon: <Pencil size={16} color={theme.accent.get()} />,
         },
         { type: 'separator', key: 'sep-1' },
         {
@@ -49,7 +49,7 @@ export function GroupCard({
       <BaseCard
         title={group.name}
         subtitle={connectionSummary}
-        icon={<Folder size={20} color={theme.color.get()} />}
+        icon={<Folder size={20} color={theme.accent.get()} />}
         selected={selected}
         pressable={false}
         action={onEdit && (
@@ -65,7 +65,7 @@ export function GroupCard({
               borderRadius="$2"
               backgroundColor="transparent"
             >
-              <Pencil size={18} color={theme.color.get()} />
+              <Pencil size={18} color={theme.accent.get()} />
             </View>
           </Pressable>
         )}

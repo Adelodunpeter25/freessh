@@ -40,7 +40,7 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
           </Text>
         </XStack>
       }
-      icon={<FileText size={20} color={theme.color.get()} />}
+      icon={<FileText size={20} color={theme.accent.get()} />}
       onPress={onPress}
       action={onDelete && (
         <Pressable onPress={(e) => {

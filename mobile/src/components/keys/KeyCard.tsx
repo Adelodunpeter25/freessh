@@ -28,7 +28,7 @@ export function KeyCard({
           key: 'edit',
           label: 'Edit',
           onPress: () => onEdit?.(),
-          icon: <Pencil size={16} color={theme.color.get()} />,
+          icon: <Pencil size={16} color={theme.accent.get()} />,
         },
         { type: 'separator', key: 'sep-1' },
         {
@@ -43,7 +43,7 @@ export function KeyCard({
       <BaseCard
         title={sshKey.name}
         subtitle={`${sshKey.algorithm}${sshKey.bits ? ` • ${sshKey.bits} bits` : ''}`}
-        icon={<Key size={20} color={theme.color.get()} />}
+        icon={<Key size={20} color={theme.accent.get()} />}
         pressable={false}
         action={onEdit && (
           <Pressable onPress={(e) => {
@@ -58,7 +58,7 @@ export function KeyCard({
               borderRadius="$2"
               backgroundColor="transparent"
             >
-              <Pencil size={18} color={theme.color.get()} />
+              <Pencil size={18} color={theme.accent.get()} />
             </View>
           </Pressable>
         )}

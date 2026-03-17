@@ -38,26 +38,26 @@ export function ConnectionCard({
           key: 'connect',
           label: 'Connect',
           onPress: () => onConnect?.(),
-          icon: <Plug size={16} color={theme.color.get()} />,
+          icon: <Plug size={16} color={theme.accent.get()} />,
         },
         {
           key: 'open-sftp',
           label: 'Open in SFTP',
           onPress: () => onOpenSftp?.(),
-          icon: <FolderOpen size={16} color={theme.color.get()} />,
+          icon: <FolderOpen size={16} color={theme.accent.get()} />,
         },
         {
           key: 'duplicate',
           label: 'Duplicate',
           onPress: () => onDuplicate?.(),
-          icon: <Copy size={16} color={theme.color.get()} />,
+          icon: <Copy size={16} color={theme.accent.get()} />,
         },
         { type: 'separator', key: 'sep-1' },
         {
           key: 'edit',
           label: 'Edit',
           onPress: () => onEdit?.(),
-          icon: <Pencil size={16} color={theme.color.get()} />,
+          icon: <Pencil size={16} color={theme.accent.get()} />,
         },
         {
           key: 'delete',
@@ -71,7 +71,7 @@ export function ConnectionCard({
       <BaseCard
         title={connection.name}
         subtitle={loading ? 'Connecting...' : `${connection.username}@${connection.host}`}
-        icon={loading ? <Loader2 size={20} color={theme.color.get()} /> : <Server size={20} color={theme.color.get()} />}
+        icon={loading ? <Loader2 size={20} color={theme.accent.get()} /> : <Server size={20} color={theme.accent.get()} />}
         selected={selected}
         loading={loading}
         pressable={false}
@@ -88,7 +88,7 @@ export function ConnectionCard({
               borderRadius="$2"
               backgroundColor="transparent"
             >
-              <Pencil size={16} color={theme.color.get()} />
+              <Pencil size={16} color={theme.accent.get()} />
             </View>
           </Pressable>
         )}

@@ -31,7 +31,7 @@ export function SnippetCard({
           key: 'edit',
           label: 'Edit',
           onPress: () => onEdit?.(),
-          icon: <Pencil size={16} color={theme.color.get()} />,
+          icon: <Pencil size={16} color={theme.accent.get()} />,
         },
         { type: 'separator', key: 'sep-1' },
         {
@@ -68,7 +68,7 @@ export function SnippetCard({
             justifyContent="center"
             opacity={0.1}
           >
-            <Braces size={20} color={theme.color.get()} />
+            <Braces size={20} color={theme.accent.get()} />
           </View>
 
           {/* Content */}
@@ -91,7 +91,7 @@ export function SnippetCard({
               borderRadius="$2"
               backgroundColor="transparent"
             >
-              <Pencil size={16} color={theme.color.get()} />
+              <Pencil size={16} color={theme.accent.get()} />
             </View>
           </Pressable>
         </XStack>
