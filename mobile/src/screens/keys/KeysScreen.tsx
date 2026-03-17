@@ -81,19 +81,3 @@ export function KeysScreen() {
     </>
   )
 }
-               {keys.map(key => (
-                 <KeyCard 
-                   key={key.id} 
-                   sshKey={key} 
-                   onEdit={() => navigation.navigate('KeyForm', { key })}
-                 />
-               ))}
-             </YStack>
-          )}
-        </YStack>
-      </Screen>
-
-      <AddButton onPress={() => navigation.navigate('KeyForm', {})} />
-    </>
-  )
-}
