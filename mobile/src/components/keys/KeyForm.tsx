@@ -2,8 +2,8 @@ import { Modal, Pressable } from 'react-native'
 import { Button, Input, Select, Text, XStack, YStack, View, useTheme } from 'tamagui'
 import { X } from 'lucide-react-native'
 
-import { useKeyForm } from '../hooks'
-import type { Key } from '../types'
+import { useKeyForm } from '@/hooks'
+import type { Key } from '@/types'
 
 type KeyFormProps = {
   visible: boolean

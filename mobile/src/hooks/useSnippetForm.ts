@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Snippet } from '../types'
+import type { Snippet } from '@/types'
 
 export type SnippetFormData = {
   name: string

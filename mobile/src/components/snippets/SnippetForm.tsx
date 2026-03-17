@@ -2,8 +2,8 @@ import { Modal, Pressable } from 'react-native'
 import { Button, Input, Text, TextArea, XStack, YStack, View, useTheme } from 'tamagui'
 import { X } from 'lucide-react-native'
 
-import { useSnippetForm } from '../hooks'
-import type { Snippet } from '../types'
+import { useSnippetForm } from '@/hooks'
+import type { Snippet } from '@/types'
 
 type SnippetFormProps = {
   visible: boolean

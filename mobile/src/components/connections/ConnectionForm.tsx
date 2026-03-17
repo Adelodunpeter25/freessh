@@ -3,8 +3,8 @@ import { Modal, Pressable } from 'react-native'
 import { Button, Input, Select, Text, XStack, YStack, View, useTheme } from 'tamagui'
 import { X } from 'lucide-react-native'
 
-import { useConnectionForm } from '../hooks'
-import type { ConnectionConfig } from '../types'
+import { useConnectionForm } from '@/hooks'
+import type { ConnectionConfig } from '@/types'
 
 type ConnectionFormProps = {
   visible: boolean

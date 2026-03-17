@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Key } from '../types'
+import type { Key } from '@/types'
 
 export type KeyFormData = {
   name: string

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { ConnectionConfig, AuthMethod } from '../types'
+import type { ConnectionConfig, AuthMethod } from '@/types'
 
 export type ConnectionFormData = {
   name: string
