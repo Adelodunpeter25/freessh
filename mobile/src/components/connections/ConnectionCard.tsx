@@ -1,6 +1,5 @@
 import { Loader2, Pencil, Server } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { useState } from 'react'
 import { useTheme, View } from 'tamagui'
 import { BaseCard, ContextMenu } from '../common'
 import type { ConnectionConfig } from '../../types'
@@ -22,11 +21,41 @@ export function ConnectionCard({
   onEdit 
 }: ConnectionCardProps) {
   const theme = useTheme()
-  const [menuOpen, setMenuOpen] = useState(false)
   const actions = useContextMenuActions()
 
   return (
-    <>
+    <ContextMenu
+      title={connection.name}
+      items={[
+        {
+          key: 'connect',
+          label: 'Connect',
+          onPress: () => actions.connect(connection),
+        },
+        {
+          key: 'open-sftp',
+          label: 'Open in SFTP',
+          onPress: () => actions.openSftp(connection),
+        },
+        {
+          key: 'duplicate',
+          label: 'Duplicate',
+          onPress: () => actions.duplicateConnection(connection),
+        },
+        { type: 'separator', key: 'sep-1' },
+        {
+          key: 'edit',
+          label: 'Edit',
+          onPress: () => actions.editConnection(connection),
+        },
+        {
+          key: 'delete',
+          label: 'Delete',
+          destructive: true,
+          onPress: () => actions.deleteConnection(connection),
+        },
+      ]}
+    >
       <BaseCard
         title={connection.name}
         subtitle={loading ? 'Connecting...' : `${connection.username}@${connection.host}`}
@@ -34,7 +63,6 @@ export function ConnectionCard({
         selected={selected}
         loading={loading}
         onPress={onPress}
-        onLongPress={() => setMenuOpen(true)}
         action={onEdit && !loading && (
           <Pressable onPress={(e) => {
             e.stopPropagation()
@@ -53,41 +81,6 @@ export function ConnectionCard({
           </Pressable>
         )}
       />
-
-      <ContextMenu
-        open={menuOpen}
-        onOpenChange={setMenuOpen}
-        title={connection.name}
-        items={[
-          {
-            key: 'connect',
-            label: 'Connect',
-            onPress: () => actions.connect(connection),
-          },
-          {
-            key: 'open-sftp',
-            label: 'Open in SFTP',
-            onPress: () => actions.openSftp(connection),
-          },
-          {
-            key: 'duplicate',
-            label: 'Duplicate',
-            onPress: () => actions.duplicateConnection(connection),
-          },
-          { type: 'separator', key: 'sep-1' },
-          {
-            key: 'edit',
-            label: 'Edit',
-            onPress: () => actions.editConnection(connection),
-          },
-          {
-            key: 'delete',
-            label: 'Delete',
-            destructive: true,
-            onPress: () => actions.deleteConnection(connection),
-          },
-        ]}
-      />
-    </>
+    </ContextMenu>
   )
 }

@@ -1,6 +1,5 @@
 import { FileText, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { useState } from 'react'
 import { Text, XStack, useTheme, View } from 'tamagui'
 import { BaseCard } from '../common'
 import type { LogEntry } from '@/types'
@@ -15,7 +14,6 @@ type LogCardProps = {
 
 export function LogCard({ log, onPress, onDelete }: LogCardProps) {
   const theme = useTheme()
-  const [menuOpen, setMenuOpen] = useState(false)
   const actions = useContextMenuActions()
 
   const formatDate = (isoString: string) => {
@@ -32,7 +30,23 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
   }
 
   return (
-    <>
+    <ContextMenu
+      title={log.connection_name}
+      items={[
+        {
+          key: 'edit',
+          label: 'Edit',
+          onPress: () => actions.editLog(log),
+        },
+        { type: 'separator', key: 'sep-1' },
+        {
+          key: 'delete',
+          label: 'Delete',
+          destructive: true,
+          onPress: () => actions.deleteLog(log),
+        },
+      ]}
+    >
       <BaseCard
         title={log.connection_name}
         subtitle={
@@ -48,7 +62,6 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
         }
         icon={<FileText size={20} color={theme.color.get()} />}
         onPress={onPress}
-        onLongPress={() => setMenuOpen(true)}
         action={onDelete && (
           <Pressable onPress={(e) => {
             e.stopPropagation()
@@ -66,26 +79,6 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
           </Pressable>
         )}
       />
-
-      <ContextMenu
-        open={menuOpen}
-        onOpenChange={setMenuOpen}
-        title={log.connection_name}
-        items={[
-          {
-            key: 'edit',
-            label: 'Edit',
-            onPress: () => actions.editLog(log),
-          },
-          { type: 'separator', key: 'sep-1' },
-          {
-            key: 'delete',
-            label: 'Delete',
-            destructive: true,
-            onPress: () => actions.deleteLog(log),
-          },
-        ]}
-      />
-    </>
+    </ContextMenu>
   )
 }

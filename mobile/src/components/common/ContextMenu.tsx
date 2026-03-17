@@ -1,5 +1,6 @@
-import { Button, Sheet, Text, View, XStack, YStack } from 'tamagui'
 import type { ReactNode } from 'react'
+import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu'
+import { Text, View, XStack, YStack } from 'tamagui'
 
 export type ContextMenuItem = {
   type?: 'item'
@@ -15,23 +16,39 @@ export type ContextMenuItem = {
 }
 
 type ContextMenuProps = {
-  open: boolean
-  onOpenChange: (open: boolean) => void
   title?: string
   items: ContextMenuItem[]
+  triggerOnLongPress?: boolean
+  children: ReactNode
 }
 
-export function ContextMenu({ open, onOpenChange, title, items }: ContextMenuProps) {
+export function ContextMenu({ title, items, triggerOnLongPress = true, children }: ContextMenuProps) {
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} modal snapPoints={[40]}>
-      <Sheet.Overlay />
-      <Sheet.Frame padding="$5" gap="$3">
-        {title ? (
-          <Text fontSize={16} fontWeight="600">
-            {title}
-          </Text>
-        ) : null}
-        <YStack gap="$2">
+    <Menu>
+      <MenuTrigger triggerOnLongPress={triggerOnLongPress}>
+        {children}
+      </MenuTrigger>
+      <MenuOptions
+        customStyles={{
+          optionsContainer: {
+            borderRadius: 12,
+            paddingVertical: 8,
+            backgroundColor: '#111827',
+            borderColor: 'rgba(255,255,255,0.08)',
+            borderWidth: 1,
+            shadowColor: '#000',
+            shadowOpacity: 0.2,
+            shadowRadius: 12,
+            shadowOffset: { width: 0, height: 8 },
+          },
+        }}
+      >
+        <YStack gap="$2" paddingHorizontal="$3" paddingVertical="$2">
+          {title ? (
+            <Text fontSize={12} fontWeight="700" opacity={0.7} color="$color">
+              {title}
+            </Text>
+          ) : null}
           {items.map((item) => {
             if (item.type === 'separator') {
               return (
@@ -39,22 +56,24 @@ export function ContextMenu({ open, onOpenChange, title, items }: ContextMenuPro
                   key={item.key}
                   height={1}
                   backgroundColor="$borderColor"
-                  opacity={0.6}
+                  opacity={0.4}
                 />
               )
             }
 
             const isDestructive = item.destructive === true
             return (
-              <Button
+              <MenuOption
                 key={item.key}
-                onPress={() => {
-                  onOpenChange(false)
-                  item.onPress()
-                }}
+                onSelect={item.onPress}
                 disabled={item.disabled}
-                bg={isDestructive ? '$red10' : '$accent'}
-                color={isDestructive ? '$red1' : '$accentText'}
+                customStyles={{
+                  optionWrapper: {
+                    paddingVertical: 10,
+                    paddingHorizontal: 12,
+                    borderRadius: 8,
+                  },
+                }}
               >
                 <XStack gap="$2" alignItems="center">
                   {item.icon ? (
@@ -63,17 +82,17 @@ export function ContextMenu({ open, onOpenChange, title, items }: ContextMenuPro
                     </View>
                   ) : null}
                   <Text
-                    color={isDestructive ? '$red1' : '$accentText'}
+                    color={isDestructive ? '$red10' : '$color'}
                     fontWeight="600"
                   >
                     {item.label}
                   </Text>
                 </XStack>
-              </Button>
+              </MenuOption>
             )
           })}
         </YStack>
-      </Sheet.Frame>
-    </Sheet>
+      </MenuOptions>
+    </Menu>
   )
 }

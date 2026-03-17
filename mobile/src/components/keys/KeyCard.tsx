@@ -1,6 +1,5 @@
 import { Key, Pencil } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { useState } from 'react'
 import { useTheme, View } from 'tamagui'
 import { BaseCard, ContextMenu } from '@/components/common'
 import type { SSHKey } from '@/types'
@@ -18,17 +17,31 @@ export function KeyCard({
   onEdit 
 }: KeyCardProps) {
   const theme = useTheme()
-  const [menuOpen, setMenuOpen] = useState(false)
   const actions = useContextMenuActions()
 
   return (
-    <>
+    <ContextMenu
+      title={sshKey.name}
+      items={[
+        {
+          key: 'edit',
+          label: 'Edit',
+          onPress: () => actions.editKey(sshKey),
+        },
+        { type: 'separator', key: 'sep-1' },
+        {
+          key: 'delete',
+          label: 'Delete',
+          destructive: true,
+          onPress: () => actions.deleteKey(sshKey),
+        },
+      ]}
+    >
       <BaseCard
         title={sshKey.name}
         subtitle={`${sshKey.algorithm}${sshKey.bits ? ` • ${sshKey.bits} bits` : ''}`}
         icon={<Key size={20} color={theme.color.get()} />}
         onPress={onPress}
-        onLongPress={() => setMenuOpen(true)}
         action={onEdit && (
           <Pressable onPress={(e) => {
             e.stopPropagation()
@@ -47,26 +60,6 @@ export function KeyCard({
           </Pressable>
         )}
       />
-
-      <ContextMenu
-        open={menuOpen}
-        onOpenChange={setMenuOpen}
-        title={sshKey.name}
-        items={[
-          {
-            key: 'edit',
-            label: 'Edit',
-            onPress: () => actions.editKey(sshKey),
-          },
-          { type: 'separator', key: 'sep-1' },
-          {
-            key: 'delete',
-            label: 'Delete',
-            destructive: true,
-            onPress: () => actions.deleteKey(sshKey),
-          },
-        ]}
-      />
-    </>
+    </ContextMenu>
   )
 }

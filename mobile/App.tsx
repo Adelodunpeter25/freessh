@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar'
 import { useEffect } from 'react'
 import { Appearance } from 'react-native'
 import { TamaguiProvider } from 'tamagui'
+import { MenuProvider } from 'react-native-popup-menu'
 
 import { AppNavigator } from './src/navigation/AppNavigator'
 import { useThemeStore, useConnectionStore, useGroupStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore } from './src/stores'
@@ -48,8 +49,10 @@ export default function App() {
 
   return (
     <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
-      <AppNavigator />
-      <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+      <MenuProvider>
+        <AppNavigator />
+        <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
+      </MenuProvider>
     </TamaguiProvider>
   )
 }

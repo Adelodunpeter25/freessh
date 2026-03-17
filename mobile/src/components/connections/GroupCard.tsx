@@ -1,6 +1,5 @@
 import { Folder, Pencil } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { useState } from 'react'
 import { useTheme, View } from 'tamagui'
 import { BaseCard, ContextMenu } from '../common'
 import type { Group } from '../../types'
@@ -20,7 +19,6 @@ export function GroupCard({
   onEdit 
 }: GroupCardProps) {
   const theme = useTheme()
-  const [menuOpen, setMenuOpen] = useState(false)
   const actions = useContextMenuActions()
   const connectionSummary =
     group.connection_count === 0
@@ -28,14 +26,29 @@ export function GroupCard({
       : `${group.connection_count} ${group.connection_count === 1 ? 'connection' : 'connections'}`
 
   return (
-    <>
+    <ContextMenu
+      title={group.name}
+      items={[
+        {
+          key: 'edit',
+          label: 'Edit',
+          onPress: () => actions.editGroup(group),
+        },
+        { type: 'separator', key: 'sep-1' },
+        {
+          key: 'delete',
+          label: 'Delete',
+          destructive: true,
+          onPress: () => actions.deleteGroup(group),
+        },
+      ]}
+    >
       <BaseCard
         title={group.name}
         subtitle={connectionSummary}
         icon={<Folder size={20} color={theme.color.get()} />}
         selected={selected}
         onPress={onPress}
-        onLongPress={() => setMenuOpen(true)}
         action={onEdit && (
           <Pressable onPress={(e) => {
             e.stopPropagation()
@@ -54,26 +67,6 @@ export function GroupCard({
           </Pressable>
         )}
       />
-
-      <ContextMenu
-        open={menuOpen}
-        onOpenChange={setMenuOpen}
-        title={group.name}
-        items={[
-          {
-            key: 'edit',
-            label: 'Edit',
-            onPress: () => actions.editGroup(group),
-          },
-          { type: 'separator', key: 'sep-1' },
-          {
-            key: 'delete',
-            label: 'Delete',
-            destructive: true,
-            onPress: () => actions.deleteGroup(group),
-          },
-        ]}
-      />
-    </>
+    </ContextMenu>
   )
 }
