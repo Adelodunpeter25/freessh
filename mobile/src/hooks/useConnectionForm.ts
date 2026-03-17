@@ -9,6 +9,7 @@ export type ConnectionFormData = {
   auth_method: AuthMethod
   private_key?: string
   key_id?: string
+  password?: string
   group?: string
 }
 
@@ -33,6 +34,7 @@ export function useConnectionForm({ initialData, onSubmit }: UseConnectionFormPr
     auth_method: initialData?.auth_method || 'password',
     private_key: initialData?.private_key || '',
     key_id: initialData?.key_id || '',
+    password: initialData?.password || '',
     group: initialData?.group || '',
   })
 
@@ -88,6 +90,7 @@ export function useConnectionForm({ initialData, onSubmit }: UseConnectionFormPr
         auth_method: formData.auth_method,
         private_key: formData.private_key || undefined,
         key_id: formData.key_id || undefined,
+        password: formData.password || undefined,
         group: formData.group || undefined,
       }
 
@@ -106,6 +109,7 @@ export function useConnectionForm({ initialData, onSubmit }: UseConnectionFormPr
       auth_method: 'password',
       private_key: '',
       key_id: '',
+      password: '',
       group: '',
     })
     setErrors({})

@@ -1,5 +1,5 @@
 import { Button, Input, Text, TextArea, XStack, YStack, View, Separator, RadioGroup } from 'tamagui'
-import { ChevronDown } from 'lucide-react-native'
+import { ChevronDown, Eye, EyeOff } from 'lucide-react-native'
 import { useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
@@ -18,6 +18,8 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
   const groups = useGroupStore((state) => state.groups)
   
   const [keyMode, setKeyMode] = useState<'existing' | 'new'>('existing')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showPassphrase, setShowPassphrase] = useState(false)
 
   const { formData, errors, isSubmitting, updateField, handleSubmit } = useConnectionForm({
     initialData: connection,
@@ -110,6 +112,32 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
               ]}
             />
 
+            {formData.auth_method === 'password' && (
+              <YStack gap="$2">
+                <XStack alignItems="center" position="relative">
+                  <Input
+                    flex={1}
+                    value={formData.password || ''}
+                    onChangeText={(value) => updateField('password', value)}
+                    placeholder="Password"
+                    secureTextEntry={!showPassword}
+                    borderColor="$borderColor"
+                    paddingRight={44}
+                  />
+                  <Button
+                    position="absolute"
+                    right={4}
+                    circular
+                    size="$3"
+                    chromeless
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={20} color="$placeholderColor" /> : <Eye size={20} color="$placeholderColor" />}
+                  </Button>
+                </XStack>
+              </YStack>
+            )}
+
             {formData.auth_method === 'publickey' && (
               <YStack gap="$4">
                 <RadioGroup value={keyMode} onValueChange={(value: string) => setKeyMode(value as 'existing' | 'new')}>
@@ -148,13 +176,27 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
                   />
                 )}
 
-                <Input
-                  value=""
-                  onChangeText={() => {}}
-                  placeholder="Passphrase (optional)"
-                  secureTextEntry
-                  borderColor="$borderColor"
-                />
+                <XStack alignItems="center" position="relative">
+                  <Input
+                    flex={1}
+                    value=""
+                    onChangeText={() => {}}
+                    placeholder="Passphrase (optional)"
+                    secureTextEntry={!showPassphrase}
+                    borderColor="$borderColor"
+                    paddingRight={44}
+                  />
+                  <Button
+                    position="absolute"
+                    right={4}
+                    circular
+                    size="$3"
+                    chromeless
+                    onPress={() => setShowPassphrase(!showPassphrase)}
+                  >
+                    {showPassphrase ? <EyeOff size={20} color="$placeholderColor" /> : <Eye size={20} color="$placeholderColor" />}
+                  </Button>
+                </XStack>
               </YStack>
             )}
           </YStack>

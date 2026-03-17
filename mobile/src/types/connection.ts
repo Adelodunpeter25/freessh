@@ -17,6 +17,7 @@ export interface ConnectionConfig {
   auth_method: AuthMethod
   private_key?: string
   key_id?: string
+  password?: string
   group?: string
   profile?: SessionProfile
 }
