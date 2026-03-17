@@ -12,8 +12,8 @@ export function AddButton({ onPress }: AddButtonProps) {
   return (
     <View
       position="absolute"
-      bottom={90}
-      right={16}
+      bottom={18}
+      right={14}
       zIndex={1000}
       pointerEvents="box-none"
     >
