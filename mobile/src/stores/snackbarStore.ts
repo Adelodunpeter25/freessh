@@ -17,7 +17,7 @@ export const useSnackbarStore = create<SnackbarState>((set) => ({
   message: '',
   variant: 'info',
 
-  show: (message, variant = 'info', durationMs = 400) => {
+  show: (message, variant = 'info', durationMs = 1500) => {
     if (hideTimer) {
       clearTimeout(hideTimer)
       hideTimer = null

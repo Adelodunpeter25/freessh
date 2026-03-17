@@ -25,8 +25,8 @@ export function Snackbar({ open, message, variant = 'info' }: SnackbarProps) {
         <XStack
           position="absolute"
           bottom={24}
-          left={16}
-          right={16}
+          left={12}
+          right={12}
           borderRadius={12}
           padding={12}
           backgroundColor={colors[variant]}
