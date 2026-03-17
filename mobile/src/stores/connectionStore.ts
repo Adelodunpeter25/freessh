@@ -7,6 +7,7 @@ type ConnectionState = {
   loading: boolean
   initialize: () => Promise<void>
   addConnection: (connection: ConnectionConfig) => Promise<void>
+  duplicateConnection: (connection: ConnectionConfig) => Promise<ConnectionConfig>
   updateConnection: (connection: ConnectionConfig) => Promise<void>
   removeConnection: (id: string) => Promise<void>
 }
@@ -29,6 +30,12 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
   addConnection: async (connection) => {
     await connectionService.create(connection)
     set((state) => ({ connections: [...state.connections, connection] }))
+  },
+
+  duplicateConnection: async (connection) => {
+    const copy = await connectionService.duplicate(connection)
+    set((state) => ({ connections: [...state.connections, copy] }))
+    return copy
   },
 
   updateConnection: async (connection) => {

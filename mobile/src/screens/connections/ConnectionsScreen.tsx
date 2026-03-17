@@ -31,6 +31,7 @@ export function ConnectionsScreen() {
   const loadGroups = useGroupStore((state) => state.initialize)
   const removeGroup = useGroupStore((state) => state.removeGroup)
   const removeConnection = useConnectionStore((state) => state.removeConnection)
+  const duplicateConnection = useConnectionStore((state) => state.duplicateConnection)
   const [showAddSheet, setShowAddSheet] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [confirmState, setConfirmState] = useState<{
@@ -136,6 +137,7 @@ export function ConnectionsScreen() {
                             onConfirm: () => removeConnection(connection.id),
                           })
                         }
+                        onDuplicate={() => duplicateConnection(connection)}
                       />
                     ))}
                   </YStack>
