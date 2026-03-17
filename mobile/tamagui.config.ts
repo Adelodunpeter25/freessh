@@ -21,8 +21,11 @@ const tamaguiConfig = createTamagui({
     },
     dark: {
       ...config.themes.dark,
-      background: '#0b1120',
-      color: '#e2e8f0',
+      background: '#0a0a0a',
+      color: '#f1f5f9',
+      colorHover: '#e2e8f0',
+      colorPress: '#f1f5f9',
+      colorFocus: '#f1f5f9',
       borderColor: '#1f2937',
       placeholderColor: '#64748b',
       accent: '#f97316',
