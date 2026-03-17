@@ -36,7 +36,7 @@ export function GroupFormScreen({ route, navigation }: Props) {
       <Screen>
         <YStack gap="$4">
           <YStack gap="$2">
-            <Text fontSize={14} fontWeight="500" color="$color">Name</Text>
+            <Text fontSize={14} fontWeight="500" color="$color">Name *</Text>
             <Input
               value={formData.name}
               onChangeText={(value) => updateField('name', value)}

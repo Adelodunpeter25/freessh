@@ -28,6 +28,10 @@ export function ConnectionsScreen() {
     fields: ['name', 'host', 'username'],
   })
 
+  // Filter out connections that belong to a group
+  const ungroupedConnections = filtered.filter((conn) => !conn.group)
+  const showGroups = groups.length > 0 && query.length === 0
+  const showConnections = ungroupedConnections.length > 0
   const showEmpty = query.length > 0 && isEmpty
 
   return (
@@ -45,32 +49,39 @@ export function ConnectionsScreen() {
             <SearchEmptyState query={query} />
           ) : (
             <>
-              <SectionHeader title="Groups" />
-              <YStack gap="$3">
-                {groups.map((group) => (
-                  <GroupCard
-                    key={group.id}
-                    group={group}
-                    onPress={() =>
-                      navigation.navigate('GroupDetails', { groupId: group.id })
-                    }
-                    onEdit={() => navigation.navigate('GroupForm', { group })}
-                  />
-                ))}
-              </YStack>
+              {showGroups && (
+                <>
+                  <SectionHeader title="Groups" />
+                  <YStack gap="$3">
+                    {groups.map((group) => (
+                      <GroupCard
+                        key={group.id}
+                        group={group}
+                        onPress={() =>
+                          navigation.navigate('GroupDetails', { groupId: group.id })
+                        }
+                        onEdit={() => navigation.navigate('GroupForm', { group })}
+                      />
+                    ))}
+                  </YStack>
+                  {showConnections && <Spacer height="$4" />}
+                </>
+              )}
 
-              <Spacer height="$4" />
-
-              <SectionHeader title="Connections" />
-              <YStack gap="$3">
-                {filtered.map((connection) => (
-                  <ConnectionCard 
-                    key={connection.id} 
-                    connection={connection}
-                    onEdit={() => navigation.navigate('ConnectionForm', { connection })}
-                  />
-                ))}
-              </YStack>
+              {showConnections && (
+                <>
+                  <SectionHeader title="Connections" />
+                  <YStack gap="$3">
+                    {ungroupedConnections.map((connection) => (
+                      <ConnectionCard 
+                        key={connection.id} 
+                        connection={connection}
+                        onEdit={() => navigation.navigate('ConnectionForm', { connection })}
+                      />
+                    ))}
+                  </YStack>
+                </>
+              )}
             </>
           )}
         </YStack>

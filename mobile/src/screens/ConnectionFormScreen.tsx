@@ -48,7 +48,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
             <Text fontSize={14} fontWeight="700" color="$color">General</Text>
             
             <YStack gap="$2">
-              <Text fontSize={13} fontWeight="600" color="$color">Name</Text>
+              <Text fontSize={13} fontWeight="600" color="$color">Name *</Text>
               <Input
                 value={formData.name}
                 onChangeText={(value) => updateField('name', value)}
@@ -70,7 +70,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
             />
 
             <YStack gap="$2">
-              <Text fontSize={13} fontWeight="600" color="$color">Host</Text>
+              <Text fontSize={13} fontWeight="600" color="$color">Host *</Text>
               <Input
                 value={formData.host}
                 onChangeText={(value) => updateField('host', value)}
@@ -81,7 +81,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
             </YStack>
 
             <YStack gap="$2">
-              <Text fontSize={13} fontWeight="600" color="$color">Port</Text>
+              <Text fontSize={13} fontWeight="600" color="$color">Port *</Text>
               <XStack gap="$2" alignItems="center">
                 <Text fontSize={14} color="$color" opacity={0.6}>SSH on</Text>
                 <Input
@@ -105,7 +105,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
             <Text fontSize={14} fontWeight="700" color="$color">Credentials</Text>
             
             <YStack gap="$2">
-              <Text fontSize={13} fontWeight="600" color="$color">Username</Text>
+              <Text fontSize={13} fontWeight="600" color="$color">Username *</Text>
               <Input
                 value={formData.username}
                 onChangeText={(value) => updateField('username', value)}

@@ -36,7 +36,7 @@ export function SnippetFormScreen({ route, navigation }: Props) {
       <Screen>
         <YStack gap="$4" flex={1}>
           <YStack gap="$2">
-            <Text fontSize={14} fontWeight="500" color="$color">Name</Text>
+            <Text fontSize={14} fontWeight="500" color="$color">Name *</Text>
             <Input
               value={formData.name}
               onChangeText={(value) => updateField('name', value)}
@@ -47,7 +47,7 @@ export function SnippetFormScreen({ route, navigation }: Props) {
           </YStack>
 
           <YStack gap="$2" flex={1}>
-            <Text fontSize={14} fontWeight="500" color="$color">Command</Text>
+            <Text fontSize={14} fontWeight="500" color="$color">Command *</Text>
             <TextArea
               value={formData.command}
               onChangeText={(value) => updateField('command', value)}
