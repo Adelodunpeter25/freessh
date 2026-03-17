@@ -3,7 +3,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 import { AppHeader, Screen } from '@/components'
 import { useGroupForm } from '@/hooks'
-import { useGroupStore } from '@/stores'
+import { useGroupStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 type Props = NativeStackScreenProps<ConnectionsStackParamList, 'GroupForm'>
@@ -13,16 +13,23 @@ export function GroupFormScreen({ route, navigation }: Props) {
   const isEdit = !!group
   const addGroup = useGroupStore((state) => state.addGroup)
   const updateGroup = useGroupStore((state) => state.updateGroup)
+  const showSnackbar = useSnackbarStore((state) => state.show)
 
   const { formData, errors, isSubmitting, updateField, handleSubmit } = useGroupForm({
     initialData: group,
     onSubmit: async (data) => {
-      if (isEdit) {
-        await updateGroup(data)
-      } else {
-        await addGroup(data)
+      try {
+        if (isEdit) {
+          await updateGroup(data)
+          showSnackbar('Group updated', 'success')
+        } else {
+          await addGroup(data)
+          showSnackbar('Group created', 'success')
+        }
+        navigation.goBack()
+      } catch {
+        showSnackbar('Failed to save group', 'error')
       }
-      navigation.goBack()
     },
   })
 

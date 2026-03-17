@@ -5,7 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 import { AppHeader, Screen, Select, Input, IconButton, Button } from '@/components'
 import { useKeyForm } from '@/hooks'
-import { useKeyStore } from '@/stores'
+import { useKeyStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 type Props = NativeStackScreenProps<ConnectionsStackParamList, 'KeyForm'>
@@ -18,16 +18,23 @@ export function KeyFormScreen({ route, navigation }: Props) {
 
   const addKey = useKeyStore((state) => state.addKey)
   const updateKey = useKeyStore((state) => state.updateKey)
+  const showSnackbar = useSnackbarStore((state) => state.show)
 
   const { formData, errors, isSubmitting, updateField, handleSubmit } = useKeyForm({
     initialData: key,
     onSubmit: async (data) => {
-      if (isEdit) {
-        await updateKey(data)
-      } else {
-        await addKey(data)
+      try {
+        if (isEdit) {
+          await updateKey(data)
+          showSnackbar('Key updated', 'success')
+        } else {
+          await addKey(data)
+          showSnackbar('Key created', 'success')
+        }
+        navigation.goBack()
+      } catch {
+        showSnackbar('Failed to save key', 'error')
       }
-      navigation.goBack()
     },
   })
 

@@ -3,7 +3,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 import { AppHeader, Screen } from '@/components'
 import { useSnippetForm } from '@/hooks'
-import { useSnippetStore } from '@/stores'
+import { useSnippetStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 type Props = NativeStackScreenProps<ConnectionsStackParamList, 'SnippetForm'>
@@ -13,16 +13,23 @@ export function SnippetFormScreen({ route, navigation }: Props) {
   const isEdit = !!snippet
   const addSnippet = useSnippetStore((state) => state.addSnippet)
   const updateSnippet = useSnippetStore((state) => state.updateSnippet)
+  const showSnackbar = useSnackbarStore((state) => state.show)
 
   const { formData, errors, isSubmitting, updateField, handleSubmit } = useSnippetForm({
     initialData: snippet,
     onSubmit: async (data) => {
-      if (isEdit) {
-        await updateSnippet(data)
-      } else {
-        await addSnippet(data)
+      try {
+        if (isEdit) {
+          await updateSnippet(data)
+          showSnackbar('Snippet updated', 'success')
+        } else {
+          await addSnippet(data)
+          showSnackbar('Snippet created', 'success')
+        }
+        navigation.goBack()
+      } catch {
+        showSnackbar('Failed to save snippet', 'error')
       }
-      navigation.goBack()
     },
   })
 

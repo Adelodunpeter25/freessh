@@ -5,7 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 import { AppHeader, Screen, Select, Input, Button, IconButton } from '@/components'
 import { useConnectionForm } from '@/hooks'
-import { useConnectionStore, useGroupStore } from '@/stores'
+import { useConnectionStore, useGroupStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 type Props = NativeStackScreenProps<ConnectionsStackParamList, 'ConnectionForm'>
@@ -17,6 +17,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
   const addConnection = useConnectionStore((state) => state.addConnection)
   const updateConnection = useConnectionStore((state) => state.updateConnection)
   const groups = useGroupStore((state) => state.groups)
+  const showSnackbar = useSnackbarStore((state) => state.show)
   
   const [keyMode, setKeyMode] = useState<'existing' | 'new'>('existing')
   const [showPassword, setShowPassword] = useState(false)
@@ -25,12 +26,18 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
   const { formData, errors, isSubmitting, updateField, handleSubmit } = useConnectionForm({
     initialData: connection,
     onSubmit: async (data) => {
-      if (isEdit) {
-        await updateConnection(data)
-      } else {
-        await addConnection(data)
+      try {
+        if (isEdit) {
+          await updateConnection(data)
+          showSnackbar('Connection updated', 'success')
+        } else {
+          await addConnection(data)
+          showSnackbar('Connection created', 'success')
+        }
+        navigation.goBack()
+      } catch {
+        showSnackbar('Failed to save connection', 'error')
       }
-      navigation.goBack()
     },
   })
 
