@@ -18,6 +18,7 @@
     "@tamagui/theme-base": "2.0.0-rc.26",
     "@tamagui/theme-builder": "2.0.0-rc.26",
     "expo": "^54.0.0",
+    "expo-sqlite": "~16.0.10",
     "expo-status-bar": "~3.0.9",
     "lucide-react-native": "^0.577.0",
     "react": "19.1.0",

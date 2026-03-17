@@ -13,6 +13,16 @@ export default function App() {
   const setSystemTheme = useThemeStore((state) => state.setSystemTheme)
 
   useEffect(() => {
+    // Initializing SQLite
+    const init = async () => {
+       try {
+         await import('./src/services/db/schema').then(m => m.initDatabase())
+       } catch (error) {
+         console.error('Failed to init database:', error)
+       }
+    }
+    init()
+
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {
       setSystemTheme(colorScheme === 'dark' ? 'dark' : 'light')
     })
