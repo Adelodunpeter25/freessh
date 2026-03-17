@@ -43,21 +43,15 @@ export function ConnectionsScreen() {
           <>
             <SectionHeader title="Groups" />
             <YStack gap="$3">
-              {groups.map((group) => {
-                const count = connections.filter(
-                  (item) => item.groupId === group.id
-                ).length
-                return (
-                  <GroupCard
-                    key={group.id}
-                    group={group}
-                    connectionCount={count}
-                    onOpen={() =>
-                      navigation.navigate('GroupDetails', { groupId: group.id })
-                    }
-                  />
-                )
-              })}
+              {groups.map((group) => (
+                <GroupCard
+                  key={group.id}
+                  group={group}
+                  onPress={() =>
+                    navigation.navigate('GroupDetails', { groupId: group.id })
+                  }
+                />
+              ))}
             </YStack>
 
             <Spacer height="$4" />

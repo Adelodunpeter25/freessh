@@ -8,7 +8,7 @@ export function SnippetsScreen() {
   const snippets = useSnippetStore((state) => state.snippets)
   const { query, filtered, setQuery, clearQuery, isEmpty } = useSearch({
     items: snippets,
-    fields: ['title', 'command', 'description'],
+    fields: ['name', 'command'],
   })
 
   const showEmpty = query.length > 0 && isEmpty

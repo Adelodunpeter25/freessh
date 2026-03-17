@@ -1,22 +1,23 @@
 import { create } from 'zustand'
 
-import type { Connection } from '../types'
+import type { ConnectionConfig } from '../types'
 
 type ConnectionState = {
-  connections: Connection[]
-  addConnection: (connection: Connection) => void
-  updateConnection: (connection: Connection) => void
+  connections: ConnectionConfig[]
+  addConnection: (connection: ConnectionConfig) => void
+  updateConnection: (connection: ConnectionConfig) => void
   removeConnection: (id: string) => void
 }
 
-const seedConnections: Connection[] = [
+const seedConnections: ConnectionConfig[] = [
   {
     id: 'conn-1',
     name: 'Production Box',
     host: 'prod.example.com',
     port: 22,
     username: 'root',
-    groupId: 'grp-1',
+    auth_method: 'publickey',
+    group: 'grp-1',
   },
   {
     id: 'conn-2',
@@ -24,7 +25,8 @@ const seedConnections: Connection[] = [
     host: 'staging.example.com',
     port: 22,
     username: 'deploy',
-    groupId: 'grp-1',
+    auth_method: 'password',
+    group: 'grp-1',
   },
   {
     id: 'conn-3',
@@ -32,7 +34,8 @@ const seedConnections: Connection[] = [
     host: '192.168.1.10',
     port: 22,
     username: 'pi',
-    groupId: 'grp-2',
+    auth_method: 'publickey',
+    group: 'grp-2',
   },
 ]
 

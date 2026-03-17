@@ -12,15 +12,15 @@ type SnippetState = {
 const seedSnippets: Snippet[] = [
   {
     id: 'snip-1',
-    title: 'Restart Nginx',
+    name: 'Restart Nginx',
     command: 'sudo systemctl restart nginx',
-    description: 'Graceful restart of nginx service.',
+    created_at: new Date().toISOString(),
   },
   {
     id: 'snip-2',
-    title: 'Check Disk Usage',
+    name: 'Check Disk Usage',
     command: 'df -h',
-    description: 'Quick disk usage overview.',
+    created_at: new Date().toISOString(),
   },
 ]
 

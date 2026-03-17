@@ -10,8 +10,18 @@ type GroupState = {
 }
 
 const seedGroups: Group[] = [
-  { id: 'grp-1', name: 'Production', description: 'Critical servers' },
-  { id: 'grp-2', name: 'Personal', description: 'Home lab hosts' },
+  { 
+    id: 'grp-1', 
+    name: 'Production', 
+    connection_count: 2,
+    created_at: new Date().toISOString()
+  },
+  { 
+    id: 'grp-2', 
+    name: 'Personal', 
+    connection_count: 1,
+    created_at: new Date().toISOString()
+  },
 ]
 
 export const useGroupStore = create<GroupState>((set) => ({

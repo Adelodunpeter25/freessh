@@ -1,6 +1,17 @@
-export type Snippet = {
+export interface Snippet {
   id: string
-  title: string
+  name: string
   command: string
-  description?: string
+  created_at: string
+}
+
+export interface CreateSnippetRequest {
+  name: string
+  command: string
+}
+
+export interface UpdateSnippetRequest {
+  id: string
+  name: string
+  command: string
 }

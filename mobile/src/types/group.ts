@@ -1,5 +1,6 @@
-export type Group = {
+export interface Group {
   id: string
   name: string
-  description?: string
+  connection_count: number
+  created_at: string
 }

@@ -18,9 +18,11 @@ const getSystemTheme = (): ThemeName => {
   return scheme === 'dark' ? 'dark' : 'light'
 }
 
+const initialSystemTheme = getSystemTheme()
+
 export const useThemeStore = create<ThemeState>((set, get) => ({
-  theme: getSystemTheme(),
-  systemTheme: getSystemTheme(),
+  theme: initialSystemTheme,
+  systemTheme: initialSystemTheme,
   followSystem: true,
   setTheme: (theme) => set({ theme, followSystem: false }),
   toggleTheme: () => {
@@ -28,10 +30,13 @@ export const useThemeStore = create<ThemeState>((set, get) => ({
     set({ theme: current === 'light' ? 'dark' : 'light', followSystem: false })
   },
   setFollowSystem: (value) =>
-    set((state) => ({
-      followSystem: value,
-      theme: value ? state.systemTheme : state.theme,
-    })),
+    set((state) => {
+      const newTheme = value ? state.systemTheme : state.theme
+      return {
+        followSystem: value,
+        theme: newTheme,
+      }
+    }),
   setSystemTheme: (theme) =>
     set((state) => ({
       systemTheme: theme,
