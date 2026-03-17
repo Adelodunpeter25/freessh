@@ -18,7 +18,7 @@ import {
   ConfirmDialog,
 } from '@/components'
 import { useSearch } from '@/hooks'
-import { useConnectionStore, useGroupStore } from '@/stores'
+import { useConnectionStore, useGroupStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 import type { ConnectionConfig, Group } from '@/types'
 
@@ -32,6 +32,7 @@ export function ConnectionsScreen() {
   const removeGroup = useGroupStore((state) => state.removeGroup)
   const removeConnection = useConnectionStore((state) => state.removeConnection)
   const duplicateConnection = useConnectionStore((state) => state.duplicateConnection)
+  const showSnackbar = useSnackbarStore((state) => state.show)
   const [showAddSheet, setShowAddSheet] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [confirmState, setConfirmState] = useState<{
@@ -137,7 +138,10 @@ export function ConnectionsScreen() {
                             onConfirm: () => removeConnection(connection.id),
                           })
                         }
-                        onDuplicate={() => duplicateConnection(connection)}
+                        onDuplicate={async () => {
+                          const copy = await duplicateConnection(connection)
+                          showSnackbar(`Created "${copy.name}"`, 'success')
+                        }}
                       />
                     ))}
                   </YStack>

@@ -6,8 +6,9 @@ import { TamaguiProvider } from 'tamagui'
 import { MenuProvider } from 'react-native-popup-menu'
 
 import { AppNavigator } from './src/navigation/AppNavigator'
-import { useThemeStore, useConnectionStore, useGroupStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore } from './src/stores'
+import { useThemeStore, useConnectionStore, useGroupStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore, useSnackbarStore } from './src/stores'
 import tamaguiConfig from './tamagui.config'
+import { Snackbar } from './src/components'
 
 export default function App() {
   const theme = useThemeStore((state) => state.theme)
@@ -19,6 +20,11 @@ export default function App() {
   const initKeys = useKeyStore(s => s.initialize)
   const initLogs = useLogStore(s => s.initialize)
   const initKnownHosts = useKnownHostStore(s => s.initialize)
+  const { open, message, variant } = useSnackbarStore((s) => ({
+    open: s.open,
+    message: s.message,
+    variant: s.variant,
+  }))
 
   useEffect(() => {
     // Initializing SQLite
@@ -51,6 +57,7 @@ export default function App() {
     <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
       <MenuProvider>
         <AppNavigator />
+        <Snackbar open={open} message={message} variant={variant} />
         <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
       </MenuProvider>
     </TamaguiProvider>

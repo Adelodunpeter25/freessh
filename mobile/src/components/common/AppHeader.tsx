@@ -21,7 +21,7 @@ export function AppHeader({ title, showBackButton = false, onBackPress }: AppHea
       paddingTop={insets.top}
     >
       <XStack
-        height={56}
+        height={48}
         alignItems="center"
         paddingHorizontal="$4"
         gap="$3"
