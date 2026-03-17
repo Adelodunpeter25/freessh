@@ -1,14 +1,12 @@
 import { db } from '../db/schema'
-import type { SSHKey } from '../../types'
+import type { SSHKey } from '@/types'
 
 export const keyService = {
   async getAll(): Promise<SSHKey[]> {
     const results = await db.getAllAsync('SELECT * FROM ssh_keys')
     return (results as any[]).map((row) => ({
-      ...row,
-      // We keep private_key and passphrase inside the row for functionality
-      // but the SSHKey interface is what's used in the UI
-    })) as unknown as SSHKey[]
+      ...row
+    })) as SSHKey[]
   },
 
   async create(key: SSHKey & { private_key?: string; passphrase?: string }): Promise<void> {
