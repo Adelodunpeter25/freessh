@@ -17,7 +17,8 @@ export function SnippetCard({
   snippet, 
   selected = false, 
   onPress, 
-  onEdit 
+  onEdit,
+  onDelete,
 }: SnippetCardProps) {
   const theme = useTheme()
 

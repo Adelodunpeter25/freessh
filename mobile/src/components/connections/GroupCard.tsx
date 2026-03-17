@@ -16,7 +16,8 @@ export function GroupCard({
   group, 
   selected = false, 
   onPress, 
-  onEdit 
+  onEdit,
+  onDelete,
 }: GroupCardProps) {
   const theme = useTheme()
   const connectionSummary =
@@ -41,7 +42,7 @@ export function GroupCard({
           label: 'Delete',
           destructive: true,
           onPress: () => onDelete?.(),
-          icon: <Trash2 size={16} color="$red10" />,
+          icon: <Trash2 size={16} color="#ef4444" />,
         },
       ]}
     >

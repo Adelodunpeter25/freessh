@@ -14,7 +14,8 @@ type KeyCardProps = {
 export function KeyCard({ 
   sshKey, 
   onPress, 
-  onEdit 
+  onEdit,
+  onDelete,
 }: KeyCardProps) {
   const theme = useTheme()
 

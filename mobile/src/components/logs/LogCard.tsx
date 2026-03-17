@@ -55,7 +55,7 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
             borderRadius="$2"
             backgroundColor="$red10"
           >
-            <Trash2 size={16} color="$red1" />
+            <Trash2 size={16} color="#ffffff" />
           </View>
         </Pressable>
       )}

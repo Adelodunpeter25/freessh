@@ -9,6 +9,8 @@ const tamaguiConfig = createTamagui({
       ...config.tokens.color,
       placeholderColor: '#94a3b8',
       accent: '#f97316',
+      red10: '#ef4444',
+      red1: '#fee2e2',
     },
   },
   themes: {
@@ -26,6 +28,8 @@ const tamaguiConfig = createTamagui({
       accentHover: '#fb923c',
       accentPress: '#ea580c',
       accentText: '#0c0a09',
+      red10: '#ef4444',
+      red1: '#fee2e2',
     },
     dark: {
       ...config.themes.dark,
@@ -40,6 +44,8 @@ const tamaguiConfig = createTamagui({
       accentHover: '#fb923c',
       accentPress: '#ea580c',
       accentText: '#0c0a09',
+      red10: '#ef4444',
+      red1: '#7f1d1d',
     },
   },
 })
