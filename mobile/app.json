@@ -34,7 +34,7 @@
         {
           "android": {
             "packagingOptions": {
-              "pickFirsts": [
+              "pickFirst": [
                 "META-INF/versions/9/OSGI-INF/MANIFEST.MF"
               ]
             }
