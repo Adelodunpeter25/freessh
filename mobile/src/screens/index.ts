@@ -1,5 +1,6 @@
 export * from './ConnectionsScreen'
 export * from './GroupDetailsScreen'
+export * from './KeysScreen'
 export * from './SessionsScreen'
 export * from './SftpScreen'
 export * from './SnippetsScreen'
