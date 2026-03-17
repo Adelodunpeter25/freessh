@@ -54,8 +54,7 @@ export async function initDatabase() {
     CREATE TABLE IF NOT EXISTS history (
       id TEXT PRIMARY KEY NOT NULL,
       command TEXT NOT NULL,
-      connection_id TEXT, -- Not in HistoryEntry but useful
-      executed_at TEXT NOT NULL DEFAULT (datetime('now'))
+      connection_id TEXT -- Useful for filtering but not in interface
     );
 
     CREATE TABLE IF NOT EXISTS logs (
