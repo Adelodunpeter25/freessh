@@ -1,3 +1,4 @@
+import { Moon, Sun } from 'lucide-react-native'
 import { ScrollView } from 'react-native'
 import { Button, Switch, Text, XStack, YStack } from 'tamagui'
 
@@ -30,7 +31,7 @@ export function SettingsScreen() {
               borderColor="$borderColor"
               borderWidth={1}
             >
-              <Text fontSize={20}>{theme === 'dark' ? '🌙' : '☀️'}</Text>
+              {theme === 'dark' ? <Moon size={18} /> : <Sun size={18} />}
             </Button>
           </XStack>
 
