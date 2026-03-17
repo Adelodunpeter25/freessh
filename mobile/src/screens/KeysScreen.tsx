@@ -2,7 +2,7 @@ import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AddButton, EmptyState, Screen } from '@/components'
+import { AddButton, EmptyState, Screen, AppHeader } from '@/components'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function KeysScreen() {
@@ -10,6 +10,11 @@ export function KeysScreen() {
 
   return (
     <>
+      <AppHeader 
+        title="SSH Keys" 
+        showBackButton 
+        onBackPress={() => navigation.goBack()} 
+      />
       <Screen>
         <YStack gap="$4">
           <EmptyState

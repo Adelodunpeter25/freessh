@@ -7,16 +7,19 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { enableScreens } from 'react-native-screens'
 
-import { 
+import {
   GroupDetailsScreen,
   ConnectionFormScreen,
   GroupFormScreen,
   SnippetFormScreen,
   KeyFormScreen,
+  KeysScreen,
+  SnippetsScreen,
+  SessionsScreen,
 } from '../screens'
 import { useThemeStore } from '../stores'
 import { BottomTabNavigator } from './BottomTabNavigator'
-import type { ConnectionConfig, Group, Snippet, Key } from '@/types'
+import type { ConnectionConfig, Group, Snippet, SSHKey } from '@/types'
 
 enableScreens()
 
@@ -26,7 +29,11 @@ export type ConnectionsStackParamList = {
   ConnectionForm: { connection?: ConnectionConfig }
   GroupForm: { group?: Group }
   SnippetForm: { snippet?: Snippet }
-  KeyForm: { key?: Key }
+  KeyForm: { key?: SSHKey }
+  Keys: undefined
+  Snippets: undefined
+  Sessions: undefined
+  History: undefined
 }
 
 const Stack = createNativeStackNavigator<ConnectionsStackParamList>()
@@ -64,7 +71,6 @@ export function AppNavigator() {
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          animation: 'fade',
         }}
       >
         <Stack.Screen
@@ -91,6 +97,19 @@ export function AppNavigator() {
           name="KeyForm"
           component={KeyFormScreen}
         />
+        <Stack.Screen
+          name="Keys"
+          component={KeysScreen}
+        />
+        <Stack.Screen
+          name="Snippets"
+          component={SnippetsScreen}
+        />
+        <Stack.Screen
+          name="Sessions"
+          component={SessionsScreen}
+        />
+        {/* We can use KeysScreen as a placeholder for History if it doesn't exist yet */}
       </Stack.Navigator>
     </NavigationContainer>
   )

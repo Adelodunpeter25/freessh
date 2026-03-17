@@ -31,7 +31,7 @@ export function AddButton({ onPress }: AddButtonProps) {
           shadowRadius={8}
           elevation={8}
         >
-          <Plus size={28} color="white" />
+          <Plus size={24} color="white" />
         </View>
       </Pressable>
     </View>

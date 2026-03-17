@@ -2,7 +2,7 @@ import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AddButton, Screen, SearchBar, SearchEmptyState, SectionHeader, SnippetCard } from '@/components'
+import { AddButton, Screen, SearchBar, SearchEmptyState, SectionHeader, SnippetCard, AppHeader } from '@/components'
 import { useSearch } from '@/hooks'
 import { useSnippetStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -20,6 +20,11 @@ export function SnippetsScreen() {
 
   return (
     <>
+      <AppHeader 
+        title="Snippets" 
+        showBackButton 
+        onBackPress={() => navigation.goBack()} 
+      />
       <Screen>
         <YStack gap="$4">
           <SearchBar

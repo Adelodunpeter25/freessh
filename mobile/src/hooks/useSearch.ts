@@ -5,7 +5,7 @@ type UseSearchOptions<T> = {
   fields: (keyof T)[]
 }
 
-export function useSearch<T extends Record<string, unknown>>(
+export function useSearch<T extends any>(
   options: UseSearchOptions<T>
 ) {
   const { items, fields } = options
