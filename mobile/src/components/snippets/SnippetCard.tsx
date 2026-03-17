@@ -63,10 +63,10 @@ export function SnippetCard({
             width={44}
             height={44}
             borderRadius="$3"
-            backgroundColor="$color"
+            backgroundColor="$accent"
             alignItems="center"
             justifyContent="center"
-            opacity={0.1}
+            opacity={0.12}
           >
             <Braces size={20} color={theme.accent.get()} />
           </View>
