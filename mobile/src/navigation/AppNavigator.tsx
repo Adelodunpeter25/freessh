@@ -68,8 +68,21 @@ const darkNavTheme: Theme = {
 }
 
 function ConnectionsStackNavigator() {
+  const theme = useThemeStore((state) => state.theme)
+
   return (
-    <ConnectionsStack.Navigator>
+    <ConnectionsStack.Navigator
+      screenOptions={{
+        headerTopInsetEnabled: true,
+        headerStyle: {
+          backgroundColor: theme === 'dark' ? '#0f0f0f' : '#ffffff',
+        },
+        headerTitleStyle: {
+          color: theme === 'dark' ? '#f1f5f9' : '#0f172a',
+        },
+        headerTintColor: theme === 'dark' ? '#f1f5f9' : '#0f172a',
+      }}
+    >
       <ConnectionsStack.Screen
         name="ConnectionsHome"
         component={ConnectionsScreen}
