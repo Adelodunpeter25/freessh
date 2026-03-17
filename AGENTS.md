@@ -103,7 +103,9 @@ freessh/
 - Use Lucide icons via `lucide-react-native`
 - React Navigation 7 with bottom tabs + native stack
 - Zustand stores work the same as desktop
-- Terminal uses WebView with embedded xterm.js
+- **Terminal**: WebView + xterm.js, adapted from example-ssh-client
+- Terminal component uses `isMountedRef` guard to prevent state updates after unmount
+- Close last session fix: ensure proper cleanup of refs and effects
 
 ## Naming Conventions
 
