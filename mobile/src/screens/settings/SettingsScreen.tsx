@@ -3,9 +3,9 @@ import { Button, Switch, Text, XStack, YStack, ListItem } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { Card, Screen, SectionHeader } from '../components'
-import { useThemeStore } from '../stores'
-import type { ConnectionsStackParamList } from '../navigation/AppNavigator'
+import { Card, Screen, SectionHeader } from '@/components'
+import { useThemeStore } from '@/stores'
+import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function SettingsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()

@@ -1,6 +1,6 @@
 import { YStack } from 'tamagui'
 
-import { EmptyState, Screen } from '../components'
+import { EmptyState, Screen } from '@/components'
 
 export function SftpScreen() {
   return (

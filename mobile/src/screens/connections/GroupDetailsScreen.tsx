@@ -2,9 +2,9 @@ import { useMemo } from 'react'
 import { YStack } from 'tamagui'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import { AppHeader, ConnectionCard, EmptyState, Screen, SectionHeader } from '../components'
-import { useConnectionStore, useGroupStore } from '../stores'
-import type { ConnectionsStackParamList } from '../navigation/AppNavigator'
+import { AppHeader, ConnectionCard, EmptyState, Screen, SectionHeader } from '@/components'
+import { useConnectionStore, useGroupStore } from '@/stores'
+import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 type Props = NativeStackScreenProps<ConnectionsStackParamList, 'GroupDetails'>
 

@@ -1,7 +1,7 @@
 import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 
-import { EmptyState, Screen, AppHeader } from '../components'
+import { EmptyState, Screen, AppHeader } from '@/components'
 
 export function SessionsScreen() {
   const navigation = useNavigation()
