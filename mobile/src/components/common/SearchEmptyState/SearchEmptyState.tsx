@@ -1,4 +1,4 @@
-import { Text } from 'tamagui'
+import { Search } from 'lucide-react-native'
 
 import { EmptyState } from '../EmptyState'
 
@@ -11,7 +11,7 @@ export function SearchEmptyState({ query }: SearchEmptyStateProps) {
     <EmptyState
       title="No results"
       description={query ? `No results for "${query}"` : 'Try a different search'}
-      icon={<Text fontSize={20}>🔍</Text>}
+      icon={<Search size={20} />}
     />
   )
 }

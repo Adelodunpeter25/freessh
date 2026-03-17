@@ -1,4 +1,5 @@
-import { Text, XStack } from 'tamagui'
+import { X } from 'lucide-react-native'
+import { XStack } from 'tamagui'
 
 import { Input } from '../Input'
 import { IconButton } from '../IconButton'
@@ -26,7 +27,7 @@ export function SearchBar({
       />
       {value.length > 0 ? (
         <IconButton onPress={onClear}>
-          <Text>✕</Text>
+          <X size={16} />
         </IconButton>
       ) : null}
     </XStack>

@@ -1,3 +1,4 @@
+import { MoreHorizontal } from 'lucide-react-native'
 import { Text, XStack, YStack } from 'tamagui'
 
 import { Card, IconButton } from '../common'
@@ -22,7 +23,7 @@ export function SnippetCard({ snippet }: SnippetCardProps) {
           ) : null}
         </YStack>
         <IconButton>
-          <Text>⋯</Text>
+          <MoreHorizontal size={18} />
         </IconButton>
       </XStack>
       <Text fontSize={12} color="$color" numberOfLines={2}>

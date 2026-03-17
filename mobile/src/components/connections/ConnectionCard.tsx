@@ -1,3 +1,4 @@
+import { MoreHorizontal } from 'lucide-react-native'
 import { Text, XStack, YStack } from 'tamagui'
 
 import { Badge, Card, IconButton } from '../common'
@@ -21,7 +22,7 @@ export function ConnectionCard({ connection }: ConnectionCardProps) {
           </Text>
         </YStack>
         <IconButton>
-          <Text>⋯</Text>
+          <MoreHorizontal size={18} />
         </IconButton>
       </XStack>
       <XStack gap="$2">

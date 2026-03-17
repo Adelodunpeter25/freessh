@@ -1,3 +1,4 @@
+import { MoreHorizontal } from 'lucide-react-native'
 import { Text, XStack, YStack } from 'tamagui'
 
 import { Badge, Card, IconButton } from '../common'
@@ -23,7 +24,7 @@ export function GroupCard({ group, connectionCount = 0 }: GroupCardProps) {
           ) : null}
         </YStack>
         <IconButton>
-          <Text>⋯</Text>
+          <MoreHorizontal size={18} />
         </IconButton>
       </XStack>
       <XStack gap="$2">
