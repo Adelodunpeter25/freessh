@@ -1,8 +1,8 @@
 import { FileText, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { Text, XStack, YStack, useTheme, View } from 'tamagui'
+import { Text, XStack, useTheme, View } from 'tamagui'
+import { BaseCard } from '../common'
 import type { LogEntry } from '@/types'
-import { Card } from '../common'
 
 type LogCardProps = {
   log: LogEntry
@@ -27,57 +27,37 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
   }
 
   return (
-    <Pressable onPress={onPress}>
-      <Card
-        padding="$4"
-        pressStyle={{ opacity: 0.8 }}
-      >
-        <XStack gap="$4" alignItems="center">
+    <BaseCard
+      title={log.connection_name}
+      subtitle={
+        <XStack gap="$2" ai="center">
+          <Text fontSize={12} color="$placeholderColor">
+            {formatDate(log.timestamp)}
+          </Text>
+          <Text fontSize={12} color="$placeholderColor" opacity={0.5}>•</Text>
+          <Text fontSize={12} color="$placeholderColor">
+            {formatSize(log.size)}
+          </Text>
+        </XStack>
+      }
+      icon={<FileText size={20} color={theme.color.get()} />}
+      onPress={onPress}
+      action={onDelete && (
+        <Pressable onPress={(e) => {
+           e.stopPropagation()
+           onDelete()
+        }}>
           <View
-            width={44}
-            height={44}
-            borderRadius="$3"
-            backgroundColor="$color"
+            width={32}
+            height={32}
             alignItems="center"
             justifyContent="center"
-            opacity={0.1}
+            borderRadius="$2"
           >
-            <FileText size={20} color={theme.color.get()} />
+            <Trash2 size={16} color="$red10" />
           </View>
-
-          <YStack flex={1}>
-            <Text fontSize={16} fontWeight="600" color="$color">
-              {log.connection_name}
-            </Text>
-            <XStack gap="$2" ai="center">
-               <Text fontSize={12} color="$placeholderColor">
-                 {formatDate(log.timestamp)}
-               </Text>
-               <Text fontSize={12} color="$placeholderColor" opacity={0.5}>•</Text>
-               <Text fontSize={12} color="$placeholderColor">
-                 {formatSize(log.size)}
-               </Text>
-            </XStack>
-          </YStack>
-
-          {onDelete && (
-            <Pressable onPress={(e) => {
-               e.stopPropagation()
-               onDelete()
-            }}>
-              <View
-                width={32}
-                height={32}
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="$2"
-              >
-                <Trash2 size={16} color="$red10" />
-              </View>
-            </Pressable>
-          )}
-        </XStack>
-      </Card>
-    </Pressable>
+        </Pressable>
+      )}
+    />
   )
 }

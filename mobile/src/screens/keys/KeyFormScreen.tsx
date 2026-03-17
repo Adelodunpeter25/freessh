@@ -55,7 +55,7 @@ export function KeyFormScreen({ route, navigation }: Props) {
           </YStack>
 
           <Select
-            label="Key Type"
+            label={isEdit ? 'Key Type (N/A)' : 'Key Type'}
             value={formData.type}
             onValueChange={(value) => updateField('type', value)}
             disabled={isEdit}
@@ -67,7 +67,7 @@ export function KeyFormScreen({ route, navigation }: Props) {
 
           {formData.type === 'rsa' && (
             <Select
-              label="Key Size"
+              label={isEdit ? 'Key Size (N/A)' : 'Key Size'}
               value={formData.bits?.toString() || '2048'}
               onValueChange={(value) => updateField('bits', parseInt(value))}
               disabled={isEdit}

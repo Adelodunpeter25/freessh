@@ -1,7 +1,7 @@
 import { Folder, Pencil } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { Text, XStack, YStack, useTheme, View } from 'tamagui'
-
+import { useTheme, View } from 'tamagui'
+import { BaseCard } from '../common'
 import type { Group } from '../../types'
 
 type GroupCardProps = {
@@ -24,58 +24,29 @@ export function GroupCard({
       : `${group.connection_count} ${group.connection_count === 1 ? 'connection' : 'connections'}`
 
   return (
-    <Pressable onPress={onPress}>
-      <View
-        backgroundColor="$background"
-        borderColor={selected ? '$accent' : '$borderColor'}
-        borderWidth={selected ? 2 : 0.5}
-        borderRadius="$4"
-        padding="$4"
-        shadowColor="$shadowColor"
-        shadowOffset={{ width: 0, height: selected ? 2 : 1 }}
-        shadowOpacity={selected ? 0.1 : 0.05}
-        shadowRadius={selected ? 8 : 4}
-        elevation={selected ? 4 : 2}
-      >
-        <XStack gap="$4" alignItems="center">
-          {/* Icon Container */}
+    <BaseCard
+      title={group.name}
+      subtitle={connectionSummary}
+      icon={<Folder size={20} color={theme.color.get()} />}
+      selected={selected}
+      onPress={onPress}
+      action={onEdit && (
+        <Pressable onPress={(e) => {
+          e.stopPropagation()
+          onEdit()
+        }}>
           <View
-            width={44}
-            height={44}
-            borderRadius="$3"
-            backgroundColor="$color"
+            width={32}
+            height={32}
             alignItems="center"
             justifyContent="center"
-            opacity={0.1}
+            borderRadius="$2"
+            backgroundColor="transparent"
           >
-            <Folder size={20} color={theme.color.get()} />
+            <Pencil size={18} color={theme.color.get()} />
           </View>
-
-          {/* Content */}
-          <YStack flex={1}>
-            <Text fontSize={16} fontWeight="600" color="$color">
-              {group.name}
-            </Text>
-            <Text fontSize={12} color="$placeholderColor">
-              {connectionSummary}
-            </Text>
-          </YStack>
-
-          {/* Actions */}
-          <Pressable onPress={onEdit}>
-            <View
-              width={32}
-              height={32}
-              alignItems="center"
-              justifyContent="center"
-              borderRadius="$2"
-              backgroundColor="transparent"
-            >
-              <Pencil size={16} color={theme.color.get()} />
-            </View>
-          </Pressable>
-        </XStack>
-      </View>
-    </Pressable>
+        </Pressable>
+      )}
+    />
   )
 }
