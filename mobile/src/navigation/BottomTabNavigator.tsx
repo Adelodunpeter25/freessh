@@ -1,8 +1,6 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import {
-  Code,
   Folder,
-  HardDrive,
   Settings,
   TerminalSquare,
 } from 'lucide-react-native'
@@ -10,8 +8,6 @@ import {
 import {
   ConnectionsScreen,
   SessionsScreen,
-  SftpScreen,
-  SnippetsScreen,
   SettingsScreen,
 } from '../screens'
 import { useThemeStore } from '../stores'
@@ -19,8 +15,6 @@ import { useThemeStore } from '../stores'
 export type RootTabParamList = {
   Connections: undefined
   Sessions: undefined
-  Sftp: undefined
-  Snippets: undefined
   Settings: undefined
 }
 
@@ -64,21 +58,6 @@ export function BottomTabNavigator() {
         component={SessionsScreen}
         options={{
           tabBarIcon: ({ color }) => <TerminalSquare size={20} color={color} />,
-        }}
-      />
-      <Tab.Screen
-        name="Sftp"
-        component={SftpScreen}
-        options={{
-          title: 'SFTP',
-          tabBarIcon: ({ color }) => <HardDrive size={20} color={color} />,
-        }}
-      />
-      <Tab.Screen
-        name="Snippets"
-        component={SnippetsScreen}
-        options={{
-          tabBarIcon: ({ color }) => <Code size={20} color={color} />,
         }}
       />
       <Tab.Screen
