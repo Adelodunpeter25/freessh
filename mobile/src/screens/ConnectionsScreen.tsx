@@ -5,6 +5,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import {
   AddButton,
   ConnectionCard,
+  EmptyState,
   GroupCard,
   Screen,
   SearchBar,
@@ -33,6 +34,7 @@ export function ConnectionsScreen() {
   const showGroups = groups.length > 0 && query.length === 0
   const showConnections = ungroupedConnections.length > 0
   const showEmpty = query.length > 0 && isEmpty
+  const isActuallyEmpty = connections.length === 0 && groups.length === 0
 
   return (
     <>
@@ -45,7 +47,12 @@ export function ConnectionsScreen() {
             placeholder="Search connections"
           />
 
-          {showEmpty ? (
+          {isActuallyEmpty ? (
+            <EmptyState
+              title="No Connections"
+              description="Add your first host or group to get started with SSH."
+            />
+          ) : showEmpty ? (
             <SearchEmptyState query={query} />
           ) : (
             <>
