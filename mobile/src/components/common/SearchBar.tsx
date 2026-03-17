@@ -1,8 +1,8 @@
 import { X } from 'lucide-react-native'
 import { XStack, useTheme } from 'tamagui'
 
-import { Input } from '../Input'
-import { IconButton } from '../IconButton'
+import { Input } from './Input'
+import { IconButton } from './IconButton'
 
 type SearchBarProps = {
   value: string

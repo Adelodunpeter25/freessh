@@ -1,7 +1,7 @@
 import { Search } from 'lucide-react-native'
 import { useTheme } from 'tamagui'
 
-import { EmptyState } from '../EmptyState'
+import { EmptyState } from './EmptyState'
 
 export type SearchEmptyStateProps = {
   query?: string
