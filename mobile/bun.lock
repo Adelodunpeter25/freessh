@@ -5,6 +5,7 @@
     "": {
       "name": "freessh",
       "dependencies": {
+        "@dylankenneally/react-native-ssh-sftp": "^1.6.8",
         "@react-native-async-storage/async-storage": "^2.2.0",
         "@react-navigation/bottom-tabs": "^7.15.5",
         "@react-navigation/native": "^7.0.0",
@@ -233,6 +234,8 @@
     "@babel/types": ["@babel/types@7.29.0", "", { "dependencies": { "@babel/helper-string-parser": "^7.27.1", "@babel/helper-validator-identifier": "^7.28.5" } }, "sha512-LwdZHpScM4Qz8Xw2iKSzS+cfglZzJGvofQICy7W7v4caru4EaAmyUuO6BGrbyQ2mYV11W0U8j5mBhd14dd3B0A=="],
 
     "@dominicstop/ts-event-emitter": ["@dominicstop/ts-event-emitter@1.1.0", "", {}, "sha512-CcxmJIvUb1vsFheuGGVSQf4KdPZC44XolpUT34+vlal+LyQoBUOn31pjFET5M9ctOxEpt8xa0M3/2M7uUiAoJw=="],
+
+    "@dylankenneally/react-native-ssh-sftp": ["@dylankenneally/react-native-ssh-sftp@1.6.8", "", { "peerDependencies": { "react-native": "*" } }, "sha512-0GG1UqFqDKx4E+3q/8C3rLCWWYXoV1cEoinouGiz3uDaylt6LCMX6FLu16dfbQksx08yYmT9F7TqpiFAZTQhHQ=="],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.27.4", "", { "os": "aix", "cpu": "ppc64" }, "sha512-cQPwL2mp2nSmHHJlCyoXgHGhbEPMrEEU5xhkcy3Hs/O7nGZqEpZ2sUtLaL9MORLtDfRvVl2/3PAuEkYZH0Ty8Q=="],
 
