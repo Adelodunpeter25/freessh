@@ -1,14 +1,14 @@
-import { Key, Pencil } from 'lucide-react-native'
+import { Key, Pencil, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
 import { BaseCard, ContextMenu } from '@/components/common'
 import type { SSHKey } from '@/types'
-import { useContextMenuActions } from '@/hooks'
 
 type KeyCardProps = {
   sshKey: SSHKey
   onPress?: () => void
   onEdit?: () => void
+  onDelete?: () => void
 }
 
 export function KeyCard({ 
@@ -17,7 +17,6 @@ export function KeyCard({
   onEdit 
 }: KeyCardProps) {
   const theme = useTheme()
-  const actions = useContextMenuActions()
 
   return (
     <ContextMenu
@@ -27,14 +26,16 @@ export function KeyCard({
         {
           key: 'edit',
           label: 'Edit',
-          onPress: () => actions.editKey(sshKey),
+          onPress: () => onEdit?.(),
+          icon: <Pencil size={16} color={theme.color.get()} />,
         },
         { type: 'separator', key: 'sep-1' },
         {
           key: 'delete',
           label: 'Delete',
           destructive: true,
-          onPress: () => actions.deleteKey(sshKey),
+          onPress: () => onDelete?.(),
+          icon: <Trash2 size={16} color="#ef4444" />,
         },
       ]}
     >

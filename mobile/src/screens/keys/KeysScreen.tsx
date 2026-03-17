@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import { useState, useCallback } from 'react'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AddButton, EmptyState, Screen, AppHeader, KeyCard, SearchBar, SearchEmptyState, SectionHeader } from '@/components'
+import { AddButton, EmptyState, Screen, AppHeader, KeyCard, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
 import { useKeyStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -13,7 +13,13 @@ export function KeysScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const keys = useKeyStore((state) => state.keys)
   const loadKeys = useKeyStore((state) => state.initialize)
+  const removeKey = useKeyStore((state) => state.removeKey)
   const [refreshing, setRefreshing] = useState(false)
+  const [confirmState, setConfirmState] = useState<{
+    title: string
+    description?: string
+    onConfirm: () => void
+  } | null>(null)
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -68,6 +74,13 @@ export function KeysScreen() {
                     key={key.id}
                     sshKey={key}
                     onEdit={() => navigation.navigate('KeyForm', { key })}
+                    onDelete={() =>
+                      setConfirmState({
+                        title: 'Delete key?',
+                        description: `This will remove "${key.name}" from your keychain.`,
+                        onConfirm: () => removeKey(key.id),
+                      })
+                    }
                   />
                 ))}
               </YStack>
@@ -77,6 +90,20 @@ export function KeysScreen() {
       </Screen>
 
       <AddButton onPress={() => navigation.navigate('KeyForm', {})} />
+
+      <ConfirmDialog
+        open={confirmState !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmState(null)
+        }}
+        title={confirmState?.title ?? ''}
+        description={confirmState?.description}
+        destructive
+        onConfirm={() => {
+          confirmState?.onConfirm()
+          setConfirmState(null)
+        }}
+      />
     </>
   )
 }

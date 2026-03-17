@@ -1,9 +1,8 @@
-import { Loader2, Pencil, Server } from 'lucide-react-native'
+import { Copy, FolderOpen, Loader2, Pencil, Plug, Server, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
 import { BaseCard, ContextMenu } from '../common'
 import type { ConnectionConfig } from '../../types'
-import { useContextMenuActions } from '@/hooks'
 
 type ConnectionCardProps = {
   connection: ConnectionConfig
@@ -11,6 +10,10 @@ type ConnectionCardProps = {
   loading?: boolean
   onPress?: () => void
   onEdit?: () => void
+  onDelete?: () => void
+  onOpenSftp?: () => void
+  onDuplicate?: () => void
+  onConnect?: () => void
 }
 
 export function ConnectionCard({ 
@@ -21,7 +24,6 @@ export function ConnectionCard({
   onEdit 
 }: ConnectionCardProps) {
   const theme = useTheme()
-  const actions = useContextMenuActions()
 
   return (
     <ContextMenu
@@ -31,29 +33,34 @@ export function ConnectionCard({
         {
           key: 'connect',
           label: 'Connect',
-          onPress: () => actions.connect(connection),
+          onPress: () => onConnect?.(),
+          icon: <Plug size={16} color={theme.color.get()} />,
         },
         {
           key: 'open-sftp',
           label: 'Open in SFTP',
-          onPress: () => actions.openSftp(connection),
+          onPress: () => onOpenSftp?.(),
+          icon: <FolderOpen size={16} color={theme.color.get()} />,
         },
         {
           key: 'duplicate',
           label: 'Duplicate',
-          onPress: () => actions.duplicateConnection(connection),
+          onPress: () => onDuplicate?.(),
+          icon: <Copy size={16} color={theme.color.get()} />,
         },
         { type: 'separator', key: 'sep-1' },
         {
           key: 'edit',
           label: 'Edit',
-          onPress: () => actions.editConnection(connection),
+          onPress: () => onEdit?.(),
+          icon: <Pencil size={16} color={theme.color.get()} />,
         },
         {
           key: 'delete',
           label: 'Delete',
           destructive: true,
-          onPress: () => actions.deleteConnection(connection),
+          onPress: () => onDelete?.(),
+          icon: <Trash2 size={16} color="#ef4444" />,
         },
       ]}
     >

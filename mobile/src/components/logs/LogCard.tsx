@@ -1,20 +1,19 @@
-import { FileText, Trash2 } from 'lucide-react-native'
+import { FileText, Pencil, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { Text, XStack, useTheme, View } from 'tamagui'
 import { BaseCard } from '../common'
 import type { LogEntry } from '@/types'
 import { ContextMenu } from '../common'
-import { useContextMenuActions } from '@/hooks'
 
 type LogCardProps = {
   log: LogEntry
   onPress?: () => void
   onDelete?: () => void
+  onEdit?: () => void
 }
 
-export function LogCard({ log, onPress, onDelete }: LogCardProps) {
+export function LogCard({ log, onPress, onDelete, onEdit }: LogCardProps) {
   const theme = useTheme()
-  const actions = useContextMenuActions()
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString)
@@ -37,14 +36,16 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
         {
           key: 'edit',
           label: 'Edit',
-          onPress: () => actions.editLog(log),
+          onPress: () => onEdit?.(),
+          icon: <Pencil size={16} color={theme.color.get()} />,
         },
         { type: 'separator', key: 'sep-1' },
         {
           key: 'delete',
           label: 'Delete',
           destructive: true,
-          onPress: () => actions.deleteLog(log),
+          onPress: () => onDelete?.(),
+          icon: <Trash2 size={16} color="#ef4444" />,
         },
       ]}
     >

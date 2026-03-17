@@ -1,16 +1,16 @@
-import { Braces, Pencil } from 'lucide-react-native'
+import { Braces, Pencil, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { Text, XStack, YStack, useTheme, View } from 'tamagui'
 
 import type { Snippet } from '../../types'
 import { ContextMenu } from '../common'
-import { useContextMenuActions } from '@/hooks'
 
 type SnippetCardProps = {
   snippet: Snippet
   selected?: boolean
   onPress?: () => void
   onEdit?: () => void
+  onDelete?: () => void
 }
 
 export function SnippetCard({ 
@@ -20,7 +20,6 @@ export function SnippetCard({
   onEdit 
 }: SnippetCardProps) {
   const theme = useTheme()
-  const actions = useContextMenuActions()
 
   return (
     <ContextMenu
@@ -30,14 +29,16 @@ export function SnippetCard({
         {
           key: 'edit',
           label: 'Edit',
-          onPress: () => actions.editSnippet(snippet),
+          onPress: () => onEdit?.(),
+          icon: <Pencil size={16} color={theme.color.get()} />,
         },
         { type: 'separator', key: 'sep-1' },
         {
           key: 'delete',
           label: 'Delete',
           destructive: true,
-          onPress: () => actions.deleteSnippet(snippet),
+          onPress: () => onDelete?.(),
+          icon: <Trash2 size={16} color="#ef4444" />,
         },
       ]}
     >

@@ -1,15 +1,15 @@
-import { Folder, Pencil } from 'lucide-react-native'
+import { Folder, Pencil, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
 import { BaseCard, ContextMenu } from '../common'
 import type { Group } from '../../types'
-import { useContextMenuActions } from '@/hooks'
 
 type GroupCardProps = {
   group: Group
   selected?: boolean
   onPress?: () => void
   onEdit?: () => void
+  onDelete?: () => void
 }
 
 export function GroupCard({ 
@@ -19,7 +19,6 @@ export function GroupCard({
   onEdit 
 }: GroupCardProps) {
   const theme = useTheme()
-  const actions = useContextMenuActions()
   const connectionSummary =
     group.connection_count === 0
       ? 'No connections'
@@ -33,14 +32,16 @@ export function GroupCard({
         {
           key: 'edit',
           label: 'Edit',
-          onPress: () => actions.editGroup(group),
+          onPress: () => onEdit?.(),
+          icon: <Pencil size={16} color={theme.color.get()} />,
         },
         { type: 'separator', key: 'sep-1' },
         {
           key: 'delete',
           label: 'Delete',
           destructive: true,
-          onPress: () => actions.deleteGroup(group),
+          onPress: () => onDelete?.(),
+          icon: <Trash2 size={16} color="$red10" />,
         },
       ]}
     >

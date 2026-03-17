@@ -15,6 +15,7 @@ import {
   SearchEmptyState,
   SectionHeader,
   Spacer,
+  ConfirmDialog,
 } from '@/components'
 import { useSearch } from '@/hooks'
 import { useConnectionStore, useGroupStore } from '@/stores'
@@ -28,8 +29,15 @@ export function ConnectionsScreen() {
   const groups = useGroupStore((state) => state.groups)
   const loadConnections = useConnectionStore((state) => state.initialize)
   const loadGroups = useGroupStore((state) => state.initialize)
+  const removeGroup = useGroupStore((state) => state.removeGroup)
+  const removeConnection = useConnectionStore((state) => state.removeConnection)
   const [showAddSheet, setShowAddSheet] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
+  const [confirmState, setConfirmState] = useState<{
+    title: string
+    description?: string
+    onConfirm: () => void
+  } | null>(null)
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -98,6 +106,13 @@ export function ConnectionsScreen() {
                           navigation.navigate('GroupDetails', { groupId: group.id })
                         }
                         onEdit={() => navigation.navigate('GroupForm', { group })}
+                        onDelete={() =>
+                          setConfirmState({
+                            title: 'Delete group?',
+                            description: `This will remove "${group.name}" and ungroup its connections.`,
+                            onConfirm: () => removeGroup(group.id),
+                          })
+                        }
                       />
                     ))}
                   </YStack>
@@ -114,6 +129,13 @@ export function ConnectionsScreen() {
                         key={connection.id} 
                         connection={connection}
                         onEdit={() => navigation.navigate('ConnectionForm', { connection })}
+                        onDelete={() =>
+                          setConfirmState({
+                            title: 'Delete connection?',
+                            description: `This will remove "${connection.name}" from your saved connections.`,
+                            onConfirm: () => removeConnection(connection.id),
+                          })
+                        }
                       />
                     ))}
                   </YStack>
@@ -162,6 +184,20 @@ export function ConnectionsScreen() {
           </YStack>
         </Sheet.Frame>
       </Sheet>
+
+      <ConfirmDialog
+        open={confirmState !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmState(null)
+        }}
+        title={confirmState?.title ?? ''}
+        description={confirmState?.description}
+        destructive
+        onConfirm={() => {
+          confirmState?.onConfirm()
+          setConfirmState(null)
+        }}
+      />
     </>
   )
 }

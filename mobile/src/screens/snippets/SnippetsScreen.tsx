@@ -1,8 +1,9 @@
+import { useState } from 'react'
 import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AddButton, Screen, SearchBar, SearchEmptyState, SectionHeader, SnippetCard, AppHeader, EmptyState } from '@/components'
+import { AddButton, Screen, SearchBar, SearchEmptyState, SectionHeader, SnippetCard, AppHeader, EmptyState, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
 import { useSnippetStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -10,6 +11,12 @@ import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 export function SnippetsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const snippets = useSnippetStore((state) => state.snippets)
+  const removeSnippet = useSnippetStore((state) => state.removeSnippet)
+  const [confirmState, setConfirmState] = useState<{
+    title: string
+    description?: string
+    onConfirm: () => void
+  } | null>(null)
 
   const { query, filtered, setQuery, clearQuery, isEmpty } = useSearch({
     items: snippets,
@@ -51,6 +58,13 @@ export function SnippetsScreen() {
                     key={snippet.id} 
                     snippet={snippet}
                     onEdit={() => navigation.navigate('SnippetForm', { snippet })}
+                    onDelete={() =>
+                      setConfirmState({
+                        title: 'Delete snippet?',
+                        description: `This will remove "${snippet.name}".`,
+                        onConfirm: () => removeSnippet(snippet.id),
+                      })
+                    }
                   />
                 ))}
               </YStack>
@@ -60,6 +74,20 @@ export function SnippetsScreen() {
       </Screen>
 
       <AddButton onPress={() => navigation.navigate('SnippetForm', {})} />
+
+      <ConfirmDialog
+        open={confirmState !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmState(null)
+        }}
+        title={confirmState?.title ?? ''}
+        description={confirmState?.description}
+        destructive
+        onConfirm={() => {
+          confirmState?.onConfirm()
+          setConfirmState(null)
+        }}
+      />
     </>
   )
 }

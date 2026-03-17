@@ -4,7 +4,7 @@ import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen, EmptyState, KnownHostCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader } from '@/components'
+import { AppHeader, Screen, EmptyState, KnownHostCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
 import { useKnownHostStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -13,6 +13,11 @@ export function KnownHostsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const { knownHosts, loading, initialize, removeKnownHost } = useKnownHostStore()
   const [refreshing, setRefreshing] = useState(false)
+  const [confirmState, setConfirmState] = useState<{
+    title: string
+    description?: string
+    onConfirm: () => void
+  } | null>(null)
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -67,19 +72,40 @@ export function KnownHostsScreen() {
               <>
                 <SectionHeader title="Known Hosts" />
                 <YStack gap="$3">
-                  {filtered.map((host) => (
-                    <KnownHostCard 
-                      key={host.id} 
-                      host={host} 
-                      onDelete={() => removeKnownHost(host.id)}
-                    />
-                  ))}
-                </YStack>
-              </>
-            )}
-          </YStack>
+                    {filtered.map((host) => (
+                      <KnownHostCard 
+                        key={host.id} 
+                        host={host} 
+                        onDelete={() =>
+                          setConfirmState({
+                            title: 'Delete known host?',
+                            description: `This will remove "${host.hostname}".`,
+                            onConfirm: () => removeKnownHost(host.id),
+                          })
+                        }
+                        onEdit={() => {}}
+                      />
+                    ))}
+                  </YStack>
+                </>
+              )}
+            </YStack>
         )}
       </Screen>
+
+      <ConfirmDialog
+        open={confirmState !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmState(null)
+        }}
+        title={confirmState?.title ?? ''}
+        description={confirmState?.description}
+        destructive
+        onConfirm={() => {
+          confirmState?.onConfirm()
+          setConfirmState(null)
+        }}
+      />
     </YStack>
   )
 }

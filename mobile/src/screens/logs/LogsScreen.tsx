@@ -4,7 +4,7 @@ import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen, EmptyState, LogCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader } from '@/components'
+import { AppHeader, Screen, EmptyState, LogCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
 import { useLogStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -13,6 +13,11 @@ export function LogsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const { logs, loading, initialize, removeLog } = useLogStore()
   const [refreshing, setRefreshing] = useState(false)
+  const [confirmState, setConfirmState] = useState<{
+    title: string
+    description?: string
+    onConfirm: () => void
+  } | null>(null)
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -67,19 +72,40 @@ export function LogsScreen() {
               <>
                 <SectionHeader title="Session Logs" />
                 <YStack gap="$3">
-                  {filtered.map((log) => (
-                    <LogCard 
-                      key={log.filename} 
-                      log={log} 
-                      onDelete={() => removeLog(log.filename)}
-                    />
-                  ))}
-                </YStack>
-              </>
-            )}
-          </YStack>
+                    {filtered.map((log) => (
+                      <LogCard 
+                        key={log.filename} 
+                        log={log} 
+                        onDelete={() =>
+                          setConfirmState({
+                            title: 'Delete log?',
+                            description: `This will remove "${log.filename}".`,
+                            onConfirm: () => removeLog(log.filename),
+                          })
+                        }
+                        onEdit={() => {}}
+                      />
+                    ))}
+                  </YStack>
+                </>
+              )}
+            </YStack>
         )}
       </Screen>
+
+      <ConfirmDialog
+        open={confirmState !== null}
+        onOpenChange={(open) => {
+          if (!open) setConfirmState(null)
+        }}
+        title={confirmState?.title ?? ''}
+        description={confirmState?.description}
+        destructive
+        onConfirm={() => {
+          confirmState?.onConfirm()
+          setConfirmState(null)
+        }}
+      />
     </YStack>
   )
 }

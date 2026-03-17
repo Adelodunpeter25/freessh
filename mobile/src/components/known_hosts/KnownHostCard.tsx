@@ -1,35 +1,35 @@
-import { ShieldCheck, Trash2 } from 'lucide-react-native'
+import { Pencil, ShieldCheck, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
 import { BaseCard, ContextMenu } from '../common'
 import type { KnownHost } from '@/types'
-import { useContextMenuActions } from '@/hooks'
 
 type KnownHostCardProps = {
   host: KnownHost
   onDelete?: () => void
+  onEdit?: () => void
 }
 
-export function KnownHostCard({ host, onDelete }: KnownHostCardProps) {
+export function KnownHostCard({ host, onDelete, onEdit }: KnownHostCardProps) {
   const theme = useTheme()
-  const actions = useContextMenuActions()
 
   return (
     <ContextMenu
       title={host.hostname}
-      onPress={() => {}}
       items={[
         {
           key: 'edit',
           label: 'Edit',
-          onPress: () => actions.editKnownHost(host),
+          onPress: () => onEdit?.(),
+          icon: <Pencil size={16} color={theme.color.get()} />,
         },
         { type: 'separator', key: 'sep-1' },
         {
           key: 'delete',
           label: 'Delete',
           destructive: true,
-          onPress: () => actions.deleteKnownHost(host),
+          onPress: () => onDelete?.(),
+          icon: <Trash2 size={16} color="#ef4444" />,
         },
       ]}
     >
