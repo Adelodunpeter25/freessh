@@ -1,7 +1,7 @@
-import { Button, Input, Select, Text, YStack } from 'tamagui'
+import { Button, Input, Text, YStack } from 'tamagui'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen } from '@/components'
+import { AppHeader, Screen, Select } from '@/components'
 import { useKeyForm } from '@/hooks'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
@@ -40,40 +40,26 @@ export function KeyFormScreen({ route, navigation }: Props) {
             {errors.name && <Text fontSize={12} color="$red10">{errors.name}</Text>}
           </YStack>
 
-          <YStack gap="$2">
-            <Text fontSize={14} fontWeight="500" color="$color">Key Type</Text>
-            <Select value={formData.type} onValueChange={(value) => updateField('type', value)}>
-              <Select.Trigger>
-                <Select.Value placeholder="Select key type" />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item index={0} value="ed25519">
-                  <Select.ItemText>Ed25519 (Recommended)</Select.ItemText>
-                </Select.Item>
-                <Select.Item index={1} value="rsa">
-                  <Select.ItemText>RSA</Select.ItemText>
-                </Select.Item>
-              </Select.Content>
-            </Select>
-          </YStack>
+          <Select
+            label="Key Type"
+            value={formData.type}
+            onValueChange={(value) => updateField('type', value)}
+            options={[
+              { label: 'Ed25519 (Recommended)', value: 'ed25519' },
+              { label: 'RSA', value: 'rsa' }
+            ]}
+          />
 
           {formData.type === 'rsa' && (
-            <YStack gap="$2">
-              <Text fontSize={14} fontWeight="500" color="$color">Key Size</Text>
-              <Select value={formData.bits?.toString()} onValueChange={(value) => updateField('bits', parseInt(value))}>
-                <Select.Trigger>
-                  <Select.Value placeholder="Select key size" />
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item index={0} value="2048">
-                    <Select.ItemText>2048 bits</Select.ItemText>
-                  </Select.Item>
-                  <Select.Item index={1} value="4096">
-                    <Select.ItemText>4096 bits</Select.ItemText>
-                  </Select.Item>
-                </Select.Content>
-              </Select>
-            </YStack>
+            <Select
+              label="Key Size"
+              value={formData.bits?.toString() || '2048'}
+              onValueChange={(value) => updateField('bits', parseInt(value))}
+              options={[
+                { label: '2048 bits', value: '2048' },
+                { label: '4096 bits', value: '4096' }
+              ]}
+            />
           )}
 
           <YStack gap="$2">

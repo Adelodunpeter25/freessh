@@ -1,9 +1,9 @@
-import { Button, Input, Select, Text, TextArea, XStack, YStack, View, Separator, RadioGroup } from 'tamagui'
+import { Button, Input, Text, TextArea, XStack, YStack, View, Separator, RadioGroup } from 'tamagui'
 import { ChevronDown } from 'lucide-react-native'
 import { useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen } from '@/components'
+import { AppHeader, Screen, Select } from '@/components'
 import { useConnectionForm } from '@/hooks'
 import { useConnectionStore, useGroupStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -52,26 +52,16 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
             />
             {errors.name && <Text fontSize={12} color="$red10">{errors.name}</Text>}
 
-            <Select value={formData.group || ''} onValueChange={(value) => updateField('group', value || undefined)}>
-              <Select.Trigger 
-                iconAfter={ChevronDown}
-                hoverStyle={{ backgroundColor: '$backgroundHover' }}
-              >
-                <Select.Value placeholder="Select Group (Optional)" />
-              </Select.Trigger>
-              <Select.Content zIndex={200000}>
-                <Select.Viewport>
-                  <Select.Item index={0} value="">
-                    <Select.ItemText>No Group</Select.ItemText>
-                  </Select.Item>
-                  {groups.map((group, index) => (
-                    <Select.Item key={group.id} index={index + 1} value={group.id}>
-                      <Select.ItemText>{group.name}</Select.ItemText>
-                    </Select.Item>
-                  ))}
-                </Select.Viewport>
-              </Select.Content>
-            </Select>
+            <Select
+              label="Group"
+              value={formData.group || ''}
+              onValueChange={(value) => updateField('group', value || '')}
+              placeholder="Select Group (Optional)"
+              options={[
+                { label: 'No Group', value: '' },
+                ...groups.map(g => ({ label: g.name, value: g.id }))
+              ]}
+            />
 
             <Input
               value={formData.host}
@@ -110,31 +100,19 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
             />
             {errors.username && <Text fontSize={12} color="$red10">{errors.username}</Text>}
 
-            <Select 
-              value={formData.auth_method} 
+            <Select
+              label="Authentication Method"
+              value={formData.auth_method || 'password'}
               onValueChange={(value) => updateField('auth_method', value)}
-            >
-              <Select.Trigger 
-                iconAfter={ChevronDown}
-                hoverStyle={{ backgroundColor: '$backgroundHover' }}
-              >
-                <Select.Value placeholder="Authentication Method" />
-              </Select.Trigger>
-              <Select.Content zIndex={200000}>
-                <Select.Viewport>
-                  <Select.Item index={0} value="password">
-                    <Select.ItemText>Password</Select.ItemText>
-                  </Select.Item>
-                  <Select.Item index={1} value="publickey">
-                    <Select.ItemText>Public Key</Select.ItemText>
-                  </Select.Item>
-                </Select.Viewport>
-              </Select.Content>
-            </Select>
+              options={[
+                { label: 'Password', value: 'password' },
+                { label: 'Public Key', value: 'publickey' }
+              ]}
+            />
 
             {formData.auth_method === 'publickey' && (
               <YStack gap="$4">
-                <RadioGroup value={keyMode} onValueChange={setKeyMode}>
+                <RadioGroup value={keyMode} onValueChange={(value: string) => setKeyMode(value as 'existing' | 'new')}>
                   <XStack gap="$4">
                     <XStack gap="$2" alignItems="center">
                       <RadioGroup.Item value="existing" id="existing" size="$3">
@@ -152,21 +130,14 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
                 </RadioGroup>
 
                 {keyMode === 'existing' ? (
-                  <Select value={formData.key_id || ''} onValueChange={(value) => updateField('key_id', value)}>
-                    <Select.Trigger 
-                      iconAfter={ChevronDown}
-                      hoverStyle={{ backgroundColor: '$backgroundHover' }}
-                    >
-                      <Select.Value placeholder="Select a key" />
-                    </Select.Trigger>
-                    <Select.Content zIndex={200000}>
-                      <Select.Viewport>
-                        <Select.Item index={0} value="">
-                          <Select.ItemText>No keys available. Create one first.</Select.ItemText>
-                        </Select.Item>
-                      </Select.Viewport>
-                    </Select.Content>
-                  </Select>
+                  <Select
+                    value={formData.key_id || ''}
+                    onValueChange={(value) => updateField('key_id', value)}
+                    placeholder="Select a key"
+                    options={[
+                      { label: 'No keys available. Create one first.', value: '' }
+                    ]}
+                  />
                 ) : (
                   <TextArea
                     value={formData.private_key || ''}
