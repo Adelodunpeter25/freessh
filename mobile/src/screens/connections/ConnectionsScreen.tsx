@@ -1,6 +1,6 @@
-import { Sheet, YStack, Text, ListItem } from 'tamagui'
+import { Sheet, YStack, Text, ListItem, ScrollView, RefreshControl } from 'tamagui'
 import { Plus, FolderPlus, Server } from 'lucide-react-native'
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
@@ -25,7 +25,19 @@ export function ConnectionsScreen() {
     useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const connections = useConnectionStore((state) => state.connections)
   const groups = useGroupStore((state) => state.groups)
+  const loadConnections = useConnectionStore((state) => state.loadConnections)
+  const loadGroups = useGroupStore((state) => state.loadGroups)
   const [showAddSheet, setShowAddSheet] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    try {
+      await Promise.all([loadConnections(), loadGroups()])
+    } finally {
+      setRefreshing(false)
+    }
+  }, [loadConnections, loadGroups])
 
   const { query, filtered, setQuery, clearQuery, isEmpty } = useSearch({
     items: connections,
@@ -42,12 +54,18 @@ export function ConnectionsScreen() {
   return (
     <>
       <Screen>
-        <YStack gap="$4">
-          <SearchBar
-            value={query}
-            onChangeText={setQuery}
-            onClear={clearQuery}
-            placeholder="Search connections"
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          <YStack gap="$4" padding="$4">
+            <SearchBar
+              value={query}
+              onChangeText={setQuery}
+              onClear={clearQuery}
+              placeholder="Search connections"
+            />
           />
 
           {isActuallyEmpty ? (
@@ -63,16 +81,21 @@ export function ConnectionsScreen() {
                 <>
                   <SectionHeader title="Groups" />
                   <YStack gap="$3">
-                    {groups.map((group) => (
-                      <GroupCard
-                        key={group.id}
-                        group={group}
-                        onPress={() =>
-                          navigation.navigate('GroupDetails', { groupId: group.id })
-                        }
-                        onEdit={() => navigation.navigate('GroupForm', { group })}
-                      />
-                    ))}
+                    {groups.map((group) => {
+                      const connectionCount = connections.filter(
+                        (conn) => conn.group === group.id
+                      ).length
+                      return (
+                        <GroupCard
+                          key={group.id}
+                          group={{ ...group, connection_count: connectionCount }}
+                          onPress={() =>
+                            navigation.navigate('GroupDetails', { groupId: group.id })
+                          }
+                          onEdit={() => navigation.navigate('GroupForm', { group })}
+                        />
+                      )
+                    })}
                   </YStack>
                   {showConnections && <Spacer height="$4" />}
                 </>

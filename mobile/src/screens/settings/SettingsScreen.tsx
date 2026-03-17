@@ -1,5 +1,5 @@
-import { Moon, Sun, FileText, ShieldCheck, ChevronRight } from 'lucide-react-native'
-import { Button, Switch, Text, XStack, YStack, ListItem } from 'tamagui'
+import { Moon, Sun } from 'lucide-react-native'
+import { Button, Switch, Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
@@ -59,32 +59,6 @@ export function SettingsScreen() {
                 <Switch.Thumb />
               </Switch>
             </XStack>
-          </Card>
-        </YStack>
-
-        <YStack gap="$4">
-          <SectionHeader title="Account & Security" />
-          <Card overflow="hidden">
-            <ListItem
-              hoverStyle={{ backgroundColor: '$backgroundHover' }}
-              pressStyle={{ backgroundColor: '$backgroundPress' }}
-              title="Session Logs"
-              subTitle="View and manage SSH session logs"
-              icon={<FileText size={20} color="$color" />}
-              iconAfter={<ChevronRight size={18} opacity={0.5} />}
-              onPress={() => navigation.navigate('Logs')}
-            />
-            <ListItem
-              hoverStyle={{ backgroundColor: '$backgroundHover' }}
-              pressStyle={{ backgroundColor: '$backgroundPress' }}
-              title="Known Hosts"
-              subTitle="Manage trusted host fingerprints"
-              borderTopWidth={1}
-              borderColor="$borderColor"
-              icon={<ShieldCheck size={20} color="$color" />}
-              iconAfter={<ChevronRight size={18} opacity={0.5} />}
-              onPress={() => navigation.navigate('KnownHosts')}
-            />
           </Card>
         </YStack>
       </YStack>

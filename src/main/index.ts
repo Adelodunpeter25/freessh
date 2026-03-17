@@ -15,6 +15,12 @@ let stdoutBuffer = "";
 const windowModes = new Map<number, AppWindowMode>();
 const requestOwners = new Map<string, number>();
 const sessionOwners = new Map<string, number>();
+let backendRestartTimer: ReturnType<typeof setTimeout> | null = null;
+let backendRestartAttempts = 0;
+let backendStopping = false;
+
+const BACKEND_RESTART_BASE_MS = 500;
+const BACKEND_RESTART_MAX_MS = 10_000;
 
 type BackendMessage = {
   type?: string;
@@ -92,6 +98,10 @@ function clearWindowOwnership(windowId: number): void {
 
 // Start Go backend
 function startBackend() {
+  if (goBackend) {
+    return;
+  }
+
   const isDev = !app.isPackaged;
   const binaryName = process.platform === "win32" ? "server.exe" : "server";
   const binaryPath = resolveBackendPath(isDev, binaryName);
@@ -100,8 +110,13 @@ function startBackend() {
     stdio: ["pipe", "pipe", "pipe"],
   });
 
+  goBackend.once("spawn", () => {
+    backendRestartAttempts = 0;
+  });
+
   goBackend.on("error", (error) => {
     console.error("Failed to start backend:", error);
+    scheduleBackendRestart("error");
   });
 
   goBackend.stdout?.on("data", (data: Buffer) => {
@@ -152,7 +167,27 @@ function startBackend() {
   goBackend.on("exit", (code) => {
     console.log("Backend exited with code:", code);
     goBackend = null;
+    scheduleBackendRestart("exit");
   });
+}
+
+function scheduleBackendRestart(reason: "error" | "exit") {
+  if (backendStopping) return;
+  if (backendRestartTimer) return;
+
+  const delay = Math.min(
+    BACKEND_RESTART_BASE_MS * Math.pow(2, backendRestartAttempts),
+    BACKEND_RESTART_MAX_MS
+  );
+
+  backendRestartAttempts += 1;
+  backendRestartTimer = setTimeout(() => {
+    backendRestartTimer = null;
+    if (!backendStopping) {
+      console.log(`Restarting backend after ${reason}...`);
+      startBackend();
+    }
+  }, delay);
 }
 
 function resolveBackendPath(isDev: boolean, binaryName: string): string {
@@ -255,6 +290,11 @@ app.whenReady().then(() => {
 });
 
 app.on("window-all-closed", () => {
+  backendStopping = true;
+  if (backendRestartTimer) {
+    clearTimeout(backendRestartTimer);
+    backendRestartTimer = null;
+  }
   if (goBackend) {
     goBackend.kill();
   }

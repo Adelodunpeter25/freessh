@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import { Pressable } from 'react-native'
 import { Text, XStack, YStack, useTheme, View, styled } from 'tamagui'
 
-export const CardFrame = styled(YStack, {
+export const Card = styled(YStack, {
   name: 'AppCard',
   borderRadius: 16,
   padding: 16,
@@ -39,7 +39,7 @@ export function BaseCard({
 
   return (
     <Pressable onPress={onPress}>
-      <CardFrame
+      <Card
         borderColor={selected ? '$accent' : '$borderColor'}
         borderWidth={selected ? 2 : 1}
         elevation={selected ? 4 : 2}
@@ -79,7 +79,7 @@ export function BaseCard({
             </View>
           )}
         </XStack>
-      </CardFrame>
+      </Card>
     </Pressable>
   )
 }

@@ -36,7 +36,11 @@ export function GroupDetailsScreen({ route, navigation }: Props) {
           ) : (
             <YStack gap="$3">
               {connections.map((connection) => (
-                <ConnectionCard key={connection.id} connection={connection} />
+                <ConnectionCard 
+                  key={connection.id} 
+                  connection={connection}
+                  onEdit={() => navigation.navigate('ConnectionForm', { connection })}
+                />
               ))}
             </YStack>
           )}
