@@ -13,6 +13,7 @@ type SelectProps = {
 
 export function Select({ value, onValueChange, placeholder, label, options, error }: SelectProps) {
   const theme = useTheme()
+  
   return (
     <YStack gap="$2">
       {label && (
@@ -21,8 +22,16 @@ export function Select({ value, onValueChange, placeholder, label, options, erro
         </Text>
       )}
       <TSelect value={value} onValueChange={onValueChange}>
-        <TSelect.Trigger iconAfter={ChevronDown} borderColor={error ? '$red10' : '$borderColor'}>
-          <TSelect.Value placeholder={placeholder} />
+        <TSelect.Trigger 
+          iconAfter={ChevronDown} 
+          borderColor={error ? '$red10' : '$borderColor'}
+          borderRadius={10}
+          paddingHorizontal={12}
+          height={44}
+          backgroundColor="$background"
+          focusStyle={{ borderColor: '$accent' }}
+        >
+          <TSelect.Value placeholder={placeholder} color="$color" />
         </TSelect.Trigger>
 
         <Adapt when="sm" platform="touch">
@@ -50,7 +59,7 @@ export function Select({ value, onValueChange, placeholder, label, options, erro
             <TSelect.Group>
               {options.map((option, i) => (
                 <TSelect.Item index={i} key={option.value} value={option.value}>
-                  <TSelect.ItemText>{option.label}</TSelect.ItemText>
+                  <TSelect.ItemText color="$color">{option.label}</TSelect.ItemText>
                   <TSelect.ItemIndicator marginLeft="auto">
                     <Check size={16} color={theme.accent.get()} />
                   </TSelect.ItemIndicator>

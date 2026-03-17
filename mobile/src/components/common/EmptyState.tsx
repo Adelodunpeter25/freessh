@@ -20,7 +20,7 @@ export function EmptyState({ title, description, icon }: EmptyStateProps) {
           {title}
         </Text>
         {description ? (
-          <Text fontSize={13} color="$placeholderColor" textAlign="center">
+          <Text fontSize={13} color={theme.placeholderColor.get()} textAlign="center">
             {description}
           </Text>
         ) : null}

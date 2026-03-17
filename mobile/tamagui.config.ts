@@ -3,6 +3,14 @@ import { config } from '@tamagui/config/v3'
 
 const tamaguiConfig = createTamagui({
   ...config,
+  tokens: {
+    ...config.tokens,
+    color: {
+      ...config.tokens.color,
+      placeholderColor: '#94a3b8',
+      accent: '#f97316',
+    },
+  },
   themes: {
     ...config.themes,
     light: {

@@ -1,9 +1,9 @@
-import { Button, Input, Text, TextArea, XStack, YStack, View, Separator, RadioGroup, useTheme } from 'tamagui'
+import { Text, TextArea, XStack, YStack, View, Separator, RadioGroup, useTheme } from 'tamagui'
 import { ChevronDown, Eye, EyeOff } from 'lucide-react-native'
 import { useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen, Select } from '@/components'
+import { AppHeader, Screen, Select, Input, Button, IconButton } from '@/components'
 import { useConnectionForm } from '@/hooks'
 import { useConnectionStore, useGroupStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -45,15 +45,18 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
         <YStack gap="$6">
           {/* General Section */}
           <YStack gap="$4">
-            <Text fontSize={14} fontWeight="600" color="$color">General</Text>
+            <Text fontSize={14} fontWeight="700" color="$color">General</Text>
             
-            <Input
-              value={formData.name}
-              onChangeText={(value) => updateField('name', value)}
-              placeholder="Connection Name"
-              borderColor={errors.name ? '$red10' : '$borderColor'}
-            />
-            {errors.name && <Text fontSize={12} color="$red10">{errors.name}</Text>}
+            <YStack gap="$2">
+              <Text fontSize={13} fontWeight="600" color="$color">Name</Text>
+              <Input
+                value={formData.name}
+                onChangeText={(value) => updateField('name', value)}
+                placeholder="Connection Name"
+                borderColor={errors.name ? '$red10' : '$borderColor'}
+              />
+              {errors.name && <Text fontSize={12} color="$red10">{errors.name}</Text>}
+            </YStack>
 
             <Select
               label="Group"
@@ -66,42 +69,51 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
               ]}
             />
 
-            <Input
-              value={formData.host}
-              onChangeText={(value) => updateField('host', value)}
-              placeholder="Host"
-              borderColor={errors.host ? '$red10' : '$borderColor'}
-            />
-            {errors.host && <Text fontSize={12} color="$red10">{errors.host}</Text>}
-
-            <XStack gap="$2" alignItems="center">
-              <Text fontSize={14} color="$placeholderColor">SSH on</Text>
+            <YStack gap="$2">
+              <Text fontSize={13} fontWeight="600" color="$color">Host</Text>
               <Input
-                flex={1}
-                value={formData.port}
-                onChangeText={(value) => updateField('port', value)}
-                placeholder="22"
-                keyboardType="numeric"
-                borderColor={errors.port ? '$red10' : '$borderColor'}
+                value={formData.host}
+                onChangeText={(value) => updateField('host', value)}
+                placeholder="Host (e.g. 192.168.1.1)"
+                borderColor={errors.host ? '$red10' : '$borderColor'}
               />
-              <Text fontSize={14} color="$placeholderColor">port</Text>
-            </XStack>
-            {errors.port && <Text fontSize={12} color="$red10">{errors.port}</Text>}
+              {errors.host && <Text fontSize={12} color="$red10">{errors.host}</Text>}
+            </YStack>
+
+            <YStack gap="$2">
+              <Text fontSize={13} fontWeight="600" color="$color">Port</Text>
+              <XStack gap="$2" alignItems="center">
+                <Text fontSize={14} color="$color" opacity={0.6}>SSH on</Text>
+                <Input
+                  flex={1}
+                  value={formData.port}
+                  onChangeText={(value) => updateField('port', value)}
+                  placeholder="22"
+                  keyboardType="numeric"
+                  borderColor={errors.port ? '$red10' : '$borderColor'}
+                />
+                <Text fontSize={14} color="$color" opacity={0.6}>port</Text>
+              </XStack>
+              {errors.port && <Text fontSize={12} color="$red10">{errors.port}</Text>}
+            </YStack>
           </YStack>
 
           <Separator />
 
           {/* Credentials Section */}
           <YStack gap="$4">
-            <Text fontSize={14} fontWeight="600" color="$color">Credentials</Text>
+            <Text fontSize={14} fontWeight="700" color="$color">Credentials</Text>
             
-            <Input
-              value={formData.username}
-              onChangeText={(value) => updateField('username', value)}
-              placeholder="Username"
-              borderColor={errors.username ? '$red10' : '$borderColor'}
-            />
-            {errors.username && <Text fontSize={12} color="$red10">{errors.username}</Text>}
+            <YStack gap="$2">
+              <Text fontSize={13} fontWeight="600" color="$color">Username</Text>
+              <Input
+                value={formData.username}
+                onChangeText={(value) => updateField('username', value)}
+                placeholder="Username"
+                borderColor={errors.username ? '$red10' : '$borderColor'}
+              />
+              {errors.username && <Text fontSize={12} color="$red10">{errors.username}</Text>}
+            </YStack>
 
             <Select
               label="Authentication Method"
@@ -115,6 +127,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
 
             {formData.auth_method === 'password' && (
               <YStack gap="$2">
+                <Text fontSize={13} fontWeight="600" color="$color">Password</Text>
                 <XStack alignItems="center" position="relative">
                   <Input
                     flex={1}
@@ -125,16 +138,12 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
                     borderColor="$borderColor"
                     paddingRight={44}
                   />
-                  <Button
+                  <IconButton
                     position="absolute"
                     right={4}
-                    circular
-                    size="$3"
-                    chromeless
                     onPress={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff size={20} color={t.placeholderColor.get()} /> : <Eye size={20} color={t.placeholderColor.get()} />}
-                  </Button>
+                    icon={showPassword ? <EyeOff size={20} color={t.color.get()} /> : <Eye size={20} color={t.color.get()} />}
+                  />
                 </XStack>
               </YStack>
             )}
@@ -160,6 +169,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
 
                 {keyMode === 'existing' ? (
                   <Select
+                    label="Select Key"
                     value={formData.key_id || ''}
                     onValueChange={(value) => updateField('key_id', value)}
                     placeholder="Select a key"
@@ -168,47 +178,50 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
                     ]}
                   />
                 ) : (
-                  <TextArea
-                    value={formData.private_key || ''}
-                    onChangeText={(value) => updateField('private_key', value)}
-                    placeholder="Private Key"
-                    numberOfLines={6}
-                    borderColor="$borderColor"
-                  />
+                  <YStack gap="$2">
+                    <Text fontSize={13} fontWeight="600" color="$color">Private Key</Text>
+                    <TextArea
+                      value={formData.private_key || ''}
+                      onChangeText={(value) => updateField('private_key', value)}
+                      placeholder="Paste your private key here"
+                      numberOfLines={6}
+                      borderColor="$borderColor"
+                      borderRadius={10}
+                    />
+                  </YStack>
                 )}
 
-                <XStack alignItems="center" position="relative">
-                  <Input
-                    flex={1}
-                    value=""
-                    onChangeText={() => {}}
-                    placeholder="Passphrase (optional)"
-                    secureTextEntry={!showPassphrase}
-                    borderColor="$borderColor"
-                    paddingRight={44}
-                  />
-                  <Button
-                    position="absolute"
-                    right={4}
-                    circular
-                    size="$3"
-                    chromeless
-                    onPress={() => setShowPassphrase(!showPassphrase)}
-                  >
-                    {showPassphrase ? <EyeOff size={20} color={t.placeholderColor.get()} /> : <Eye size={20} color={t.placeholderColor.get()} />}
-                  </Button>
-                </XStack>
+                <YStack gap="$2">
+                  <Text fontSize={13} fontWeight="600" color="$color">Passphrase (Optional)</Text>
+                  <XStack alignItems="center" position="relative">
+                    <Input
+                      flex={1}
+                      value=""
+                      onChangeText={() => {}}
+                      placeholder="Passphrase"
+                      secureTextEntry={!showPassphrase}
+                      borderColor="$borderColor"
+                      paddingRight={44}
+                    />
+                    <IconButton
+                      position="absolute"
+                      right={4}
+                      onPress={() => setShowPassphrase(!showPassphrase)}
+                      icon={showPassphrase ? <EyeOff size={20} color={t.color.get()} /> : <Eye size={20} color={t.color.get()} />}
+                    />
+                  </XStack>
+                </YStack>
               </YStack>
             )}
           </YStack>
 
           <Button 
-            backgroundColor="$accent" 
             onPress={handleSubmit}
             disabled={isSubmitting}
             marginTop="$4"
+            height={50}
           >
-            {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+            {isSubmitting ? 'Saving...' : isEdit ? 'Update Connection' : 'Create Connection'}
           </Button>
         </YStack>
       </Screen>
