@@ -1,5 +1,5 @@
 import { MoreHorizontal } from 'lucide-react-native'
-import { Text, XStack, YStack } from 'tamagui'
+import { Text, XStack, YStack, useTheme } from 'tamagui'
 
 import { Card, IconButton } from '../common'
 import type { Snippet } from '../../types'
@@ -9,6 +9,8 @@ type SnippetCardProps = {
 }
 
 export function SnippetCard({ snippet }: SnippetCardProps) {
+  const theme = useTheme()
+
   return (
     <Card gap="$2">
       <XStack justifyContent="space-between" alignItems="center">
@@ -23,7 +25,7 @@ export function SnippetCard({ snippet }: SnippetCardProps) {
           ) : null}
         </YStack>
         <IconButton>
-          <MoreHorizontal size={18} />
+          <MoreHorizontal size={18} color={theme.color.get()} />
         </IconButton>
       </XStack>
       <Text fontSize={12} color="$color" numberOfLines={2}>

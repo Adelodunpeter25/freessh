@@ -1,24 +1,26 @@
 import { Moon, Sun } from 'lucide-react-native'
-import { ScrollView } from 'react-native'
 import { Button, Switch, Text, XStack, YStack } from 'tamagui'
 
-import { Card, SectionHeader } from '../components'
+import { Card, Screen, SectionHeader } from '../components'
 import { useThemeStore } from '../stores'
 
 export function SettingsScreen() {
   const { theme, followSystem, toggleTheme, setFollowSystem } = useThemeStore()
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <Screen>
       <YStack gap="$4">
         <SectionHeader title="Appearance" />
-        
+
         <Card p="$4" gap="$4">
           <XStack justifyContent="space-between" alignItems="center">
             <YStack flex={1} pr="$4">
-              <Text fontWeight="600" fontSize="$4">Appearance Mode</Text>
+              <Text fontWeight="600" fontSize="$4">
+                Appearance Mode
+              </Text>
               <Text color="$placeholderColor" fontSize="$2">
-                Currently using {theme} mode. {followSystem ? '(Following System)' : '(Manual)'}
+                Currently using {theme} mode.{' '}
+                {followSystem ? '(Following System)' : '(Manual)'}
               </Text>
             </YStack>
             <Button
@@ -37,7 +39,9 @@ export function SettingsScreen() {
 
           <XStack justifyContent="space-between" alignItems="center">
             <YStack>
-              <Text fontWeight="600" fontSize="$4">Follow System</Text>
+              <Text fontWeight="600" fontSize="$4">
+                Follow System
+              </Text>
               <Text color="$placeholderColor" fontSize="$2">
                 Sync theme with your device settings
               </Text>
@@ -52,6 +56,6 @@ export function SettingsScreen() {
           </XStack>
         </Card>
       </YStack>
-    </ScrollView>
+    </Screen>
   )
 }

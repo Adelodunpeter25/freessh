@@ -1,5 +1,5 @@
 import { X } from 'lucide-react-native'
-import { XStack } from 'tamagui'
+import { XStack, useTheme } from 'tamagui'
 
 import { Input } from '../Input'
 import { IconButton } from '../IconButton'
@@ -17,6 +17,8 @@ export function SearchBar({
   placeholder = 'Search',
   onClear,
 }: SearchBarProps) {
+  const theme = useTheme()
+
   return (
     <XStack alignItems="center" gap="$2">
       <Input
@@ -27,7 +29,7 @@ export function SearchBar({
       />
       {value.length > 0 ? (
         <IconButton onPress={onClear}>
-          <X size={16} />
+          <X size={16} color={theme.color.get()} />
         </IconButton>
       ) : null}
     </XStack>

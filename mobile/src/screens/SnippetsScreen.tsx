@@ -1,7 +1,6 @@
-import { ScrollView } from 'react-native'
 import { YStack } from 'tamagui'
 
-import { SearchBar, SearchEmptyState, SnippetCard } from '../components'
+import { Screen, SearchBar, SearchEmptyState, SnippetCard } from '../components'
 import { useSearch } from '../hooks'
 import { useSnippetStore } from '../stores'
 
@@ -15,7 +14,7 @@ export function SnippetsScreen() {
   const showEmpty = query.length > 0 && isEmpty
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <Screen>
       <YStack gap="$3">
         <SearchBar
           value={query}
@@ -32,6 +31,6 @@ export function SnippetsScreen() {
           ))
         )}
       </YStack>
-    </ScrollView>
+    </Screen>
   )
 }

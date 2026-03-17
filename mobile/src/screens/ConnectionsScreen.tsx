@@ -1,9 +1,9 @@
-import { ScrollView } from 'react-native'
 import { YStack } from 'tamagui'
 
 import {
   ConnectionCard,
   GroupCard,
+  Screen,
   SearchBar,
   SearchEmptyState,
   SectionHeader,
@@ -23,7 +23,7 @@ export function ConnectionsScreen() {
   const showEmpty = query.length > 0 && isEmpty
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <Screen>
       <YStack gap="$4">
         <SearchBar
           value={query}
@@ -63,6 +63,6 @@ export function ConnectionsScreen() {
           </>
         )}
       </YStack>
-    </ScrollView>
+    </Screen>
   )
 }

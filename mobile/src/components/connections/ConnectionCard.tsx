@@ -1,5 +1,5 @@
 import { MoreHorizontal } from 'lucide-react-native'
-import { Text, XStack, YStack } from 'tamagui'
+import { Text, XStack, YStack, useTheme } from 'tamagui'
 
 import { Badge, Card, IconButton } from '../common'
 import type { Connection } from '../../types'
@@ -10,6 +10,8 @@ type ConnectionCardProps = {
 }
 
 export function ConnectionCard({ connection }: ConnectionCardProps) {
+  const theme = useTheme()
+
   return (
     <Card gap="$3">
       <XStack justifyContent="space-between" alignItems="center">
@@ -22,7 +24,7 @@ export function ConnectionCard({ connection }: ConnectionCardProps) {
           </Text>
         </YStack>
         <IconButton>
-          <MoreHorizontal size={18} />
+          <MoreHorizontal size={18} color={theme.color.get()} />
         </IconButton>
       </XStack>
       <XStack gap="$2">
