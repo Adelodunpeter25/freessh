@@ -1,8 +1,11 @@
 import { Braces, Pencil } from 'lucide-react-native'
 import { Pressable } from 'react-native'
+import { useState } from 'react'
 import { Text, XStack, YStack, useTheme, View } from 'tamagui'
 
 import type { Snippet } from '../../types'
+import { ContextMenu } from '../common'
+import { useContextMenuActions } from '@/hooks'
 
 type SnippetCardProps = {
   snippet: Snippet
@@ -18,9 +21,12 @@ export function SnippetCard({
   onEdit 
 }: SnippetCardProps) {
   const theme = useTheme()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const actions = useContextMenuActions()
 
   return (
-    <Pressable onPress={onPress}>
+    <>
+    <Pressable onPress={onPress} onLongPress={() => setMenuOpen(true)} delayLongPress={250}>
       <View
         backgroundColor="$background"
         borderColor={selected ? '$accent' : '$borderColor'}
@@ -74,5 +80,25 @@ export function SnippetCard({
         </XStack>
       </View>
     </Pressable>
+    <ContextMenu
+      open={menuOpen}
+      onOpenChange={setMenuOpen}
+      title={snippet.name}
+      items={[
+        {
+          key: 'edit',
+          label: 'Edit',
+          onPress: () => actions.editSnippet(snippet),
+        },
+        { type: 'separator', key: 'sep-1' },
+        {
+          key: 'delete',
+          label: 'Delete',
+          destructive: true,
+          onPress: () => actions.deleteSnippet(snippet),
+        },
+      ]}
+    />
+    </>
   )
 }

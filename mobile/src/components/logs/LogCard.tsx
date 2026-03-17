@@ -1,8 +1,11 @@
 import { FileText, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
+import { useState } from 'react'
 import { Text, XStack, useTheme, View } from 'tamagui'
 import { BaseCard } from '../common'
 import type { LogEntry } from '@/types'
+import { ContextMenu } from '../common'
+import { useContextMenuActions } from '@/hooks'
 
 type LogCardProps = {
   log: LogEntry
@@ -12,6 +15,8 @@ type LogCardProps = {
 
 export function LogCard({ log, onPress, onDelete }: LogCardProps) {
   const theme = useTheme()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const actions = useContextMenuActions()
 
   const formatDate = (isoString: string) => {
     const date = new Date(isoString)
@@ -27,37 +32,60 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
   }
 
   return (
-    <BaseCard
-      title={log.connection_name}
-      subtitle={
-        <XStack gap="$2" ai="center">
-          <Text fontSize={12} color="$placeholderColor">
-            {formatDate(log.timestamp)}
-          </Text>
-          <Text fontSize={12} color="$placeholderColor" opacity={0.5}>•</Text>
-          <Text fontSize={12} color="$placeholderColor">
-            {formatSize(log.size)}
-          </Text>
-        </XStack>
-      }
-      icon={<FileText size={20} color={theme.color.get()} />}
-      onPress={onPress}
-      action={onDelete && (
-        <Pressable onPress={(e) => {
-           e.stopPropagation()
-           onDelete()
-        }}>
-          <View
-            width={32}
-            height={32}
-            alignItems="center"
-            justifyContent="center"
-            borderRadius="$2"
-          >
-            <Trash2 size={16} color="$red10" />
-          </View>
-        </Pressable>
-      )}
-    />
+    <>
+      <BaseCard
+        title={log.connection_name}
+        subtitle={
+          <XStack gap="$2" ai="center">
+            <Text fontSize={12} color="$placeholderColor">
+              {formatDate(log.timestamp)}
+            </Text>
+            <Text fontSize={12} color="$placeholderColor" opacity={0.5}>•</Text>
+            <Text fontSize={12} color="$placeholderColor">
+              {formatSize(log.size)}
+            </Text>
+          </XStack>
+        }
+        icon={<FileText size={20} color={theme.color.get()} />}
+        onPress={onPress}
+        onLongPress={() => setMenuOpen(true)}
+        action={onDelete && (
+          <Pressable onPress={(e) => {
+            e.stopPropagation()
+            onDelete()
+          }}>
+            <View
+              width={32}
+              height={32}
+              alignItems="center"
+              justifyContent="center"
+              borderRadius="$2"
+            >
+              <Trash2 size={16} color="$red10" />
+            </View>
+          </Pressable>
+        )}
+      />
+
+      <ContextMenu
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        title={log.connection_name}
+        items={[
+          {
+            key: 'edit',
+            label: 'Edit',
+            onPress: () => actions.editLog(log),
+          },
+          { type: 'separator', key: 'sep-1' },
+          {
+            key: 'delete',
+            label: 'Delete',
+            destructive: true,
+            onPress: () => actions.deleteLog(log),
+          },
+        ]}
+      />
+    </>
   )
 }

@@ -22,6 +22,7 @@ type BaseCardProps = {
   subtitle?: string | ReactNode
   action?: ReactNode
   onPress?: () => void
+  onLongPress?: () => void
   selected?: boolean
   loading?: boolean
 }
@@ -32,13 +33,14 @@ export function BaseCard({
   subtitle, 
   action, 
   onPress, 
+  onLongPress,
   selected,
   loading 
 }: BaseCardProps) {
   const theme = useTheme()
 
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} onLongPress={onLongPress} delayLongPress={250}>
       <Card
         borderColor={selected ? '$accent' : '$borderColor'}
         borderWidth={selected ? 2 : 1}

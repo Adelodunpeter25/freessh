@@ -1,8 +1,10 @@
 import { Loader2, Pencil, Server } from 'lucide-react-native'
 import { Pressable } from 'react-native'
+import { useState } from 'react'
 import { useTheme, View } from 'tamagui'
-import { BaseCard } from '../common'
+import { BaseCard, ContextMenu } from '../common'
 import type { ConnectionConfig } from '../../types'
+import { useContextMenuActions } from '@/hooks'
 
 type ConnectionCardProps = {
   connection: ConnectionConfig
@@ -20,32 +22,72 @@ export function ConnectionCard({
   onEdit 
 }: ConnectionCardProps) {
   const theme = useTheme()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const actions = useContextMenuActions()
 
   return (
-    <BaseCard
-      title={connection.name}
-      subtitle={loading ? 'Connecting...' : `${connection.username}@${connection.host}`}
-      icon={loading ? <Loader2 size={20} color={theme.color.get()} /> : <Server size={20} color={theme.color.get()} />}
-      selected={selected}
-      loading={loading}
-      onPress={onPress}
-      action={onEdit && !loading && (
-        <Pressable onPress={(e) => {
-          e.stopPropagation()
-          onEdit()
-        }}>
-          <View
-            width={32}
-            height={32}
-            alignItems="center"
-            justifyContent="center"
-            borderRadius="$2"
-            backgroundColor="transparent"
-          >
-            <Pencil size={16} color={theme.color.get()} />
-          </View>
-        </Pressable>
-      )}
-    />
+    <>
+      <BaseCard
+        title={connection.name}
+        subtitle={loading ? 'Connecting...' : `${connection.username}@${connection.host}`}
+        icon={loading ? <Loader2 size={20} color={theme.color.get()} /> : <Server size={20} color={theme.color.get()} />}
+        selected={selected}
+        loading={loading}
+        onPress={onPress}
+        onLongPress={() => setMenuOpen(true)}
+        action={onEdit && !loading && (
+          <Pressable onPress={(e) => {
+            e.stopPropagation()
+            onEdit()
+          }}>
+            <View
+              width={32}
+              height={32}
+              alignItems="center"
+              justifyContent="center"
+              borderRadius="$2"
+              backgroundColor="transparent"
+            >
+              <Pencil size={16} color={theme.color.get()} />
+            </View>
+          </Pressable>
+        )}
+      />
+
+      <ContextMenu
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        title={connection.name}
+        items={[
+          {
+            key: 'connect',
+            label: 'Connect',
+            onPress: () => actions.connect(connection),
+          },
+          {
+            key: 'open-sftp',
+            label: 'Open in SFTP',
+            onPress: () => actions.openSftp(connection),
+          },
+          {
+            key: 'duplicate',
+            label: 'Duplicate',
+            onPress: () => actions.duplicateConnection(connection),
+          },
+          { type: 'separator', key: 'sep-1' },
+          {
+            key: 'edit',
+            label: 'Edit',
+            onPress: () => actions.editConnection(connection),
+          },
+          {
+            key: 'delete',
+            label: 'Delete',
+            destructive: true,
+            onPress: () => actions.deleteConnection(connection),
+          },
+        ]}
+      />
+    </>
   )
 }
