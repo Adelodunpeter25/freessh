@@ -20,11 +20,9 @@ export default function App() {
   const initKeys = useKeyStore(s => s.initialize)
   const initLogs = useLogStore(s => s.initialize)
   const initKnownHosts = useKnownHostStore(s => s.initialize)
-  const { open, message, variant } = useSnackbarStore((s) => ({
-    open: s.open,
-    message: s.message,
-    variant: s.variant,
-  }))
+  const snackbarOpen = useSnackbarStore((s) => s.open)
+  const snackbarMessage = useSnackbarStore((s) => s.message)
+  const snackbarVariant = useSnackbarStore((s) => s.variant)
 
   useEffect(() => {
     // Initializing SQLite
@@ -57,7 +55,7 @@ export default function App() {
     <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
       <MenuProvider>
         <AppNavigator />
-        <Snackbar open={open} message={message} variant={variant} />
+        <Snackbar open={snackbarOpen} message={snackbarMessage} variant={snackbarVariant} />
         <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
       </MenuProvider>
     </TamaguiProvider>
