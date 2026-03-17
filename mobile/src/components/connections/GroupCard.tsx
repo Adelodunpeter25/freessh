@@ -28,6 +28,7 @@ export function GroupCard({
   return (
     <ContextMenu
       title={group.name}
+      onPress={onPress}
       items={[
         {
           key: 'edit',
@@ -48,7 +49,7 @@ export function GroupCard({
         subtitle={connectionSummary}
         icon={<Folder size={20} color={theme.color.get()} />}
         selected={selected}
-        onPress={onPress}
+        pressable={false}
         action={onEdit && (
           <Pressable onPress={(e) => {
             e.stopPropagation()

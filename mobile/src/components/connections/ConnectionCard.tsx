@@ -26,6 +26,7 @@ export function ConnectionCard({
   return (
     <ContextMenu
       title={connection.name}
+      onPress={onPress}
       items={[
         {
           key: 'connect',
@@ -62,7 +63,7 @@ export function ConnectionCard({
         icon={loading ? <Loader2 size={20} color={theme.color.get()} /> : <Server size={20} color={theme.color.get()} />}
         selected={selected}
         loading={loading}
-        onPress={onPress}
+        pressable={false}
         action={onEdit && !loading && (
           <Pressable onPress={(e) => {
             e.stopPropagation()

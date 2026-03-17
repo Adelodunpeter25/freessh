@@ -22,6 +22,7 @@ export function KeyCard({
   return (
     <ContextMenu
       title={sshKey.name}
+      onPress={onPress}
       items={[
         {
           key: 'edit',
@@ -41,7 +42,7 @@ export function KeyCard({
         title={sshKey.name}
         subtitle={`${sshKey.algorithm}${sshKey.bits ? ` • ${sshKey.bits} bits` : ''}`}
         icon={<Key size={20} color={theme.color.get()} />}
-        onPress={onPress}
+        pressable={false}
         action={onEdit && (
           <Pressable onPress={(e) => {
             e.stopPropagation()

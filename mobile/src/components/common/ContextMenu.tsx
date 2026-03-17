@@ -19,10 +19,11 @@ type ContextMenuProps = {
   title?: string
   items: ContextMenuItem[]
   triggerOnLongPress?: boolean
+  onPress?: () => void
   children: ReactNode
 }
 
-export function ContextMenu({ title, items, triggerOnLongPress = true, children }: ContextMenuProps) {
+export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, children }: ContextMenuProps) {
   return (
     <Menu
       onOpen={() => {
@@ -32,7 +33,13 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, children 
         console.log('[ContextMenu] close', title ?? 'untitled')
       }}
     >
-      <MenuTrigger triggerOnLongPress={triggerOnLongPress}>
+      <MenuTrigger
+        triggerOnLongPress={triggerOnLongPress}
+        onAlternativeAction={() => {
+          console.log('[ContextMenu] trigger press', title ?? 'untitled')
+          onPress?.()
+        }}
+      >
         {children}
       </MenuTrigger>
       <MenuOptions

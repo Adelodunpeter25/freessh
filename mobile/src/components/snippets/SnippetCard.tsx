@@ -25,6 +25,7 @@ export function SnippetCard({
   return (
     <ContextMenu
       title={snippet.name}
+      onPress={onPress}
       items={[
         {
           key: 'edit',
@@ -40,7 +41,7 @@ export function SnippetCard({
         },
       ]}
     >
-    <Pressable onPress={onPress}>
+    <View>
       <View
         backgroundColor="$background"
         borderColor={selected ? '$accent' : '$borderColor'}
@@ -93,7 +94,7 @@ export function SnippetCard({
           </Pressable>
         </XStack>
       </View>
-    </Pressable>
+    </View>
     </ContextMenu>
   )
 }

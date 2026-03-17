@@ -32,6 +32,7 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
   return (
     <ContextMenu
       title={log.connection_name}
+      onPress={onPress}
       items={[
         {
           key: 'edit',
@@ -61,7 +62,7 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
           </XStack>
         }
         icon={<FileText size={20} color={theme.color.get()} />}
-        onPress={onPress}
+        pressable={false}
         action={onDelete && (
           <Pressable onPress={(e) => {
             e.stopPropagation()

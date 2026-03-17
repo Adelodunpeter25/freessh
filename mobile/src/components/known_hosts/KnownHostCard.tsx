@@ -17,6 +17,7 @@ export function KnownHostCard({ host, onDelete }: KnownHostCardProps) {
   return (
     <ContextMenu
       title={host.hostname}
+      onPress={() => {}}
       items={[
         {
           key: 'edit',
@@ -36,6 +37,7 @@ export function KnownHostCard({ host, onDelete }: KnownHostCardProps) {
         title={host.hostname}
         subtitle={host.fingerprint}
         icon={<ShieldCheck size={20} color={theme.color.get()} />}
+        pressable={false}
         action={onDelete && (
           <Pressable onPress={(e) => {
             e.stopPropagation()
