@@ -23,7 +23,7 @@
     "@types/node-forge": "^1.3.14",
     "buffer": "^6.0.3",
     "expo": "^54.0.0",
-    "expo-dev-client": "^55.0.17",
+    "expo-dev-client": "~6.0.20",
     "expo-sqlite": "~16.0.10",
     "expo-status-bar": "~3.0.9",
     "expo-system-ui": "^55.0.10",
