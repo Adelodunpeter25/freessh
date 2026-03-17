@@ -12,16 +12,16 @@ export function AddButton({ onPress }: AddButtonProps) {
   return (
     <View
       position="absolute"
-      bottom={20}
-      right={20}
+      bottom={90}
+      right={16}
       zIndex={1000}
       pointerEvents="box-none"
     >
       <Pressable onPress={onPress}>
         <View
-          width={56}
-          height={56}
-          borderRadius="$6"
+          width={64}
+          height={64}
+          borderRadius="$7"
           backgroundColor="$accent"
           alignItems="center"
           justifyContent="center"
@@ -31,7 +31,7 @@ export function AddButton({ onPress }: AddButtonProps) {
           shadowRadius={8}
           elevation={8}
         >
-          <Plus size={24} color="white" />
+          <Plus size={28} color="white" />
         </View>
       </Pressable>
     </View>

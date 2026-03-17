@@ -89,29 +89,15 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
               <Select.Trigger iconAfter={ChevronDown}>
                 <Select.Value placeholder="Authentication Method" />
               </Select.Trigger>
-              <Select.Adapt when="sm" platform="touch">
-                <Select.Sheet modal dismissOnSnapToBottom>
-                  <Select.Sheet.Frame>
-                    <Select.Sheet.ScrollView>
-                      <Select.Adapt.Contents />
-                    </Select.Sheet.ScrollView>
-                  </Select.Sheet.Frame>
-                  <Select.Sheet.Overlay />
-                </Select.Sheet>
-              </Select.Adapt>
               <Select.Content zIndex={200000}>
-                <Select.ScrollUpButton />
                 <Select.Viewport>
                   <Select.Item index={0} value="password">
                     <Select.ItemText>Password</Select.ItemText>
-                    <Select.ItemIndicator marginLeft="auto" />
                   </Select.Item>
                   <Select.Item index={1} value="publickey">
                     <Select.ItemText>Public Key</Select.ItemText>
-                    <Select.ItemIndicator marginLeft="auto" />
                   </Select.Item>
                 </Select.Viewport>
-                <Select.ScrollDownButton />
               </Select.Content>
             </Select>
           </YStack>
