@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { YStack, ScrollView, RefreshControl } from 'tamagui'
+import { RefreshControl } from 'react-native'
+import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
@@ -41,47 +42,42 @@ export function LogsScreen() {
         onBackPress={() => navigation.goBack()} 
       />
       
-      <Screen>
+      <Screen
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {loading ? (
           <LoadingState />
         ) : (
-          <ScrollView 
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-          >
-            <YStack gap="$4" padding="$4">
-              <SearchBar
-                value={query}
-                onChangeText={setQuery}
-                onClear={clearQuery}
-                placeholder="Search logs"
-              />
+          <YStack gap="$4">
+            <SearchBar
+              value={query}
+              onChangeText={setQuery}
+              onClear={clearQuery}
+              placeholder="Search logs"
+            />
 
-              {logs.length === 0 ? (
-                <EmptyState 
-                  title="No logs found" 
-                  description="Stored session logs will appear here." 
-                />
-              ) : showEmpty ? (
-                <SearchEmptyState query={query} />
-              ) : (
-                <>
-                  <SectionHeader title="Session Logs" />
-                  <YStack gap="$3">
-                    {filtered.map((log) => (
-                      <LogCard 
-                        key={log.filename} 
-                        log={log} 
-                        onDelete={() => removeLog(log.filename)}
-                      />
-                    ))}
-                  </YStack>
-                </>
-              )}
-            </YStack>
-          </ScrollView>
+            {logs.length === 0 ? (
+              <EmptyState 
+                title="No logs found" 
+                description="Stored session logs will appear here." 
+              />
+            ) : showEmpty ? (
+              <SearchEmptyState query={query} />
+            ) : (
+              <>
+                <SectionHeader title="Session Logs" />
+                <YStack gap="$3">
+                  {filtered.map((log) => (
+                    <LogCard 
+                      key={log.filename} 
+                      log={log} 
+                      onDelete={() => removeLog(log.filename)}
+                    />
+                  ))}
+                </YStack>
+              </>
+            )}
+          </YStack>
         )}
       </Screen>
     </YStack>

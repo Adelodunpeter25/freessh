@@ -1,6 +1,7 @@
-import { Sheet, YStack, Text, ListItem, ScrollView, RefreshControl } from 'tamagui'
+import { RefreshControl } from 'react-native'
+import { Sheet, YStack, Text, ListItem, ScrollView } from 'tamagui'
 import { Plus, FolderPlus, Server } from 'lucide-react-native'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
@@ -25,8 +26,8 @@ export function ConnectionsScreen() {
     useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const connections = useConnectionStore((state) => state.connections)
   const groups = useGroupStore((state) => state.groups)
-  const loadConnections = useConnectionStore((state) => state.loadConnections)
-  const loadGroups = useGroupStore((state) => state.loadGroups)
+  const loadConnections = useConnectionStore((state) => state.initialize)
+  const loadGroups = useGroupStore((state) => state.initialize)
   const [showAddSheet, setShowAddSheet] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
 
@@ -44,12 +45,24 @@ export function ConnectionsScreen() {
     fields: ['name', 'host', 'username'],
   })
 
-  // Filter out connections that belong to a group
-  const ungroupedConnections = filtered.filter((conn) => !conn.group)
-  const showGroups = groups.length > 0 && query.length === 0
-  const showConnections = ungroupedConnections.length > 0
-  const showEmpty = query.length > 0 && isEmpty
-  const isActuallyEmpty = connections.length === 0 && groups.length === 0
+  // Memoize expensive calculations
+  const ungroupedConnections = useMemo(() => 
+    filtered.filter((conn) => !conn.group), [filtered]
+  )
+
+  const groupsWithCounts = useMemo(() => 
+    groups.map((group) => ({
+      ...group,
+      connection_count: connections.filter((conn) => conn.group === group.id).length
+    })), [groups, connections]
+  )
+
+  const displayFlags = useMemo(() => ({
+    showGroups: groups.length > 0 && query.length === 0,
+    showConnections: ungroupedConnections.length > 0,
+    showEmpty: query.length > 0 && isEmpty,
+    isActuallyEmpty: connections.length === 0 && groups.length === 0
+  }), [groups.length, query.length, ungroupedConnections.length, isEmpty, connections.length])
 
   return (
     <>
@@ -66,7 +79,6 @@ export function ConnectionsScreen() {
               onClear={clearQuery}
               placeholder="Search connections"
             />
-          />
 
           {isActuallyEmpty ? (
             <EmptyState
@@ -77,31 +89,26 @@ export function ConnectionsScreen() {
             <SearchEmptyState query={query} />
           ) : (
             <>
-              {showGroups && (
+              {displayFlags.showGroups && (
                 <>
                   <SectionHeader title="Groups" />
                   <YStack gap="$3">
-                    {groups.map((group) => {
-                      const connectionCount = connections.filter(
-                        (conn) => conn.group === group.id
-                      ).length
-                      return (
-                        <GroupCard
-                          key={group.id}
-                          group={{ ...group, connection_count: connectionCount }}
-                          onPress={() =>
-                            navigation.navigate('GroupDetails', { groupId: group.id })
-                          }
-                          onEdit={() => navigation.navigate('GroupForm', { group })}
-                        />
-                      )
-                    })}
+                    {groupsWithCounts.map((group) => (
+                      <GroupCard
+                        key={group.id}
+                        group={group}
+                        onPress={() =>
+                          navigation.navigate('GroupDetails', { groupId: group.id })
+                        }
+                        onEdit={() => navigation.navigate('GroupForm', { group })}
+                      />
+                    ))}
                   </YStack>
-                  {showConnections && <Spacer height="$4" />}
+                  {displayFlags.showConnections && <Spacer height="$4" />}
                 </>
               )}
 
-              {showConnections && (
+              {displayFlags.showConnections && (
                 <>
                   <SectionHeader title="Connections" />
                   <YStack gap="$3">

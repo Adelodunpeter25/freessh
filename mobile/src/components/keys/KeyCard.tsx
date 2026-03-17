@@ -1,7 +1,7 @@
 import { Key, Pencil } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
-import { BaseCard } from '@/components'
+import { BaseCard } from '@/components/common'
 import type { SSHKey } from '@/types'
 
 type KeyCardProps = {

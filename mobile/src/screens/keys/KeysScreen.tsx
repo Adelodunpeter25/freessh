@@ -1,4 +1,5 @@
-import { YStack, ScrollView, RefreshControl } from 'tamagui'
+import { RefreshControl } from 'react-native'
+import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import { useState, useCallback } from 'react'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -11,7 +12,7 @@ import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 export function KeysScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const keys = useKeyStore((state) => state.keys)
-  const loadKeys = useKeyStore((state) => state.loadKeys)
+  const loadKeys = useKeyStore((state) => state.initialize)
   const [refreshing, setRefreshing] = useState(false)
 
   const onRefresh = useCallback(async () => {
@@ -38,43 +39,41 @@ export function KeysScreen() {
         showBackButton 
         onBackPress={() => navigation.goBack()} 
       />
-      <Screen>
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
+      <Screen
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <YStack
+          gap="$4"
         >
-          <YStack gap="$4" padding="$4">
-            <SearchBar
-              value={query}
-              onChangeText={setQuery}
-              onClear={clearQuery}
-              placeholder="Search SSH keys"
-            />
+          <SearchBar
+            value={query}
+            onChangeText={setQuery}
+            onClear={clearQuery}
+            placeholder="Search SSH keys"
+          />
 
-            {isActuallyEmpty ? (
-              <EmptyState
-                title="No SSH Keys"
-                description="Generate or import SSH keys for authentication."
-              />
-            ) : showEmpty ? (
-              <SearchEmptyState query={query} />
-            ) : (
-              <>
-                <SectionHeader title="SSH Keys" />
-                <YStack gap="$3">
-                  {filtered.map((key) => (
-                    <KeyCard
-                      key={key.id}
-                      sshKey={key}
-                      onEdit={() => navigation.navigate('KeyForm', { key })}
-                    />
-                  ))}
-                </YStack>
-              </>
-            )}
-          </YStack>
-        </ScrollView>
+          {isActuallyEmpty ? (
+            <EmptyState
+              title="No SSH Keys"
+              description="Generate or import SSH keys for authentication."
+            />
+          ) : showEmpty ? (
+            <SearchEmptyState query={query} />
+          ) : (
+            <>
+              <SectionHeader title="SSH Keys" />
+              <YStack gap="$3">
+                {filtered.map((key) => (
+                  <KeyCard
+                    key={key.id}
+                    sshKey={key}
+                    onEdit={() => navigation.navigate('KeyForm', { key })}
+                  />
+                ))}
+              </YStack>
+            </>
+          )}
+        </YStack>
       </Screen>
 
       <AddButton onPress={() => navigation.navigate('KeyForm', {})} />

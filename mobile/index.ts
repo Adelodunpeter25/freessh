@@ -1,6 +1,7 @@
 import '@tamagui/native/setup-zeego'
 import { Buffer } from 'buffer'
 global.Buffer = Buffer
+globalThis.Buffer = Buffer
 import { registerRootComponent } from 'expo';
 
 import App from './App';

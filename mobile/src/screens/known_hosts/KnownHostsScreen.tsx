@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
-import { YStack, ScrollView, RefreshControl } from 'tamagui'
+import { RefreshControl } from 'react-native'
+import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
@@ -41,47 +42,42 @@ export function KnownHostsScreen() {
         onBackPress={() => navigation.goBack()} 
       />
       
-      <Screen>
+      <Screen
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {loading ? (
           <LoadingState />
         ) : (
-          <ScrollView 
-            showsVerticalScrollIndicator={false}
-            refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }
-          >
-            <YStack gap="$4" padding="$4">
-              <SearchBar
-                value={query}
-                onChangeText={setQuery}
-                onClear={clearQuery}
-                placeholder="Search known hosts"
-              />
+          <YStack gap="$4">
+            <SearchBar
+              value={query}
+              onChangeText={setQuery}
+              onClear={clearQuery}
+              placeholder="Search known hosts"
+            />
 
-              {knownHosts.length === 0 ? (
-                <EmptyState 
-                  title="No known hosts" 
-                  description="Verified host fingerprints will be saved here." 
-                />
-              ) : showEmpty ? (
-                <SearchEmptyState query={query} />
-              ) : (
-                <>
-                  <SectionHeader title="Known Hosts" />
-                  <YStack gap="$3">
-                    {filtered.map((host) => (
-                      <KnownHostCard 
-                        key={host.id} 
-                        host={host} 
-                        onDelete={() => removeKnownHost(host.id)}
-                      />
-                    ))}
-                  </YStack>
-                </>
-              )}
-            </YStack>
-          </ScrollView>
+            {knownHosts.length === 0 ? (
+              <EmptyState 
+                title="No known hosts" 
+                description="Verified host fingerprints will be saved here." 
+              />
+            ) : showEmpty ? (
+              <SearchEmptyState query={query} />
+            ) : (
+              <>
+                <SectionHeader title="Known Hosts" />
+                <YStack gap="$3">
+                  {filtered.map((host) => (
+                    <KnownHostCard 
+                      key={host.id} 
+                      host={host} 
+                      onDelete={() => removeKnownHost(host.id)}
+                    />
+                  ))}
+                </YStack>
+              </>
+            )}
+          </YStack>
         )}
       </Screen>
     </YStack>
