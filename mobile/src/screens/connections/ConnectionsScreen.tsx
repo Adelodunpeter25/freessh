@@ -19,6 +19,8 @@ import {
 } from '@/components'
 import { useSearch } from '@/hooks'
 import { useConnectionStore, useGroupStore, useSnackbarStore } from '@/stores'
+import { keyService } from '@/services/crud'
+import { sshService } from '@/services'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 import type { ConnectionConfig, Group } from '@/types'
 
@@ -40,6 +42,52 @@ export function ConnectionsScreen() {
     description?: string
     onConfirm: () => void
   } | null>(null)
+
+  const handleConnect = useCallback(async (connection: ConnectionConfig, mode: 'ssh' | 'sftp') => {
+    try {
+      const port = connection.port ?? 22
+      let client
+      if (connection.auth_method === 'password') {
+        if (!connection.password) {
+          showSnackbar('Missing password for this connection', 'error')
+          return
+        }
+        client = await sshService.connectWithPassword(
+          connection.host,
+          port,
+          connection.username,
+          connection.password
+        )
+      } else {
+        let privateKey = connection.private_key
+        if (!privateKey && connection.key_id) {
+          const key = await keyService.getById(connection.key_id)
+          privateKey = key?.private_key || ''
+        }
+        if (!privateKey) {
+          showSnackbar('Missing private key for this connection', 'error')
+          return
+        }
+        client = await sshService.connectWithKey(
+          connection.host,
+          port,
+          connection.username,
+          privateKey
+        )
+      }
+
+      if (mode === 'sftp') {
+        await sshService.connectSftp(client)
+        showSnackbar(`SFTP connected to "${connection.name}"`, 'success')
+      } else {
+        showSnackbar(`Connected to "${connection.name}"`, 'success')
+      }
+
+      sshService.disconnect(client)
+    } catch {
+      showSnackbar(`Failed to connect to "${connection.name}"`, 'error')
+    }
+  }, [showSnackbar])
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
@@ -160,6 +208,8 @@ export function ConnectionsScreen() {
                             showSnackbar('Failed to duplicate connection', 'error')
                           }
                         }}
+                        onConnect={() => handleConnect(connection, 'ssh')}
+                        onOpenSftp={() => handleConnect(connection, 'sftp')}
                       />
                     ))}
                   </YStack>
