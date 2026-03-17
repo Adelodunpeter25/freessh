@@ -20,6 +20,12 @@ type TerminalProps = {
   style?: ViewStyle
   onInput?: (data: string) => void
   onReady?: (cols: number, rows: number) => void
+  theme?: {
+    background: string
+    foreground: string
+    cursor?: string
+    selection?: string
+  }
 }
 
 type TerminalMessage =
@@ -27,7 +33,7 @@ type TerminalMessage =
   | { type: 'ready'; cols: number; rows: number }
   | { type: 'resize'; cols: number; rows: number }
 
-const buildHtml = () => `
+const buildHtml = (theme: Required<NonNullable<TerminalProps['theme']>>) => `
 <!DOCTYPE html>
 <html>
   <head>
@@ -42,7 +48,7 @@ const buildHtml = () => `
         padding: 0;
         width: 100%;
         height: 100%;
-        background: #0b0b0b;
+        background: ${theme.background};
       }
       #terminal {
         padding: 6px;
@@ -65,7 +71,12 @@ const buildHtml = () => `
         cursorBlink: true,
         scrollback: 10000,
         fontSize: 14,
-        theme: { background: '#0b0b0b', foreground: '#e5e7eb' }
+        theme: {
+          background: '${theme.background}',
+          foreground: '${theme.foreground}',
+          cursor: '${theme.cursor}',
+          selection: '${theme.selection}'
+        }
       });
       const fitAddon = new FitAddon.FitAddon();
       terminal.loadAddon(fitAddon);
@@ -103,9 +114,18 @@ const buildHtml = () => `
 `
 
 export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
-  ({ style, onInput, onReady }, ref) => {
+  ({ style, onInput, onReady, theme }, ref) => {
     const webViewRef = useRef<WebView>(null)
-    const html = useMemo(buildHtml, [])
+    const resolvedTheme = useMemo(
+      () => ({
+        background: theme?.background ?? '#0b0b0b',
+        foreground: theme?.foreground ?? '#e5e7eb',
+        cursor: theme?.cursor ?? (theme?.foreground ?? '#e5e7eb'),
+        selection: theme?.selection ?? 'rgba(255,255,255,0.2)',
+      }),
+      [theme]
+    )
+    const html = useMemo(() => buildHtml(resolvedTheme), [resolvedTheme])
 
     const handleMessage = useCallback(
       (event: any) => {

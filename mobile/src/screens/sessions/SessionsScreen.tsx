@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react'
+import { useColorScheme } from 'react-native'
 import { Pressable } from 'react-native'
-import { ScrollView, Text, XStack, YStack } from 'tamagui'
+import { ScrollView, Text, XStack, YStack, useTheme } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 
 import { EmptyState, AppHeader, Terminal, TerminalScreen } from '@/components'
@@ -16,6 +17,10 @@ export function SessionsScreen() {
   const sendInput = useTerminalStore((s) => s.sendInput)
   const subscribeOutput = useTerminalStore((s) => s.subscribeOutput)
   const terminalRef = useRef<TerminalHandle>(null)
+  const t = useTheme()
+  const colorScheme = useColorScheme()
+  const terminalBackground = colorScheme === 'dark' ? '#0b0b0b' : '#f8fafc'
+  const terminalForeground = colorScheme === 'dark' ? '#e5e7eb' : '#0f172a'
 
   const activeSession = useMemo(
     () => sessions.find((s) => s.id === activeSessionId) ?? null,
@@ -47,9 +52,10 @@ export function SessionsScreen() {
             />
           </YStack>
         ) : (
-          <YStack flex={1} gap="$2" p="$4" pt="$2">
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <XStack gap="$2" paddingVertical="$2">
+          <YStack flex={1} gap="$2">
+            <YStack px="$4" pt="$2" pb="$2">
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <XStack gap="$2">
                 {sessions.map((session) => (
                   <Pressable
                     key={session.id}
@@ -74,11 +80,12 @@ export function SessionsScreen() {
                     </XStack>
                   </Pressable>
                 ))}
-              </XStack>
-            </ScrollView>
+                </XStack>
+              </ScrollView>
+            </YStack>
 
             {activeSession ? (
-              <YStack flex={1} borderRadius="$3" overflow="hidden">
+              <YStack flex={1} mx="$4" mb="$4" borderRadius="$3" overflow="hidden">
                 <Terminal
                   ref={terminalRef}
                   onInput={(data) => {
@@ -88,7 +95,16 @@ export function SessionsScreen() {
                   onReady={() => {
                     terminalRef.current?.fit()
                   }}
-                  style={{ flex: 1, backgroundColor: '#0b0b0b' }}
+                  style={{ flex: 1 }}
+                  theme={{
+                    background: terminalBackground,
+                    foreground: terminalForeground,
+                    cursor: t.accent.get(),
+                    selection:
+                      colorScheme === 'dark'
+                        ? 'rgba(255,255,255,0.2)'
+                        : 'rgba(0,0,0,0.12)',
+                  }}
                 />
               </YStack>
             ) : null}
