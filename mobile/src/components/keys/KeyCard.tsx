@@ -1,4 +1,4 @@
-import { Key, Pencil, Trash2 } from 'lucide-react-native'
+import { ArrowUpRight, Key, Pencil, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
 import { BaseCard, ContextMenu } from '@/components/common'
@@ -9,6 +9,7 @@ type KeyCardProps = {
   onPress?: () => void
   onEdit?: () => void
   onDelete?: () => void
+  onExport?: () => void
 }
 
 export function KeyCard({ 
@@ -16,6 +17,7 @@ export function KeyCard({
   onPress, 
   onEdit,
   onDelete,
+  onExport,
 }: KeyCardProps) {
   const theme = useTheme()
 
@@ -25,12 +27,19 @@ export function KeyCard({
       onPress={onPress}
       items={[
         {
+          key: 'export',
+          label: 'Export to Host',
+          onPress: () => onExport?.(),
+          icon: <ArrowUpRight size={16} color={theme.accent.get()} />,
+        },
+        { type: 'separator', key: 'sep-1' },
+        {
           key: 'edit',
           label: 'Edit',
           onPress: () => onEdit?.(),
           icon: <Pencil size={16} color={theme.accent.get()} />,
         },
-        { type: 'separator', key: 'sep-1' },
+        { type: 'separator', key: 'sep-2' },
         {
           key: 'delete',
           label: 'Delete',

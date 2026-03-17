@@ -9,6 +9,7 @@ type KeyState = {
   addKey: (key: SSHKey & { private_key?: string; passphrase?: string }) => Promise<void>
   updateKey: (key: SSHKey & { private_key?: string; passphrase?: string }) => Promise<void>
   removeKey: (id: string) => Promise<void>
+  exportKeyToHost: (keyId: string, connectionId: string) => Promise<import('@/types').ConnectionConfig>
 }
 
 export const useKeyStore = create<KeyState>((set) => ({
@@ -41,5 +42,9 @@ export const useKeyStore = create<KeyState>((set) => ({
   removeKey: async (id) => {
     await keyService.delete(id)
     set((state) => ({ keys: state.keys.filter((item) => item.id !== id) }))
+  },
+
+  exportKeyToHost: async (keyId, connectionId) => {
+    return keyService.exportToHost(keyId, connectionId)
   },
 }))

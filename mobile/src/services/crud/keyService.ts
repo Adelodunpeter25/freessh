@@ -1,5 +1,6 @@
 import { db } from '../db/schema'
-import type { SSHKey } from '@/types'
+import type { ConnectionConfig, SSHKey } from '@/types'
+import { connectionService } from './connectionService'
 
 export const keyService = {
   async getAll(): Promise<SSHKey[]> {
@@ -49,5 +50,28 @@ export const keyService = {
 
   async delete(id: string): Promise<void> {
     await db.runAsync('DELETE FROM ssh_keys WHERE id = ?', [id])
+  },
+
+  async exportToHost(keyId: string, connectionId: string): Promise<ConnectionConfig> {
+    const key = await this.getById(keyId)
+    if (!key) {
+      throw new Error('Key not found')
+    }
+
+    const connection = await connectionService.getById(connectionId)
+    if (!connection) {
+      throw new Error('Connection not found')
+    }
+
+    const updated: ConnectionConfig = {
+      ...connection,
+      auth_method: 'publickey',
+      key_id: keyId,
+      private_key: undefined,
+      password: undefined,
+    }
+
+    await connectionService.update(updated)
+    return updated
   },
 }
