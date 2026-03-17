@@ -104,6 +104,9 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
       console.log('[connect] connected, disconnecting')
       sshService.disconnect(client)
       console.log('[connect] done')
+    } catch (error) {
+      console.error('[connect] error', error)
+      throw error
     } finally {
       set((state) => {
         const next = { ...state.connectingIds }
@@ -160,6 +163,9 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
       console.log('[connectSftp] sftp connected, disconnecting')
       sshService.disconnect(client)
       console.log('[connectSftp] done')
+    } catch (error) {
+      console.error('[connectSftp] error', error)
+      throw error
     } finally {
       set((state) => {
         const next = { ...state.connectingIds }
