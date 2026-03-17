@@ -1,5 +1,5 @@
 import { db } from '../db/schema'
-import type { Snippet } from '../../types'
+import type { Snippet } from '@/types'
 
 export const snippetService = {
   async getAll(): Promise<Snippet[]> {

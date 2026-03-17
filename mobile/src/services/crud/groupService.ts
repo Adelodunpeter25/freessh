@@ -1,5 +1,5 @@
 import { db } from '../db/schema'
-import type { Group } from '../../types'
+import type { Group } from '@/types'
 
 export const groupService = {
   async getAll(): Promise<Group[]> {

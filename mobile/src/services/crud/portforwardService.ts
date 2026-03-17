@@ -1,5 +1,5 @@
 import { db } from '../db/schema'
-import type { PortForwardConfig } from '../../types'
+import type { PortForwardConfig } from '@/types'
 
 export const portforwardService = {
   async getAll(): Promise<PortForwardConfig[]> {

@@ -1,5 +1,5 @@
 import { db } from '../db/schema'
-import type { HistoryEntry } from '../../types'
+import type { HistoryEntry } from '@/types'
 
 export const historyService = {
   async getAll(): Promise<HistoryEntry[]> {

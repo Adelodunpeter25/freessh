@@ -1,5 +1,5 @@
 import { db } from '../db/schema'
-import type { ConnectionConfig } from '../../types'
+import type { ConnectionConfig } from '@/types'
 
 export const connectionService = {
   async getAll(): Promise<ConnectionConfig[]> {

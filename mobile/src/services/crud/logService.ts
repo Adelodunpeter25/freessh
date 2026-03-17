@@ -1,5 +1,5 @@
 import { db } from '../db/schema'
-import type { LogEntry } from '../../types'
+import type { LogEntry } from '@/types'
 
 export const logService = {
   async getAll(): Promise<LogEntry[]> {
