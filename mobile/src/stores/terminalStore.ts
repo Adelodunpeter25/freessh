@@ -93,6 +93,8 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       }
 
       clientMap.set(id, client);
+      
+      // Set up shell listener BEFORE starting shell
       sshService.onShell(client, (data) => {
         // Update session output
         set((state) => ({
@@ -107,7 +109,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
         listeners.forEach((fn) => fn(data));
       });
 
-      await sshService.startShell(client, "xterm-256color");
+      await sshService.startShell(client, "xterm");
 
       set((state) => ({
         sessions: state.sessions.map((s) =>

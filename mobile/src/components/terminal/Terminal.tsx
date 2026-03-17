@@ -194,7 +194,11 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
     }, 100);
 
     window.writeToTerminal = function(data) {
-      try { terminal.write(data); } catch(e) {}
+      try { 
+        terminal.write(data); 
+      } catch(e) {
+        console.error('Error writing to terminal:', e);
+      }
     };
 
     window.clearTerminal = function() {
