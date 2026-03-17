@@ -38,15 +38,18 @@ export function Select({ value, onValueChange, placeholder, label, options, erro
           <Sheet
             modal
             dismissOnSnapToBottom
-            snapPoints={[40]}
+            snapPoints={[35]}
             position={0}
           >
-            <Sheet.Frame backgroundColor="$background">
+            {/* @ts-ignore */}
+            <Sheet.Frame backgroundColor="$background" animation="quick">
               <Sheet.ScrollView>
                 <Adapt.Contents />
               </Sheet.ScrollView>
             </Sheet.Frame>
+            {/* @ts-ignore */}
             <Sheet.Overlay 
+              animation="quick"
               enterStyle={{ opacity: 0 }}
               exitStyle={{ opacity: 0 }}
             />

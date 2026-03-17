@@ -1,15 +1,19 @@
-import { Button, Input, Text, YStack } from 'tamagui'
+import { Text, YStack, XStack, useTheme } from 'tamagui'
+import { Eye, EyeOff } from 'lucide-react-native'
+import { useState } from 'react'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen, Select } from '@/components'
+import { AppHeader, Screen, Select, Input, IconButton, Button } from '@/components'
 import { useKeyForm } from '@/hooks'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 type Props = NativeStackScreenProps<ConnectionsStackParamList, 'KeyForm'>
 
 export function KeyFormScreen({ route, navigation }: Props) {
+  const t = useTheme()
   const { key } = route.params
   const isEdit = !!key
+  const [showPassphrase, setShowPassphrase] = useState(false)
 
   const { formData, errors, isSubmitting, updateField, handleSubmit } = useKeyForm({
     initialData: key,
@@ -30,7 +34,7 @@ export function KeyFormScreen({ route, navigation }: Props) {
       <Screen>
         <YStack gap="$4">
           <YStack gap="$2">
-            <Text fontSize={14} fontWeight="500" color="$color">Name</Text>
+            <Text fontSize={13} fontWeight="600" color="$color">Name</Text>
             <Input
               value={formData.name}
               onChangeText={(value) => updateField('name', value)}
@@ -63,22 +67,33 @@ export function KeyFormScreen({ route, navigation }: Props) {
           )}
 
           <YStack gap="$2">
-            <Text fontSize={14} fontWeight="500" color="$color">Passphrase (Optional)</Text>
-            <Input
-              value={formData.passphrase}
-              onChangeText={(value) => updateField('passphrase', value)}
-              placeholder="Enter passphrase to protect key"
-              secureTextEntry
-            />
+            <Text fontSize={13} fontWeight="600" color="$color">Passphrase (Optional)</Text>
+            <XStack alignItems="center" position="relative">
+              <Input
+                flex={1}
+                value={formData.passphrase}
+                onChangeText={(value) => updateField('passphrase', value)}
+                placeholder="Enter passphrase to protect key"
+                secureTextEntry={!showPassphrase}
+                borderColor="$borderColor"
+                paddingRight={44}
+              />
+              <IconButton
+                position="absolute"
+                right={4}
+                onPress={() => setShowPassphrase(!showPassphrase)}
+                icon={showPassphrase ? <EyeOff size={20} color={t.color.get()} /> : <Eye size={20} color={t.color.get()} />}
+              />
+            </XStack>
           </YStack>
 
           <Button 
-            backgroundColor="$accent" 
             onPress={handleSubmit}
             disabled={isSubmitting}
             marginTop="$4"
+            height={50}
           >
-            {isSubmitting ? 'Generating...' : isEdit ? 'Update' : 'Generate'}
+            {isSubmitting ? 'Generating...' : isEdit ? 'Update Key' : 'Generate Key'}
           </Button>
         </YStack>
       </Screen>
