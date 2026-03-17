@@ -34,6 +34,7 @@ export function ConnectionsScreen() {
   const duplicateConnection = useConnectionStore((state) => state.duplicateConnection)
   const connect = useConnectionStore((state) => state.connect)
   const connectSftp = useConnectionStore((state) => state.connectSftp)
+  const connectingIds = useConnectionStore((state) => state.connectingIds)
   const showSnackbar = useSnackbarStore((state) => state.show)
   const [showAddSheet, setShowAddSheet] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
@@ -153,6 +154,8 @@ export function ConnectionsScreen() {
                       <ConnectionCard 
                         key={connection.id} 
                         connection={connection}
+                        loading={!!connectingIds[connection.id]}
+                        onPress={() => handleConnect(connection, 'ssh')}
                         onEdit={() => navigation.navigate('ConnectionForm', { connection })}
                         onDelete={() =>
                           setConfirmState({
