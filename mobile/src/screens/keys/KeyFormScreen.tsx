@@ -58,6 +58,7 @@ export function KeyFormScreen({ route, navigation }: Props) {
             label="Key Type"
             value={formData.type}
             onValueChange={(value) => updateField('type', value)}
+            disabled={isEdit}
             options={[
               { label: 'Ed25519 (Recommended)', value: 'ed25519' },
               { label: 'RSA', value: 'rsa' }
@@ -69,6 +70,7 @@ export function KeyFormScreen({ route, navigation }: Props) {
               label="Key Size"
               value={formData.bits?.toString() || '2048'}
               onValueChange={(value) => updateField('bits', parseInt(value))}
+              disabled={isEdit}
               options={[
                 { label: '2048 bits', value: '2048' },
                 { label: '4096 bits', value: '4096' }
@@ -103,7 +105,7 @@ export function KeyFormScreen({ route, navigation }: Props) {
             marginTop="$4"
             height={50}
           >
-            {isSubmitting ? 'Generating...' : isEdit ? 'Update Key' : 'Generate Key'}
+            {isSubmitting ? 'Saving...' : isEdit ? 'Update Key' : 'Generate Key'}
           </Button>
         </YStack>
       </Screen>

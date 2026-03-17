@@ -2,7 +2,7 @@ import { YStack, Text } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AddButton, EmptyState, Screen, AppHeader } from '@/components'
+import { AddButton, EmptyState, Screen, AppHeader, KeyCard } from '@/components'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 import { useKeyStore } from '@/stores'
@@ -28,12 +28,12 @@ export function KeysScreen() {
              />
           ) : (
              <YStack gap="$3">
-               {/* Key list items would go here - for now keeping focus on empty state per user request */}
                {keys.map(key => (
-                 <YStack key={key.id} p="$4" bg="$backgroundStrong" borderRadius={12} borderWidth={1} borderColor="$borderColor">
-                    <Text fontWeight="600">{key.name}</Text>
-                    <Text fontSize={12} opacity={0.6}>{key.algorithm} • {key.bits ? `${key.bits} bits` : 'Standard'}</Text>
-                 </YStack>
+                 <KeyCard 
+                   key={key.id} 
+                   sshKey={key} 
+                   onEdit={() => navigation.navigate('KeyForm', { key })}
+                 />
                ))}
              </YStack>
           )}

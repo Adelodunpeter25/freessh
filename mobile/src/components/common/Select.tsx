@@ -9,9 +9,10 @@ type SelectProps = {
   label?: string
   options: { label: string; value: string }[]
   error?: string
+  disabled?: boolean
 }
 
-export function Select({ value, onValueChange, placeholder, label, options, error }: SelectProps) {
+export function Select({ value, onValueChange, placeholder, label, options, error, disabled }: SelectProps) {
   const theme = useTheme()
   
   return (
@@ -28,7 +29,9 @@ export function Select({ value, onValueChange, placeholder, label, options, erro
           borderRadius={10}
           paddingHorizontal={12}
           height={44}
-          backgroundColor="$background"
+          backgroundColor={disabled ? '$backgroundStrong' : '$background'}
+          opacity={disabled ? 0.6 : 1}
+          disabled={disabled}
           focusStyle={{ borderColor: '$accent' }}
         >
           <TSelect.Value placeholder={placeholder} color="$color" />
@@ -40,16 +43,17 @@ export function Select({ value, onValueChange, placeholder, label, options, erro
             dismissOnSnapToBottom
             snapPoints={[35]}
             position={0}
+            // @ts-ignore
+            animation="quick"
           >
             {/* @ts-ignore */}
-            <Sheet.Frame backgroundColor="$background" animation="quick">
+            <Sheet.Frame backgroundColor="$background">
               <Sheet.ScrollView>
                 <Adapt.Contents />
               </Sheet.ScrollView>
             </Sheet.Frame>
             {/* @ts-ignore */}
             <Sheet.Overlay 
-              animation="quick"
               enterStyle={{ opacity: 0 }}
               exitStyle={{ opacity: 0 }}
             />
