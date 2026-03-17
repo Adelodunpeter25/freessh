@@ -53,6 +53,7 @@ export function AppNavigator() {
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
+          animation: 'fade',
         }}
       >
         <Stack.Screen
