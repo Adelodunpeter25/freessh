@@ -152,11 +152,25 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       clientMap.delete(id);
     }
     outputListeners.delete(id);
-    set((state) => ({
-      sessions: state.sessions.filter((s) => s.id !== id),
-      activeSessionId:
-        state.activeSessionId === id ? null : state.activeSessionId,
-    }));
+    set((state) => {
+      const nextSessions = state.sessions.filter((s) => s.id !== id);
+      const closedIndex = state.sessions.findIndex((s) => s.id === id);
+      let nextActiveSessionId = state.activeSessionId;
+
+      if (state.activeSessionId === id) {
+        if (nextSessions.length === 0) {
+          nextActiveSessionId = null;
+        } else {
+          const fallbackIndex = Math.min(closedIndex, nextSessions.length - 1);
+          nextActiveSessionId = nextSessions[fallbackIndex]?.id ?? null;
+        }
+      }
+
+      return {
+        sessions: nextSessions,
+        activeSessionId: nextActiveSessionId,
+      };
+    });
   },
 
   sendInput: async (id, data) => {

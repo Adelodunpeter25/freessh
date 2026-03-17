@@ -1,10 +1,14 @@
 import { useEffect, useMemo, useRef } from "react";
-import { Pressable } from "react-native";
-import { ScrollView, Text, XStack, YStack, useTheme } from "tamagui";
+import { YStack, useTheme } from "tamagui";
 import { useNavigation } from "@react-navigation/native";
-import { EllipsisVertical, Monitor, Plus, X } from "lucide-react-native";
 
-import { EmptyState, AppHeader, Terminal, TerminalScreen } from "@/components";
+import {
+  EmptyState,
+  AppHeader,
+  SessionTabs,
+  Terminal,
+  TerminalScreen,
+} from "@/components";
 import type { TerminalHandle } from "@/components";
 import { useTerminalStore, useThemeStore } from "@/stores";
 
@@ -72,82 +76,15 @@ export function SessionsScreen() {
           </YStack>
         ) : (
           <YStack flex={1} gap="$0">
-            <YStack
-              px="$3"
-              py="$2"
-              backgroundColor={isDark ? "#18181b" : "#e5e7eb"}
-              borderBottomWidth={1}
-              borderColor={isDark ? "#27272a" : "#cbd5e1"}
-            >
-              <XStack alignItems="center" gap="$2">
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  <XStack gap="$2" alignItems="center" pr="$2">
-                    {sessions.map((session) => {
-                      const isActive = session.id === activeSessionId;
-                      return (
-                        <Pressable
-                          key={session.id}
-                          onPress={() => setActiveSession(session.id)}
-                          onLongPress={() => closeSession(session.id)}
-                        >
-                          <XStack
-                            minWidth={156}
-                            maxWidth={220}
-                            paddingLeft="$3"
-                            paddingRight="$2"
-                            paddingVertical="$2"
-                            borderRadius={10}
-                            alignItems="center"
-                            gap="$2"
-                            backgroundColor={isActive ? "#3f3f46" : "#27272a"}
-                            borderWidth={1}
-                            borderColor={isActive ? "#52525b" : "#3f3f46"}
-                          >
-                            <Monitor
-                              size={14}
-                              color={isActive ? "#fafafa" : "#d4d4d8"}
-                            />
-                            <Text
-                              flex={1}
-                              numberOfLines={1}
-                              color={isActive ? "#fafafa" : "#d4d4d8"}
-                              fontSize={12}
-                              fontWeight="600"
-                            >
-                              {session.name}
-                            </Text>
-                            {isActive ? (
-                              <EllipsisVertical size={14} color="#d4d4d8" />
-                            ) : (
-                              <Pressable
-                                hitSlop={8}
-                                onPress={(event) => {
-                                  event.stopPropagation();
-                                  void closeSession(session.id);
-                                }}
-                              >
-                                <X size={14} color="#a1a1aa" />
-                              </Pressable>
-                            )}
-                          </XStack>
-                        </Pressable>
-                      );
-                    })}
-                  </XStack>
-                </ScrollView>
-
-                <XStack
-                  width={32}
-                  height={32}
-                  borderRadius={8}
-                  alignItems="center"
-                  justifyContent="center"
-                  backgroundColor={isDark ? "#27272a" : "#d4d4d8"}
-                >
-                  <Plus size={16} color={isDark ? "#fafafa" : "#18181b"} />
-                </XStack>
-              </XStack>
-            </YStack>
+            <SessionTabs
+              sessions={sessions}
+              activeSessionId={activeSessionId}
+              isDark={isDark}
+              onSelect={setActiveSession}
+              onClose={(id) => {
+                void closeSession(id);
+              }}
+            />
 
             {activeSession ? (
               <YStack
