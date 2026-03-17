@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu'
 import { Text, View, XStack, YStack } from 'tamagui'
+import { useThemeStore } from '@/stores'
 
 export type ContextMenuItem = {
   type?: 'item'
@@ -24,19 +25,22 @@ type ContextMenuProps = {
 }
 
 export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, children }: ContextMenuProps) {
+  const theme = useThemeStore((state) => state.theme)
+  const isDark = theme === 'dark'
+  const colors = {
+    background: isDark ? '#0b0b0b' : '#ffffff',
+    border: isDark ? '#1f2937' : '#e2e8f0',
+    text: isDark ? '#f1f5f9' : '#0f172a',
+    subtitle: isDark ? '#9ca3af' : '#64748b',
+    destructive: isDark ? '#f87171' : '#dc2626',
+    separator: isDark ? '#1f2937' : '#e2e8f0',
+  }
+
   return (
-    <Menu
-      onOpen={() => {
-        console.log('[ContextMenu] open', title ?? 'untitled')
-      }}
-      onClose={() => {
-        console.log('[ContextMenu] close', title ?? 'untitled')
-      }}
-    >
+    <Menu>
       <MenuTrigger
         triggerOnLongPress={triggerOnLongPress}
         onAlternativeAction={() => {
-          console.log('[ContextMenu] trigger press', title ?? 'untitled')
           onPress?.()
         }}
       >
@@ -47,8 +51,8 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
           optionsContainer: {
             borderRadius: 12,
             paddingVertical: 8,
-            backgroundColor: '#111827',
-            borderColor: 'rgba(255,255,255,0.08)',
+            backgroundColor: colors.background,
+            borderColor: colors.border,
             borderWidth: 1,
             shadowColor: '#000',
             shadowOpacity: 0.2,
@@ -59,7 +63,7 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
       >
         <YStack gap="$2" paddingHorizontal="$3" paddingVertical="$2">
           {title ? (
-            <Text fontSize={12} fontWeight="700" opacity={0.7} color="$color">
+            <Text fontSize={12} fontWeight="700" opacity={0.8} color={colors.subtitle}>
               {title}
             </Text>
           ) : null}
@@ -69,8 +73,8 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
                 <View
                   key={item.key}
                   height={1}
-                  backgroundColor="$borderColor"
-                  opacity={0.4}
+                  backgroundColor={colors.separator}
+                  opacity={0.8}
                 />
               )
             }
@@ -80,7 +84,6 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
               <MenuOption
                 key={item.key}
                 onSelect={() => {
-                  console.log('[ContextMenu] select', title ?? 'untitled', item.key)
                   item.onPress()
                 }}
                 disabled={item.disabled}
@@ -99,7 +102,7 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
                     </View>
                   ) : null}
                   <Text
-                    color={isDestructive ? '$red10' : '$color'}
+                    color={isDestructive ? colors.destructive : colors.text}
                     fontWeight="600"
                   >
                     {item.label}
