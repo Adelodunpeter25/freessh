@@ -5,7 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 import { AppHeader, Screen, Select, Input, Button, IconButton } from '@/components'
 import { useConnectionForm } from '@/hooks'
-import { useConnectionStore, useGroupStore, useSnackbarStore } from '@/stores'
+import { useConnectionStore, useGroupStore, useKeyStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 type Props = NativeStackScreenProps<ConnectionsStackParamList, 'ConnectionForm'>
@@ -17,6 +17,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
   const addConnection = useConnectionStore((state) => state.addConnection)
   const updateConnection = useConnectionStore((state) => state.updateConnection)
   const groups = useGroupStore((state) => state.groups)
+  const keys = useKeyStore((state) => state.keys)
   const showSnackbar = useSnackbarStore((state) => state.show)
   
   const [keyMode, setKeyMode] = useState<'existing' | 'new'>('existing')
@@ -193,7 +194,12 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
                     onValueChange={(value) => updateField('key_id', value)}
                     placeholder="Select a key"
                     options={[
-                      { label: 'No keys available. Create one first.', value: '' }
+                      ...(keys.length > 0
+                        ? keys.map((k) => ({
+                            label: `${k.name} (${k.algorithm}${k.bits ? ` ${k.bits}` : ''})`,
+                            value: k.id,
+                          }))
+                        : [{ label: 'No keys available. Create one first.', value: '' }])
                     ]}
                   />
                 ) : (
