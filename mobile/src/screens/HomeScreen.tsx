@@ -57,9 +57,9 @@ export function HomeScreen() {
           {items.map((item) => (
             <Card
               key={item.id}
-              p="$3"
+              p="$2.5"
               px="$4"
-              borderRadius={16}
+              borderRadius={12}
               backgroundColor="$backgroundStrong"
               borderWidth={1}
               borderColor="$borderColor"
@@ -76,10 +76,10 @@ export function HomeScreen() {
             >
               <XStack ai="center" jc="space-between">
                 <XStack ai="center" gap="$3">
-                  <Circle size={40} bg="$borderColor" opacity={0.5} ai="center" jc="center">
-                    <item.icon size={20} color={t.color.get()} />
+                  <Circle size={36} bg="$borderColor" opacity={0.5} ai="center" jc="center">
+                    <item.icon size={18} color={t.color.get()} />
                   </Circle>
-                  <Text fontSize={15} fontWeight="600" color="$color">
+                  <Text fontSize={14} fontWeight="600" color="$color">
                     {item.title}
                   </Text>
                 </XStack>
@@ -90,7 +90,7 @@ export function HomeScreen() {
                       {item.count}
                     </Text>
                   )}
-                  <ChevronRight size={16} color={t.placeholderColor.get()} />
+                  <ChevronRight size={14} color={t.placeholderColor.get()} />
                 </XStack>
               </XStack>
             </Card>
