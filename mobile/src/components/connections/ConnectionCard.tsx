@@ -21,7 +21,11 @@ export function ConnectionCard({
   selected = false, 
   loading = false, 
   onPress, 
-  onEdit 
+  onEdit,
+  onDelete,
+  onOpenSftp,
+  onDuplicate,
+  onConnect,
 }: ConnectionCardProps) {
   const theme = useTheme()
 
