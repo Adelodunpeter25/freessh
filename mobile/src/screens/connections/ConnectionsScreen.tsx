@@ -1,5 +1,5 @@
 import { RefreshControl } from 'react-native'
-import { Sheet, YStack, Text, ListItem, ScrollView } from 'tamagui'
+import { Sheet, YStack, Text, ListItem } from 'tamagui'
 import { Plus, FolderPlus, Server } from 'lucide-react-native'
 import { useState, useCallback, useMemo } from 'react'
 import { useNavigation } from '@react-navigation/native'
@@ -66,26 +66,23 @@ export function ConnectionsScreen() {
 
   return (
     <>
-      <Screen>
-        <ScrollView
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-        >
-          <YStack gap="$4" padding="$4">
-            <SearchBar
-              value={query}
-              onChangeText={setQuery}
-              onClear={clearQuery}
-              placeholder="Search connections"
-            />
+      <Screen
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <YStack gap="$4">
+          <SearchBar
+            value={query}
+            onChangeText={setQuery}
+            onClear={clearQuery}
+            placeholder="Search connections"
+          />
 
-          {isActuallyEmpty ? (
+          {displayFlags.isActuallyEmpty ? (
             <EmptyState
               title="No Connections"
               description="Add your first host or group to get started with SSH."
             />
-          ) : showEmpty ? (
+          ) : displayFlags.showEmpty ? (
             <SearchEmptyState query={query} />
           ) : (
             <>
@@ -125,7 +122,6 @@ export function ConnectionsScreen() {
             </>
           )}
         </YStack>
-        </ScrollView>
       </Screen>
 
       <AddButton onPress={() => setShowAddSheet(true)} />

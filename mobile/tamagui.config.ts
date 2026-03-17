@@ -20,7 +20,7 @@ const tamaguiConfig = createTamagui({
       colorHover: '#1e293b',
       colorPress: '#0f172a',
       colorFocus: '#0f172a',
-      borderColor: '#e2e8f0',
+      borderColor: '#cbd5e1',
       placeholderColor: '#94a3b8',
       accent: '#f97316',
       accentHover: '#fb923c',
