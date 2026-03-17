@@ -1,4 +1,5 @@
-import { Button, Input, Select, Text, XStack, YStack, View } from 'tamagui'
+import { Button, Input, Select, Text, XStack, YStack, View, Separator } from 'tamagui'
+import { ChevronDown } from 'lucide-react-native'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
 import { AppHeader, Screen } from '@/components'
@@ -34,58 +35,86 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
         onBackPress={() => navigation.goBack()} 
       />
       <Screen>
-        <YStack gap="$4">
-          <Input
-            value={formData.name}
-            onChangeText={(value) => updateField('name', value)}
-            placeholder="Connection Name"
-            borderColor={errors.name ? '$red10' : '$borderColor'}
-          />
-          {errors.name && <Text fontSize={12} color="$red10">{errors.name}</Text>}
-
-          <Input
-            value={formData.host}
-            onChangeText={(value) => updateField('host', value)}
-            placeholder="Host"
-            borderColor={errors.host ? '$red10' : '$borderColor'}
-          />
-          {errors.host && <Text fontSize={12} color="$red10">{errors.host}</Text>}
-
-          <XStack gap="$2" alignItems="center">
-            <Text fontSize={14} color="$placeholderColor">SSH on</Text>
+        <YStack gap="$6">
+          {/* General Section */}
+          <YStack gap="$4">
+            <Text fontSize={14} fontWeight="600" color="$color">General</Text>
+            
             <Input
-              flex={1}
-              value={formData.port}
-              onChangeText={(value) => updateField('port', value)}
-              placeholder="22"
-              keyboardType="numeric"
-              borderColor={errors.port ? '$red10' : '$borderColor'}
+              value={formData.name}
+              onChangeText={(value) => updateField('name', value)}
+              placeholder="Connection Name"
+              borderColor={errors.name ? '$red10' : '$borderColor'}
             />
-            <Text fontSize={14} color="$placeholderColor">port</Text>
-          </XStack>
-          {errors.port && <Text fontSize={12} color="$red10">{errors.port}</Text>}
+            {errors.name && <Text fontSize={12} color="$red10">{errors.name}</Text>}
 
-          <Input
-            value={formData.username}
-            onChangeText={(value) => updateField('username', value)}
-            placeholder="Username"
-            borderColor={errors.username ? '$red10' : '$borderColor'}
-          />
-          {errors.username && <Text fontSize={12} color="$red10">{errors.username}</Text>}
+            <Input
+              value={formData.host}
+              onChangeText={(value) => updateField('host', value)}
+              placeholder="Host"
+              borderColor={errors.host ? '$red10' : '$borderColor'}
+            />
+            {errors.host && <Text fontSize={12} color="$red10">{errors.host}</Text>}
 
-          <Select value={formData.auth_method} onValueChange={(value) => updateField('auth_method', value)}>
-            <Select.Trigger>
-              <Select.Value placeholder="Authentication Method" />
-            </Select.Trigger>
-            <Select.Content>
-              <Select.Item index={0} value="password">
-                <Select.ItemText>Password</Select.ItemText>
-              </Select.Item>
-              <Select.Item index={1} value="publickey">
-                <Select.ItemText>Public Key</Select.ItemText>
-              </Select.Item>
-            </Select.Content>
-          </Select>
+            <XStack gap="$2" alignItems="center">
+              <Text fontSize={14} color="$placeholderColor">SSH on</Text>
+              <Input
+                flex={1}
+                value={formData.port}
+                onChangeText={(value) => updateField('port', value)}
+                placeholder="22"
+                keyboardType="numeric"
+                borderColor={errors.port ? '$red10' : '$borderColor'}
+              />
+              <Text fontSize={14} color="$placeholderColor">port</Text>
+            </XStack>
+            {errors.port && <Text fontSize={12} color="$red10">{errors.port}</Text>}
+          </YStack>
+
+          <Separator />
+
+          {/* Credentials Section */}
+          <YStack gap="$4">
+            <Text fontSize={14} fontWeight="600" color="$color">Credentials</Text>
+            
+            <Input
+              value={formData.username}
+              onChangeText={(value) => updateField('username', value)}
+              placeholder="Username"
+              borderColor={errors.username ? '$red10' : '$borderColor'}
+            />
+            {errors.username && <Text fontSize={12} color="$red10">{errors.username}</Text>}
+
+            <Select value={formData.auth_method} onValueChange={(value) => updateField('auth_method', value)}>
+              <Select.Trigger iconAfter={ChevronDown}>
+                <Select.Value placeholder="Authentication Method" />
+              </Select.Trigger>
+              <Select.Adapt when="sm" platform="touch">
+                <Select.Sheet modal dismissOnSnapToBottom>
+                  <Select.Sheet.Frame>
+                    <Select.Sheet.ScrollView>
+                      <Select.Adapt.Contents />
+                    </Select.Sheet.ScrollView>
+                  </Select.Sheet.Frame>
+                  <Select.Sheet.Overlay />
+                </Select.Sheet>
+              </Select.Adapt>
+              <Select.Content zIndex={200000}>
+                <Select.ScrollUpButton />
+                <Select.Viewport>
+                  <Select.Item index={0} value="password">
+                    <Select.ItemText>Password</Select.ItemText>
+                    <Select.ItemIndicator marginLeft="auto" />
+                  </Select.Item>
+                  <Select.Item index={1} value="publickey">
+                    <Select.ItemText>Public Key</Select.ItemText>
+                    <Select.ItemIndicator marginLeft="auto" />
+                  </Select.Item>
+                </Select.Viewport>
+                <Select.ScrollDownButton />
+              </Select.Content>
+            </Select>
+          </YStack>
 
           <Button 
             backgroundColor="$accent" 
