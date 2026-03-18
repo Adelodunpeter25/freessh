@@ -75,14 +75,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
 
       const unsubscribeData = sshWebSocketService.on('data', (response) => {
         if (response.sessionId === id && response.data) {
-          // Update session output
-          set((state) => ({
-            sessions: state.sessions.map((s) =>
-              s.id === id ? { ...s, output: s.output + response.data } : s
-            ),
-          }));
-
-          // Notify listeners
+          // Notify listeners directly without accumulating in state
           const listeners = outputListeners.get(id);
           if (listeners) {
             listeners.forEach((fn) => fn(response.data));
@@ -164,11 +157,8 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
     setForId.add(listener);
     outputListeners.set(id, setForId);
 
-    // Send initial output
-    const session = get().sessions.find((s) => s.id === id);
-    if (session?.output) {
-      listener(session.output);
-    }
+    // Don't send initial output - let terminal start fresh
+    // This prevents echo issues when switching sessions
 
     return () => {
       setForId.delete(listener);
