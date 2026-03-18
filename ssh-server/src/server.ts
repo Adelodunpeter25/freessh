@@ -72,7 +72,7 @@ async function handleWebSocketMessage(ws: WebSocket, message: WebSocketMessage) 
         // Send a newline to refresh the prompt
         setTimeout(() => {
           sshManager.writeToShell(sessionId, '\n')
-        }, 200)
+        }, 100)
         
         sendResponse(ws, {
           type: 'connected',
