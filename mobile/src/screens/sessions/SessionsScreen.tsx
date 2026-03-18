@@ -120,28 +120,37 @@ export function SessionsScreen() {
             />
 
             {activeSession ? (
-              <YStack
-                flex={1}
-                mx="$0"
-                mb="$0"
-                borderRadius={0}
-                overflow="hidden"
-                backgroundColor="$background"
-              >
-                <Terminal
-                  ref={terminalRef}
-                  onInput={(data: string) => {
-                    if (!activeSessionId || !isMountedRef.current) return;
-                    sendInput(activeSessionId, data);
-                  }}
-                  onReady={handleTerminalReady}
-                  onResize={handleTerminalResize}
-                  style={{ flex: 1 }}
-                  theme={terminalColors}
-                  showLoading={activeSession.status === "connecting"}
-                  connectionName={activeSession.name}
-                />
-              </YStack>
+              activeSession.status === "error" ? (
+                <YStack flex={1} justifyContent="center" alignItems="center" p="$4">
+                  <EmptyState
+                    title="Connection Failed"
+                    description={`Failed to connect to ${activeSession.name}. Check your connection details.`}
+                  />
+                </YStack>
+              ) : (
+                <YStack
+                  flex={1}
+                  mx="$0"
+                  mb="$0"
+                  borderRadius={0}
+                  overflow="hidden"
+                  backgroundColor="$background"
+                >
+                  <Terminal
+                    ref={terminalRef}
+                    onInput={(data: string) => {
+                      if (!activeSessionId || !isMountedRef.current) return;
+                      sendInput(activeSessionId, data);
+                    }}
+                    onReady={handleTerminalReady}
+                    onResize={handleTerminalResize}
+                    style={{ flex: 1 }}
+                    theme={terminalColors}
+                    showLoading={activeSession.status === "connecting"}
+                    connectionName={activeSession.name}
+                  />
+                </YStack>
+              )
             ) : null}
           </YStack>
         )}
