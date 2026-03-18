@@ -114,8 +114,8 @@ function sendResponse(ws: WebSocket, response: WebSocketResponse) {
 
 const PORT = process.env.PORT || 3001
 
-server.listen(PORT, () => {
-  console.log(`SSH Server running on port ${PORT}`)
-  console.log(`WebSocket endpoint: ws://localhost:${PORT}`)
-  console.log(`Health check: http://localhost:${PORT}/health`)
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`SSH Server running on 0.0.0.0:${PORT}`)
+  console.log(`WebSocket endpoint: ws://192.168.1.107:${PORT}`)
+  console.log(`Health check: http://192.168.1.107:${PORT}/health`)
 })
