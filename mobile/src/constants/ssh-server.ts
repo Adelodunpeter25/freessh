@@ -1,8 +1,8 @@
 // SSH Server Configuration
 export const SSH_SERVER_CONFIG = {
-  // Development
-  DEV_URL: 'ws://localhost:3001',
-  DEV_API_URL: 'http://localhost:3001/api',
+  // Development - use local IP for device testing
+  DEV_URL: 'ws://192.168.1.107:3001',
+  DEV_API_URL: 'http://192.168.1.107:3001/api',
   
   // Production (update with your Coolify server URL)
   PROD_URL: 'wss://your-coolify-domain.com',

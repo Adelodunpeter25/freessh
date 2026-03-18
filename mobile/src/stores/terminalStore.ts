@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import type { ConnectionConfig } from "@/types";
-import { sshService } from "@/services";
-import { keyService } from "@/services/crud";
-import type { SSHClientInstance } from "@/services/ssh/sshService";
+import { sshWebSocketService } from "@/services/ssh";
 
 export type TerminalSession = {
   id: string;
@@ -14,7 +12,6 @@ export type TerminalSession = {
 
 type OutputListener = (data: string) => void;
 
-const clientMap = new Map<string, SSHClientInstance>();
 const outputListeners = new Map<string, Set<OutputListener>>();
 
 type TerminalState = {
@@ -57,84 +54,62 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       },
     }));
 
-    const port = connection.port ?? 22;
-    let client;
     try {
-      if (connection.auth_method === "password") {
-        if (!connection.password) {
-          throw new Error("Missing password");
-        }
-        client = await sshService.connectWithPassword(
-          connection.host,
-          port,
-          connection.username,
-          connection.password,
-        );
-      } else {
-        let privateKey = connection.private_key;
-        let passphrase = connection.passphrase;
-        if (!privateKey && connection.key_id) {
-          const key = await keyService.getById(connection.key_id);
-          privateKey = key?.private_key || "";
-          if (!passphrase) {
-            passphrase = key?.passphrase;
-          }
-        }
-        if (!privateKey) {
-          throw new Error("Missing private key");
-        }
-        client = await sshService.connectWithKey(
-          connection.host,
-          port,
-          connection.username,
-          privateKey,
-          passphrase,
-        );
-      }
+      // Connect to WebSocket server if not already connected
+      await sshWebSocketService.connect();
 
-      clientMap.set(id, client);
-      
-      // Set up shell listener BEFORE starting shell
-      sshService.onShell(client, (data) => {
-        // Update session output
-        set((state) => ({
-          sessions: state.sessions.map((s) =>
-            s.id === id ? { ...s, output: s.output + data } : s,
-          ),
-        }));
-
-        // Notify listeners
-        const listeners = outputListeners.get(id);
-        if (!listeners) return;
-        listeners.forEach((fn) => fn(data));
+      // Set up listeners for this session
+      const unsubscribeConnected = sshWebSocketService.on('connected', (response) => {
+        if (response.sessionId) {
+          set((state) => ({
+            sessions: state.sessions.map((s) =>
+              s.id === id ? { ...s, status: "connected" } : s
+            ),
+            connectingByConnectionId: {
+              ...state.connectingByConnectionId,
+              [connection.id]: false,
+            },
+          }));
+        }
       });
 
-      await sshService.startShell(client, "xterm");
-      
-      set((state) => ({
-        sessions: state.sessions.map((s) =>
-          s.id === id ? { ...s, status: "connected" } : s,
-        ),
-        connectingByConnectionId: {
-          ...state.connectingByConnectionId,
-          [connection.id]: false,
-        },
-      }));
+      const unsubscribeData = sshWebSocketService.on('data', (response) => {
+        if (response.sessionId === id && response.data) {
+          // Update session output
+          set((state) => ({
+            sessions: state.sessions.map((s) =>
+              s.id === id ? { ...s, output: s.output + response.data } : s
+            ),
+          }));
 
-      // Send clear command after connection to reset cursor position
-      setTimeout(async () => {
-        try {
-          await sshService.writeToShell(client, "\n");
-        } catch (e) {
-          // Ignore if fails
+          // Notify listeners
+          const listeners = outputListeners.get(id);
+          if (listeners) {
+            listeners.forEach((fn) => fn(response.data));
+          }
         }
-      }, 300);
+      });
+
+      const unsubscribeError = sshWebSocketService.on('error', (response) => {
+        set((state) => ({
+          sessions: state.sessions.map((s) =>
+            s.id === id ? { ...s, status: "error" } : s
+          ),
+          connectingByConnectionId: {
+            ...state.connectingByConnectionId,
+            [connection.id]: false,
+          },
+        }));
+      });
+
+      // Create SSH session
+      sshWebSocketService.createSSHSession(connection, 80, 24);
 
       return id;
     } catch (error) {
       set((state) => ({
         sessions: state.sessions.map((s) =>
-          s.id === id ? { ...s, status: "error" } : s,
+          s.id === id ? { ...s, status: "error" } : s
         ),
         connectingByConnectionId: {
           ...state.connectingByConnectionId,
@@ -150,17 +125,9 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
   },
 
   closeSession: async (id) => {
-    const client = clientMap.get(id);
-    if (client) {
-      try {
-        sshService.closeShell(client);
-        sshService.disconnect(client);
-      } catch {
-        // ignore
-      }
-      clientMap.delete(id);
-    }
+    sshWebSocketService.disconnectSession(id);
     outputListeners.delete(id);
+    
     set((state) => {
       const nextSessions = state.sessions.filter((s) => s.id !== id);
       const closedIndex = state.sessions.findIndex((s) => s.id === id);
@@ -183,12 +150,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
   },
 
   sendInput: async (id, data) => {
-    const client = clientMap.get(id);
-    if (!client) return;
-    
-    // Don't echo the input here - the SSH shell should echo it
-    // Just send it to the shell
-    await sshService.writeToShell(client, data);
+    sshWebSocketService.sendInput(id, data);
   },
 
   subscribeOutput: (id, listener) => {
@@ -203,10 +165,8 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
     }
 
     return () => {
-      const current = outputListeners.get(id);
-      if (!current) return;
-      current.delete(listener);
-      if (current.size === 0) {
+      setForId.delete(listener);
+      if (setForId.size === 0) {
         outputListeners.delete(id);
       }
     };
@@ -215,7 +175,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
   clearOutput: (id) => {
     set((state) => ({
       sessions: state.sessions.map((s) =>
-        s.id === id ? { ...s, output: "" } : s,
+        s.id === id ? { ...s, output: "" } : s
       ),
     }));
   },
