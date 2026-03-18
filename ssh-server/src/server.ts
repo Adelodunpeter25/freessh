@@ -69,9 +69,9 @@ async function handleWebSocketMessage(ws: WebSocket, message: WebSocketMessage) 
 
         console.log(`Connected ${sessionId}`)
         
-        // Send a newline to refresh the prompt
+        // Send a clear command to reset terminal state
         setTimeout(() => {
-          sshManager.writeToShell(sessionId, '\n')
+          sshManager.writeToShell(sessionId, 'stty -echo; stty echo\n')
         }, 100)
         
         sendResponse(ws, {
