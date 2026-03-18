@@ -10,7 +10,8 @@
       "@/stores/*": ["src/stores/*"],
       "@/types/*": ["src/types/*"],
       "@/utils/*": ["src/utils/*"],
-      "@/navigation/*": ["src/navigation/*"]
+      "@/navigation/*": ["src/navigation/*"],
+      "@/modules/*": ["modules/*"]
     }
   }
 }
