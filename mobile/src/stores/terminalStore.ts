@@ -91,15 +91,21 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       });
 
       const unsubscribeError = sshWebSocketService.on('error', (response) => {
-        set((state) => ({
-          sessions: state.sessions.map((s) =>
-            s.id === id ? { ...s, status: "error" } : s
-          ),
-          connectingByConnectionId: {
-            ...state.connectingByConnectionId,
-            [connection.id]: false,
-          },
-        }));
+        if (response.sessionId === id || !response.sessionId) {
+          set((state) => ({
+            sessions: state.sessions.map((s) =>
+              s.id === id ? { ...s, status: "error" } : s
+            ),
+            connectingByConnectionId: {
+              ...state.connectingByConnectionId,
+              [connection.id]: false,
+            },
+          }));
+          // Remove failed session after a delay
+          setTimeout(() => {
+            get().closeSession(id);
+          }, 3000);
+        }
       });
 
       // Create SSH session with our session ID and initial terminal size

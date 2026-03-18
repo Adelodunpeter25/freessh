@@ -81,9 +81,11 @@ async function handleWebSocketMessage(ws: WebSocket, message: WebSocketMessage) 
         })
       } catch (error) {
         console.error('Connection failed:', error)
+        const errorMessage = error instanceof Error ? error.message : 'Connection failed'
         sendResponse(ws, {
           type: 'error',
-          error: error instanceof Error ? error.message : 'Connection failed'
+          sessionId: message.sessionId,
+          error: errorMessage
         })
       }
       break
