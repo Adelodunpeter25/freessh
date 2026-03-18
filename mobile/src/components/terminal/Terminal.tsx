@@ -215,14 +215,15 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           convertEol: true,
           screenReaderMode: false,
           windowsMode: false,
-          macOptionIsMeta: true,
+          macOptionIsMeta: false,
           macOptionClickForcesSelection: false,
           rightClickSelectsWord: false,
           fastScrollModifier: 'alt',
           fastScrollSensitivity: 5,
           allowProposedApi: true,
           disableStdin: false,
-          cursorInactiveStyle: 'bar'
+          cursorInactiveStyle: 'bar',
+          altClickMovesCursor: false
         });
 
         const fitAddon = new FitAddon.FitAddon();

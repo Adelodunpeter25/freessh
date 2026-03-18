@@ -74,7 +74,11 @@ export class SSHManager {
       client.shell({
         cols: session.cols,
         rows: session.rows,
-        term: 'xterm-256color'
+        term: 'xterm-256color',
+        modes: {
+          ECHO: 1,
+          ICANON: 0
+        }
       }, (err, stream) => {
         if (err) {
           reject(err)
