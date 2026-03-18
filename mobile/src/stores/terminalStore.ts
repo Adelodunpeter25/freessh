@@ -102,8 +102,8 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
         }));
       });
 
-      // Create SSH session with our session ID
-      sshWebSocketService.createSSHSession(connection, 80, 24, id);
+      // Create SSH session with our session ID and initial terminal size
+      sshWebSocketService.createSSHSession(connection, 59, 55, id);
 
       return id;
     } catch (error) {
