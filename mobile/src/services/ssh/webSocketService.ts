@@ -1,5 +1,6 @@
 import { getSSHServerURL } from '@/constants'
 import type { ConnectionConfig } from '@/types'
+import { ReconnectManager } from './reconnect'
 
 export interface WebSocketMessage {
   type: 'connect' | 'input' | 'resize' | 'disconnect'
@@ -17,14 +18,30 @@ export interface WebSocketResponse {
 export class SSHWebSocketService {
   private ws: WebSocket | null = null
   private listeners = new Map<string, Set<(data: any) => void>>()
+  private reconnectManager: ReconnectManager
+  private isConnecting = false
+
+  constructor() {
+    this.reconnectManager = new ReconnectManager(
+      () => this.connect(),
+      () => console.log('Max reconnect attempts reached')
+    )
+  }
 
   connect(): Promise<void> {
+    if (this.isConnecting || (this.ws && this.ws.readyState === WebSocket.OPEN)) {
+      return Promise.resolve()
+    }
+
+    this.isConnecting = true
+    
     return new Promise((resolve, reject) => {
       try {
         this.ws = new WebSocket(getSSHServerURL())
         
         this.ws.onopen = () => {
-          console.log('WebSocket connected to SSH server')
+          this.isConnecting = false
+          this.reconnectManager.reset()
           resolve()
         }
 
@@ -38,15 +55,18 @@ export class SSHWebSocketService {
         }
 
         this.ws.onclose = () => {
-          console.log('WebSocket disconnected from SSH server')
+          this.isConnecting = false
           this.ws = null
+          this.reconnectManager.attemptReconnect()
         }
 
         this.ws.onerror = (error) => {
+          this.isConnecting = false
           console.error('WebSocket error:', error)
           reject(error)
         }
       } catch (error) {
+        this.isConnecting = false
         reject(error)
       }
     })
@@ -126,6 +146,7 @@ export class SSHWebSocketService {
   }
 
   disconnect(): void {
+    this.reconnectManager.stop()
     if (this.ws) {
       this.ws.close()
       this.ws = null
