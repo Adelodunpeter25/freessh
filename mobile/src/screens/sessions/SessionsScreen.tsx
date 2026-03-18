@@ -10,6 +10,7 @@ import {
   TerminalScreen,
 } from "@/components";
 import type { TerminalHandle } from "@/components";
+import { sshWebSocketService } from "@/services";
 import { useTerminalStore, useThemeStore } from "@/stores";
 
 export function SessionsScreen() {
@@ -72,10 +73,17 @@ export function SessionsScreen() {
   }, [activeSessionId, subscribeOutput]);
 
   const handleTerminalReady = useCallback((cols: number, rows: number) => {
-    // Reserved for future PTY resize support.
-    void cols;
-    void rows;
-  }, []);
+    if (activeSessionId) {
+      // Resize the SSH session to match terminal
+      sshWebSocketService.resizeTerminal(activeSessionId, cols, rows);
+    }
+  }, [activeSessionId]);
+
+  const handleTerminalResize = useCallback((cols: number, rows: number) => {
+    if (activeSessionId) {
+      sshWebSocketService.resizeTerminal(activeSessionId, cols, rows);
+    }
+  }, [activeSessionId]);
 
   const hasSessions = sessions.length > 0;
 
@@ -120,6 +128,7 @@ export function SessionsScreen() {
                     sendInput(activeSessionId, data);
                   }}
                   onReady={handleTerminalReady}
+                  onResize={handleTerminalResize}
                   style={{ flex: 1 }}
                   theme={terminalColors}
                   showLoading={activeSession.status === "connecting"}
