@@ -14,6 +14,9 @@ import {
 } from "react-native";
 import { WebView } from "react-native-webview";
 
+import { useThemeStore } from "@/stores";
+import { getDefaultTheme } from "@/utils";
+
 interface TerminalProps {
   style?: any;
   onInput?: (data: string) => void;
@@ -50,27 +53,30 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
     const [htmlContent, setHtmlContent] = useState("");
     const [isConnected, setIsConnected] = useState(false);
 
+    const isDark = useThemeStore.getState().theme === 'dark';
+    const terminalTheme = getDefaultTheme(!isDark).theme;
+
     const resolvedTheme = {
-      background: theme?.background ?? "#0b0b0b",
-      foreground: theme?.foreground ?? "#e5e7eb",
-      cursor: theme?.cursor ?? theme?.foreground ?? "#e5e7eb",
-      selection: theme?.selection ?? "rgba(255,255,255,0.2)",
-      black: '#000000',
-      red: '#ff5555',
-      green: '#50fa7b',
-      yellow: '#f1fa8c',
-      blue: '#bd93f9',
-      magenta: '#ff79c6',
-      cyan: '#8be9fd',
-      white: '#bfbfbf',
-      brightBlack: '#4d4d4d',
-      brightRed: '#ff6e67',
-      brightGreen: '#5af78e',
-      brightYellow: '#f4f99d',
-      brightBlue: '#caa9fa',
-      brightMagenta: '#ff92d0',
-      brightCyan: '#9aedfe',
-      brightWhite: '#e6e6e6',
+      background: terminalTheme.background,
+      foreground: terminalTheme.foreground,
+      cursor: terminalTheme.cursor,
+      selection: terminalTheme.selection || "rgba(255,255,255,0.2)",
+      black: terminalTheme.black,
+      red: terminalTheme.red,
+      green: terminalTheme.green,
+      yellow: terminalTheme.yellow,
+      blue: terminalTheme.blue,
+      magenta: terminalTheme.magenta,
+      cyan: terminalTheme.cyan,
+      white: terminalTheme.white,
+      brightBlack: terminalTheme.brightBlack,
+      brightRed: terminalTheme.brightRed,
+      brightGreen: terminalTheme.brightGreen,
+      brightYellow: terminalTheme.brightYellow,
+      brightBlue: terminalTheme.brightBlue,
+      brightMagenta: terminalTheme.brightMagenta,
+      brightCyan: terminalTheme.brightCyan,
+      brightWhite: terminalTheme.brightWhite,
     };
 
     const generateHTML = useCallback(() => {
