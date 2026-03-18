@@ -386,7 +386,9 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
             break;
 
           case "resize":
-            onResize?.(message.data.cols, message.data.rows);
+            if (onResize) {
+              onResize(message.data.cols, message.data.rows);
+            }
             break;
         }
       } catch (error) {
