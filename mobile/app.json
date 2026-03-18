@@ -29,6 +29,7 @@
     },
     "plugins": [
       "expo-sqlite",
+      "./modules/hardware-keyboard",
       [
         "expo-build-properties",
         {

@@ -12,6 +12,7 @@ import {
 import type { TerminalHandle } from "@/components";
 import { sshWebSocketService } from "@/services";
 import { useTerminalStore, useThemeStore } from "@/stores";
+import { addKeyCommandListener } from "../../../modules/hardware-keyboard";
 
 export function SessionsScreen() {
   const navigation = useNavigation();
@@ -56,6 +57,46 @@ export function SessionsScreen() {
       isMountedRef.current = false;
     };
   }, []);
+
+  // Hardware keyboard listener
+  useEffect(() => {
+    if (!activeSessionId) return;
+
+    const subscription = addKeyCommandListener((event) => {
+      if (!activeSessionId || !isMountedRef.current) return;
+
+      // Handle Shift+Tab
+      if (event.shift && event.input === "\t") {
+        sendInput(activeSessionId, "\x1b[Z");
+        return;
+      }
+
+      // Handle Ctrl key combinations
+      if (event.ctrl) {
+        const ch = event.input.toLowerCase();
+        const code = ch.charCodeAt(0) & 0x1f;
+        sendInput(activeSessionId, String.fromCharCode(code));
+        return;
+      }
+
+      // Handle special keys (arrows, escape)
+      const specialMap: Record<string, string> = {
+        ArrowUp: "\x1b[A",
+        ArrowDown: "\x1b[B",
+        ArrowRight: "\x1b[C",
+        ArrowLeft: "\x1b[D",
+        Escape: "\x1b",
+      };
+      if (specialMap[event.input]) {
+        sendInput(activeSessionId, specialMap[event.input]);
+        return;
+      }
+    });
+
+    return () => {
+      subscription?.remove();
+    };
+  }, [activeSessionId, sendInput]);
 
   useEffect(() => {
     if (!activeSessionId || !isMountedRef.current) return;
