@@ -4,6 +4,7 @@ import { WebSocketServer, WebSocket } from 'ws'
 import { createServer } from 'http'
 import { SSHManager } from './ssh-manager'
 import { WebSocketMessage, WebSocketResponse } from './types'
+import routes from './routes'
 
 const app = express()
 const server = createServer(app)
@@ -13,15 +14,11 @@ const sshManager = new SSHManager()
 app.use(cors())
 app.use(express.json())
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() })
-})
+// Make sshManager available to routes
+app.locals.sshManager = sshManager
 
-// Get all sessions
-app.get('/sessions', (req, res) => {
-  res.json(sshManager.getAllSessions())
-})
+// Use routes
+app.use('/api', routes)
 
 // WebSocket connection handling
 wss.on('connection', (ws: WebSocket) => {
