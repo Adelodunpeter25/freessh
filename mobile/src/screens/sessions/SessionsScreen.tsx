@@ -73,15 +73,22 @@ export function SessionsScreen() {
   }, [activeSessionId, subscribeOutput]);
 
   const handleTerminalReady = useCallback((cols: number, rows: number) => {
-    if (activeSessionId) {
-      // Resize the SSH session to match terminal
-      sshWebSocketService.resizeTerminal(activeSessionId, cols, rows);
+    if (activeSessionId && sshWebSocketService) {
+      try {
+        sshWebSocketService.resizeTerminal(activeSessionId, cols, rows);
+      } catch (error) {
+        console.error('Error resizing terminal:', error);
+      }
     }
   }, [activeSessionId]);
 
   const handleTerminalResize = useCallback((cols: number, rows: number) => {
-    if (activeSessionId) {
-      sshWebSocketService.resizeTerminal(activeSessionId, cols, rows);
+    if (activeSessionId && sshWebSocketService) {
+      try {
+        sshWebSocketService.resizeTerminal(activeSessionId, cols, rows);
+      } catch (error) {
+        console.error('Error resizing terminal:', error);
+      }
     }
   }, [activeSessionId]);
 
