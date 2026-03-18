@@ -262,52 +262,24 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           }
         });
 
-        function handleResize() {
-          try {
-            fitAddon.fit();
-            if (window.ReactNativeWebView) {
-              window.ReactNativeWebView.postMessage(JSON.stringify({
-                type: 'resize',
-                data: { cols: terminal.cols, rows: terminal.rows }
-              }));
-            }
-          } catch(e) {}
-        }
-
-        // Debounce resize events
-        let resizeTimeout;
+        // Simple resize handler
         window.addEventListener('resize', () => {
-          clearTimeout(resizeTimeout);
-          resizeTimeout = setTimeout(handleResize, 100);
+          setTimeout(() => {
+            try {
+              fitAddon.fit();
+            } catch(e) {}
+          }, 100);
         });
 
-        // Retry mechanism for terminalReady
-        let readySent = false;
-        function sendReady() {
-          if (readySent) return;
+        // Send ready message
+        setTimeout(() => {
+          fitAddon.fit();
           if (window.ReactNativeWebView) {
-            logToNative('Sending terminalReady...');
             window.ReactNativeWebView.postMessage(JSON.stringify({
               type: 'terminalReady',
               data: { cols: terminal.cols, rows: terminal.rows }
             }));
-            readySent = true;
-          } else {
-            logToNative('ReactNativeWebView not found, retrying...');
-            setTimeout(sendReady, 100);
           }
-        }
-
-        setTimeout(() => {
-          fitAddon.fit();
-          // Send initial resize to shell after connection
-          if (window.ReactNativeWebView) {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-              type: 'resize',
-              data: { cols: terminal.cols, rows: terminal.rows }
-            }));
-          }
-          sendReady();
         }, 150);
 
       } catch (err) {
