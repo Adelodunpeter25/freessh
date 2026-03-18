@@ -22,14 +22,15 @@ app.use('/api', routes)
 
 // WebSocket connection handling
 wss.on('connection', (ws: WebSocket) => {
-  console.log('Client connected')
+  console.log('📱 Client connected')
 
   ws.on('message', async (data: Buffer) => {
     try {
       const message: WebSocketMessage = JSON.parse(data.toString())
+      console.log('📨 Received:', message.type, message.sessionId ? `(${message.sessionId})` : '')
       await handleWebSocketMessage(ws, message)
     } catch (error) {
-      console.error('WebSocket message error:', error)
+      console.error('❌ WebSocket message error:', error)
       sendResponse(ws, {
         type: 'error',
         error: error instanceof Error ? error.message : 'Unknown error'
@@ -38,11 +39,11 @@ wss.on('connection', (ws: WebSocket) => {
   })
 
   ws.on('close', () => {
-    console.log('Client disconnected')
+    console.log('📱 Client disconnected')
   })
 
   ws.on('error', (error) => {
-    console.error('WebSocket error:', error)
+    console.error('❌ WebSocket error:', error)
   })
 })
 
@@ -51,6 +52,7 @@ async function handleWebSocketMessage(ws: WebSocket, message: WebSocketMessage) 
     case 'connect':
       try {
         const { config, cols = 80, rows = 24 } = message.data
+        console.log(`🔌 Connecting to ${config.username}@${config.host}:${config.port}`)
         const sessionId = await sshManager.createSession(config, cols, rows)
         
         // Start shell and set up data handler
@@ -62,12 +64,14 @@ async function handleWebSocketMessage(ws: WebSocket, message: WebSocketMessage) 
           })
         })
 
+        console.log(`✅ Connected session ${sessionId}`)
         sendResponse(ws, {
           type: 'connected',
           sessionId,
           data: { cols, rows }
         })
       } catch (error) {
+        console.error('❌ Connection failed:', error)
         sendResponse(ws, {
           type: 'error',
           error: error instanceof Error ? error.message : 'Connection failed'
@@ -84,12 +88,14 @@ async function handleWebSocketMessage(ws: WebSocket, message: WebSocketMessage) 
     case 'resize':
       if (message.sessionId && message.data) {
         const { cols, rows } = message.data
+        console.log(`📐 Resize ${message.sessionId}: ${cols}x${rows}`)
         sshManager.resizeTerminal(message.sessionId, cols, rows)
       }
       break
 
     case 'disconnect':
       if (message.sessionId) {
+        console.log(`🔌 Disconnecting session ${message.sessionId}`)
         sshManager.closeSession(message.sessionId)
         sendResponse(ws, {
           type: 'disconnected',
