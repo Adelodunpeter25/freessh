@@ -53,10 +53,20 @@ async function handleWebSocketMessage(ws: WebSocket, message: WebSocketMessage) 
       try {
         const { config, cols = 80, rows = 24 } = message.data
         console.log(`🔌 Connecting to ${config.username}@${config.host}:${config.port}`)
-        const sessionId = await sshManager.createSession(config, cols, rows)
+        
+        // Use provided sessionId or create new one
+        const sessionId = message.sessionId || await sshManager.createSession(config, cols, rows)
+        console.log(`📝 Using session ID: ${sessionId}`)
+        
+        // If sessionId was provided, we need to create the session with that ID
+        if (message.sessionId) {
+          // Custom session creation with specific ID
+          const customSessionId = await sshManager.createSessionWithId(message.sessionId, config, cols, rows)
+        }
         
         // Start shell and set up data handler
         await sshManager.startShell(sessionId, (data: string) => {
+          console.log(`📤 Sending data for ${sessionId}:`, data.slice(0, 50) + (data.length > 50 ? '...' : ''))
           sendResponse(ws, {
             type: 'data',
             sessionId,
@@ -81,6 +91,7 @@ async function handleWebSocketMessage(ws: WebSocket, message: WebSocketMessage) 
 
     case 'input':
       if (message.sessionId && message.data) {
+        console.log(`⌨️  Input for ${message.sessionId}:`, JSON.stringify(message.data))
         sshManager.writeToShell(message.sessionId, message.data)
       }
       break

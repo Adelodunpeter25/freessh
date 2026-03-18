@@ -136,8 +136,57 @@ export class SSHManager {
     this.sessions.delete(sessionId)
   }
 
-  getSession(sessionId: string): TerminalSession | undefined {
-    return this.sessions.get(sessionId)
+  async createSessionWithId(sessionId: string, config: SSHConnectionConfig, cols: number = 80, rows: number = 24): Promise<string> {
+    const session: TerminalSession = {
+      id: sessionId,
+      connectionId: `${config.host}:${config.port}`,
+      name: `${config.username}@${config.host}`,
+      cols,
+      rows,
+      status: 'connecting'
+    }
+
+    this.sessions.set(sessionId, session)
+
+    try {
+      const client = new Client()
+      this.connections.set(sessionId, client)
+
+      await new Promise<void>((resolve, reject) => {
+        client.on('ready', () => {
+          session.status = 'connected'
+          resolve()
+        })
+
+        client.on('error', (err) => {
+          session.status = 'error'
+          reject(err)
+        })
+
+        const connectConfig: any = {
+          host: config.host,
+          port: config.port,
+          username: config.username,
+        }
+
+        if (config.authMethod === 'password') {
+          connectConfig.password = config.password
+        } else {
+          connectConfig.privateKey = config.privateKey
+          if (config.passphrase) {
+            connectConfig.passphrase = config.passphrase
+          }
+        }
+
+        client.connect(connectConfig)
+      })
+
+      return sessionId
+    } catch (error) {
+      this.sessions.delete(sessionId)
+      this.connections.delete(sessionId)
+      throw error
+    }
   }
 
   getAllSessions(): TerminalSession[] {

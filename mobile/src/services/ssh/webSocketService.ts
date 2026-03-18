@@ -59,7 +59,7 @@ export class SSHWebSocketService {
     }
   }
 
-  createSSHSession(connection: ConnectionConfig, cols: number = 80, rows: number = 24): void {
+  createSSHSession(connection: ConnectionConfig, cols: number = 80, rows: number = 24, sessionId?: string): void {
     const config = {
       host: connection.host,
       port: connection.port || 22,
@@ -72,6 +72,7 @@ export class SSHWebSocketService {
 
     this.sendMessage({
       type: 'connect',
+      sessionId,
       data: { config, cols, rows }
     })
   }

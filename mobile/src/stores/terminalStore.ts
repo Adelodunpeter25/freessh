@@ -60,7 +60,8 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
 
       // Set up listeners for this session
       const unsubscribeConnected = sshWebSocketService.on('connected', (response) => {
-        if (response.sessionId) {
+        console.log('🔗 Connected response:', response)
+        if (response.sessionId === id) {
           set((state) => ({
             sessions: state.sessions.map((s) =>
               s.id === id ? { ...s, status: "connected" } : s
@@ -74,6 +75,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       });
 
       const unsubscribeData = sshWebSocketService.on('data', (response) => {
+        console.log('📥 Data received:', response.sessionId, 'length:', response.data?.length)
         if (response.sessionId === id && response.data) {
           // Update session output
           set((state) => ({
@@ -91,6 +93,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       });
 
       const unsubscribeError = sshWebSocketService.on('error', (response) => {
+        console.log('❌ Error response:', response)
         set((state) => ({
           sessions: state.sessions.map((s) =>
             s.id === id ? { ...s, status: "error" } : s
@@ -102,8 +105,9 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
         }));
       });
 
-      // Create SSH session
-      sshWebSocketService.createSSHSession(connection, 80, 24);
+      // Create SSH session with our session ID
+      console.log('🚀 Creating session with ID:', id)
+      sshWebSocketService.createSSHSession(connection, 80, 24, id);
 
       return id;
     } catch (error) {
