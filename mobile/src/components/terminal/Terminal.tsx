@@ -143,6 +143,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
     const screenWidth = ${width};
     const screenHeight = ${height};
 
+    console.log('Creating terminal...');
     const terminal = new Terminal({
       cursorBlink: true,
       scrollback: 10000,
@@ -184,10 +185,14 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
       disableStdin: false,
       cursorInactiveStyle: 'block'
     });
+    console.log('Terminal created, opening...');
 
     const fitAddon = new FitAddon.FitAddon();
     terminal.loadAddon(fitAddon);
-    terminal.open(document.getElementById('terminal'));
+    const terminalElement = document.getElementById('terminal');
+    console.log('Terminal element:', terminalElement);
+    terminal.open(terminalElement);
+    console.log('Terminal opened, cols:', terminal.cols, 'rows:', terminal.rows);
 
     setTimeout(() => {
       const inputs = document.querySelectorAll('input, textarea, .xterm-helper-textarea');
@@ -284,12 +289,17 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
     terminal.reset();
 
     setTimeout(function() {
+      console.log('Fitting terminal...');
       fitAddon.fit();
+      console.log('Terminal fitted, cols:', terminal.cols, 'rows:', terminal.rows);
       if (window.ReactNativeWebView) {
+        console.log('Sending terminalReady message');
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'terminalReady',
           data: { cols: terminal.cols, rows: terminal.rows }
         }));
+      } else {
+        console.log('window.ReactNativeWebView not found');
       }
     }, 150);
   </script>
