@@ -59,8 +59,7 @@ export function SessionsScreen() {
   useEffect(() => {
     if (!activeSessionId || !isMountedRef.current) return;
 
-    terminalRef.current?.clear();
-
+    // Don't clear terminal when switching sessions - just subscribe to new output
     const unsubscribe = subscribeOutput(activeSessionId, (data: string) => {
       if (isMountedRef.current && terminalRef.current) {
         terminalRef.current.write(data);
@@ -118,7 +117,6 @@ export function SessionsScreen() {
                   ref={terminalRef}
                   onInput={(data: string) => {
                     if (!activeSessionId || !isMountedRef.current) return;
-                    console.log('SessionsScreen: sending input:', JSON.stringify(data));
                     sendInput(activeSessionId, data);
                   }}
                   onReady={handleTerminalReady}

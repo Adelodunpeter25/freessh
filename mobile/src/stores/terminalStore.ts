@@ -96,7 +96,6 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       
       // Set up shell listener BEFORE starting shell
       sshService.onShell(client, (data) => {
-        console.log('Shell output received:', JSON.stringify(data));
         // Update session output
         set((state) => ({
           sessions: state.sessions.map((s) =>
@@ -121,6 +120,15 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
           [connection.id]: false,
         },
       }));
+
+      // Send clear command after connection to reset cursor position
+      setTimeout(async () => {
+        try {
+          await sshService.writeToShell(client, "\n");
+        } catch (e) {
+          // Ignore if fails
+        }
+      }, 300);
 
       return id;
     } catch (error) {

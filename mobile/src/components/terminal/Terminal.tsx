@@ -181,7 +181,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           cursorBlink: true,
           scrollback: 10000,
           fontSize: 14,
-          lineHeight: 1,
+          lineHeight: 0.8,
           fontFamily: 'SF Mono, Monaco, Consolas, "Courier New", monospace',
           theme: {
             background: '${resolvedTheme.background}',
@@ -228,7 +228,6 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
         window.writeToTerminal = function(data) {
           try { 
             terminal.write(data);
-            terminal.scrollToBottom();
           } catch(e) {
             logToNative('Error writing: ' + e.message, 'error');
           }
@@ -259,7 +258,6 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
 
         function handleResize() {
           try {
-            logToNative('Resizing terminal...');
             fitAddon.fit();
             if (window.ReactNativeWebView) {
               window.ReactNativeWebView.postMessage(JSON.stringify({
@@ -270,7 +268,12 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           } catch(e) {}
         }
 
-        window.addEventListener('resize', handleResize);
+        // Debounce resize events
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(handleResize, 100);
+        });
 
         // Retry mechanism for terminalReady
         let readySent = false;
@@ -291,6 +294,13 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
 
         setTimeout(() => {
           fitAddon.fit();
+          // Send initial resize to shell after connection
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({
+              type: 'resize',
+              data: { cols: terminal.cols, rows: terminal.rows }
+            }));
+          }
           sendReady();
         }, 150);
 
@@ -307,6 +317,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
 
     useEffect(() => {
       isMountedRef.current = true;
+      // Generate HTML only once on mount
       setHtmlContent(generateHTML());
       return () => {
         isMountedRef.current = false;
@@ -315,7 +326,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           flushTimerRef.current = null;
         }
       };
-    }, [generateHTML]);
+    }, []); // Remove generateHTML dependency
 
     useEffect(() => {
       const subscription = Dimensions.addEventListener(
@@ -329,11 +340,9 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
     }, []);
 
     const flushPendingWrites = useCallback(() => {
-      console.log('flushPendingWrites called, pending:', pendingWritesRef.current.length);
       if (!webViewRef.current || pendingWritesRef.current.length === 0 || !isMountedRef.current) return;
       const payload = pendingWritesRef.current.join("");
       pendingWritesRef.current = [];
-      console.log('Flushing payload length:', payload.length);
       webViewRef.current.injectJavaScript(
         `window.writeToTerminal(${JSON.stringify(payload)}); true;`,
       );
@@ -354,7 +363,6 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
 
         switch (message.type) {
           case "terminalReady":
-            console.log('terminalReady received, cols:', message.data.cols, 'rows:', message.data.rows);
             isReadyRef.current = true;
             setIsConnected(true);
             onReady?.(message.data.cols, message.data.rows);
@@ -365,11 +373,9 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
             break;
 
           case "debug":
-            console.log(`[WebView ${message.data.type || 'log'}]`, message.data.message);
             break;
 
           case "input":
-            console.log('Terminal input received from WebView:', JSON.stringify(message.data));
             onInput?.(message.data);
             break;
 
@@ -384,7 +390,6 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
 
     useImperativeHandle(ref, () => ({
       write: (data: string) => {
-        console.log('Terminal.write called, isReady:', isReadyRef.current, 'data length:', data.length);
         if (!isMountedRef.current) return;
         pendingWritesRef.current.push(data);
         if (!isReadyRef.current) return;
@@ -426,10 +431,10 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           showsVerticalScrollIndicator={false}
           keyboardDisplayRequiresUserAction={false}
           onMessage={handleWebViewMessage}
-          onError={(e) => console.error("WebView error:", e)}
-          onHttpError={(e) => console.error("WebView HTTP error:", e)}
-          onLoad={() => console.log("WebView onLoad fired")}
-          onLoadEnd={() => console.log("WebView onLoadEnd fired")}
+          onError={(e) => {}}
+          onHttpError={(e) => {}}
+          onLoad={() => {}}
+          onLoadEnd={() => {}}
         />
 
         {showLoading && !isConnected && (
