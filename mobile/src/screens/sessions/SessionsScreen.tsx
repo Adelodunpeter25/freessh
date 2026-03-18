@@ -12,7 +12,7 @@ import {
 import type { TerminalHandle } from "@/components";
 import { sshWebSocketService } from "@/services";
 import { useTerminalStore, useThemeStore } from "@/stores";
-import { addKeyCommandListener } from "../../../modules/hardware-keyboard";
+import { addKeyCommandListener } from "hardware-keyboard";
 
 export function SessionsScreen() {
   const navigation = useNavigation();
