@@ -74,8 +74,6 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
     };
 
     const generateHTML = useCallback(() => {
-      const { width, height } = screenDimensions;
-
       return `
 <!DOCTYPE html>
 <html>
@@ -83,9 +81,6 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Terminal</title>
-  <script src="https://unpkg.com/xterm@5.3.0/lib/xterm.js"></script>
-  <script src="https://unpkg.com/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css" />
   <style>
     body {
       margin: 0;
@@ -135,177 +130,180 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
       opacity: 0 !important;
     }
   </style>
+  <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css" />
 </head>
 <body>
   <div id="terminal"></div>
 
   <script>
-    const screenWidth = ${width};
-    const screenHeight = ${height};
-
-    console.log('Creating terminal...');
-    const terminal = new Terminal({
-      cursorBlink: true,
-      scrollback: 10000,
-      fontSize: 14,
-      lineHeight: 1,
-      fontFamily: 'SF Mono, Monaco, Consolas, "Courier New", monospace',
-      theme: {
-        background: '${resolvedTheme.background}',
-        foreground: '${resolvedTheme.foreground}',
-        cursor: '${resolvedTheme.cursor}',
-        selection: '${resolvedTheme.selection}',
-        black: '${resolvedTheme.black}',
-        red: '${resolvedTheme.red}',
-        green: '${resolvedTheme.green}',
-        yellow: '${resolvedTheme.yellow}',
-        blue: '${resolvedTheme.blue}',
-        magenta: '${resolvedTheme.magenta}',
-        cyan: '${resolvedTheme.cyan}',
-        white: '${resolvedTheme.white}',
-        brightBlack: '${resolvedTheme.brightBlack}',
-        brightRed: '${resolvedTheme.brightRed}',
-        brightGreen: '${resolvedTheme.brightGreen}',
-        brightYellow: '${resolvedTheme.brightYellow}',
-        brightBlue: '${resolvedTheme.brightBlue}',
-        brightMagenta: '${resolvedTheme.brightMagenta}',
-        brightCyan: '${resolvedTheme.brightCyan}',
-        brightWhite: '${resolvedTheme.brightWhite}'
-      },
-      allowTransparency: true,
-      convertEol: true,
-      screenReaderMode: false,
-      windowsMode: false,
-      macOptionIsMeta: false,
-      macOptionClickForcesSelection: false,
-      rightClickSelectsWord: false,
-      fastScrollModifier: 'alt',
-      fastScrollSensitivity: 5,
-      allowProposedApi: true,
-      disableStdin: false,
-      cursorInactiveStyle: 'block'
-    });
-    console.log('Terminal created, opening...');
-
-    const fitAddon = new FitAddon.FitAddon();
-    terminal.loadAddon(fitAddon);
-    const terminalElement = document.getElementById('terminal');
-    console.log('Terminal element:', terminalElement);
-    terminal.open(terminalElement);
-    console.log('Terminal opened, cols:', terminal.cols, 'rows:', terminal.rows);
-
-    setTimeout(() => {
-      const inputs = document.querySelectorAll('input, textarea, .xterm-helper-textarea');
-      inputs.forEach(input => {
-        input.setAttribute('autocomplete', 'off');
-        input.setAttribute('autocorrect', 'off');
-        input.setAttribute('autocapitalize', 'off');
-        input.setAttribute('spellcheck', 'false');
-        input.style.color = 'transparent';
-        input.style.caretColor = 'transparent';
-        input.style.webkitTextFillColor = 'transparent';
-      });
-    }, 100);
-
-    window.writeToTerminal = function(data) {
-      console.log('writeToTerminal called with data length:', data.length);
-      try { 
-        terminal.write(data);
-        terminal.scrollToBottom();
-      } catch(e) {
-        console.error('Error writing to terminal:', e);
-      }
-    };
-
-    window.setPrompt = function() {
-      try {
-        // Force a newline and ensure prompt is visible
-        terminal.write('\r\n');
-        terminal.scrollToBottom();
-      } catch(e) {
-        console.error('Error setting prompt:', e);
-      }
-    };
-
-    window.clearTerminal = function() {
-      try {
-        terminal.clear();
-        terminal.reset();
-      } catch(e) {}
-    };
-
-    window.fitTerminal = function() {
-      try {
-        fitAddon.fit();
-      } catch(e) {}
-    };
-
-    window.focusTerminal = function() {
-      try { terminal.focus(); } catch(e) {}
-    };
-
-    window.resetScroll = function() {
-      try { terminal.scrollToBottom(); } catch(e) {}
-    };
-
-    window.updateTheme = function(nextTheme) {
-      try {
-        terminal.options.theme = nextTheme;
-        document.body.style.backgroundColor = nextTheme.background;
-      } catch(e) {}
-    };
-
-    // Use onData to capture input but also set up a line handler
-    terminal.onData((data) => {
+    // Robust logging to React Native
+    window.lastLog = "";
+    function logToNative(msg, type = 'log') {
+      window.lastLog = msg;
       if (window.ReactNativeWebView) {
-        console.log('Terminal input:', JSON.stringify(data), 'charCodes:', data.split('').map(c => c.charCodeAt(0)));
-        window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'input', data }));
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'debug',
+          data: { message: msg, type }
+        }));
       }
-    });
-
-    // Handle line events (when user presses Enter)
-    terminal.onLineFeed(() => {
-      console.log('Line feed event triggered');
-    });
-
-    function handleResize() {
-      try {
-        fitAddon.fit();
-        if (window.ReactNativeWebView) {
-          window.ReactNativeWebView.postMessage(JSON.stringify({
-            type: 'resize',
-            data: { cols: terminal.cols, rows: terminal.rows }
-          }));
-        }
-      } catch(e) {}
     }
 
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', () => {
-      setTimeout(handleResize, 100);
-    });
+    window.onerror = function(message, source, lineno, colno, error) {
+      logToNative('JS Error: ' + message + ' at ' + source + ':' + lineno + ':' + colno, 'error');
+      return true;
+    };
 
-    terminal.clear();
-    terminal.reset();
+    logToNative('WebView starting initialization...');
 
-    setTimeout(function() {
-      console.log('Fitting terminal...');
-      fitAddon.fit();
-      console.log('Terminal fitted, cols:', terminal.cols, 'rows:', terminal.rows);
-      if (window.ReactNativeWebView) {
-        console.log('Sending terminalReady message');
-        window.ReactNativeWebView.postMessage(JSON.stringify({
-          type: 'terminalReady',
-          data: { cols: terminal.cols, rows: terminal.rows }
-        }));
-      } else {
-        console.log('window.ReactNativeWebView not found');
+    function loadScript(url) {
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = () => {
+          logToNative('Script loaded: ' + url);
+          resolve();
+        };
+        script.onerror = () => {
+          logToNative('Script fail: ' + url, 'error');
+          reject(new Error('Failed to load script: ' + url));
+        };
+        document.head.appendChild(script);
+      });
+    }
+
+    async function init() {
+      try {
+        await loadScript("https://unpkg.com/xterm@5.3.0/lib/xterm.js");
+        await loadScript("https://unpkg.com/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js");
+
+        logToNative('Creating terminal instance...');
+        const terminal = new Terminal({
+          cursorBlink: true,
+          scrollback: 10000,
+          fontSize: 14,
+          lineHeight: 1,
+          fontFamily: 'SF Mono, Monaco, Consolas, "Courier New", monospace',
+          theme: {
+            background: '${resolvedTheme.background}',
+            foreground: '${resolvedTheme.foreground}',
+            cursor: '${resolvedTheme.cursor}',
+            selection: '${resolvedTheme.selection}',
+            black: '${resolvedTheme.black}',
+            red: '${resolvedTheme.red}',
+            green: '${resolvedTheme.green}',
+            yellow: '${resolvedTheme.yellow}',
+            blue: '${resolvedTheme.blue}',
+            magenta: '${resolvedTheme.magenta}',
+            cyan: '${resolvedTheme.cyan}',
+            white: '${resolvedTheme.white}',
+            brightBlack: '${resolvedTheme.brightBlack}',
+            brightRed: '${resolvedTheme.brightRed}',
+            brightGreen: '${resolvedTheme.brightGreen}',
+            brightYellow: '${resolvedTheme.brightYellow}',
+            brightBlue: '${resolvedTheme.brightBlue}',
+            brightMagenta: '${resolvedTheme.brightMagenta}',
+            brightCyan: '${resolvedTheme.brightCyan}',
+            brightWhite: '${resolvedTheme.brightWhite}'
+          },
+          allowTransparency: true,
+          convertEol: true,
+          screenReaderMode: true,
+          windowsMode: false,
+          macOptionIsMeta: false,
+          macOptionClickForcesSelection: false,
+          rightClickSelectsWord: false,
+          fastScrollModifier: 'alt',
+          fastScrollSensitivity: 5,
+          allowProposedApi: true,
+          disableStdin: false,
+          cursorInactiveStyle: 'bar'
+        });
+
+        const fitAddon = new FitAddon.FitAddon();
+        terminal.loadAddon(fitAddon);
+        const terminalElement = document.getElementById('terminal');
+        terminal.open(terminalElement);
+        logToNative('Terminal opened, cols: ' + terminal.cols + ' rows: ' + terminal.rows);
+
+        window.writeToTerminal = function(data) {
+          try { 
+            terminal.write(data);
+            terminal.scrollToBottom();
+          } catch(e) {
+            logToNative('Error writing: ' + e.message, 'error');
+          }
+        };
+
+        window.clearTerminal = function() {
+          try {
+            terminal.clear();
+            terminal.reset();
+          } catch(e) {}
+        };
+
+        window.fitTerminal = function() {
+          try {
+            fitAddon.fit();
+          } catch(e) {}
+        };
+
+        window.focusTerminal = function() {
+          try { terminal.focus(); } catch(e) {}
+        };
+
+        terminal.onData((data) => {
+          if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'input', data }));
+          }
+        });
+
+        function handleResize() {
+          try {
+            logToNative('Resizing terminal...');
+            fitAddon.fit();
+            if (window.ReactNativeWebView) {
+              window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: 'resize',
+                data: { cols: terminal.cols, rows: terminal.rows }
+              }));
+            }
+          } catch(e) {}
+        }
+
+        window.addEventListener('resize', handleResize);
+
+        // Retry mechanism for terminalReady
+        let readySent = false;
+        function sendReady() {
+          if (readySent) return;
+          if (window.ReactNativeWebView) {
+            logToNative('Sending terminalReady...');
+            window.ReactNativeWebView.postMessage(JSON.stringify({
+              type: 'terminalReady',
+              data: { cols: terminal.cols, rows: terminal.rows }
+            }));
+            readySent = true;
+          } else {
+            logToNative('ReactNativeWebView not found, retrying...');
+            setTimeout(sendReady, 100);
+          }
+        }
+
+        setTimeout(() => {
+          fitAddon.fit();
+          sendReady();
+        }, 150);
+
+      } catch (err) {
+        logToNative('Init error: ' + err.message, 'error');
       }
-    }, 150);
+    }
+
+    init();
   </script>
 </body>
 </html>`;
-    }, [screenDimensions, resolvedTheme]);
+    }, [resolvedTheme]);
 
     useEffect(() => {
       isMountedRef.current = true;
@@ -323,9 +321,8 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
       const subscription = Dimensions.addEventListener(
         "change",
         ({ window }) => {
-          if (isMountedRef.current) {
-            setScreenDimensions(window);
-          }
+          // No longer reloading HTML here, just letting CSS and handleResize handle it
+          // But we can still keep handleResize as an event listener inside the WebView
         },
       );
       return () => subscription?.remove();
@@ -365,6 +362,10 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
             webViewRef.current?.injectJavaScript(
               "window.focusTerminal(); window.resetScroll && window.resetScroll(); true;",
             );
+            break;
+
+          case "debug":
+            console.log(`[WebView ${message.data.type || 'log'}]`, message.data.message);
             break;
 
           case "input":

@@ -112,9 +112,6 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
 
       await sshService.startShell(client, "xterm");
       
-      // Send a newline to trigger prompt
-      await sshService.writeToShell(client, "\n");
-
       set((state) => ({
         sessions: state.sessions.map((s) =>
           s.id === id ? { ...s, status: "connected" } : s,
