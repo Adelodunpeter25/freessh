@@ -257,8 +257,13 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
         };
 
         terminal.onData((data) => {
-          if (window.ReactNativeWebView) {
-            window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'input', data }));
+          try {
+            if (window.ReactNativeWebView) {
+              const message = JSON.stringify({ type: 'input', data: data });
+              window.ReactNativeWebView.postMessage(message);
+            }
+          } catch(e) {
+            console.error('Error sending input:', e);
           }
         });
 
@@ -273,12 +278,17 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
 
         // Send ready message
         setTimeout(() => {
-          fitAddon.fit();
-          if (window.ReactNativeWebView) {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-              type: 'terminalReady',
-              data: { cols: terminal.cols, rows: terminal.rows }
-            }));
+          try {
+            fitAddon.fit();
+            if (window.ReactNativeWebView) {
+              const message = JSON.stringify({
+                type: 'terminalReady',
+                data: { cols: terminal.cols, rows: terminal.rows }
+              });
+              window.ReactNativeWebView.postMessage(message);
+            }
+          } catch(e) {
+            console.error('Error sending ready:', e);
           }
         }, 150);
 
