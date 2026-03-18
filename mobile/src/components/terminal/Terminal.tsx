@@ -337,10 +337,13 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
     const handleWebViewMessage = useCallback((event: any) => {
       if (!isMountedRef.current) return;
       try {
+        console.log('[Terminal] Raw WebView message:', event.nativeEvent.data);
         const message = JSON.parse(event.nativeEvent.data);
+        console.log('[Terminal] Parsed message:', message);
 
         switch (message.type) {
           case "terminalReady":
+            console.log('[Terminal] Terminal ready:', message.data);
             isReadyRef.current = true;
             setIsConnected(true);
             onReady?.(message.data.cols, message.data.rows);
@@ -351,20 +354,27 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
             break;
 
           case "debug":
+            console.log('[Terminal] Debug:', message.data);
             break;
 
           case "input":
+            console.log('[Terminal] Input:', message.data);
             onInput?.(message.data);
             break;
 
           case "resize":
+            console.log('[Terminal] Resize:', message.data);
             if (onResize) {
               onResize(message.data.cols, message.data.rows);
             }
             break;
+
+          default:
+            console.log('[Terminal] Unknown message type:', message.type);
         }
       } catch (error) {
         console.error("[Terminal] Error parsing WebView message:", error);
+        console.error("[Terminal] Raw data:", event.nativeEvent.data);
       }
     }, [onInput, onReady, onResize, flushPendingWrites]);
 
