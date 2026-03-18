@@ -7,7 +7,6 @@ export type TerminalSession = {
   connectionId: string;
   name: string;
   status: "connecting" | "connected" | "error" | "closed";
-  output: string;
 };
 
 type OutputListener = (data: string) => void;
@@ -18,6 +17,7 @@ type TerminalState = {
   sessions: TerminalSession[];
   activeSessionId: string | null;
   connectingByConnectionId: Record<string, boolean>;
+  sessionCleanup: Map<string, () => void>;
   openSession: (connection: ConnectionConfig) => Promise<string>;
   setActiveSession: (id: string) => void;
   closeSession: (id: string) => Promise<void>;
@@ -33,6 +33,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
   sessions: [],
   activeSessionId: null,
   connectingByConnectionId: {},
+  sessionCleanup: new Map(),
 
   openSession: async (connection) => {
     const id = makeId();
@@ -44,7 +45,6 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
           connectionId: connection.id,
           name: connection.name,
           status: "connecting",
-          output: "",
         },
       ],
       activeSessionId: id,
@@ -55,10 +55,9 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
     }));
 
     try {
-      // Connect to WebSocket server if not already connected
       await sshWebSocketService.connect();
 
-      // Set up listeners for this session
+      // Set up listeners and store cleanup functions
       const unsubscribeConnected = sshWebSocketService.on('connected', (response) => {
         if (response.sessionId === id) {
           set((state) => ({
@@ -75,7 +74,6 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
 
       const unsubscribeData = sshWebSocketService.on('data', (response) => {
         if (response.sessionId === id && response.data) {
-          // Notify listeners directly without accumulating in state
           const listeners = outputListeners.get(id);
           if (listeners) {
             listeners.forEach((fn) => fn(response.data));
@@ -94,16 +92,26 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
               [connection.id]: false,
             },
           }));
-          // Remove failed session after a delay
           setTimeout(() => {
             get().closeSession(id);
           }, 3000);
         }
       });
 
-      // Create SSH session with our session ID and initial terminal size
-      sshWebSocketService.createSSHSession(connection, 59, 55, id);
+      // Store cleanup function
+      const cleanup = () => {
+        unsubscribeConnected();
+        unsubscribeData();
+        unsubscribeError();
+      };
+      
+      set((state) => {
+        const newCleanup = new Map(state.sessionCleanup);
+        newCleanup.set(id, cleanup);
+        return { sessionCleanup: newCleanup };
+      });
 
+      sshWebSocketService.createSSHSession(connection, 59, 55, id);
       return id;
     } catch (error) {
       set((state) => ({
@@ -124,6 +132,13 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
   },
 
   closeSession: async (id) => {
+    // Clean up WebSocket listeners
+    const state = get();
+    const cleanup = state.sessionCleanup.get(id);
+    if (cleanup) {
+      cleanup();
+    }
+
     sshWebSocketService.disconnectSession(id);
     outputListeners.delete(id);
     
@@ -141,9 +156,14 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
         }
       }
 
+      // Remove cleanup function
+      const newCleanup = new Map(state.sessionCleanup);
+      newCleanup.delete(id);
+
       return {
         sessions: nextSessions,
         activeSessionId: nextActiveSessionId,
+        sessionCleanup: newCleanup,
       };
     });
   },
@@ -157,9 +177,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
     setForId.add(listener);
     outputListeners.set(id, setForId);
 
-    // Don't send initial output - let terminal start fresh
-    // This prevents echo issues when switching sessions
-
+    // Return unsubscribe function
     return () => {
       setForId.delete(listener);
       if (setForId.size === 0) {
@@ -169,10 +187,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
   },
 
   clearOutput: (id) => {
-    set((state) => ({
-      sessions: state.sessions.map((s) =>
-        s.id === id ? { ...s, output: "" } : s
-      ),
-    }));
+    // Output is no longer stored in state, this is now a no-op
+    // Terminal handles its own display state
   },
 }));
