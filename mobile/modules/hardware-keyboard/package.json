@@ -1,5 +1,5 @@
 {
   "name": "hardware-keyboard",
   "version": "1.0.0",
-  "main": "app.plugin.js"
+  "main": "index.js"
 }
