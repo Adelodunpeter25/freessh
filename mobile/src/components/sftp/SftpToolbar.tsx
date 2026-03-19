@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react'
 import { Pressable } from 'react-native'
-import { ChevronRight, Eye, EyeOff, MoreVertical, Search, Upload, X } from 'lucide-react-native'
+import { ChevronRight, Search, Upload, X } from 'lucide-react-native'
 import { Text, XStack, useTheme } from 'tamagui'
-import { ContextMenu, IconButton, Input } from '@/components/common'
+import { IconButton, Input } from '@/components/common'
+import { MoreActions } from './MoreActions'
 
 type SftpToolbarProps = {
   rootLabel: string
@@ -98,25 +99,10 @@ export function SftpToolbar({
           <IconButton onPress={openSearch}>
             <Search size={14} color={theme.color.get()} />
           </IconButton>
-          <ContextMenu
-            triggerOnLongPress={false}
-            items={[
-              {
-                key: 'toggle-hidden',
-                label: showHidden ? 'Hide hidden files' : 'Show hidden files',
-                onPress: onToggleShowHidden,
-                icon: showHidden ? (
-                  <EyeOff size={14} color={theme.color.get()} />
-                ) : (
-                  <Eye size={14} color={theme.color.get()} />
-                ),
-              },
-            ]}
-          >
-            <IconButton>
-              <MoreVertical size={14} color={theme.color.get()} />
-            </IconButton>
-          </ContextMenu>
+          <MoreActions
+            showHidden={showHidden}
+            onToggleShowHidden={onToggleShowHidden}
+          />
         </XStack>
       )}
     </XStack>
