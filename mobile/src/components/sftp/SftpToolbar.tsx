@@ -83,17 +83,17 @@ export function SftpToolbar({
               <XStack key={index} ai="center" gap={4}>
                 {item.path ? (
                   <Pressable onPress={() => onNavigateTo(item.path!)} hitSlop={8}>
-                    <Text color="$gray11" fontSize={12} fontWeight="500">
+                    <Text color="#94a3b8" fontSize={12} fontWeight="500">
                       {item.segment}
                     </Text>
                   </Pressable>
                 ) : (
-                  <Text color="$gray12" fontSize={12} fontWeight="600">
+                  <Text color="#ffffff" fontSize={12} fontWeight="600">
                     {item.segment}
                   </Text>
                 )}
                 {index < clickablePaths.length - 1 && (
-                  <ChevronRight size={12} color="$gray10" />
+                  <ChevronRight size={12} color="#64748b" />
                 )}
               </XStack>
             ))}
