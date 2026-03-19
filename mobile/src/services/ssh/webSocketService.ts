@@ -20,6 +20,7 @@ export class SSHWebSocketService {
   private listeners = new Map<string, Set<(data: any) => void>>()
   private reconnectManager: ReconnectManager
   private isConnecting = false
+  private shouldReconnect = true
 
   constructor() {
     this.reconnectManager = new ReconnectManager(
@@ -34,6 +35,7 @@ export class SSHWebSocketService {
     }
 
     this.isConnecting = true
+    this.shouldReconnect = true
     
     return new Promise((resolve, reject) => {
       try {
@@ -57,7 +59,9 @@ export class SSHWebSocketService {
         this.ws.onclose = () => {
           this.isConnecting = false
           this.ws = null
-          this.reconnectManager.attemptReconnect()
+          if (this.shouldReconnect) {
+            this.reconnectManager.attemptReconnect()
+          }
         }
 
         this.ws.onerror = (error) => {
@@ -146,6 +150,7 @@ export class SSHWebSocketService {
   }
 
   disconnect(): void {
+    this.shouldReconnect = false
     this.reconnectManager.stop()
     if (this.ws) {
       this.ws.close()
