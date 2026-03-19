@@ -7,6 +7,7 @@ type KeyState = {
   loading: boolean
   initialize: () => Promise<void>
   addKey: (key: SSHKey & { private_key?: string; passphrase?: string }) => Promise<void>
+  importKey: (name: string, privateKey: string, passphrase?: string) => Promise<void>
   updateKey: (key: SSHKey & { private_key?: string; passphrase?: string }) => Promise<void>
   removeKey: (id: string) => Promise<void>
   exportKeyToHost: (
@@ -33,6 +34,11 @@ export const useKeyStore = create<KeyState>((set) => ({
 
   addKey: async (key) => {
     await keyService.create(key)
+    set((state) => ({ keys: [...state.keys, key] }))
+  },
+
+  importKey: async (name, privateKey, passphrase) => {
+    const key = await keyService.importPrivateKey(name, privateKey, passphrase)
     set((state) => ({ keys: [...state.keys, key] }))
   },
 

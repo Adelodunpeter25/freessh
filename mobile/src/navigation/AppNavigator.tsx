@@ -13,6 +13,7 @@ import {
   GroupFormScreen,
   SnippetFormScreen,
   KeyFormScreen,
+  ImportKeyScreen,
   KeysScreen,
   SnippetsScreen,
   SessionsScreen,
@@ -32,6 +33,7 @@ export type ConnectionsStackParamList = {
   GroupForm: { group?: Group }
   SnippetForm: { snippet?: Snippet }
   KeyForm: { key?: SSHKey }
+  ImportKey: undefined
   Keys: undefined
   Snippets: undefined
   Sessions: undefined
@@ -100,6 +102,10 @@ export function AppNavigator() {
         <Stack.Screen
           name="KeyForm"
           component={KeyFormScreen}
+        />
+        <Stack.Screen
+          name="ImportKey"
+          component={ImportKeyScreen}
         />
         <Stack.Screen
           name="Keys"

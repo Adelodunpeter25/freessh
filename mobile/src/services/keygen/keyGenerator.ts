@@ -85,6 +85,152 @@ const toOpenSSHPrivateKeyEd25519 = (keyPair: { publicKey: Uint8Array; privateKey
   return `${OPENSSH_PRIVATE_KEY_BEGIN}\n${encoded}\n${OPENSSH_PRIVATE_KEY_END}`
 }
 
+const readUint32 = (buf: Buffer, offset: number) => {
+  if (offset + 4 > buf.length) {
+    throw new Error('Invalid key format')
+  }
+  return { value: buf.readUInt32BE(offset), offset: offset + 4 }
+}
+
+const readSshString = (buf: Buffer, offset: number) => {
+  const lenMeta = readUint32(buf, offset)
+  const end = lenMeta.offset + lenMeta.value
+  if (end > buf.length) {
+    throw new Error('Invalid key format')
+  }
+  return { value: buf.subarray(lenMeta.offset, end), offset: end }
+}
+
+const normalizeAlgorithm = (keyType: string): SSHKey['algorithm'] => {
+  if (keyType === 'ssh-ed25519') return 'ed25519'
+  if (keyType === 'ssh-rsa') return 'rsa'
+  if (keyType.startsWith('ecdsa-')) return 'ecdsa'
+  return keyType
+}
+
+const bitLengthFromMpint = (value: Buffer): number => {
+  if (value.length === 0) return 0
+  let i = 0
+  while (i < value.length && value[i] === 0) i += 1
+  if (i >= value.length) return 0
+  const first = value[i]
+  let highBits = 8
+  while (highBits > 0 && ((first >> (highBits - 1)) & 1) === 0) {
+    highBits -= 1
+  }
+  return (value.length - i - 1) * 8 + highBits
+}
+
+const rsaBitsFromPublicBlob = (blob: Buffer): number | undefined => {
+  try {
+    let offset = 0
+    const typeMeta = readSshString(blob, offset)
+    offset = typeMeta.offset
+    const keyType = typeMeta.value.toString('utf8')
+    if (keyType !== 'ssh-rsa') return undefined
+    const eMeta = readSshString(blob, offset)
+    offset = eMeta.offset
+    const nMeta = readSshString(blob, offset)
+    return bitLengthFromMpint(nMeta.value)
+  } catch {
+    return undefined
+  }
+}
+
+const parseOpenSSHPrivateKeyPublicPart = (name: string, privateKey: string) => {
+  const normalized = privateKey.replace(/\r/g, '').trim()
+  if (!normalized.includes(OPENSSH_PRIVATE_KEY_BEGIN) || !normalized.includes(OPENSSH_PRIVATE_KEY_END)) {
+    throw new Error('Invalid OpenSSH private key format')
+  }
+
+  const base64Payload = normalized
+    .replace(OPENSSH_PRIVATE_KEY_BEGIN, '')
+    .replace(OPENSSH_PRIVATE_KEY_END, '')
+    .replace(/\s+/g, '')
+
+  const payload = Buffer.from(base64Payload, 'base64')
+  if (!payload.subarray(0, OPENSSH_MAGIC.length).equals(OPENSSH_MAGIC)) {
+    throw new Error('Invalid OpenSSH private key payload')
+  }
+
+  let offset = OPENSSH_MAGIC.length
+  const cipherMeta = readSshString(payload, offset)
+  offset = cipherMeta.offset
+  const kdfMeta = readSshString(payload, offset)
+  offset = kdfMeta.offset
+  const kdfOptionsMeta = readSshString(payload, offset)
+  offset = kdfOptionsMeta.offset
+  void cipherMeta
+  void kdfMeta
+  void kdfOptionsMeta
+
+  const keyCountMeta = readUint32(payload, offset)
+  offset = keyCountMeta.offset
+  if (keyCountMeta.value < 1) {
+    throw new Error('OpenSSH key has no public keys')
+  }
+
+  const pubMeta = readSshString(payload, offset)
+  const publicBlob = pubMeta.value
+
+  const typeMeta = readSshString(publicBlob, 0)
+  const keyType = typeMeta.value.toString('utf8')
+  const publicKey = `${keyType} ${publicBlob.toString('base64')} ${name}`.trim()
+
+  return {
+    algorithm: normalizeAlgorithm(keyType),
+    bits: rsaBitsFromPublicBlob(publicBlob),
+    publicKey,
+  }
+}
+
+const importKeyFromPrivateMaterial = (name: string, privateKey: string): KeyGenerationResult => {
+  const id = Date.now().toString()
+  const createdAt = new Date().toISOString()
+  const trimmedKey = privateKey.trim()
+
+  if (!trimmedKey) {
+    throw new Error('Private key is required')
+  }
+
+  if (trimmedKey.includes(OPENSSH_PRIVATE_KEY_BEGIN)) {
+    const parsed = parseOpenSSHPrivateKeyPublicPart(name, trimmedKey)
+    return {
+      key: {
+        id,
+        name,
+        algorithm: parsed.algorithm,
+        bits: parsed.bits,
+        publicKey: parsed.publicKey,
+        createdAt,
+      },
+      privateKey: trimmedKey,
+    }
+  }
+
+  // PEM RSA key import path
+  const rsaPrivateKey = forge.pki.privateKeyFromPem(trimmedKey) as forge.pki.rsa.PrivateKey
+  if (!rsaPrivateKey?.n || !rsaPrivateKey?.e) {
+    throw new Error('Unsupported private key format')
+  }
+
+  const publicKeyObj = forge.pki.setRsaPublicKey(rsaPrivateKey.n, rsaPrivateKey.e)
+  const publicKey = forge.ssh.publicKeyToOpenSSH(publicKeyObj, name)
+  const bits = rsaPrivateKey.n.bitLength()
+
+  return {
+    key: {
+      id,
+      name,
+      algorithm: 'rsa',
+      bits,
+      publicKey,
+      createdAt,
+    },
+    privateKey: trimmedKey,
+  }
+}
+
 export const keyGenerator = {
   async generateEd25519(name: string): Promise<KeyGenerationResult> {
     await sodium.ready
@@ -132,5 +278,9 @@ export const keyGenerator = {
         })
       })
     })
-  }
+  },
+
+  async importPrivateKey(name: string, privateKey: string): Promise<KeyGenerationResult> {
+    return importKeyFromPrivateMaterial(name, privateKey)
+  },
 }

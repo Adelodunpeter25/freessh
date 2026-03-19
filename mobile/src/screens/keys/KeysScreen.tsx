@@ -3,6 +3,7 @@ import { Dialog, ListItem, Sheet, Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import { useState, useCallback } from 'react'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { Plus, Upload } from 'lucide-react-native'
 
 import { AddButton, EmptyState, Screen, AppHeader, KeyCard, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog, Button, Input } from '@/components'
 import { useSearch } from '@/hooks'
@@ -21,6 +22,7 @@ export function KeysScreen() {
   const showSnackbar = useSnackbarStore((state) => state.show)
   const [refreshing, setRefreshing] = useState(false)
   const [exportKey, setExportKey] = useState<null | { id: string; name: string }>(null)
+  const [showAddSheet, setShowAddSheet] = useState(false)
   const [exportConnection, setExportConnection] = useState<ConnectionConfig | null>(null)
   const [exportPassword, setExportPassword] = useState('')
   const [exporting, setExporting] = useState(false)
@@ -139,7 +141,44 @@ export function KeysScreen() {
         </YStack>
       </Screen>
 
-      <AddButton onPress={() => navigation.navigate('KeyForm', {})} />
+      <AddButton onPress={() => setShowAddSheet(true)} />
+
+      <Sheet
+        modal
+        open={showAddSheet}
+        onOpenChange={setShowAddSheet}
+        snapPoints={[28]}
+        dismissOnSnapToBottom
+      >
+        <Sheet.Overlay />
+        <Sheet.Frame p="$4" backgroundColor="$background">
+          <Sheet.Handle />
+          <YStack gap="$2" pt="$4">
+            <ListItem
+              hoverStyle={{ backgroundColor: '$backgroundHover' }}
+              pressStyle={{ backgroundColor: '$backgroundPress' }}
+              title="Create New Key"
+              subTitle="Generate a new SSH key pair"
+              icon={<Plus size={20} />}
+              onPress={() => {
+                setShowAddSheet(false)
+                navigation.navigate('KeyForm', {})
+              }}
+            />
+            <ListItem
+              hoverStyle={{ backgroundColor: '$backgroundHover' }}
+              pressStyle={{ backgroundColor: '$backgroundPress' }}
+              title="Import Key"
+              subTitle="Paste an existing private key"
+              icon={<Upload size={20} />}
+              onPress={() => {
+                setShowAddSheet(false)
+                navigation.navigate('ImportKey')
+              }}
+            />
+          </YStack>
+        </Sheet.Frame>
+      </Sheet>
 
       <Sheet
         modal

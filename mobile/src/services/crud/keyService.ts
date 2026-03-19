@@ -2,6 +2,7 @@ import { db } from '../db/schema'
 import type { ConnectionConfig, SSHKey } from '@/types'
 import { connectionService } from './connectionService'
 import { sshService } from '@/services/ssh/sshService'
+import { keyGenerator } from '@/services/keygen/keyGenerator'
 
 type ExportOptions = {
   password?: string
@@ -47,6 +48,20 @@ export const keyService = {
         key.createdAt || new Date().toISOString(),
       ]
     )
+  },
+
+  async importPrivateKey(
+    name: string,
+    privateKey: string,
+    passphrase?: string,
+  ): Promise<SSHKey> {
+    const generated = await keyGenerator.importPrivateKey(name, privateKey)
+    await this.create({
+      ...generated.key,
+      private_key: generated.privateKey,
+      passphrase: passphrase || undefined,
+    })
+    return generated.key
   },
 
   async getById(id: string): Promise<(SSHKey & { private_key?: string; passphrase?: string }) | null> {
