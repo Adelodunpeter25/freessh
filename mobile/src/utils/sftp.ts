@@ -31,8 +31,12 @@ export function getSftpBreadcrumb(currentPath: string, connectionName: string | 
   const pathSegments = currentPath.split('/').filter(Boolean)
   const rootLabel = connectionName ?? 'Home'
   
-  // Build full breadcrumb path
-  const breadcrumbSegments = [rootLabel, ...pathSegments]
+  // Show only last 2 segments for deep paths
+  const displaySegments = pathSegments.length > 2 
+    ? ['...', ...pathSegments.slice(-2)]
+    : pathSegments
+  
+  const breadcrumbSegments = [rootLabel, ...displaySegments]
   const fullBreadcrumb = breadcrumbSegments.join(' > ')
   
   const canGoUp = currentPath !== '/'
