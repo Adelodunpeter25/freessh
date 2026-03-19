@@ -38,6 +38,20 @@ function getReconnectManager(client: SSHClientInstance): ReconnectManager {
   return manager
 }
 
+function isConnectionError(error: unknown): boolean {
+  if (!error) return false
+  const message = (error instanceof Error ? error.message : String(error)).toLowerCase()
+  return (
+    message.includes('not connected') ||
+    message.includes('connection lost') ||
+    message.includes('socket closed') ||
+    message.includes('broken pipe') ||
+    message.includes('eof') ||
+    message.includes('connection timed out') ||
+    message.includes('session is closed')
+  )
+}
+
 async function withReconnect<T>(
   label: string,
   client: SSHClientInstance,
@@ -46,7 +60,12 @@ async function withReconnect<T>(
   try {
     return await operation()
   } catch (error) {
-    console.error(`[SFTP] ${label} failed, attempting reconnect`, error)
+    if (!isConnectionError(error)) {
+      console.error(`[SFTP] ${label} failed with non-connection error`, error)
+      throw error
+    }
+
+    console.warn(`[SFTP] ${label} failed with connection error, attempting reconnect`, error)
     const reconnectManager = getReconnectManager(client)
     try {
       await client.connectSFTP()

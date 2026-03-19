@@ -283,14 +283,23 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     if (!active) throw new Error('No active SFTP session')
     if (!remotePaths.length) return []
 
-    const preferredAndroidDownloadsDir = 'file:///storage/emulated/0/Download/freessh-downloads/'
     const appDownloadsDir = FileSystem.documentDirectory
       ? `${FileSystem.documentDirectory}freessh-downloads/`
       : null
-    const baseDirectory =
-      localDirectory ??
-      (Platform.OS === 'android' ? preferredAndroidDownloadsDir : appDownloadsDir)
+    const preferredAndroidDownloadsDir = 'file:///storage/emulated/0/Download/freessh-downloads/'
+    
+    // We try the provided localDirectory first, then the public downloads directory (on Android), then the app's document directory
+    let baseDirectory: string | null | undefined = localDirectory
+    if (!baseDirectory) {
+      if (Platform.OS === 'android') {
+        baseDirectory = preferredAndroidDownloadsDir
+      } else {
+        baseDirectory = appDownloadsDir
+      }
+    }
+
     if (!baseDirectory) throw new Error('No writable local directory available')
+
     console.log('[SFTP] downloadEntries:start', {
       remotePaths,
       localDirectory,
@@ -301,6 +310,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     try {
       await FileSystem.makeDirectoryAsync(writableBaseDirectory, { intermediates: true })
     } catch (mkdirError) {
+      // If public downloads dir is not writable (common on Android), fall back to app internal storage
       if (Platform.OS === 'android' && appDownloadsDir && writableBaseDirectory !== appDownloadsDir) {
         console.warn('[SFTP] downloadEntries:public downloads unavailable, falling back to app storage', {
           requested: writableBaseDirectory,
@@ -313,16 +323,19 @@ export const useSftpStore = create<SftpState>((set, get) => ({
         throw mkdirError
       }
     }
+
     const downloadedPaths: string[] = []
     for (const remotePath of remotePaths) {
       const name = fileNameFromPath(remotePath) || `download-${Date.now()}`
       const localPath = `${writableBaseDirectory.replace(/\/+$/, '')}/${name}`
       const normalizedRemotePath = normalizePath(remotePath)
+      
       console.log('[SFTP] downloadEntries:item', {
         remotePath,
         normalizedRemotePath,
         localPath,
       })
+
       try {
         await sftpService.downloadFile(active.client, normalizedRemotePath, localPath)
         downloadedPaths.push(localPath)
@@ -333,6 +346,19 @@ export const useSftpStore = create<SftpState>((set, get) => ({
           localPath,
           error,
         })
+        // If we fail and we are using a public directory, try falling back to app storage for this specific file
+        if (writableBaseDirectory !== appDownloadsDir && appDownloadsDir) {
+          console.warn('[SFTP] downloadEntries:item failed, retrying in app storage', { localPath, appDownloadsDir })
+          const fallbackLocalPath = `${appDownloadsDir.replace(/\/+$/, '')}/${name}`
+          try {
+            await FileSystem.makeDirectoryAsync(appDownloadsDir, { intermediates: true })
+            await sftpService.downloadFile(active.client, normalizedRemotePath, fallbackLocalPath)
+            downloadedPaths.push(fallbackLocalPath)
+            continue // Succeeded in fallback, move to next file
+          } catch (fallbackError) {
+            console.error('[SFTP] downloadEntries:item fallback also failed', { fallbackLocalPath, fallbackError })
+          }
+        }
         throw error
       }
     }
@@ -350,12 +376,14 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       FileSystem.cacheDirectory ?? FileSystem.documentDirectory ?? null
     if (!stagingBase) throw new Error('No writable local directory available for upload staging')
     const stagingDirectory = `${stagingBase.replace(/\/+$/, '')}/sftp-upload-staging/`
+    
     console.log('[SFTP] uploadFiles:start', {
       localPaths,
       remoteDirectory,
       resolvedRemoteBase: remoteBase,
       stagingDirectory,
     })
+    
     await FileSystem.makeDirectoryAsync(stagingDirectory, { intermediates: true })
 
     for (const localPath of localPaths) {
@@ -364,14 +392,28 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       const safeName = rawName.replace(/[<>:"/\\|?*\u0000-\u001F]/g, '_')
       const remotePath = resolveRemotePath(remoteBase, safeName)
       let uploadSourcePath = localPath
-      if (localPath.startsWith('content://')) {
+      
+      // On mobile, files from external pickers (content://) or other app-private locations 
+      // often need to be staged in the app's sandbox before being passed to native modules.
+      const shouldStage = localPath.startsWith('content://') || localPath.startsWith('file:///storage/emulated/')
+      
+      if (shouldStage) {
         const stagedPath = `${stagingDirectory}${Date.now()}-${safeName}`
-        console.log('[SFTP] uploadFiles:staging content uri', { localPath, stagedPath })
-        await FileSystem.copyAsync({ from: localPath, to: stagedPath })
-        const stagedInfo = await FileSystem.getInfoAsync(stagedPath)
-        console.log('[SFTP] uploadFiles:staged file info', { stagedPath, stagedInfo })
-        uploadSourcePath = stagedPath
+        console.log('[SFTP] uploadFiles:staging file', { localPath, stagedPath })
+        try {
+          await FileSystem.copyAsync({ from: localPath, to: stagedPath })
+          const stagedInfo = await FileSystem.getInfoAsync(stagedPath)
+          if (!stagedInfo.exists) {
+            throw new Error(`Failed to stage file: ${localPath}`)
+          }
+          console.log('[SFTP] uploadFiles:staged file info', { stagedPath, stagedInfo })
+          uploadSourcePath = stagedPath
+        } catch (stageError) {
+          console.error('[SFTP] uploadFiles:staging failed', { localPath, stageError })
+          // If staging fails, we try the original path as a last resort
+        }
       }
+
       console.log('[SFTP] uploadFiles:item', {
         localPath,
         rawName,
@@ -379,8 +421,14 @@ export const useSftpStore = create<SftpState>((set, get) => ({
         uploadSourcePath,
         remotePath,
       })
+
       try {
         await sftpService.uploadFile(active.client, uploadSourcePath, remotePath)
+        
+        // Clean up staged file if we created one
+        if (uploadSourcePath !== localPath) {
+          await FileSystem.deleteAsync(uploadSourcePath, { idempotent: true })
+        }
       } catch (error) {
         console.error('[SFTP] uploadFiles:item failed', {
           localPath,
