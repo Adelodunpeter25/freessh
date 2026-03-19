@@ -38,7 +38,7 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
           </Text>
         </XStack>
       }
-      icon={<FileText size={20} color="#ffffff" />}
+      icon={<FileText size={20} color="#e2e8f0" />}
       onPress={onPress}
       action={onDelete && (
         <Pressable onPress={(e) => {

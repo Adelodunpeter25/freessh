@@ -73,8 +73,8 @@ export function ConnectionCard({
         subtitle={loading ? 'Connecting...' : `${connection.username}@${connection.host}`}
         icon={
           loading
-            ? <ActivityIndicator size="small" color={theme.accent.get()} />
-            : <Server size={20} color="#ffffff" />
+            ? <ActivityIndicator size="small" color="#cbd5e1" />
+            : <Server size={20} color="#e2e8f0" />
         }
         selected={selected}
         loading={loading}

@@ -142,7 +142,7 @@ export function SessionsScreen() {
 
   return (
     <TerminalScreen keyboardOffset={0}>
-      <YStack flex={1} gap="$0" pt={Math.max(insets.top, 8)}>
+      <YStack flex={1} gap="$0" pt={Math.max(insets.top, 12)}>
         <SessionTabs
           sessions={sessions}
           activeSessionId={activeSessionId}

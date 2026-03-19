@@ -67,7 +67,7 @@ export function SnippetCard({
               alignItems="center"
               justifyContent="center"
             >
-              <Braces size={20} color="#ffffff" />
+              <Braces size={20} color="#e2e8f0" />
             </View>
 
             {/* Content */}
