@@ -31,11 +31,15 @@ export function getSftpBreadcrumb(currentPath: string, connectionName: string | 
   const pathSegments = currentPath.split('/').filter(Boolean)
   const rootLabel = connectionName ?? 'Home'
 
+  const compactTail =
+    pathSegments.length === 0
+      ? ''
+      : `/${(pathSegments.length <= 2 ? pathSegments : pathSegments.slice(-2)).join('/')}`
+
   const clickablePaths = [{ segment: rootLabel, path: '/' }]
-  pathSegments.forEach((segment, index) => {
-    const path = `/${pathSegments.slice(0, index + 1).join('/')}`
-    clickablePaths.push({ segment, path })
-  })
+  if (compactTail) {
+    clickablePaths.push({ segment: compactTail, path: currentPath })
+  }
 
   const fullBreadcrumb = clickablePaths.map((item) => item.segment).join(' > ')
   const canGoUp = currentPath !== '/'
