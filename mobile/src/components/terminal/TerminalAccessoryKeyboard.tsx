@@ -185,7 +185,7 @@ export function TerminalAccessoryKeyboard({
 
       {showKeyboard ? (
         <YStack
-          height={270 + insets.bottom}
+          height={280 + insets.bottom}
           borderTopWidth={1}
           borderColor="$borderColor"
           backgroundColor="$background"

@@ -17,6 +17,24 @@ export type TerminalActionId =
   | "arrowDown"
   | "arrowLeft"
   | "arrowRight"
+  | "ctrlA"
+  | "ctrlB"
+  | "ctrlC"
+  | "ctrlD"
+  | "ctrlE"
+  | "ctrlF"
+  | "ctrlK"
+  | "ctrlL"
+  | "ctrlN"
+  | "ctrlP"
+  | "ctrlR"
+  | "ctrlT"
+  | "ctrlU"
+  | "ctrlW"
+  | "ctrlY"
+  | "altB"
+  | "altD"
+  | "altF"
   | "clear"
   | "searchHistory"
   | "interrupt"
@@ -153,6 +171,69 @@ export const TERMINAL_ACTIONS: Record<
     sequence: "\x0c",
     description: "Ctrl+L clear screen",
   },
+  ctrlA: {
+    id: "ctrlA",
+    label: "Ctrl+A",
+    sequence: "\x01",
+    description: "Move to line start",
+  },
+  ctrlB: {
+    id: "ctrlB",
+    label: "Ctrl+B",
+    sequence: "\x02",
+    description: "Move backward one char",
+  },
+  ctrlC: {
+    id: "ctrlC",
+    label: "Ctrl+C",
+    sequence: "\x03",
+    description: "Send SIGINT",
+    aliases: ["interrupt"],
+  },
+  ctrlD: {
+    id: "ctrlD",
+    label: "Ctrl+D",
+    sequence: "\x04",
+    description: "Send EOF",
+    aliases: ["eof"],
+  },
+  ctrlE: {
+    id: "ctrlE",
+    label: "Ctrl+E",
+    sequence: "\x05",
+    description: "Move to line end",
+  },
+  ctrlF: {
+    id: "ctrlF",
+    label: "Ctrl+F",
+    sequence: "\x06",
+    description: "Move forward one char",
+  },
+  ctrlK: {
+    id: "ctrlK",
+    label: "Ctrl+K",
+    sequence: "\x0b",
+    description: "Kill to line end",
+  },
+  ctrlL: {
+    id: "ctrlL",
+    label: "Ctrl+L",
+    sequence: "\x0c",
+    description: "Clear screen",
+    aliases: ["clear"],
+  },
+  ctrlN: {
+    id: "ctrlN",
+    label: "Ctrl+N",
+    sequence: "\x0e",
+    description: "Next history entry",
+  },
+  ctrlP: {
+    id: "ctrlP",
+    label: "Ctrl+P",
+    sequence: "\x10",
+    description: "Previous history entry",
+  },
   searchHistory: {
     id: "searchHistory",
     label: "Ctrl+R",
@@ -160,17 +241,68 @@ export const TERMINAL_ACTIONS: Record<
     description: "Reverse history search",
     aliases: ["search", "ctrlR"],
   },
+  ctrlR: {
+    id: "ctrlR",
+    label: "Ctrl+R",
+    sequence: "\x12",
+    description: "Reverse history search",
+    aliases: ["searchHistory"],
+  },
+  ctrlT: {
+    id: "ctrlT",
+    label: "Ctrl+T",
+    sequence: "\x14",
+    description: "Transpose chars",
+  },
+  ctrlU: {
+    id: "ctrlU",
+    label: "Ctrl+U",
+    sequence: "\x15",
+    description: "Kill to line start",
+  },
+  ctrlW: {
+    id: "ctrlW",
+    label: "Ctrl+W",
+    sequence: "\x17",
+    description: "Delete previous word",
+  },
+  ctrlY: {
+    id: "ctrlY",
+    label: "Ctrl+Y",
+    sequence: "\x19",
+    description: "Yank text",
+  },
+  altB: {
+    id: "altB",
+    label: "Alt+B",
+    sequence: "\x1bb",
+    description: "Move backward one word",
+  },
+  altD: {
+    id: "altD",
+    label: "Alt+D",
+    sequence: "\x1bd",
+    description: "Delete next word",
+  },
+  altF: {
+    id: "altF",
+    label: "Alt+F",
+    sequence: "\x1bf",
+    description: "Move forward one word",
+  },
   interrupt: {
     id: "interrupt",
     label: "Ctrl+C",
     sequence: "\x03",
     description: "Send SIGINT",
+    aliases: ["ctrlC"],
   },
   eof: {
     id: "eof",
     label: "Ctrl+D",
     sequence: "\x04",
     description: "Send EOF",
+    aliases: ["ctrlD"],
   },
   suspend: {
     id: "suspend",
