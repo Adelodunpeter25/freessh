@@ -64,18 +64,18 @@ export function SessionTabs({
                     borderRadius={9}
                     alignItems="center"
                     gap="$2"
-                    backgroundColor={isActive ? "#2f3239" : "#1d2026"}
+                    backgroundColor={isDark ? (isActive ? "#2f3239" : "#1d2026") : (isActive ? "#d6e0ec" : "#e8eff7")}
                     borderWidth={1}
-                    borderColor={isActive ? "#50545f" : "#2c313a"}
+                    borderColor={isDark ? (isActive ? "#50545f" : "#2c313a") : (isActive ? "#b7c6d8" : "#d2ddea")}
                   >
                     <Monitor
                       size={14}
-                      color={isActive ? "#f8fafc" : "#c9d0dd"}
+                      color={isDark ? (isActive ? "#f8fafc" : "#c9d0dd") : (isActive ? "#1f2937" : "#475569")}
                     />
                     <Text
                       flex={1}
                       numberOfLines={1}
-                      color={isActive ? "#f8fafc" : "#dbe2ef"}
+                      color={isDark ? (isActive ? "#f8fafc" : "#dbe2ef") : (isActive ? "#0f172a" : "#334155")}
                       fontSize={12}
                       fontWeight="500"
                     >
@@ -88,7 +88,7 @@ export function SessionTabs({
                         onClose(session.id);
                       }}
                     >
-                      <X size={14} color={isActive ? "#f8fafc" : "#a8b2c2"} />
+                      <X size={14} color={isDark ? (isActive ? "#f8fafc" : "#a8b2c2") : (isActive ? "#0f172a" : "#64748b")} />
                     </Pressable>
                   </XStack>
                 </Pressable>

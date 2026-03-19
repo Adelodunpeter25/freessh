@@ -11,9 +11,9 @@ export const Card = styled(YStack, {
   borderColor: '$borderColor',
   shadowColor: '$shadowColor',
   shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.05,
-  shadowRadius: 4,
-  elevation: 2,
+  shadowOpacity: 0.03,
+  shadowRadius: 3,
+  elevation: 1,
 })
 
 type BaseCardProps = {
@@ -43,7 +43,7 @@ export function BaseCard({
       <Card
         borderColor={selected ? '$accent' : '$borderColor'}
         borderWidth={selected ? 2 : 1}
-        elevation={selected ? 4 : 2}
+        elevation={selected ? 3 : 1}
       >
         <XStack gap="$3" alignItems="center">
           {/* Icon Container */}

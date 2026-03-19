@@ -70,7 +70,7 @@ export function ConnectionCard({
     >
       <BaseCard
         title={connection.name}
-        subtitle={loading ? 'Connecting...' : `${connection.username}@${connection.host}`}
+        subtitle={loading ? 'Connecting...' : `${connection.username}, ${connection.host}`}
         icon={
           loading
             ? <ActivityIndicator size="small" color="#cbd5e1" />

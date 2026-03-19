@@ -1,5 +1,6 @@
 import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native'
 import { YStack } from 'tamagui'
+import { useThemeStore } from '@/stores'
 
 type ScreenProps = {
   children: React.ReactNode
@@ -16,6 +17,9 @@ export function Screen({
   keyboardAvoiding = false,
   keyboardOffset = 0,
 }: ScreenProps) {
+  const theme = useThemeStore((state) => state.theme)
+  const screenBackground = theme === 'dark' ? '#141a22' : '#f7fafd'
+
   const content = (
     <ScrollView
       style={{ flex: 1 }}
@@ -29,14 +33,14 @@ export function Screen({
 
   if (!keyboardAvoiding) {
     return (
-      <YStack f={1} bg="$background">
+      <YStack f={1} backgroundColor={screenBackground}>
         {content}
       </YStack>
     )
   }
 
   return (
-    <YStack f={1} bg="$background">
+    <YStack f={1} backgroundColor={screenBackground}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
