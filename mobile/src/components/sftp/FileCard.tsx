@@ -46,7 +46,7 @@ export function FileCard({ file, onPress, onLongPress, selected = false }: FileC
               justifyContent="center"
               backgroundColor="rgba(234, 88, 12, 0.9)"
             >
-              <Check size={13} color="#ffffff" />
+              <Check size={18} color="#ffffff" />
             </XStack>
           ) : (
             <XStack
