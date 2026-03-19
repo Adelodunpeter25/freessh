@@ -40,14 +40,8 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
     <Menu
       renderer={renderers.Popover}
       rendererProps={{
-        placement: 'right',
+        placement: 'auto',
         preferredPlacement: 'right',
-        anchorStyle: {
-          opacity: 0,
-          transform: [{ scale: 0 }],
-          elevation: 0,
-          backgroundColor: 'transparent',
-        },
       }}
     >
       <MenuTrigger
