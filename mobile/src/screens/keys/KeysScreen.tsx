@@ -49,6 +49,17 @@ export function KeysScreen() {
   const showEmpty = query.length > 0 && isEmpty
   const isActuallyEmpty = keys.length === 0
 
+  const navigateFromAddSheet = useCallback(
+    (screen: keyof ConnectionsStackParamList, params?: object) => {
+      setShowAddSheet(false)
+      setTimeout(() => {
+        // @ts-ignore react-navigation param typing is strict here
+        navigation.navigate(screen, params ?? {})
+      }, 180)
+    },
+    [navigation],
+  )
+
   const resetExportFlow = useCallback(() => {
     setExportConnection(null)
     setExportPassword('')
@@ -161,8 +172,7 @@ export function KeysScreen() {
               subTitle="Generate a new SSH key pair"
               icon={<Plus size={20} />}
               onPress={() => {
-                setShowAddSheet(false)
-                navigation.navigate('KeyForm', {})
+                navigateFromAddSheet('KeyForm')
               }}
             />
             <ListItem
@@ -172,8 +182,7 @@ export function KeysScreen() {
               subTitle="Paste an existing private key"
               icon={<Upload size={20} />}
               onPress={() => {
-                setShowAddSheet(false)
-                navigation.navigate('ImportKey')
+                navigateFromAddSheet('ImportKey')
               }}
             />
           </YStack>

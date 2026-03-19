@@ -47,6 +47,12 @@ export function KeyFormScreen({ route, navigation }: Props) {
       />
       <Screen keyboardAvoiding keyboardOffset={48}>
         <YStack gap="$4">
+          {isEdit && (
+            <Text fontSize={13} color="$placeholderColor">
+              Only key name and passphrase can be edited.
+            </Text>
+          )}
+
           <YStack gap="$2">
             <XStack ai="center" gap="$1">
               <Text fontSize={13} fontWeight="600" color="$color">Name</Text>
@@ -61,28 +67,30 @@ export function KeyFormScreen({ route, navigation }: Props) {
             {errors.name && <Text fontSize={12} color="$red10">{errors.name}</Text>}
           </YStack>
 
-          <Select
-            label={isEdit ? 'Key Type (N/A)' : 'Key Type'}
-            value={formData.type}
-            onValueChange={(value) => updateField('type', value)}
-            disabled={isEdit}
-            options={[
-              { label: 'Ed25519 (Recommended)', value: 'ed25519' },
-              { label: 'RSA', value: 'rsa' }
-            ]}
-          />
+          {!isEdit && (
+            <>
+              <Select
+                label="Key Type"
+                value={formData.type}
+                onValueChange={(value) => updateField('type', value)}
+                options={[
+                  { label: 'Ed25519 (Recommended)', value: 'ed25519' },
+                  { label: 'RSA', value: 'rsa' }
+                ]}
+              />
 
-          {formData.type === 'rsa' && (
-            <Select
-              label={isEdit ? 'Key Size (N/A)' : 'Key Size'}
-              value={formData.bits?.toString() || '2048'}
-              onValueChange={(value) => updateField('bits', parseInt(value))}
-              disabled={isEdit}
-              options={[
-                { label: '2048 bits', value: '2048' },
-                { label: '4096 bits', value: '4096' }
-              ]}
-            />
+              {formData.type === 'rsa' && (
+                <Select
+                  label="Key Size"
+                  value={formData.bits?.toString() || '2048'}
+                  onValueChange={(value) => updateField('bits', parseInt(value))}
+                  options={[
+                    { label: '2048 bits', value: '2048' },
+                    { label: '4096 bits', value: '4096' }
+                  ]}
+                />
+              )}
+            </>
           )}
 
           <YStack gap="$2">

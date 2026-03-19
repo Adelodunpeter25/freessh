@@ -95,6 +95,17 @@ export function ConnectionsScreen() {
     isActuallyEmpty: connections.length === 0 && groups.length === 0
   }), [groups.length, query.length, ungroupedConnections.length, isEmpty, connections.length])
 
+  const navigateFromAddSheet = useCallback(
+    (screen: keyof ConnectionsStackParamList, params?: object) => {
+      setShowAddSheet(false)
+      setTimeout(() => {
+        // @ts-ignore react-navigation param typing is strict here
+        navigation.navigate(screen, params ?? {})
+      }, 180)
+    },
+    [navigation],
+  )
+
   return (
     <>
       <Screen
@@ -215,8 +226,7 @@ export function ConnectionsScreen() {
               subTitle="Add a new SSH host"
               icon={<Server size={20} />}
               onPress={() => {
-                setShowAddSheet(false)
-                navigation.navigate('ConnectionForm', {})
+                navigateFromAddSheet('ConnectionForm')
               }}
             />
             <ListItem
@@ -226,8 +236,7 @@ export function ConnectionsScreen() {
               subTitle="Organize your hosts"
               icon={<FolderPlus size={20} />}
               onPress={() => {
-                setShowAddSheet(false)
-                navigation.navigate('GroupForm', {})
+                navigateFromAddSheet('GroupForm')
               }}
             />
           </YStack>
