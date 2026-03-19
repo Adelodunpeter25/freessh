@@ -9,6 +9,7 @@ All notable changes to this project are documented in this file.
 - Improved Monaco editor theming to match app theme.
 - JSONC and Fish support in the built-in editor.
 - Migrated backend storage from JSON files to SQLite with one-time import.
+- Command palette shows the last 3 recent connections.
 
 ### Fixes
 - Correct group connection counts in FreeSSH format exports.
