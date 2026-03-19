@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Dialog, Text, XStack, YStack } from 'tamagui'
 
-import { Button, Input } from '@/components'
+import { Button } from '@/components/common/Button'
+import { Input } from '@/components/common/Input'
 
 type VariableInputDialogProps = {
   open: boolean
@@ -90,4 +91,3 @@ export function VariableInputDialog({
     </Dialog>
   )
 }
-
