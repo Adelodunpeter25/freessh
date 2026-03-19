@@ -55,6 +55,9 @@ func (m *Manager) Rename(id, newName string) error {
 	}
 
 	// Update all connections with this group name
+	if m.connectionStorage == nil {
+		return fmt.Errorf("connection storage unavailable")
+	}
 	return m.connectionStorage.UpdateGroupName(oldName, newName)
 }
 
@@ -65,6 +68,9 @@ func (m *Manager) Delete(id string) error {
 	}
 
 	// Remove group from all connections
+	if m.connectionStorage == nil {
+		return fmt.Errorf("connection storage unavailable")
+	}
 	if err := m.connectionStorage.RemoveGroup(group.Name); err != nil {
 		return err
 	}
@@ -78,7 +84,11 @@ func (m *Manager) Get(id string) (*models.Group, error) {
 
 func (m *Manager) List() ([]models.Group, error) {
 	groups := m.groupStorage.List()
-	
+
+	if m.connectionStorage == nil {
+		return groups, nil
+	}
+
 	// Get all connections
 	connections := m.connectionStorage.List()
 

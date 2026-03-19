@@ -1,125 +1,163 @@
 package storage
 
 import (
+	"database/sql"
+	"fmt"
+	"freessh-backend/internal/db"
 	"freessh-backend/internal/models"
 	"freessh-backend/internal/utils"
-	"sync"
 )
 
 type HistoryStorage struct {
-	manager *Manager
-	entries []models.HistoryEntry
-	mu      sync.RWMutex
+	db *sql.DB
 }
 
 func NewHistoryStorage() (*HistoryStorage, error) {
-	manager, err := NewManager("history.json")
+	database, err := db.Open()
 	if err != nil {
 		return nil, err
 	}
 
 	storage := &HistoryStorage{
-		manager: manager,
-		entries: make([]models.HistoryEntry, 0),
+		db: database,
 	}
 
-	if err := storage.load(); err != nil {
+	if err := storage.migrateFromJSON(); err != nil {
 		return nil, err
 	}
 
 	return storage, nil
 }
 
-func (s *HistoryStorage) load() error {
-	var entries []models.HistoryEntry
-	if err := s.manager.Load(&entries); err != nil {
-		return err
-	}
-
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.entries = entries
-	return nil
-}
-
-func (s *HistoryStorage) save() error {
-	s.mu.RLock()
-	entries := append([]models.HistoryEntry(nil), s.entries...)
-	s.mu.RUnlock()
-	return s.manager.Save(entries)
-}
-
-func (s *HistoryStorage) saveSnapshot(entries []models.HistoryEntry) error {
-	return s.manager.Save(entries)
-}
-
 func (s *HistoryStorage) List() []models.HistoryEntry {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	rows, err := s.db.Query(`
+		SELECT id, command FROM history ORDER BY rowid DESC
+	`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
 
-	// Return copy in reverse order (most recent first)
-	result := make([]models.HistoryEntry, len(s.entries))
-	for i, entry := range s.entries {
-		result[len(s.entries)-1-i] = entry
+	entries := make([]models.HistoryEntry, 0)
+	for rows.Next() {
+		var entry models.HistoryEntry
+		if err := rows.Scan(&entry.ID, &entry.Command); err != nil {
+			continue
+		}
+		entries = append(entries, entry)
 	}
 
-	return result
+	return entries
 }
 
 func (s *HistoryStorage) Add(entry models.HistoryEntry) (bool, error) {
-	s.mu.Lock()
-
 	normalized := utils.NormalizeHistoryCommand(entry.Command)
 	if normalized == "" {
-		s.mu.Unlock()
 		return false, nil
 	}
 	entry.Command = normalized
 
-	// Skip if duplicate of last entry
-	if len(s.entries) > 0 && utils.NormalizeHistoryCommand(s.entries[len(s.entries)-1].Command) == normalized {
-		s.mu.Unlock()
+	var lastCommand sql.NullString
+	row := s.db.QueryRow(`SELECT command FROM history ORDER BY rowid DESC LIMIT 1`)
+	_ = row.Scan(&lastCommand)
+	if lastCommand.Valid && utils.NormalizeHistoryCommand(lastCommand.String) == normalized {
 		return false, nil
 	}
 
-	s.entries = append(s.entries, entry)
-
-	// Keep only last 200 entries
-	if len(s.entries) > 200 {
-		s.entries = s.entries[len(s.entries)-200:]
+	_, err := s.db.Exec(`INSERT INTO history (id, command, connection_id) VALUES (?, ?, ?)`, entry.ID, entry.Command, nil)
+	if err != nil {
+		return false, fmt.Errorf("failed to insert history: %w", err)
 	}
-	snapshot := append([]models.HistoryEntry(nil), s.entries...)
-	s.mu.Unlock()
 
-	// Save asynchronously to avoid blocking terminal input
-	go s.saveSnapshot(snapshot)
+	if err := s.trimHistory(); err != nil {
+		return true, err
+	}
 
 	return true, nil
 }
 
 func (s *HistoryStorage) Clear() error {
-	s.mu.Lock()
-	s.entries = make([]models.HistoryEntry, 0)
-	snapshot := append([]models.HistoryEntry(nil), s.entries...)
-	s.mu.Unlock()
-	return s.saveSnapshot(snapshot)
+	_, err := s.db.Exec(`DELETE FROM history`)
+	if err != nil {
+		return fmt.Errorf("failed to clear history: %w", err)
+	}
+	return nil
 }
 
 func (s *HistoryStorage) GetRecent(limit int) []models.HistoryEntry {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
-	if limit <= 0 || limit > len(s.entries) {
-		limit = len(s.entries)
+	if limit <= 0 {
+		return nil
 	}
 
-	// Return last N entries in reverse order (most recent first)
-	result := make([]models.HistoryEntry, limit)
-	start := len(s.entries) - limit
-	for i := 0; i < limit; i++ {
-		result[i] = s.entries[start+limit-1-i]
+	rows, err := s.db.Query(`
+		SELECT id, command FROM history ORDER BY rowid DESC LIMIT ?
+	`, limit)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+
+	entries := make([]models.HistoryEntry, 0)
+	for rows.Next() {
+		var entry models.HistoryEntry
+		if err := rows.Scan(&entry.ID, &entry.Command); err != nil {
+			continue
+		}
+		entries = append(entries, entry)
 	}
 
-	return result
+	return entries
+}
+
+func (s *HistoryStorage) trimHistory() error {
+	row := s.db.QueryRow(`SELECT COUNT(*) FROM history`)
+	var count int
+	if err := row.Scan(&count); err != nil {
+		return err
+	}
+	if count <= 200 {
+		return nil
+	}
+	excess := count - 200
+	_, err := s.db.Exec(`
+		DELETE FROM history WHERE rowid IN (
+			SELECT rowid FROM history ORDER BY rowid ASC LIMIT ?
+		)
+	`, excess)
+	return err
+}
+
+func (s *HistoryStorage) migrateFromJSON() error {
+	count, err := s.countRows()
+	if err != nil || count > 0 {
+		return err
+	}
+
+	manager, err := NewManager("history.json")
+	if err != nil || !manager.Exists() {
+		return err
+	}
+
+	var entries []models.HistoryEntry
+	if err := manager.Load(&entries); err != nil {
+		return err
+	}
+
+	for _, entry := range entries {
+		if entry.ID == "" {
+			continue
+		}
+		_, _ = s.db.Exec(`INSERT INTO history (id, command, connection_id) VALUES (?, ?, ?)`, entry.ID, entry.Command, nil)
+	}
+
+	return s.trimHistory()
+}
+
+func (s *HistoryStorage) countRows() (int, error) {
+	row := s.db.QueryRow(`SELECT COUNT(*) FROM history`)
+	var count int
+	if err := row.Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
 }

@@ -1,102 +1,118 @@
 package storage
 
 import (
+	"database/sql"
+	"encoding/json"
 	"fmt"
+	"freessh-backend/internal/db"
 	"freessh-backend/internal/models"
-	"sync"
 
 	"github.com/google/uuid"
 )
 
 type ConnectionStorage struct {
-	manager     *Manager
-	connections map[string]models.ConnectionConfig
-	mu          sync.RWMutex
+	db *sql.DB
 }
 
 func NewConnectionStorage() (*ConnectionStorage, error) {
-	manager, err := NewManager("connections.json")
+	database, err := db.Open()
 	if err != nil {
 		return nil, err
 	}
 
 	storage := &ConnectionStorage{
-		manager:     manager,
-		connections: make(map[string]models.ConnectionConfig),
+		db: database,
 	}
 
-	if err := storage.load(); err != nil {
+	if err := storage.migrateFromJSON(); err != nil {
 		return nil, err
 	}
 
 	return storage, nil
 }
 
-func (s *ConnectionStorage) load() error {
-	var connections []models.ConnectionConfig
-	if err := s.manager.Load(&connections); err != nil {
-		return err
+func (s *ConnectionStorage) Save(config models.ConnectionConfig) error {
+	if s == nil || s.db == nil {
+		return fmt.Errorf("connection storage unavailable")
+	}
+	if config.ID == "" {
+		config.ID = uuid.New().String()
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	config.Profile = models.NormalizeSessionProfile(config.Profile)
+	profileJSON := ""
+	if config.Profile != nil {
+		encoded, err := json.Marshal(config.Profile)
+		if err != nil {
+			return fmt.Errorf("failed to marshal profile: %w", err)
+		}
+		profileJSON = string(encoded)
+	}
 
-	for _, conn := range connections {
-		conn.Profile = models.NormalizeSessionProfile(conn.Profile)
-		s.connections[conn.ID] = conn
+	_, err := s.db.Exec(`
+		INSERT OR REPLACE INTO connections (
+			id, name, host, port, username, auth_method, private_key, passphrase, key_id, password, 'group', profile
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	`,
+		config.ID,
+		config.Name,
+		config.Host,
+		config.Port,
+		config.Username,
+		string(config.AuthMethod),
+		nullIfEmpty(config.PrivateKey),
+		nullIfEmpty(config.Passphrase),
+		nullIfEmpty(config.KeyID),
+		nullIfEmpty(config.Password),
+		nullIfEmpty(config.Group),
+		nullIfEmpty(profileJSON),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to save connection: %w", err)
 	}
 
 	return nil
 }
 
-func (s *ConnectionStorage) save() error {
-	// Assumes caller already holds lock
-	connections := make([]models.ConnectionConfig, 0, len(s.connections))
-	for _, conn := range s.connections {
-		connections = append(connections, conn)
-	}
-
-	return s.manager.Save(connections)
-}
-
-func (s *ConnectionStorage) saveWithLock() error {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-	return s.save()
-}
-
-func (s *ConnectionStorage) Save(config models.ConnectionConfig) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if config.ID == "" {
-		config.ID = uuid.New().String()
-	}
-	config.Profile = models.NormalizeSessionProfile(config.Profile)
-
-	s.connections[config.ID] = config
-
-	return s.save()
-}
-
 func (s *ConnectionStorage) Get(id string) (*models.ConnectionConfig, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	if s == nil || s.db == nil {
+		return nil, fmt.Errorf("connection storage unavailable")
+	}
+	row := s.db.QueryRow(`
+		SELECT id, name, host, port, username, auth_method, private_key, passphrase, key_id, password, 'group', profile
+		FROM connections WHERE id = ?
+	`, id)
 
-	conn, exists := s.connections[id]
-	if !exists {
-		return nil, fmt.Errorf("connection not found: %s", id)
+	conn, err := scanConnection(row)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("connection not found: %s", id)
+		}
+		return nil, err
 	}
 
 	return &conn, nil
 }
 
 func (s *ConnectionStorage) List() []models.ConnectionConfig {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	if s == nil || s.db == nil {
+		return nil
+	}
+	rows, err := s.db.Query(`
+		SELECT id, name, host, port, username, auth_method, private_key, passphrase, key_id, password, 'group', profile
+		FROM connections
+	`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
 
-	connections := make([]models.ConnectionConfig, 0, len(s.connections))
-	for _, conn := range s.connections {
+	connections := make([]models.ConnectionConfig, 0)
+	for rows.Next() {
+		conn, err := scanConnection(rows)
+		if err != nil {
+			continue
+		}
 		connections = append(connections, conn)
 	}
 
@@ -104,60 +120,157 @@ func (s *ConnectionStorage) List() []models.ConnectionConfig {
 }
 
 func (s *ConnectionStorage) Delete(id string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if _, exists := s.connections[id]; !exists {
+	if s == nil || s.db == nil {
+		return fmt.Errorf("connection storage unavailable")
+	}
+	result, err := s.db.Exec(`DELETE FROM connections WHERE id = ?`, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete connection: %w", err)
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
 		return fmt.Errorf("connection not found: %s", id)
 	}
-
-	delete(s.connections, id)
-
-	return s.save()
+	return nil
 }
 
 func (s *ConnectionStorage) Update(config models.ConnectionConfig) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
+	if s == nil || s.db == nil {
+		return fmt.Errorf("connection storage unavailable")
+	}
 	if config.ID == "" {
 		return fmt.Errorf("connection ID is required")
 	}
 
-	if _, exists := s.connections[config.ID]; !exists {
-		return fmt.Errorf("connection not found: %s", config.ID)
+	_, err := s.Get(config.ID)
+	if err != nil {
+		return err
 	}
 
-	config.Profile = models.NormalizeSessionProfile(config.Profile)
-	s.connections[config.ID] = config
-
-	return s.save()
+	return s.Save(config)
 }
 
 func (s *ConnectionStorage) UpdateGroupName(oldName, newName string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	for id, conn := range s.connections {
-		if conn.Group == oldName {
-			conn.Group = newName
-			s.connections[id] = conn
-		}
+	if s == nil || s.db == nil {
+		return fmt.Errorf("connection storage unavailable")
 	}
-
-	return s.save()
+	_, err := s.db.Exec(`UPDATE connections SET 'group' = ? WHERE 'group' = ?`, newName, oldName)
+	if err != nil {
+		return fmt.Errorf("failed to update group name: %w", err)
+	}
+	return nil
 }
 
 func (s *ConnectionStorage) RemoveGroup(groupName string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	if s == nil || s.db == nil {
+		return fmt.Errorf("connection storage unavailable")
+	}
+	_, err := s.db.Exec(`UPDATE connections SET 'group' = NULL WHERE 'group' = ?`, groupName)
+	if err != nil {
+		return fmt.Errorf("failed to remove group: %w", err)
+	}
+	return nil
+}
 
-	for id, conn := range s.connections {
-		if conn.Group == groupName {
-			conn.Group = ""
-			s.connections[id] = conn
+func (s *ConnectionStorage) migrateFromJSON() error {
+	if s == nil || s.db == nil {
+		return nil
+	}
+	count, err := s.countRows()
+	if err != nil || count > 0 {
+		return err
+	}
+
+	manager, err := NewManager("connections.json")
+	if err != nil || !manager.Exists() {
+		return err
+	}
+
+	var connections []models.ConnectionConfig
+	if err := manager.Load(&connections); err != nil {
+		return err
+	}
+
+	for _, conn := range connections {
+		if err := s.Save(conn); err != nil {
+			return err
 		}
 	}
 
-	return s.save()
+	return nil
+}
+
+func (s *ConnectionStorage) countRows() (int, error) {
+	row := s.db.QueryRow(`SELECT COUNT(*) FROM connections`)
+	var count int
+	if err := row.Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func scanConnection(scanner interface {
+	Scan(dest ...any) error
+}) (models.ConnectionConfig, error) {
+	var (
+		id          string
+		name        string
+		host        string
+		port        int
+		username    string
+		authMethod  string
+		privateKey  sql.NullString
+		passphrase  sql.NullString
+		keyID       sql.NullString
+		password    sql.NullString
+		group       sql.NullString
+		profileJSON sql.NullString
+	)
+
+	if err := scanner.Scan(
+		&id,
+		&name,
+		&host,
+		&port,
+		&username,
+		&authMethod,
+		&privateKey,
+		&passphrase,
+		&keyID,
+		&password,
+		&group,
+		&profileJSON,
+	); err != nil {
+		return models.ConnectionConfig{}, err
+	}
+
+	var profile *models.SessionProfile
+	if profileJSON.Valid && profileJSON.String != "" {
+		var parsed models.SessionProfile
+		if err := json.Unmarshal([]byte(profileJSON.String), &parsed); err == nil {
+			profile = &parsed
+		}
+	}
+
+	config := models.ConnectionConfig{
+		ID:         id,
+		Name:       name,
+		Host:       host,
+		Port:       port,
+		Username:   username,
+		AuthMethod: models.AuthMethod(authMethod),
+		PrivateKey: privateKey.String,
+		KeyID:      keyID.String,
+		Group:      group.String,
+		Profile:    models.NormalizeSessionProfile(profile),
+	}
+
+	if passphrase.Valid {
+		config.Passphrase = passphrase.String
+	}
+	if password.Valid {
+		config.Password = password.String
+	}
+
+	return config, nil
 }

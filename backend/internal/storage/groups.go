@@ -1,103 +1,99 @@
 package storage
 
 import (
+	"database/sql"
 	"fmt"
+	"freessh-backend/internal/db"
 	"freessh-backend/internal/models"
-	"sync"
+	"time"
 )
 
 type GroupStorage struct {
-	manager *Manager
-	groups  map[string]models.Group
-	mu      sync.RWMutex
+	db *sql.DB
 }
 
 func NewGroupStorage() (*GroupStorage, error) {
-	manager, err := NewManager("groups.json")
+	database, err := db.Open()
 	if err != nil {
 		return nil, err
 	}
 
 	storage := &GroupStorage{
-		manager: manager,
-		groups:  make(map[string]models.Group),
+		db: database,
 	}
 
-	if err := storage.load(); err != nil {
+	if err := storage.migrateFromJSON(); err != nil {
 		return nil, err
 	}
 
 	return storage, nil
 }
 
-func (s *GroupStorage) load() error {
-	var groups []models.Group
-	if err := s.manager.Load(&groups); err != nil {
-		return err
+func (s *GroupStorage) Create(group models.Group) error {
+	if group.CreatedAt.IsZero() {
+		group.CreatedAt = time.Now()
 	}
 
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	for _, group := range groups {
-		s.groups[group.ID] = group
+	_, err := s.db.Exec(`
+		INSERT INTO groups (id, name, connection_count, created_at)
+		VALUES (?, ?, ?, ?)
+	`, group.ID, group.Name, group.ConnectionCount, formatTime(group.CreatedAt))
+	if err != nil {
+		return fmt.Errorf("failed to create group: %w", err)
 	}
-
 	return nil
 }
 
-func (s *GroupStorage) save() error {
-	groups := make([]models.Group, 0, len(s.groups))
-	for _, group := range s.groups {
-		groups = append(groups, group)
-	}
-
-	return s.manager.Save(groups)
-}
-
-func (s *GroupStorage) Create(group models.Group) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if _, exists := s.groups[group.ID]; exists {
-		return fmt.Errorf("group already exists: %s", group.ID)
-	}
-
-	s.groups[group.ID] = group
-	return s.save()
-}
-
 func (s *GroupStorage) Get(id string) (*models.Group, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	row := s.db.QueryRow(`
+		SELECT id, name, connection_count, created_at
+		FROM groups WHERE id = ?
+	`, id)
 
-	group, exists := s.groups[id]
-	if !exists {
-		return nil, fmt.Errorf("group not found: %s", id)
+	group, err := scanGroup(row)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("group not found: %s", id)
+		}
+		return nil, err
 	}
 
 	return &group, nil
 }
 
 func (s *GroupStorage) GetByName(name string) (*models.Group, error) {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	row := s.db.QueryRow(`
+		SELECT id, name, connection_count, created_at
+		FROM groups WHERE name = ?
+	`, name)
 
-	for _, group := range s.groups {
-		if group.Name == name {
-			return &group, nil
+	group, err := scanGroup(row)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("group not found: %s", name)
 		}
+		return nil, err
 	}
 
-	return nil, fmt.Errorf("group not found: %s", name)
+	return &group, nil
 }
 
 func (s *GroupStorage) List() []models.Group {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	rows, err := s.db.Query(`
+		SELECT id, name, connection_count, created_at
+		FROM groups
+	`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
 
-	groups := make([]models.Group, 0, len(s.groups))
-	for _, group := range s.groups {
+	groups := make([]models.Group, 0)
+	for rows.Next() {
+		group, err := scanGroup(rows)
+		if err != nil {
+			continue
+		}
 		groups = append(groups, group)
 	}
 
@@ -105,25 +101,86 @@ func (s *GroupStorage) List() []models.Group {
 }
 
 func (s *GroupStorage) Update(group models.Group) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if _, exists := s.groups[group.ID]; !exists {
+	result, err := s.db.Exec(`
+		UPDATE groups SET name = ?, connection_count = ?, created_at = ?
+		WHERE id = ?
+	`, group.Name, group.ConnectionCount, formatTime(group.CreatedAt), group.ID)
+	if err != nil {
+		return fmt.Errorf("failed to update group: %w", err)
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
 		return fmt.Errorf("group not found: %s", group.ID)
 	}
-
-	s.groups[group.ID] = group
-	return s.save()
+	return nil
 }
 
 func (s *GroupStorage) Delete(id string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if _, exists := s.groups[id]; !exists {
+	result, err := s.db.Exec(`DELETE FROM groups WHERE id = ?`, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete group: %w", err)
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
 		return fmt.Errorf("group not found: %s", id)
 	}
+	return nil
+}
 
-	delete(s.groups, id)
-	return s.save()
+func (s *GroupStorage) migrateFromJSON() error {
+	count, err := s.countRows()
+	if err != nil || count > 0 {
+		return err
+	}
+
+	manager, err := NewManager("groups.json")
+	if err != nil || !manager.Exists() {
+		return err
+	}
+
+	var groups []models.Group
+	if err := manager.Load(&groups); err != nil {
+		return err
+	}
+
+	for _, group := range groups {
+		if err := s.Create(group); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *GroupStorage) countRows() (int, error) {
+	row := s.db.QueryRow(`SELECT COUNT(*) FROM groups`)
+	var count int
+	if err := row.Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func scanGroup(scanner interface {
+	Scan(dest ...any) error
+}) (models.Group, error) {
+	var (
+		id              string
+		name            string
+		connectionCount int
+		createdAt       sql.NullString
+	)
+
+	if err := scanner.Scan(&id, &name, &connectionCount, &createdAt); err != nil {
+		return models.Group{}, err
+	}
+
+	parsedCreatedAt, _ := parseTime(createdAt.String)
+
+	return models.Group{
+		ID:              id,
+		Name:            name,
+		ConnectionCount: connectionCount,
+		CreatedAt:       parsedCreatedAt,
+	}, nil
 }

@@ -1,156 +1,164 @@
 package storage
 
 import (
-	"encoding/json"
+	"database/sql"
 	"fmt"
+	"freessh-backend/internal/db"
 	"freessh-backend/internal/models"
-	"os"
-	"path/filepath"
-	"sync"
 
 	"github.com/google/uuid"
 )
 
 type KnownHostStorage struct {
-	filePath string
-	hosts    map[string]*models.KnownHost
-	mu       sync.RWMutex
+	db *sql.DB
 }
 
 func NewKnownHostStorage() (*KnownHostStorage, error) {
-	homeDir, err := os.UserHomeDir()
+	database, err := db.Open()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get home directory: %w", err)
+		return nil, err
 	}
 
-	freesshDir := filepath.Join(homeDir, ".freessh")
-	if err := os.MkdirAll(freesshDir, 0700); err != nil {
-		return nil, fmt.Errorf("failed to create .freessh directory: %w", err)
-	}
-
-	filePath := filepath.Join(freesshDir, "known_hosts.json")
 	storage := &KnownHostStorage{
-		filePath: filePath,
-		hosts:    make(map[string]*models.KnownHost),
+		db: database,
 	}
 
-	if err := storage.load(); err != nil {
+	if err := storage.migrateFromJSON(); err != nil {
 		return nil, err
 	}
 
 	return storage, nil
 }
 
-func (s *KnownHostStorage) load() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	data, err := os.ReadFile(s.filePath)
-	if err != nil {
-		if os.IsNotExist(err) {
-			return nil
-		}
-		return fmt.Errorf("failed to read known_hosts file: %w", err)
-	}
-
-	var hosts []*models.KnownHost
-	if err := json.Unmarshal(data, &hosts); err != nil {
-		return fmt.Errorf("failed to parse known_hosts: %w", err)
-	}
-
-	for _, host := range hosts {
-		s.hosts[host.ID] = host
-	}
-
-	return nil
-}
-
-func (s *KnownHostStorage) save() error {
-	hosts := make([]*models.KnownHost, 0, len(s.hosts))
-	for _, host := range s.hosts {
-		hosts = append(hosts, host)
-	}
-
-	data, err := json.MarshalIndent(hosts, "", "  ")
-	if err != nil {
-		return fmt.Errorf("failed to marshal known_hosts: %w", err)
-	}
-
-	if err := os.WriteFile(s.filePath, data, 0600); err != nil {
-		return fmt.Errorf("failed to write known_hosts file: %w", err)
-	}
-
-	return nil
-}
-
 func (s *KnownHostStorage) GetAll() []*models.KnownHost {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	rows, err := s.db.Query(`
+		SELECT id, hostname, port, fingerprint, publicKey
+		FROM known_hosts
+	`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
 
-	hosts := make([]*models.KnownHost, 0, len(s.hosts))
-	for _, host := range s.hosts {
+	hosts := make([]*models.KnownHost, 0)
+	for rows.Next() {
+		host, err := scanKnownHost(rows)
+		if err != nil {
+			continue
+		}
 		hosts = append(hosts, host)
 	}
 	return hosts
 }
 
 func (s *KnownHostStorage) Get(hostname string, port int) *models.KnownHost {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	row := s.db.QueryRow(`
+		SELECT id, hostname, port, fingerprint, publicKey
+		FROM known_hosts WHERE hostname = ? AND port = ?
+	`, hostname, port)
 
-	for _, host := range s.hosts {
-		if host.Hostname == hostname && host.Port == port {
-			return host
-		}
+	host, err := scanKnownHost(row)
+	if err != nil {
+		return nil
 	}
-	return nil
+	return host
 }
 
 func (s *KnownHostStorage) Add(host *models.KnownHost) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	if host.ID == "" {
 		host.ID = uuid.New().String()
 	}
 
-	s.hosts[host.ID] = host
-	return s.save()
+	_, err := s.db.Exec(`
+		INSERT INTO known_hosts (id, hostname, port, fingerprint, publicKey)
+		VALUES (?, ?, ?, ?, ?)
+	`, host.ID, host.Hostname, host.Port, host.Fingerprint, host.PublicKey)
+	if err != nil {
+		return fmt.Errorf("failed to add known host: %w", err)
+	}
+	return nil
 }
 
 func (s *KnownHostStorage) Update(host *models.KnownHost) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if _, exists := s.hosts[host.ID]; !exists {
+	result, err := s.db.Exec(`
+		UPDATE known_hosts
+		SET hostname = ?, port = ?, fingerprint = ?, publicKey = ?
+		WHERE id = ?
+	`, host.Hostname, host.Port, host.Fingerprint, host.PublicKey, host.ID)
+	if err != nil {
+		return fmt.Errorf("failed to update known host: %w", err)
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
 		return fmt.Errorf("host not found")
 	}
-
-	s.hosts[host.ID] = host
-	return s.save()
+	return nil
 }
 
 func (s *KnownHostStorage) Delete(id string) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if _, exists := s.hosts[id]; !exists {
+	result, err := s.db.Exec(`DELETE FROM known_hosts WHERE id = ?`, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete known host: %w", err)
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
 		return fmt.Errorf("host not found")
 	}
-
-	delete(s.hosts, id)
-	return s.save()
+	return nil
 }
 
 func (s *KnownHostStorage) DeleteByHostname(hostname string, port int) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	result, err := s.db.Exec(`DELETE FROM known_hosts WHERE hostname = ? AND port = ?`, hostname, port)
+	if err != nil {
+		return fmt.Errorf("failed to delete known host: %w", err)
+	}
+	rows, _ := result.RowsAffected()
+	if rows == 0 {
+		return fmt.Errorf("host not found")
+	}
+	return nil
+}
 
-	for id, host := range s.hosts {
-		if host.Hostname == hostname && host.Port == port {
-			delete(s.hosts, id)
-			return s.save()
+func (s *KnownHostStorage) migrateFromJSON() error {
+	count, err := s.countRows()
+	if err != nil || count > 0 {
+		return err
+	}
+
+	manager, err := NewManager("known_hosts.json")
+	if err != nil || !manager.Exists() {
+		return err
+	}
+
+	var hosts []*models.KnownHost
+	if err := manager.Load(&hosts); err != nil {
+		return err
+	}
+
+	for _, host := range hosts {
+		if err := s.Add(host); err != nil {
+			return err
 		}
 	}
-	return fmt.Errorf("host not found")
+
+	return nil
+}
+
+func (s *KnownHostStorage) countRows() (int, error) {
+	row := s.db.QueryRow(`SELECT COUNT(*) FROM known_hosts`)
+	var count int
+	if err := row.Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func scanKnownHost(scanner interface {
+	Scan(dest ...any) error
+}) (*models.KnownHost, error) {
+	host := &models.KnownHost{}
+	if err := scanner.Scan(&host.ID, &host.Hostname, &host.Port, &host.Fingerprint, &host.PublicKey); err != nil {
+		return nil, err
+	}
+	return host, nil
 }
