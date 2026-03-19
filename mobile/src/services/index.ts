@@ -1,6 +1,7 @@
 export * from './db/schema'
 export * from './crud'
 export * from './keygen/keyGenerator'
+export * from './terminal'
 export * from './ssh/sshService'
 export * from './ssh/webSocketService'
 export * from './sftp/sftpService'
