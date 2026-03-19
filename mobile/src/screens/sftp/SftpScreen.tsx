@@ -75,6 +75,13 @@ export function SftpScreen() {
   const handleCloseSession = useCallback((id: string) => {
     closeSession(id)
   }, [closeSession])
+  const handlePressRoot = useCallback(() => {
+    void listDirectory('/')
+  }, [listDirectory])
+  const handlePressCurrent = useCallback(() => {
+    if (!connected) return
+    void listDirectory(currentPath)
+  }, [connected, currentPath, listDirectory])
   const pinnedTabBarHeight = insets.top + 52
   const showSearchEmpty = connected && query.trim().length > 0 && filtered.length === 0
 
@@ -107,6 +114,8 @@ export function SftpScreen() {
           onClearQuery={clearQuery}
           onUpload={() => showSnackbar('Upload coming soon', 'info')}
           onMore={() => showSnackbar('More actions coming soon', 'info')}
+          onPressRoot={handlePressRoot}
+          onPressCurrent={handlePressCurrent}
         />
 
         {canGoUp ? (

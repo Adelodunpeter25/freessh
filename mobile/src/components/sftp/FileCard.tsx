@@ -1,6 +1,6 @@
 import { FileText } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { Text, XStack, YStack, useTheme } from 'tamagui'
+import { Text, XStack, YStack } from 'tamagui'
 import type { FileInfo } from '@/types'
 import { formatFileSize, formatMode, formatModifiedTime } from '@/utils/sftp'
 
@@ -10,8 +10,6 @@ type FileCardProps = {
 }
 
 export function FileCard({ file, onPress }: FileCardProps) {
-  const theme = useTheme()
-
   return (
     <Pressable
       onPress={onPress}
@@ -32,7 +30,16 @@ export function FileCard({ file, onPress }: FileCardProps) {
         backgroundColor="transparent"
       >
         <XStack alignItems="center" gap="$3" flex={1}>
-          <FileText size={18} color={theme.color.get()} />
+          <XStack
+            width={24}
+            height={24}
+            borderRadius={6}
+            alignItems="center"
+            justifyContent="center"
+            backgroundColor="$accent"
+          >
+            <FileText size={14} color="#ffffff" fill="#ffffff" />
+          </XStack>
           <YStack flex={1}>
             <Text color="$color" fontSize={14} fontWeight="600" numberOfLines={1}>
               {file.name}

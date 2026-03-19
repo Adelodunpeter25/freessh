@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react'
+import { Pressable } from 'react-native'
 import { ChevronRight, MoreVertical, Search, Upload, X } from 'lucide-react-native'
 import { Text, XStack, useTheme } from 'tamagui'
 import { IconButton, Input } from '@/components'
@@ -11,6 +12,8 @@ type SftpToolbarProps = {
   onClearQuery: () => void
   onUpload: () => void
   onMore: () => void
+  onPressRoot: () => void
+  onPressCurrent: () => void
 }
 
 export function SftpToolbar({
@@ -21,6 +24,8 @@ export function SftpToolbar({
   onClearQuery,
   onUpload,
   onMore,
+  onPressRoot,
+  onPressCurrent,
 }: SftpToolbarProps) {
   const theme = useTheme()
   const [searchOpen, setSearchOpen] = useState(false)
@@ -48,15 +53,19 @@ export function SftpToolbar({
       borderBottomColor="$borderColor"
     >
       <XStack ai="center" gap="$2" flex={1}>
-        <Text color="$placeholderColor" fontSize={12} numberOfLines={1}>
-          {rootLabel}
-        </Text>
+        <Pressable onPress={onPressRoot} hitSlop={8}>
+          <Text color="$placeholderColor" fontSize={12} numberOfLines={1}>
+            {rootLabel}
+          </Text>
+        </Pressable>
         {showSingleBreadcrumb ? null : (
           <>
             <ChevronRight size={14} color="#94a3b8" />
-            <Text color="$color" fontSize={12} fontWeight="600" numberOfLines={1}>
-              {lastLabel}
-            </Text>
+            <Pressable onPress={onPressCurrent} hitSlop={8}>
+              <Text color="$color" fontSize={12} fontWeight="600" numberOfLines={1}>
+                {lastLabel}
+              </Text>
+            </Pressable>
           </>
         )}
       </XStack>

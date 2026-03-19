@@ -1,6 +1,6 @@
 import { Folder } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { Text, XStack, YStack, useTheme } from 'tamagui'
+import { Text, XStack, YStack } from 'tamagui'
 import type { FileInfo } from '@/types'
 
 type FolderCardProps = {
@@ -9,8 +9,6 @@ type FolderCardProps = {
 }
 
 export function FolderCard({ folder, onPress }: FolderCardProps) {
-  const theme = useTheme()
-
   return (
     <Pressable
       onPress={onPress}
@@ -31,7 +29,16 @@ export function FolderCard({ folder, onPress }: FolderCardProps) {
         backgroundColor="transparent"
       >
         <XStack alignItems="center" gap="$3" flex={1}>
-          <Folder size={18} color={theme.color.get()} />
+          <XStack
+            width={24}
+            height={24}
+            borderRadius={6}
+            alignItems="center"
+            justifyContent="center"
+            backgroundColor="$accent"
+          >
+            <Folder size={14} color="#ffffff" fill="#ffffff" />
+          </XStack>
           <YStack flex={1}>
             <Text color="$color" fontSize={14} fontWeight="600" numberOfLines={1}>
               {folder.name}
