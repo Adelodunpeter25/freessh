@@ -44,10 +44,10 @@ export function HomeScreen() {
   const activeSession = sessions.find((session) => session.id === activeSessionId)
 
   const items: HubItem[] = [
+    { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Connections', count: connections.length },
     ...(activeSession
       ? [{ id: 'active_session', title: `Active session: ${activeSession.name}`, icon: Monitor, screen: 'Sessions' as const }]
       : []),
-    { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Connections', count: connections.length },
     { id: 'keychain', title: 'Keychain', icon: Key, screen: 'Keys', count: keys.length },
     { id: 'forwarding', title: 'Port forwarding', icon: ArrowRightLeft, screen: 'Main' }, // Placeholder
     { id: 'snippets', title: 'Snippets', icon: Code2, screen: 'Snippets', count: snippets.length },
@@ -90,14 +90,14 @@ export function HomeScreen() {
                     <Circle size={28} bg="$borderColor" opacity={0.5} ai="center" jc="center">
                       <item.icon size={15} color={t.color.get()} />
                     </Circle>
-                    <Text fontSize={14} fontWeight="600" color="$color">
+                    <Text fontSize={16} fontWeight="600" color="$color">
                       {item.title}
                     </Text>
                   </XStack>
 
                   <XStack ai="center" gap="$2.5">
                     {item.count !== undefined && (
-                      <Text fontSize={13} fontWeight="500" color="$placeholderColor">
+                      <Text fontSize={14} fontWeight="500" color="$placeholderColor">
                         {item.count}
                       </Text>
                     )}
