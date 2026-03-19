@@ -2,13 +2,17 @@ import { useEffect } from 'react'
 import { RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text, XStack, YStack } from 'tamagui'
+import { useNavigation } from '@react-navigation/native'
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { EmptyState, FileList, IconButton, Screen, SftpBreadcrumb } from '@/components'
+import { EmptyState, FileList, IconButton, Screen, SftpBreadcrumb, SftpTabBar } from '@/components'
 import { useSftpStore, useSnackbarStore } from '@/stores'
 import type { FileInfo } from '@/types'
+import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function SftpScreen() {
   const insets = useSafeAreaInsets()
+  const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const files = useSftpStore((state) => state.files)
   const currentPath = useSftpStore((state) => state.currentPath)
   const loading = useSftpStore((state) => state.loading)
@@ -55,6 +59,10 @@ export function SftpScreen() {
       }
     >
       <YStack gap="$0" flex={1} pt={insets.top}>
+        <SftpTabBar
+          title={connectionName ? `SFTP: ${connectionName}` : 'SFTP'}
+          onBackPress={() => navigation.goBack()}
+        />
         <SftpBreadcrumb
           rootLabel={rootLabel}
           lastLabel={lastLabel}

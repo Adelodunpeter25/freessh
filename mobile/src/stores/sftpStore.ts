@@ -31,6 +31,13 @@ type RawSftpEntry = {
   type?: string
 }
 
+type ParsedLongname = {
+  mode?: number
+  size?: number
+  modTime?: number
+  name?: string
+}
+
 type SftpState = {
   client: SSHClientInstance | null
   connectionName: string | null
@@ -80,18 +87,89 @@ function isDirectoryFromMode(mode: number): boolean {
   return (mode & 0o170000) === 0o040000
 }
 
+function modeStringToNumber(mode: string): number {
+  if (!mode || mode.length < 10) return 0
+  const perms = mode.slice(1, 10)
+  const chunks = [perms.slice(0, 3), perms.slice(3, 6), perms.slice(6, 9)]
+  const value = chunks.reduce((acc, part) => {
+    const bits =
+      (part[0] === 'r' ? 4 : 0) +
+      (part[1] === 'w' ? 2 : 0) +
+      (part[2] === 'x' || part[2] === 's' || part[2] === 't' ? 1 : 0)
+    return (acc << 3) + bits
+  }, 0)
+  const typeBit = mode[0] === 'd' ? 0o040000 : 0o100000
+  return typeBit | value
+}
+
+function parseLongname(longname: string): ParsedLongname {
+  const trimmed = longname.trim()
+  if (!trimmed) return {}
+  const parts = trimmed.split(/\s+/)
+  if (parts.length < 6) return {}
+
+  const mode = modeStringToNumber(parts[0] ?? '')
+  const size = toNumber(parts[4], 0)
+
+  // Common formats: "Mar 3 14:22" or "Mar 3 2025"
+  const month = parts[5]
+  const day = parts[6]
+  const timeOrYear = parts[7]
+  let modTime = 0
+  if (month && day && timeOrYear) {
+    const parsedDate = Date.parse(`${month} ${day} ${timeOrYear}`)
+    if (Number.isFinite(parsedDate)) {
+      modTime = Math.floor(parsedDate / 1000)
+    }
+  }
+
+  const name = parts.slice(8).join(' ')
+  return {
+    mode: mode || undefined,
+    size: size || undefined,
+    modTime: modTime || undefined,
+    name: name || undefined,
+  }
+}
+
+function toUnixTimestamp(value: unknown): number {
+  if (value == null) return 0
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    // ms timestamp fallback
+    return value > 1e12 ? Math.floor(value / 1000) : Math.floor(value)
+  }
+  if (typeof value === 'string') {
+    const asNum = Number(value)
+    if (Number.isFinite(asNum)) {
+      return asNum > 1e12 ? Math.floor(asNum / 1000) : Math.floor(asNum)
+    }
+    const parsedDate = Date.parse(value)
+    if (Number.isFinite(parsedDate)) return Math.floor(parsedDate / 1000)
+  }
+  return 0
+}
+
 function normalizeEntries(entries: unknown, currentPath: string): FileInfo[] {
   if (!Array.isArray(entries)) return []
 
   const mapped = (entries as RawSftpEntry[]).map((entry) => {
+    const longname = (entry.longname ?? '').toString()
+    const parsedLongname = parseLongname(longname)
     const name = (
       entry.name ??
       entry.filename ??
+      parsedLongname.name ??
       (typeof entry.path === 'string' ? entry.path.split('/').filter(Boolean).pop() : '') ??
       ''
     ).toString()
-    const mode = toNumber(entry.mode ?? entry.permissions ?? entry.permission ?? entry.attrs?.mode, 0)
-    const longname = (entry.longname ?? '').toString()
+    const mode = toNumber(
+      entry.mode ??
+        entry.permissions ??
+        entry.permission ??
+        entry.attrs?.mode ??
+        parsedLongname.mode,
+      0,
+    )
     const isDir =
       entry.is_dir === true ||
       entry.isDirectory === true ||
@@ -105,9 +183,16 @@ function normalizeEntries(entries: unknown, currentPath: string): FileInfo[] {
     return {
       name,
       path: entry.path ?? entry.fullPath ?? entry.filepath ?? joinPath(currentPath, name),
-      size: toNumber(entry.size ?? entry.filesize ?? entry.attrs?.size, 0),
+      size: toNumber(entry.size ?? entry.filesize ?? entry.attrs?.size ?? parsedLongname.size, 0),
       mode,
-      mod_time: toNumber(entry.mod_time ?? entry.modified ?? entry.mtime ?? entry.lastModified ?? entry.attrs?.mtime, 0),
+      mod_time: toUnixTimestamp(
+        entry.mod_time ??
+          entry.modified ??
+          entry.mtime ??
+          entry.lastModified ??
+          entry.attrs?.mtime ??
+          parsedLongname.modTime,
+      ),
       is_dir: isDir,
     } satisfies FileInfo
   })
