@@ -14,6 +14,13 @@ type SftpToolbarProps = {
   onUpload: () => void
   showHidden: boolean
   onToggleShowHidden: () => void
+  hasSelection: boolean
+  canSingleSelectAction: boolean
+  onNewFolder: () => void
+  onDelete: () => void
+  onCopy: () => void
+  onDownload: () => void
+  onRename: () => void
   onPressRoot: () => void
   onPressCurrent: () => void
 }
@@ -27,6 +34,13 @@ export function SftpToolbar({
   onUpload,
   showHidden,
   onToggleShowHidden,
+  hasSelection,
+  canSingleSelectAction,
+  onNewFolder,
+  onDelete,
+  onCopy,
+  onDownload,
+  onRename,
   onPressRoot,
   onPressCurrent,
 }: SftpToolbarProps) {
@@ -102,6 +116,13 @@ export function SftpToolbar({
           <MoreActions
             showHidden={showHidden}
             onToggleShowHidden={onToggleShowHidden}
+            hasSelection={hasSelection}
+            canSingleSelectAction={canSingleSelectAction}
+            onNewFolder={onNewFolder}
+            onDelete={onDelete}
+            onCopy={onCopy}
+            onDownload={onDownload}
+            onRename={onRename}
           />
         </XStack>
       )}

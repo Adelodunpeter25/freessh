@@ -1,13 +1,71 @@
-import { Eye, EyeOff, MoreVertical } from 'lucide-react-native'
+import type { ReactNode } from 'react'
+import {
+  Copy,
+  Download,
+  Eye,
+  EyeOff,
+  FolderPlus,
+  MoreVertical,
+  Pencil,
+  Trash2,
+} from 'lucide-react-native'
 import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu'
-import { Text, XStack, useTheme } from 'tamagui'
+import { Text, View, XStack, useTheme } from 'tamagui'
 
 type MoreActionsProps = {
   showHidden: boolean
   onToggleShowHidden: () => void
+  hasSelection: boolean
+  canSingleSelectAction: boolean
+  onNewFolder: () => void
+  onDelete: () => void
+  onCopy: () => void
+  onDownload: () => void
+  onRename: () => void
 }
 
-export function MoreActions({ showHidden, onToggleShowHidden }: MoreActionsProps) {
+function MenuRow({
+  icon,
+  label,
+  onPress,
+  destructive = false,
+}: {
+  icon: ReactNode
+  label: string
+  onPress: () => void
+  destructive?: boolean
+}) {
+  return (
+    <MenuOption
+      onSelect={onPress}
+      customStyles={{
+        optionWrapper: {
+          paddingVertical: 8,
+          paddingHorizontal: 10,
+        },
+      }}
+    >
+      <XStack alignItems="center" gap="$2">
+        {icon}
+        <Text color={destructive ? '#ef4444' : '$color'} fontSize={13} fontWeight="600">
+          {label}
+        </Text>
+      </XStack>
+    </MenuOption>
+  )
+}
+
+export function MoreActions({
+  showHidden,
+  onToggleShowHidden,
+  hasSelection,
+  canSingleSelectAction,
+  onNewFolder,
+  onDelete,
+  onCopy,
+  onDownload,
+  onRename,
+}: MoreActionsProps) {
   const theme = useTheme()
 
   return (
@@ -36,26 +94,49 @@ export function MoreActions({ showHidden, onToggleShowHidden }: MoreActionsProps
           },
         }}
       >
-        <MenuOption
-          onSelect={onToggleShowHidden}
-          customStyles={{
-            optionWrapper: {
-              paddingVertical: 8,
-              paddingHorizontal: 10,
-            },
-          }}
-        >
-          <XStack alignItems="center" gap="$2">
-            {showHidden ? (
-              <EyeOff size={14} color={theme.color.get()} />
-            ) : (
-              <Eye size={14} color={theme.color.get()} />
-            )}
-            <Text color="$color" fontSize={13} fontWeight="600">
-              {showHidden ? 'Hide hidden files' : 'Show hidden files'}
-            </Text>
-          </XStack>
-        </MenuOption>
+        <MenuRow
+          icon={<FolderPlus size={14} color={theme.color.get()} />}
+          label="New folder"
+          onPress={onNewFolder}
+        />
+        <MenuRow
+          icon={<Trash2 size={14} color="#ef4444" />}
+          label="Delete"
+          onPress={onDelete}
+          destructive
+        />
+        {hasSelection ? (
+          <>
+            <View height={1} backgroundColor="$borderColor" opacity={0.8} marginHorizontal="$2" />
+            <MenuRow
+              icon={<Copy size={14} color={theme.color.get()} />}
+              label="Copy"
+              onPress={onCopy}
+            />
+            <MenuRow
+              icon={<Download size={14} color={theme.color.get()} />}
+              label="Download"
+              onPress={onDownload}
+            />
+            {canSingleSelectAction ? (
+              <MenuRow
+                icon={<Pencil size={14} color={theme.color.get()} />}
+                label="Rename"
+                onPress={onRename}
+              />
+            ) : null}
+          </>
+        ) : null}
+        <View height={1} backgroundColor="$borderColor" opacity={0.8} marginHorizontal="$2" />
+        <MenuRow
+          icon={showHidden ? (
+            <EyeOff size={14} color={theme.color.get()} />
+          ) : (
+            <Eye size={14} color={theme.color.get()} />
+          )}
+          label={showHidden ? 'Hide hidden files' : 'Show hidden files'}
+          onPress={onToggleShowHidden}
+        />
       </MenuOptions>
     </Menu>
   )

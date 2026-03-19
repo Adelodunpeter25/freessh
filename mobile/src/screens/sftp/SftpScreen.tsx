@@ -34,7 +34,17 @@ export function SftpScreen() {
   const connected = activeSession?.connected ?? false
   const connectionName = activeSession?.connectionName ?? null
   const error = activeSession?.error ?? null
-  const { showHidden, toggleShowHidden, visibleFiles } = useSftpActions(files)
+  const {
+    showHidden,
+    toggleShowHidden,
+    visibleFiles,
+    selectedPaths,
+    hasSelection,
+    canSingleSelectAction,
+    isSelected,
+    toggleSelection,
+    clearSelection,
+  } = useSftpActions(files)
   const { query, filtered, setQuery, clearQuery } = useSearch({
     items: visibleFiles,
     fields: ['name', 'path'],
@@ -83,6 +93,31 @@ export function SftpScreen() {
     if (!connected) return
     void listDirectory(currentPath)
   }, [connected, currentPath, listDirectory])
+  const handleToggleSelect = useCallback((entry: FileInfo) => {
+    toggleSelection(entry.path)
+  }, [toggleSelection])
+  const handleNewFolder = useCallback(() => {
+    showSnackbar('New folder coming soon', 'info')
+  }, [showSnackbar])
+  const handleDelete = useCallback(() => {
+    if (!hasSelection) {
+      showSnackbar('Select items to delete', 'info')
+      return
+    }
+    showSnackbar(`Delete ${selectedPaths.length} item(s) coming soon`, 'info')
+  }, [hasSelection, selectedPaths.length, showSnackbar])
+  const handleCopy = useCallback(() => {
+    if (!hasSelection) return
+    showSnackbar(`Copy ${selectedPaths.length} item(s) coming soon`, 'info')
+  }, [hasSelection, selectedPaths.length, showSnackbar])
+  const handleDownload = useCallback(() => {
+    if (!hasSelection) return
+    showSnackbar(`Download ${selectedPaths.length} item(s) coming soon`, 'info')
+  }, [hasSelection, selectedPaths.length, showSnackbar])
+  const handleRename = useCallback(() => {
+    if (!canSingleSelectAction) return
+    showSnackbar('Rename coming soon', 'info')
+  }, [canSingleSelectAction, showSnackbar])
   const pinnedTabBarHeight = insets.top + 52
   const showSearchEmpty = connected && query.trim().length > 0 && filtered.length === 0
 
@@ -106,7 +141,7 @@ export function SftpScreen() {
         />
       </YStack>
 
-      <YStack flex={1} bg="$backgroundStrong" mt={pinnedTabBarHeight}>
+      <YStack flex={1} bg="$background" mt={pinnedTabBarHeight}>
         <SftpToolbar
           rootLabel={rootLabel}
           lastLabel={lastLabel}
@@ -116,6 +151,13 @@ export function SftpScreen() {
           onUpload={() => showSnackbar('Upload coming soon', 'info')}
           showHidden={showHidden}
           onToggleShowHidden={toggleShowHidden}
+          hasSelection={hasSelection}
+          canSingleSelectAction={canSingleSelectAction}
+          onNewFolder={handleNewFolder}
+          onDelete={handleDelete}
+          onCopy={handleCopy}
+          onDownload={handleDownload}
+          onRename={handleRename}
           onPressRoot={handlePressRoot}
           onPressCurrent={handlePressCurrent}
         />
@@ -160,10 +202,16 @@ export function SftpScreen() {
                 borderBottomWidth={1}
                 borderBottomColor="$borderColor"
                 alignItems="center"
+                justifyContent="space-between"
               >
                 <Text color="$color" fontSize={14} fontWeight="600" onPress={handleGoUp}>
                   ..
                 </Text>
+                {hasSelection ? (
+                  <Text color="$accent" fontSize={12} fontWeight="600" onPress={clearSelection}>
+                    Clear selection
+                  </Text>
+                ) : null}
               </XStack>
             ) : null}
             <ScrollView
@@ -175,6 +223,9 @@ export function SftpScreen() {
             >
               <FileList
                 files={filtered}
+                hasSelection={hasSelection}
+                isSelected={isSelected}
+                onToggleSelect={handleToggleSelect}
                 onOpenFolder={handleOpenFolder}
                 onOpenFile={(file) => showSnackbar(`Selected "${file.name}"`, 'info')}
               />
