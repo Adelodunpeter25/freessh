@@ -128,14 +128,27 @@ func (s *GroupStorage) Delete(id string) error {
 }
 
 func (s *GroupStorage) migrateFromJSON() error {
-	count, err := s.countRows()
-	if err != nil || count > 0 {
+	tracker, err := NewMigrationTracker()
+	if err != nil {
 		return err
+	}
+	if tracker.IsDone("groups") {
+		return nil
+	}
+	count, err := s.countRows()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return tracker.MarkDone("groups")
 	}
 
 	manager, err := NewManager("groups.json")
 	if err != nil || !manager.Exists() {
-		return err
+		if err != nil {
+			return err
+		}
+		return tracker.MarkDone("groups")
 	}
 
 	var groups []models.Group
@@ -149,7 +162,7 @@ func (s *GroupStorage) migrateFromJSON() error {
 		}
 	}
 
-	return nil
+	return tracker.MarkDone("groups")
 }
 
 func (s *GroupStorage) countRows() (int, error) {

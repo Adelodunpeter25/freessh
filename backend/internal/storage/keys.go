@@ -116,14 +116,27 @@ func (s *KeyStorage) Update(key models.SSHKey) error {
 }
 
 func (s *KeyStorage) migrateFromJSON() error {
-	count, err := s.countRows()
-	if err != nil || count > 0 {
+	tracker, err := NewMigrationTracker()
+	if err != nil {
 		return err
+	}
+	if tracker.IsDone("ssh_keys") {
+		return nil
+	}
+	count, err := s.countRows()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return tracker.MarkDone("ssh_keys")
 	}
 
 	manager, err := NewManager("keys.json")
 	if err != nil || !manager.Exists() {
-		return err
+		if err != nil {
+			return err
+		}
+		return tracker.MarkDone("ssh_keys")
 	}
 
 	var keys []models.SSHKey
@@ -137,7 +150,7 @@ func (s *KeyStorage) migrateFromJSON() error {
 		}
 	}
 
-	return nil
+	return tracker.MarkDone("ssh_keys")
 }
 
 func (s *KeyStorage) countRows() (int, error) {

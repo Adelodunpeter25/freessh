@@ -187,14 +187,27 @@ func (s *ConnectionStorage) migrateFromJSON() error {
 	if s == nil || s.db == nil {
 		return nil
 	}
-	count, err := s.countRows()
-	if err != nil || count > 0 {
+	tracker, err := NewMigrationTracker()
+	if err != nil {
 		return err
+	}
+	if tracker.IsDone("connections") {
+		return nil
+	}
+	count, err := s.countRows()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return tracker.MarkDone("connections")
 	}
 
 	manager, err := NewManager("connections.json")
 	if err != nil || !manager.Exists() {
-		return err
+		if err != nil {
+			return err
+		}
+		return tracker.MarkDone("connections")
 	}
 
 	var connections []models.ConnectionConfig
@@ -210,7 +223,7 @@ func (s *ConnectionStorage) migrateFromJSON() error {
 		}
 	}
 
-	return nil
+	return tracker.MarkDone("connections")
 }
 
 func (s *ConnectionStorage) countRows() (int, error) {

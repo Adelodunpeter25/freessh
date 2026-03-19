@@ -120,14 +120,27 @@ func (s *KnownHostStorage) DeleteByHostname(hostname string, port int) error {
 }
 
 func (s *KnownHostStorage) migrateFromJSON() error {
-	count, err := s.countRows()
-	if err != nil || count > 0 {
+	tracker, err := NewMigrationTracker()
+	if err != nil {
 		return err
+	}
+	if tracker.IsDone("known_hosts") {
+		return nil
+	}
+	count, err := s.countRows()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return tracker.MarkDone("known_hosts")
 	}
 
 	manager, err := NewManager("known_hosts.json")
 	if err != nil || !manager.Exists() {
-		return err
+		if err != nil {
+			return err
+		}
+		return tracker.MarkDone("known_hosts")
 	}
 
 	var hosts []*models.KnownHost
@@ -141,7 +154,7 @@ func (s *KnownHostStorage) migrateFromJSON() error {
 		}
 	}
 
-	return nil
+	return tracker.MarkDone("known_hosts")
 }
 
 func (s *KnownHostStorage) countRows() (int, error) {

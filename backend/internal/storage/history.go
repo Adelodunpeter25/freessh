@@ -136,14 +136,27 @@ func (s *HistoryStorage) trimHistory() error {
 }
 
 func (s *HistoryStorage) migrateFromJSON() error {
-	count, err := s.countRows()
-	if err != nil || count > 0 {
+	tracker, err := NewMigrationTracker()
+	if err != nil {
 		return err
+	}
+	if tracker.IsDone("history") {
+		return nil
+	}
+	count, err := s.countRows()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return tracker.MarkDone("history")
 	}
 
 	manager, err := NewManager("history.json")
 	if err != nil || !manager.Exists() {
-		return err
+		if err != nil {
+			return err
+		}
+		return tracker.MarkDone("history")
 	}
 
 	var entries []models.HistoryEntry
@@ -158,7 +171,10 @@ func (s *HistoryStorage) migrateFromJSON() error {
 		_, _ = s.db.Exec(`INSERT INTO history (id, command, connection_id) VALUES (?, ?, ?)`, entry.ID, entry.Command, nil)
 	}
 
-	return s.trimHistory()
+	if err := s.trimHistory(); err != nil {
+		return err
+	}
+	return tracker.MarkDone("history")
 }
 
 func (s *HistoryStorage) countRows() (int, error) {

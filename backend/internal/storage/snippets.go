@@ -111,14 +111,27 @@ func (s *SnippetStorage) Delete(id string) error {
 }
 
 func (s *SnippetStorage) migrateFromJSON() error {
-	count, err := s.countRows()
-	if err != nil || count > 0 {
+	tracker, err := NewMigrationTracker()
+	if err != nil {
 		return err
+	}
+	if tracker.IsDone("snippets") {
+		return nil
+	}
+	count, err := s.countRows()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return tracker.MarkDone("snippets")
 	}
 
 	manager, err := NewManager("snippets.json")
 	if err != nil || !manager.Exists() {
-		return err
+		if err != nil {
+			return err
+		}
+		return tracker.MarkDone("snippets")
 	}
 
 	var snippets []models.Snippet
@@ -132,7 +145,7 @@ func (s *SnippetStorage) migrateFromJSON() error {
 		}
 	}
 
-	return nil
+	return tracker.MarkDone("snippets")
 }
 
 func (s *SnippetStorage) countRows() (int, error) {

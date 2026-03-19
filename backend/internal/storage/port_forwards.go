@@ -148,14 +148,27 @@ func (s *PortForwardStorage) Delete(id string) error {
 }
 
 func (s *PortForwardStorage) migrateFromJSON() error {
-	count, err := s.countRows()
-	if err != nil || count > 0 {
+	tracker, err := NewMigrationTracker()
+	if err != nil {
 		return err
+	}
+	if tracker.IsDone("port_forwards") {
+		return nil
+	}
+	count, err := s.countRows()
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return tracker.MarkDone("port_forwards")
 	}
 
 	manager, err := NewManager("port_forwards.json")
 	if err != nil || !manager.Exists() {
-		return err
+		if err != nil {
+			return err
+		}
+		return tracker.MarkDone("port_forwards")
 	}
 
 	var configs []*models.PortForwardConfig
@@ -169,7 +182,7 @@ func (s *PortForwardStorage) migrateFromJSON() error {
 		}
 	}
 
-	return nil
+	return tracker.MarkDone("port_forwards")
 }
 
 func (s *PortForwardStorage) countRows() (int, error) {
