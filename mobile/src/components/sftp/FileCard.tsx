@@ -1,7 +1,6 @@
 import { FileText } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { Text, XStack, useTheme } from 'tamagui'
-import { BaseCard } from '@/components/common'
+import { Text, XStack, YStack, useTheme } from 'tamagui'
 import type { FileInfo } from '@/types'
 
 type FileCardProps = {
@@ -20,32 +19,58 @@ function formatSize(bytes: number): string {
 function formatModified(timestamp: number): string {
   if (!timestamp) return 'Unknown date'
   const date = new Date(timestamp * 1000)
-  return date.toLocaleDateString()
+  const datePart = date.toLocaleDateString()
+  const timePart = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  return `${datePart} ${timePart}`
+}
+
+function formatMode(mode: number): string {
+  if (!mode) return '----------'
+  const permissionBits = mode & 0o777
+  const triplets = [
+    (permissionBits >> 6) & 7,
+    (permissionBits >> 3) & 7,
+    permissionBits & 7,
+  ]
+  const toRwx = (bits: number) =>
+    `${bits & 4 ? 'r' : '-'}${bits & 2 ? 'w' : '-'}${bits & 1 ? 'x' : '-'}`
+  return `-${triplets.map(toRwx).join('')}`
 }
 
 export function FileCard({ file, onPress }: FileCardProps) {
   const theme = useTheme()
 
   return (
-    <Pressable onPress={onPress}>
-      <BaseCard
-        title={file.name}
-        subtitle={
-          <XStack gap="$2" ai="center">
-            <Text fontSize={12} color="$placeholderColor">
-              {formatSize(file.size)}
+    <Pressable onPress={onPress} style={{ width: '100%' }}>
+      <XStack
+        alignItems="center"
+        justifyContent="space-between"
+        paddingVertical="$3"
+        paddingHorizontal="$3"
+        borderBottomWidth={1}
+        borderBottomColor="$borderColor"
+        backgroundColor="transparent"
+      >
+        <XStack alignItems="center" gap="$3" flex={1}>
+          <FileText size={20} color={theme.color.get()} />
+          <YStack flex={1}>
+            <Text color="$color" fontSize={15} fontWeight="600" numberOfLines={1}>
+              {file.name}
             </Text>
-            <Text fontSize={12} color="$placeholderColor" opacity={0.6}>
-              •
+            <Text color="$placeholderColor" fontSize={11} numberOfLines={1}>
+              {formatMode(file.mode)}
             </Text>
-            <Text fontSize={12} color="$placeholderColor">
-              {formatModified(file.mod_time)}
-            </Text>
-          </XStack>
-        }
-        icon={<FileText size={18} color={theme.placeholderColor.get()} />}
-        pressable={false}
-      />
+          </YStack>
+        </XStack>
+        <YStack alignItems="flex-end" minWidth={86}>
+          <Text color="$placeholderColor" fontSize={11} numberOfLines={1}>
+            {formatModified(file.mod_time)}
+          </Text>
+          <Text color="$placeholderColor" fontSize={11}>
+            {formatSize(file.size)}
+          </Text>
+        </YStack>
+      </XStack>
     </Pressable>
   )
 }

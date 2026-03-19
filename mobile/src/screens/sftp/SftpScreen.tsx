@@ -1,17 +1,15 @@
 import { useEffect } from 'react'
 import { RefreshControl } from 'react-native'
-import { XStack, YStack, Text } from 'tamagui'
-import { useNavigation } from '@react-navigation/native'
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { ChevronUp, RefreshCw } from 'lucide-react-native'
+import { ChevronRight, MoreVertical, Search, Upload } from 'lucide-react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { Text, View, XStack, YStack } from 'tamagui'
 
-import { AppHeader, EmptyState, FileList, IconButton, Screen } from '@/components'
+import { EmptyState, FileList, IconButton, Screen } from '@/components'
 import { useSftpStore, useSnackbarStore } from '@/stores'
-import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 import type { FileInfo } from '@/types'
 
 export function SftpScreen() {
-  const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
+  const insets = useSafeAreaInsets()
   const files = useSftpStore((state) => state.files)
   const currentPath = useSftpStore((state) => state.currentPath)
   const loading = useSftpStore((state) => state.loading)
@@ -46,43 +44,89 @@ export function SftpScreen() {
     }
   }
 
+  const breadcrumbParts = currentPath.split('/').filter(Boolean)
+  const rootLabel = connectionName ?? 'Home'
+  const lastLabel = breadcrumbParts[breadcrumbParts.length - 1] ?? rootLabel
+  const canGoUp = currentPath !== '/'
+
   return (
-    <>
-      <AppHeader
-        title={connectionName ? `SFTP: ${connectionName}` : 'SFTP Browser'}
-        showBackButton
-        onBackPress={() => navigation.goBack()}
-      />
-      <Screen
-        refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
-        }
-      >
-        <YStack gap="$3" flex={1}>
-          <XStack ai="center" jc="space-between" gap="$3">
-            <Text color="$placeholderColor" flex={1} numberOfLines={1}>
-              {currentPath}
+    <Screen
+      refreshControl={
+        <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+      }
+    >
+      <YStack gap="$0" flex={1} pt={insets.top}>
+        <XStack
+          ai="center"
+          jc="space-between"
+          gap="$3"
+          px="$3"
+          py="$2.5"
+          bg="$background"
+          borderBottomWidth={1}
+          borderBottomColor="$borderColor"
+        >
+          <XStack ai="center" gap="$2" flex={1}>
+            <Text color="$placeholderColor" fontSize={13} numberOfLines={1}>
+              {rootLabel}
             </Text>
-            <XStack gap="$2">
-              <IconButton onPress={() => goUp()}>
-                <ChevronUp size={14} />
-              </IconButton>
-              <IconButton onPress={handleRefresh}>
-                <RefreshCw size={14} />
-              </IconButton>
-            </XStack>
+            <ChevronRight size={14} color="#94a3b8" />
+            <Text color="$color" fontSize={13} fontWeight="600" numberOfLines={1}>
+              {lastLabel}
+            </Text>
           </XStack>
+          <XStack gap="$1.5">
+            <IconButton onPress={() => showSnackbar('Upload coming soon', 'info')}>
+              <Upload size={16} />
+            </IconButton>
+            <IconButton onPress={() => showSnackbar('Search coming soon', 'info')}>
+              <Search size={16} />
+            </IconButton>
+            <IconButton onPress={() => showSnackbar('More actions coming soon', 'info')}>
+              <MoreVertical size={16} />
+            </IconButton>
+          </XStack>
+        </XStack>
+
+        <View
+          mx="$3"
+          mt="$3"
+          borderRadius={16}
+          overflow="hidden"
+          borderWidth={1}
+          borderColor="$borderColor"
+          bg="$backgroundStrong"
+          flex={1}
+        >
+          {canGoUp ? (
+            <XStack
+              px="$3"
+              py="$3"
+              borderBottomWidth={1}
+              borderBottomColor="$borderColor"
+            >
+              <Text color="$color" fontSize={15} onPress={() => goUp()}>
+                ..
+              </Text>
+            </XStack>
+          ) : null}
 
           {!connected ? (
-            <EmptyState
-              title="No SFTP connection"
-              description={error ?? 'Connect to a host to browse files.'}
-            />
+            <YStack p="$4">
+              <EmptyState
+                title="No SFTP connection"
+                description={error ?? 'Connect to a host to browse files.'}
+              />
+            </YStack>
           ) : (
-            <FileList files={files} onOpenFolder={handleOpenFolder} />
+            <FileList
+              files={files}
+              onOpenFolder={handleOpenFolder}
+              onOpenFile={(file) => showSnackbar(`Selected "${file.name}"`, 'info')}
+            />
           )}
-        </YStack>
-      </Screen>
-    </>
+        </View>
+      </YStack>
+    </Screen>
   )
 }

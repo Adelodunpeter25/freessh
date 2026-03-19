@@ -21,7 +21,7 @@ export function FileList({ files, onOpenFolder, onOpenFile }: FileListProps) {
   }
 
   return (
-    <YStack gap="$3">
+    <YStack>
       {files.map((entry) =>
         entry.is_dir ? (
           <FolderCard
