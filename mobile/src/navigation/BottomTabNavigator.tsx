@@ -1,5 +1,4 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
-import { View } from 'tamagui'
 import {
   Home,
   Settings,
@@ -29,7 +28,7 @@ export function BottomTabNavigator() {
       screenOptions={{
         headerTitleAlign: 'center',
         tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
-        tabBarActiveTintColor: theme === 'dark' ? '#f1f5f9' : '#0f172a',
+        tabBarActiveTintColor: '#f97316',
         tabBarInactiveTintColor: theme === 'dark' ? '#64748b' : '#94a3b8',
         tabBarStyle: {
           backgroundColor: theme === 'dark' ? '#0b0e14' : '#eef2f7',
@@ -55,69 +54,21 @@ export function BottomTabNavigator() {
         options={{
           headerTitle: 'Home',
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              borderRadius={focused ? 12 : 10}
-              borderWidth={focused ? 2.5 : 1}
-              borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
-              backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
-              style={{
-                minWidth: focused ? 64 : 46,
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingHorizontal: focused ? 16 : 12,
-                paddingVertical: focused ? 6 : 6,
-              }}
-            >
-              <Home size={18} color={color} />
-            </View>
-          ),
+          tabBarIcon: ({ color }) => <Home size={22} color={color} />,
         }}
       />
       <Tab.Screen
         name="Connections"
         component={ConnectionsScreen}
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              borderRadius={focused ? 12 : 10}
-              borderWidth={focused ? 2.5 : 1}
-              borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
-              backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
-              style={{
-                minWidth: focused ? 64 : 46,
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingHorizontal: focused ? 16 : 12,
-                paddingVertical: focused ? 6 : 6,
-              }}
-            >
-              <Server size={18} color={color} />
-            </View>
-          ),
+          tabBarIcon: ({ color }) => <Server size={22} color={color} />,
         }}
       />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarIcon: ({ color, focused }) => (
-            <View
-              borderRadius={focused ? 12 : 10}
-              borderWidth={focused ? 2.5 : 1}
-              borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
-              backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
-              style={{
-                minWidth: focused ? 64 : 46,
-                alignItems: 'center',
-                justifyContent: 'center',
-                paddingHorizontal: focused ? 16 : 12,
-                paddingVertical: focused ? 6 : 6,
-              }}
-            >
-              <Settings size={18} color={color} />
-            </View>
-          ),
+          tabBarIcon: ({ color }) => <Settings size={22} color={color} />,
         }}
       />
     </Tab.Navigator>
