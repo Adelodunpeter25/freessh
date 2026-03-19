@@ -1,7 +1,12 @@
-import { useMemo, useState } from "react";
-import { Pressable } from "react-native";
-import { ChevronUp, ClipboardPaste } from "lucide-react-native";
-import { ScrollView, Sheet, Text, XStack, YStack, useTheme } from "tamagui";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Keyboard,
+  Platform,
+  Pressable,
+} from "react-native";
+import { ClipboardPaste, Keyboard as KeyboardIcon, KeyboardOff } from "lucide-react-native";
+import { ScrollView, Text, XStack, YStack, useTheme } from "tamagui";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTerminalActions } from "@/hooks";
 import { useSnackbarStore } from "@/stores";
@@ -22,6 +27,7 @@ export function TerminalAccessoryKeyboard({
   onSendInput,
 }: TerminalAccessoryKeyboardProps) {
   const theme = useTheme();
+  const insets = useSafeAreaInsets();
   const showSnackbar = useSnackbarStore((state) => state.show);
   const { sendAction, sendModifiedKey } = useTerminalActions({ sendInput: onSendInput });
 
@@ -29,6 +35,7 @@ export function TerminalAccessoryKeyboard({
   const [altActive, setAltActive] = useState(false);
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [showSnippets, setShowSnippets] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(280);
 
   const modifierState = useMemo(
     () => ({ ctrl: ctrlActive, alt: altActive }),
@@ -39,6 +46,22 @@ export function TerminalAccessoryKeyboard({
     setCtrlActive(false);
     setAltActive(false);
   };
+
+  useEffect(() => {
+    const showEvent =
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+
+    const subscription = Keyboard.addListener(showEvent, (event) => {
+      const nextHeight = event.endCoordinates.height;
+      if (nextHeight > 0) {
+        setKeyboardHeight(nextHeight);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   const handlePaste = () => {
     showSnackbar("Paste is temporarily disabled", "info");
@@ -116,35 +139,50 @@ export function TerminalAccessoryKeyboard({
             />
           ))}
 
-          <Pressable onPress={() => setShowKeyboard(true)}>
+          <Pressable
+            onPress={() => {
+              if (!showKeyboard) {
+                Keyboard.dismiss();
+              }
+              setShowKeyboard((current) => !current);
+            }}
+          >
             <XStack
               width={34}
               height={34}
               borderRadius={10}
               borderWidth={1}
-              borderColor="$borderColor"
-              backgroundColor="$backgroundStrong"
+              borderColor={showKeyboard ? "$accent" : "$borderColor"}
+              backgroundColor={showKeyboard ? "$backgroundPress" : "$backgroundStrong"}
               alignItems="center"
               justifyContent="center"
             >
-              <ChevronUp size={16} color={theme.color.get()} />
+              {showKeyboard ? (
+                <KeyboardOff size={16} color={theme.accent.get()} />
+              ) : (
+                <KeyboardIcon size={16} color={theme.color.get()} />
+              )}
             </XStack>
           </Pressable>
         </ScrollView>
       </YStack>
 
-      <Sheet
-        modal
-        dismissOnSnapToBottom
-        open={showKeyboard}
-        onOpenChange={setShowKeyboard}
-        snapPoints={[72]}
-        snapPointsMode="percent"
-      >
-        <Sheet.Overlay />
-        <Sheet.Frame backgroundColor="$background" padding="$4">
-          <Sheet.Handle />
-          <YStack gap="$3">
+      {showKeyboard ? (
+        <YStack
+          position="absolute"
+          left={0}
+          right={0}
+          bottom={0}
+          height={Math.max(keyboardHeight, 260) + insets.bottom}
+          borderTopWidth={1}
+          borderColor="$borderColor"
+          backgroundColor="$background"
+          paddingTop="$3"
+          paddingHorizontal="$4"
+          paddingBottom={Math.max(insets.bottom, 8)}
+          zIndex={50}
+        >
+          <YStack gap="$3" flex={1}>
             <XStack gap="$2" alignItems="center">
               <ClipboardPaste size={16} color={theme.accent.get()} />
               <Text fontSize={16} fontWeight="700" color="$color">
@@ -194,8 +232,8 @@ export function TerminalAccessoryKeyboard({
               </YStack>
             </ScrollView>
           </YStack>
-        </Sheet.Frame>
-      </Sheet>
+        </YStack>
+      ) : null}
 
       <TerminalSnippetsSheet
         open={showSnippets}
