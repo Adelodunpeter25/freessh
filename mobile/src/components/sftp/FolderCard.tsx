@@ -30,14 +30,14 @@ export function FolderCard({ folder, onPress }: FolderCardProps) {
       >
         <XStack alignItems="center" gap="$3" flex={1}>
           <XStack
-            width={24}
-            height={24}
-            borderRadius={6}
+            width={20}
+            height={20}
+            borderRadius={5}
             alignItems="center"
             justifyContent="center"
-            backgroundColor="$accent"
+            backgroundColor="rgba(234, 88, 12, 0.18)"
           >
-            <Folder size={14} color="#ffffff" fill="#ffffff" />
+            <Folder size={12} color="#c2410c" fill="#c2410c" />
           </XStack>
           <YStack flex={1}>
             <Text color="$color" fontSize={14} fontWeight="600" numberOfLines={1}>

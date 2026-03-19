@@ -118,21 +118,6 @@ export function SftpScreen() {
           onPressCurrent={handlePressCurrent}
         />
 
-        {canGoUp ? (
-          <XStack
-            px="$3"
-            minHeight={56}
-            py="$2"
-            borderBottomWidth={1}
-            borderBottomColor="$borderColor"
-            alignItems="center"
-          >
-            <Text color="$color" fontSize={14} fontWeight="600" onPress={handleGoUp}>
-              ..
-            </Text>
-          </XStack>
-        ) : null}
-
         {!connected ? (
           <YStack p="$4">
             <EmptyState
@@ -141,23 +126,58 @@ export function SftpScreen() {
             />
           </YStack>
         ) : showSearchEmpty ? (
-          <YStack p="$4">
+          <YStack
+            mx="$3"
+            mt="$2"
+            borderWidth={1}
+            borderColor="$borderColor"
+            borderRadius={16}
+            overflow="hidden"
+            bg="$background"
+            p="$4"
+          >
             <SearchEmptyState query={query} />
           </YStack>
         ) : (
-          <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ paddingBottom: 16 }}
-            refreshControl={
-              <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
-            }
+          <YStack
+            flex={1}
+            mx="$3"
+            mt="$2"
+            mb="$3"
+            borderWidth={1}
+            borderColor="$borderColor"
+            borderRadius={16}
+            overflow="hidden"
+            bg="$background"
           >
-            <FileList
-              files={filtered}
-              onOpenFolder={handleOpenFolder}
-              onOpenFile={(file) => showSnackbar(`Selected "${file.name}"`, 'info')}
-            />
-          </ScrollView>
+            {canGoUp ? (
+              <XStack
+                px="$3"
+                minHeight={56}
+                py="$2"
+                borderBottomWidth={1}
+                borderBottomColor="$borderColor"
+                alignItems="center"
+              >
+                <Text color="$color" fontSize={14} fontWeight="600" onPress={handleGoUp}>
+                  ..
+                </Text>
+              </XStack>
+            ) : null}
+            <ScrollView
+              style={{ flex: 1 }}
+              contentContainerStyle={{ paddingBottom: 16 }}
+              refreshControl={
+                <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+              }
+            >
+              <FileList
+                files={filtered}
+                onOpenFolder={handleOpenFolder}
+                onOpenFile={(file) => showSnackbar(`Selected "${file.name}"`, 'info')}
+              />
+            </ScrollView>
+          </YStack>
         )}
       </YStack>
     </YStack>
