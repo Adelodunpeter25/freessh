@@ -42,6 +42,13 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
       rendererProps={{
         placement: 'auto',
         preferredPlacement: 'right',
+        anchorStyle: {
+          width: 0,
+          height: 0,
+          opacity: 0,
+          elevation: 0,
+          backgroundColor: 'transparent',
+        },
       }}
     >
       <MenuTrigger
