@@ -1,14 +1,15 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { EmptyState, FileList, IconButton, Screen, SftpBreadcrumb, SftpTabBar } from '@/components'
+import { EmptyState, FileList, Screen, SftpBreadcrumb, SftpTabBar } from '@/components'
 import { useSftpStore, useSnackbarStore } from '@/stores'
 import type { FileInfo } from '@/types'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
+import { getSftpBreadcrumb } from '@/utils/sftp'
 
 export function SftpScreen() {
   const insets = useSafeAreaInsets()
@@ -31,26 +32,36 @@ export function SftpScreen() {
     }
   }, [disconnect])
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     try {
       await listDirectory(currentPath)
     } catch {
       showSnackbar('Failed to refresh folder', 'error')
     }
-  }
+  }, [currentPath, listDirectory, showSnackbar])
 
-  const handleOpenFolder = async (folder: FileInfo) => {
+  const handleOpenFolder = useCallback(async (folder: FileInfo) => {
     try {
       await openFolder(folder.path)
     } catch {
       showSnackbar(`Failed to open "${folder.name}"`, 'error')
     }
-  }
+  }, [openFolder, showSnackbar])
 
-  const breadcrumbParts = currentPath.split('/').filter(Boolean)
-  const rootLabel = connectionName ?? 'Home'
-  const lastLabel = breadcrumbParts[breadcrumbParts.length - 1] ?? rootLabel
-  const canGoUp = currentPath !== '/'
+  const { rootLabel, lastLabel, canGoUp } = useMemo(
+    () => getSftpBreadcrumb(currentPath, connectionName),
+    [currentPath, connectionName],
+  )
+  const tabTitle = useMemo(
+    () => (connectionName ? `SFTP: ${connectionName}` : 'SFTP'),
+    [connectionName],
+  )
+  const handleGoUp = useCallback(() => {
+    void goUp()
+  }, [goUp])
+  const handleBack = useCallback(() => {
+    navigation.goBack()
+  }, [navigation])
 
   return (
     <Screen
@@ -60,8 +71,8 @@ export function SftpScreen() {
     >
       <YStack gap="$0" flex={1} pt={insets.top}>
         <SftpTabBar
-          title={connectionName ? `SFTP: ${connectionName}` : 'SFTP'}
-          onBackPress={() => navigation.goBack()}
+          title={tabTitle}
+          onBackPress={handleBack}
         />
         <SftpBreadcrumb
           rootLabel={rootLabel}
@@ -81,7 +92,7 @@ export function SftpScreen() {
               borderBottomColor="$borderColor"
               alignItems="center"
             >
-              <Text color="$color" fontSize={14} fontWeight="600" onPress={() => goUp()}>
+              <Text color="$color" fontSize={14} fontWeight="600" onPress={handleGoUp}>
                 ..
               </Text>
             </XStack>
