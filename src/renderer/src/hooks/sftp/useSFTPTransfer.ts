@@ -1,7 +1,9 @@
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { toast } from 'sonner'
 import { sftpService } from '../../services/ipc'
 import { TransferProgress } from '../../types'
+
+const THROTTLE_MS = 100; // Only update UI every 100ms for progress
 
 export const useSFTPTransfer = (
   sessionId: string | null,
@@ -10,6 +12,26 @@ export const useSFTPTransfer = (
   setTransfers: React.Dispatch<React.SetStateAction<Map<string, TransferProgress>>>,
   setError: (error: string | null) => void
 ) => {
+  const lastUpdateRef = useRef<number>(0);
+  const pendingUpdatesRef = useRef<Map<string, TransferProgress>>(new Map());
+
+  const throttledUpdate = useCallback((progress: TransferProgress) => {
+    pendingUpdatesRef.current.set(progress.transfer_id, progress);
+    
+    const now = Date.now();
+    if (now - lastUpdateRef.current > THROTTLE_MS) {
+      setTransfers(prev => {
+        const next = new Map(prev);
+        pendingUpdatesRef.current.forEach((p, id) => {
+          next.set(id, p);
+        });
+        pendingUpdatesRef.current.clear();
+        return next;
+      });
+      lastUpdateRef.current = now;
+    }
+  }, [setTransfers]);
+
   const upload = useCallback(async (localPath: string, remotePath: string) => {
     if (!sessionId) return
 
@@ -19,7 +41,7 @@ export const useSFTPTransfer = (
     try {
       await sftpService.upload(sessionId, localPath, remotePath, (progress) => {
         lastTransferId = progress.transfer_id
-        setTransfers(prev => new Map(prev).set(progress.transfer_id, progress))
+        throttledUpdate(progress)
       })
       if (lastTransferId) {
         setTransfers(prev => {
@@ -45,7 +67,7 @@ export const useSFTPTransfer = (
       }
       throw err
     }
-  }, [sessionId, currentPath, listFiles, setTransfers, setError])
+  }, [sessionId, currentPath, listFiles, setTransfers, setError, throttledUpdate])
 
   const download = useCallback(async (remotePath: string, localPath: string) => {
     if (!sessionId) return
@@ -56,7 +78,7 @@ export const useSFTPTransfer = (
     try {
       await sftpService.download(sessionId, remotePath, localPath, (progress) => {
         lastTransferId = progress.transfer_id
-        setTransfers(prev => new Map(prev).set(progress.transfer_id, progress))
+        throttledUpdate(progress)
       })
       if (lastTransferId) {
         setTransfers(prev => {
@@ -81,7 +103,7 @@ export const useSFTPTransfer = (
       }
       throw err
     }
-  }, [sessionId, setTransfers, setError])
+  }, [sessionId, setTransfers, setError, throttledUpdate])
 
   const cancelTransfer = useCallback(async (transferId: string) => {
     if (!sessionId) return false
@@ -120,7 +142,9 @@ export const useSFTPTransfer = (
     try {
       await sftpService.download(sessionId, remotePath, path, (progress) => {
         lastTransferId = progress.transfer_id
-        setTransfers(prev => new Map(prev).set(progress.transfer_id, progress))
+        throttledUpdate(progress)
+        // Toast updates are fine to keep as is since sonner handles them well, 
+        // but we could also throttle this if needed.
         toast.loading(`Downloading ${filename}... ${progress.percentage}%`, { id: toastId })
       })
       
@@ -145,7 +169,7 @@ export const useSFTPTransfer = (
       toast.error('Download failed', { id: toastId })
       throw err
     }
-  }, [sessionId, setTransfers])
+  }, [sessionId, setTransfers, throttledUpdate])
 
   return {
     upload,
