@@ -61,19 +61,19 @@ export function FileCard({ file, onPress, onLongPress, selected = false }: FileC
             </XStack>
           )}
           <YStack flex={1}>
-            <Text color="$color" fontSize={14} fontWeight="600" numberOfLines={1}>
+            <Text color="$color" fontSize={15} fontWeight="600" numberOfLines={1}>
               {file.name}
             </Text>
-            <Text color="$placeholderColor" opacity={0.7} fontSize={10} numberOfLines={1}>
+            <Text color="$placeholderColor" opacity={0.85} fontSize={12} numberOfLines={1}>
               {formatMode(file.mode)}
             </Text>
           </YStack>
         </XStack>
         <YStack alignItems="flex-end" minWidth={90}>
-          <Text color="$placeholderColor" opacity={0.7} fontSize={10} numberOfLines={1}>
+          <Text color="$placeholderColor" opacity={0.85} fontSize={12} numberOfLines={1}>
             {formatModifiedTime(file.mod_time)}
           </Text>
-          <Text color="$placeholderColor" opacity={0.8} fontSize={10}>
+          <Text color="$placeholderColor" opacity={0.9} fontSize={12} fontWeight="500">
             {formatFileSize(file.size)}
           </Text>
         </YStack>

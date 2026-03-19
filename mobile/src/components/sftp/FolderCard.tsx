@@ -60,10 +60,10 @@ export function FolderCard({ folder, onPress, onLongPress, selected = false }: F
             </XStack>
           )}
           <YStack flex={1}>
-            <Text color="$color" fontSize={14} fontWeight="600" numberOfLines={1}>
+            <Text color="$color" fontSize={15} fontWeight="600" numberOfLines={1}>
               {folder.name}
             </Text>
-            <Text color="$placeholderColor" opacity={0.7} fontSize={10} numberOfLines={1}>
+            <Text color="$placeholderColor" opacity={0.85} fontSize={12} numberOfLines={1}>
               Folder
             </Text>
           </YStack>
