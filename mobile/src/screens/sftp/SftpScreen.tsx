@@ -62,14 +62,26 @@ export function SftpScreen() {
   const handleBack = useCallback(() => {
     navigation.goBack()
   }, [navigation])
+  const pinnedTabBarHeight = insets.top + 52
 
   return (
     <YStack gap="$0" flex={1} bg="$background">
-      <YStack pt={insets.top}>
+      <YStack
+        position="absolute"
+        top={0}
+        left={0}
+        right={0}
+        zIndex={20}
+        pt={insets.top}
+        bg="$background"
+      >
         <SftpTabBar
           title={tabTitle}
           onBackPress={handleBack}
         />
+      </YStack>
+
+      <YStack flex={1} bg="$backgroundStrong" mt={pinnedTabBarHeight}>
         <SftpBreadcrumb
           rootLabel={rootLabel}
           lastLabel={lastLabel}
@@ -77,9 +89,7 @@ export function SftpScreen() {
           onSearch={() => showSnackbar('Search coming soon', 'info')}
           onMore={() => showSnackbar('More actions coming soon', 'info')}
         />
-      </YStack>
 
-      <YStack flex={1} bg="$backgroundStrong">
         {canGoUp ? (
           <XStack
             px="$3"
