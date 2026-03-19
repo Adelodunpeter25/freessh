@@ -4,7 +4,6 @@ import { useNavigation } from "@react-navigation/native";
 
 import {
   EmptyState,
-  AppHeader,
   SessionTabs,
   Terminal,
   TerminalScreen,
@@ -140,13 +139,16 @@ export function SessionsScreen() {
   const hasSessions = sessions.length > 0;
 
   return (
-    <>
-      <AppHeader
-        title="Active Sessions"
-        showBackButton
-        onBackPress={() => navigation.goBack()}
-      />
-      <TerminalScreen keyboardOffset={48}>
+    <TerminalScreen keyboardOffset={0}>
+      <YStack flex={1} gap="$0">
+        <SessionTabs
+          sessions={sessions}
+          activeSessionId={activeSessionId}
+          isDark={isDark}
+          onBackPress={() => navigation.goBack()}
+          onSelect={setActiveSession}
+          onClose={handleCloseSession}
+        />
         {!hasSessions ? (
           <YStack gap="$3" p="$4">
             <EmptyState
@@ -155,53 +157,43 @@ export function SessionsScreen() {
             />
           </YStack>
         ) : (
-          <YStack flex={1} gap="$0">
-            <SessionTabs
-              sessions={sessions}
-              activeSessionId={activeSessionId}
-              isDark={isDark}
-              onSelect={setActiveSession}
-              onClose={handleCloseSession}
-            />
-
-            {activeSession ? (
-              activeSession.status === "error" ? (
-                <YStack flex={1} justifyContent="center" alignItems="center" p="$4">
-                  <EmptyState
-                    title="Connection Failed"
-                    description={`Failed to connect to ${activeSession.name}. Check your connection details.`}
-                  />
-                </YStack>
-              ) : (
-                <YStack
-                  flex={1}
-                  mx="$0"
-                  mb="$0"
-                  borderRadius={0}
-                  overflow="hidden"
-                  backgroundColor="$background"
-                >
-                  <Terminal
-                    ref={terminalRef}
-                    onInput={(data: string) => {
-                      if (!activeSessionId || !isMountedRef.current) return;
-                      // Normalize backspace for shells that expect DEL.
-                      const normalized = data === '\b' ? '\x7f' : data
-                      sendInput(activeSessionId, normalized);
-                    }}
-                    onReady={handleTerminalReady}
-                    onResize={handleTerminalResize}
-                    style={{ flex: 1 }}
-                    theme={terminalColors}
-                    showLoading={activeSession.status === "connecting"}
-                    connectionName={activeSession.name}
-                  />
-                </YStack>
-              )
-            ) : null}
-          </YStack>
+          activeSession ? (
+            activeSession.status === "error" ? (
+              <YStack flex={1} justifyContent="center" alignItems="center" p="$4">
+                <EmptyState
+                  title="Connection Failed"
+                  description={`Failed to connect to ${activeSession.name}. Check your connection details.`}
+                />
+              </YStack>
+            ) : (
+              <YStack
+                flex={1}
+                mx="$0"
+                mb="$0"
+                borderRadius={0}
+                overflow="hidden"
+                backgroundColor="$background"
+              >
+                <Terminal
+                  ref={terminalRef}
+                  onInput={(data: string) => {
+                    if (!activeSessionId || !isMountedRef.current) return;
+                    // Normalize backspace for shells that expect DEL.
+                    const normalized = data === '\b' ? '\x7f' : data
+                    sendInput(activeSessionId, normalized);
+                  }}
+                  onReady={handleTerminalReady}
+                  onResize={handleTerminalResize}
+                  style={{ flex: 1 }}
+                  theme={terminalColors}
+                  showLoading={activeSession.status === "connecting"}
+                  connectionName={activeSession.name}
+                />
+              </YStack>
+            )
+          ) : null
         )}
-      </TerminalScreen>
-    </>
+      </YStack>
+    </TerminalScreen>
   );
 }
