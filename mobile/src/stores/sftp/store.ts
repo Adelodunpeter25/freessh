@@ -286,15 +286,37 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       localDirectory ??
       (FileSystem.documentDirectory ? `${FileSystem.documentDirectory}freessh-downloads/` : null)
     if (!baseDirectory) throw new Error('No writable local directory available')
+    console.log('[SFTP] downloadEntries:start', {
+      remotePaths,
+      localDirectory,
+      resolvedBaseDirectory: baseDirectory,
+    })
 
     await FileSystem.makeDirectoryAsync(baseDirectory, { intermediates: true })
     const downloadedPaths: string[] = []
     for (const remotePath of remotePaths) {
       const name = fileNameFromPath(remotePath) || `download-${Date.now()}`
       const localPath = `${baseDirectory.replace(/\/+$/, '')}/${name}`
-      await sftpService.downloadFile(active.client, normalizePath(remotePath), localPath)
-      downloadedPaths.push(localPath)
+      const normalizedRemotePath = normalizePath(remotePath)
+      console.log('[SFTP] downloadEntries:item', {
+        remotePath,
+        normalizedRemotePath,
+        localPath,
+      })
+      try {
+        await sftpService.downloadFile(active.client, normalizedRemotePath, localPath)
+        downloadedPaths.push(localPath)
+      } catch (error) {
+        console.error('[SFTP] downloadEntries:item failed', {
+          remotePath,
+          normalizedRemotePath,
+          localPath,
+          error,
+        })
+        throw error
+      }
     }
+    console.log('[SFTP] downloadEntries:done', { downloadedPaths })
     return downloadedPaths
   },
 
@@ -308,6 +330,12 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       FileSystem.cacheDirectory ?? FileSystem.documentDirectory ?? null
     if (!stagingBase) throw new Error('No writable local directory available for upload staging')
     const stagingDirectory = `${stagingBase.replace(/\/+$/, '')}/sftp-upload-staging/`
+    console.log('[SFTP] uploadFiles:start', {
+      localPaths,
+      remoteDirectory,
+      resolvedRemoteBase: remoteBase,
+      stagingDirectory,
+    })
     await FileSystem.makeDirectoryAsync(stagingDirectory, { intermediates: true })
 
     for (const localPath of localPaths) {
@@ -317,11 +345,28 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       let uploadSourcePath = localPath
       if (localPath.startsWith('content://')) {
         const stagedPath = `${stagingDirectory}${Date.now()}-${name}`
+        console.log('[SFTP] uploadFiles:staging content uri', { localPath, stagedPath })
         await FileSystem.copyAsync({ from: localPath, to: stagedPath })
         uploadSourcePath = stagedPath
       }
-      await sftpService.uploadFile(active.client, uploadSourcePath, remotePath)
+      console.log('[SFTP] uploadFiles:item', {
+        localPath,
+        uploadSourcePath,
+        remotePath,
+      })
+      try {
+        await sftpService.uploadFile(active.client, uploadSourcePath, remotePath)
+      } catch (error) {
+        console.error('[SFTP] uploadFiles:item failed', {
+          localPath,
+          uploadSourcePath,
+          remotePath,
+          error,
+        })
+        throw error
+      }
     }
+    console.log('[SFTP] uploadFiles:done', { remoteBase })
     await get().listDirectory(remoteBase)
   },
 

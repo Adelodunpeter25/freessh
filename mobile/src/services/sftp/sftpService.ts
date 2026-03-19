@@ -23,18 +23,22 @@ function getReconnectManager(client: SSHClientInstance): ReconnectManager {
 }
 
 async function withReconnect<T>(
+  label: string,
   client: SSHClientInstance,
   operation: () => Promise<T>,
 ): Promise<T> {
   try {
     return await operation()
   } catch (error) {
+    console.error(`[SFTP] ${label} failed, attempting reconnect`, error)
     const reconnectManager = getReconnectManager(client)
     try {
       await client.connectSFTP()
       reconnectManager.reset()
+      console.log(`[SFTP] ${label} reconnect succeeded, retrying`)
       return await operation()
     } catch (reconnectError) {
+      console.error(`[SFTP] ${label} reconnect retry failed`, reconnectError)
       void reconnectManager.attemptReconnect()
       throw reconnectError ?? error
     }
@@ -48,31 +52,47 @@ export const sftpService = {
   },
 
   list(client: SSHClientInstance, path: string) {
-    return withReconnect(client, () => client.sftpLs(path))
+    return withReconnect(`list:${path}`, client, () => client.sftpLs(path))
   },
 
   mkdir(client: SSHClientInstance, path: string) {
-    return withReconnect(client, () => client.sftpMkdir(path))
+    return withReconnect(`mkdir:${path}`, client, () => client.sftpMkdir(path))
   },
 
   rename(client: SSHClientInstance, oldPath: string, newPath: string) {
-    return withReconnect(client, () => client.sftpRename(oldPath, newPath))
+    return withReconnect(`rename:${oldPath}->${newPath}`, client, () => client.sftpRename(oldPath, newPath))
   },
 
   removeFile(client: SSHClientInstance, path: string) {
-    return withReconnect(client, () => client.sftpRm(path))
+    return withReconnect(`rm:${path}`, client, () => client.sftpRm(path))
   },
 
   removeDirectory(client: SSHClientInstance, path: string) {
-    return withReconnect(client, () => client.sftpRmdir(path))
+    return withReconnect(`rmdir:${path}`, client, () => client.sftpRmdir(path))
   },
 
   uploadFile(client: SSHClientInstance, localFilePath: string, remoteFilePath: string) {
-    return withReconnect(client, () => client.sftpUpload(toNativeLocalPath(localFilePath), remoteFilePath))
+    const nativeLocalPath = toNativeLocalPath(localFilePath)
+    console.log('[SFTP] uploadFile', {
+      localFilePath,
+      nativeLocalPath,
+      remoteFilePath,
+    })
+    return withReconnect(`upload:${nativeLocalPath}->${remoteFilePath}`, client, () =>
+      client.sftpUpload(nativeLocalPath, remoteFilePath),
+    )
   },
 
   downloadFile(client: SSHClientInstance, remoteFilePath: string, localFilePath: string) {
-    return withReconnect(client, () => client.sftpDownload(remoteFilePath, toNativeLocalPath(localFilePath)))
+    const nativeLocalPath = toNativeLocalPath(localFilePath)
+    console.log('[SFTP] downloadFile', {
+      remoteFilePath,
+      localFilePath,
+      nativeLocalPath,
+    })
+    return withReconnect(`download:${remoteFilePath}->${nativeLocalPath}`, client, () =>
+      client.sftpDownload(remoteFilePath, nativeLocalPath),
+    )
   },
 
   async copyRemoteEntries(client: SSHClientInstance, sourcePaths: string[], destinationDirectory: string) {
