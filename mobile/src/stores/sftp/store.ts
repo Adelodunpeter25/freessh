@@ -9,7 +9,6 @@ import {
   fileNameFromPath,
   normalizePath,
   parentPath,
-  resolveRemotePath,
 } from '@/utils/sftpPaths'
 import type { SftpDeleteTarget, SftpSession, SftpState } from './types'
 import {
@@ -373,7 +372,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
 
     const remoteBase = normalizePath(remoteDirectory ?? active.currentPath)
     const stagingBase =
-      FileSystem.cacheDirectory ?? FileSystem.documentDirectory ?? null
+      FileSystem.documentDirectory ?? FileSystem.cacheDirectory ?? null
     if (!stagingBase) throw new Error('No writable local directory available for upload staging')
     const stagingDirectory = `${stagingBase.replace(/\/+$/, '')}/sftp-upload-staging/`
     
@@ -389,29 +388,24 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     for (const localPath of localPaths) {
       const rawName = fileNameFromPath(localPath)
       if (!rawName) continue
-      const safeName = rawName.replace(/[<>:"/\\|?*\u0000-\u001F\s]/g, '_')
-      const remotePath = resolveRemotePath(remoteBase, safeName)
-      let uploadSourcePath = localPath
-      
-      // On mobile, files from external pickers (content://) or other app-private locations 
-      // often need to be staged in the app's sandbox before being passed to native modules.
-      const shouldStage = localPath.startsWith('content://') || localPath.startsWith('file:///storage/emulated/')
-      
-      if (shouldStage) {
-        const stagedPath = `${stagingDirectory}${Date.now()}-${safeName}`
-        console.log('[SFTP] uploadFiles:staging file', { localPath, stagedPath })
-        try {
-          await FileSystem.copyAsync({ from: localPath, to: stagedPath })
-          const stagedInfo = await FileSystem.getInfoAsync(stagedPath)
-          if (!stagedInfo.exists) {
-            throw new Error(`Failed to stage file: ${localPath}`)
-          }
-          console.log('[SFTP] uploadFiles:staged file info', { stagedPath, stagedInfo })
-          uploadSourcePath = stagedInfo.uri
-        } catch (stageError) {
-          console.error('[SFTP] uploadFiles:staging failed', { localPath, stageError })
-          // If staging fails, we try the original path as a last resort
+      const safeName = rawName.replace(/[^a-zA-Z0-9.-]/g, '_')
+      const remotePath = remoteBase
+      const stagedPath = `${stagingDirectory}${Date.now()}-${safeName}`
+      let uploadSourcePath = stagedPath
+
+      console.log('[SFTP] uploadFiles:staging file', { localPath, stagedPath, safeName })
+      try {
+        await FileSystem.copyAsync({ from: localPath, to: stagedPath })
+        await new Promise((resolve) => setTimeout(resolve, 150))
+        const stagedInfo = await FileSystem.getInfoAsync(stagedPath)
+        if (!stagedInfo.exists) {
+          throw new Error(`Failed to stage file: ${localPath}`)
         }
+        console.log('[SFTP] uploadFiles:staged file info', { stagedPath, stagedInfo })
+        uploadSourcePath = stagedInfo.uri
+      } catch (stageError) {
+        console.error('[SFTP] uploadFiles:staging failed', { localPath, stagedPath, stageError })
+        throw stageError
       }
 
       console.log('[SFTP] uploadFiles:item', {
@@ -424,11 +418,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
 
       try {
         await sftpService.uploadFile(active.client, uploadSourcePath, remotePath)
-        
-        // Clean up staged file if we created one
-        if (uploadSourcePath !== localPath) {
-          await FileSystem.deleteAsync(uploadSourcePath, { idempotent: true })
-        }
+        await FileSystem.deleteAsync(uploadSourcePath, { idempotent: true })
       } catch (error) {
         console.error('[SFTP] uploadFiles:item failed', {
           localPath,
@@ -436,6 +426,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
           remotePath,
           error,
         })
+        await FileSystem.deleteAsync(uploadSourcePath, { idempotent: true }).catch(() => undefined)
         throw error
       }
     }
