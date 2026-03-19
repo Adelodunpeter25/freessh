@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react'
-import { RefreshControl, ScrollView } from 'react-native'
+import { Pressable, RefreshControl, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
@@ -73,7 +73,7 @@ export function SftpScreen() {
     }
   }, [openFolder, showSnackbar])
 
-  const { rootLabel, fullBreadcrumb, pathSegments, canGoUp } = useMemo(
+  const { rootLabel, fullBreadcrumb, pathSegments, clickablePaths, canGoUp } = useMemo(
     () => getSftpBreadcrumb(currentPath, connectionName),
     [currentPath, connectionName],
   )
@@ -145,6 +145,8 @@ export function SftpScreen() {
         <SftpToolbar
           rootLabel={rootLabel}
           fullBreadcrumb={fullBreadcrumb}
+          clickablePaths={clickablePaths}
+          onNavigateTo={navigateToPath}
           query={query}
           onQueryChange={setQuery}
           onClearQuery={clearQuery}
@@ -195,24 +197,34 @@ export function SftpScreen() {
             bg="$background"
           >
             {canGoUp ? (
-              <XStack
-                px="$3"
-                minHeight={56}
-                py="$2"
-                borderBottomWidth={1}
-                borderBottomColor="$borderColor"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <Text color="$color" fontSize={14} fontWeight="600" onPress={handleGoUp} style={{ cursor: 'pointer' }}>
-                  ..
-                </Text>
-                {hasSelection ? (
-                  <Text color="$accent" fontSize={12} fontWeight="600" onPress={clearSelection}>
-                    Clear selection
+              <Pressable onPress={handleGoUp}>
+                <XStack
+                  px="$3"
+                  minHeight={56}
+                  py="$2"
+                  borderBottomWidth={1}
+                  borderBottomColor="$borderColor"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <Text color="$color" fontSize={14} fontWeight="600">
+                    ..
                   </Text>
-                ) : null}
-              </XStack>
+                  {hasSelection ? (
+                    <Text
+                      color="$accent"
+                      fontSize={12}
+                      fontWeight="600"
+                      onPress={(event) => {
+                        event.stopPropagation()
+                        clearSelection()
+                      }}
+                    >
+                      Clear selection
+                    </Text>
+                  ) : null}
+                </XStack>
+              </Pressable>
             ) : null}
             <ScrollView
               style={{ flex: 1 }}

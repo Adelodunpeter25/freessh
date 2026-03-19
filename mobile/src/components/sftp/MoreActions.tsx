@@ -99,14 +99,14 @@ export function MoreActions({
           label="New folder"
           onPress={onNewFolder}
         />
-        <MenuRow
-          icon={<Trash2 size={14} color="#ef4444" />}
-          label="Delete"
-          onPress={onDelete}
-          destructive
-        />
         {hasSelection ? (
           <>
+            <MenuRow
+              icon={<Trash2 size={14} color="#ef4444" />}
+              label="Delete"
+              onPress={onDelete}
+              destructive
+            />
             <View height={1} backgroundColor="$borderColor" opacity={0.8} marginHorizontal="$2" />
             <MenuRow
               icon={<Copy size={14} color={theme.color.get()} />}
