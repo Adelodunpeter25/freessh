@@ -6,14 +6,28 @@ import { keyService } from '@/services/crud'
 type RawSftpEntry = {
   name?: string
   filename?: string
+  longname?: string
   path?: string
   fullPath?: string
+  filepath?: string
   size?: number | string
+  filesize?: number | string
   mode?: number
+  permissions?: number
+  permission?: number
   mod_time?: number
   modified?: number
+  mtime?: number
+  lastModified?: number
+  attrs?: {
+    size?: number | string
+    mode?: number
+    mtime?: number
+    isDirectory?: boolean
+  }
   is_dir?: boolean
   isDirectory?: boolean
+  directory?: boolean
   type?: string
 }
 
@@ -52,23 +66,48 @@ function parentPath(path: string): string {
   return segments.length ? `/${segments.join('/')}` : '/'
 }
 
+function toNumber(value: unknown, fallback = 0): number {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : fallback
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : fallback
+  }
+  return fallback
+}
+
+function isDirectoryFromMode(mode: number): boolean {
+  // POSIX file type bits: directory == 0o040000
+  return (mode & 0o170000) === 0o040000
+}
+
 function normalizeEntries(entries: unknown, currentPath: string): FileInfo[] {
   if (!Array.isArray(entries)) return []
 
   const mapped = (entries as RawSftpEntry[]).map((entry) => {
-    const name = (entry.name ?? entry.filename ?? '').toString()
+    const name = (
+      entry.name ??
+      entry.filename ??
+      (typeof entry.path === 'string' ? entry.path.split('/').filter(Boolean).pop() : '') ??
+      ''
+    ).toString()
+    const mode = toNumber(entry.mode ?? entry.permissions ?? entry.permission ?? entry.attrs?.mode, 0)
+    const longname = (entry.longname ?? '').toString()
     const isDir =
       entry.is_dir === true ||
       entry.isDirectory === true ||
+      entry.directory === true ||
+      entry.attrs?.isDirectory === true ||
       entry.type === 'directory' ||
-      entry.type === 'd'
+      entry.type === 'd' ||
+      isDirectoryFromMode(mode) ||
+      longname.startsWith('d')
 
     return {
       name,
-      path: entry.path ?? entry.fullPath ?? joinPath(currentPath, name),
-      size: Number(entry.size ?? 0),
-      mode: Number(entry.mode ?? 0),
-      mod_time: Number(entry.mod_time ?? entry.modified ?? 0),
+      path: entry.path ?? entry.fullPath ?? entry.filepath ?? joinPath(currentPath, name),
+      size: toNumber(entry.size ?? entry.filesize ?? entry.attrs?.size, 0),
+      mode,
+      mod_time: toNumber(entry.mod_time ?? entry.modified ?? entry.mtime ?? entry.lastModified ?? entry.attrs?.mtime, 0),
       is_dir: isDir,
     } satisfies FileInfo
   })
