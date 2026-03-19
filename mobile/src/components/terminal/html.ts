@@ -191,6 +191,18 @@ export function buildTerminalHtml(theme: TerminalPalette): string {
           try { terminal.blur(); } catch(e) {}
         };
 
+        window.setTerminalInputEnabled = function(enabled) {
+          try {
+            terminal.options.disableStdin = !enabled;
+            if (!enabled) {
+              terminal.blur();
+              if (document.activeElement && document.activeElement.blur) {
+                document.activeElement.blur();
+              }
+            }
+          } catch(e) {}
+        };
+
         terminal.onData((data) => {
           if (window.ReactNativeWebView) {
             window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'input', data }));

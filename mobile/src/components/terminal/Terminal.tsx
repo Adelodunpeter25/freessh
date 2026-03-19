@@ -39,33 +39,37 @@ export type TerminalHandle = {
 };
 
 const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
-    (
-      { style, onInput, onReady, onResize, theme, profile, showLoading, connectionName, nativeKeyboardEnabled = true },
-      ref,
-    ) => {
-      const webViewRef = useRef<WebView>(null);
-      const isReadyRef = useRef(false);
-      const pendingWritesRef = useRef<string[]>([]);
-      const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-      const isMountedRef = useRef(true);
+  (
+    {
+      style,
+      onInput,
+      onReady,
+      onResize,
+      theme,
+      profile,
+      showLoading,
+      connectionName,
+      nativeKeyboardEnabled = true,
+    },
+    ref,
+  ) => {
+    const webViewRef = useRef<WebView>(null);
+    const isReadyRef = useRef(false);
+    const pendingWritesRef = useRef<string[]>([]);
+    const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const isMountedRef = useRef(true);
 
-      const [isConnected, setIsConnected] = useState(false);
+    const [isConnected, setIsConnected] = useState(false);
 
-      useEffect(() => {
-        webViewRef.current?.injectJavaScript(
-          `if (window.terminal) { window.terminal.options.readOnly = ${!nativeKeyboardEnabled}; } true;`
-        );
-      }, [nativeKeyboardEnabled]);
-
-      const isDark = useThemeStore((state) => state.theme === "dark");
-      const resolvedTheme = useMemo(
-        () => resolveTerminalPalette(isDark, profile, theme),
-        [isDark, profile, theme],
-      );
-      const htmlContent = useMemo(
-        () => buildTerminalHtml(resolvedTheme),
-        [resolvedTheme],
-      );
+    const isDark = useThemeStore((state) => state.theme === "dark");
+    const resolvedTheme = useMemo(
+      () => resolveTerminalPalette(isDark, profile, theme),
+      [isDark, profile, theme],
+    );
+    const htmlContent = useMemo(
+      () => buildTerminalHtml(resolvedTheme),
+      [resolvedTheme],
+    );
 
     useEffect(() => {
       isMountedRef.current = true;
@@ -77,6 +81,17 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
         }
       };
     }, []);
+
+    useEffect(() => {
+      if (!isMountedRef.current) return;
+      webViewRef.current?.injectJavaScript(
+        `
+          window.setTerminalInputEnabled && window.setTerminalInputEnabled(${nativeKeyboardEnabled});
+          ${nativeKeyboardEnabled ? "" : "window.blurTerminal && window.blurTerminal();"}
+          true;
+        `,
+      );
+    }, [nativeKeyboardEnabled]);
 
     const flushPendingWrites = useCallback(() => {
       if (!webViewRef.current || pendingWritesRef.current.length === 0 || !isMountedRef.current) return;
@@ -107,7 +122,12 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           onReady?.(message.data.cols, message.data.rows);
           flushPendingWrites();
           webViewRef.current?.injectJavaScript(
-            "window.focusTerminal(); window.resetScroll && window.resetScroll(); true;",
+            `
+              window.setTerminalInputEnabled && window.setTerminalInputEnabled(${nativeKeyboardEnabled});
+              ${nativeKeyboardEnabled ? "window.focusTerminal && window.focusTerminal();" : "window.blurTerminal && window.blurTerminal();"}
+              window.resetScroll && window.resetScroll();
+              true;
+            `,
           );
           break;
 
@@ -147,6 +167,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
       },
       focus: () => {
         if (!isMountedRef.current) return;
+        if (!nativeKeyboardEnabled) return;
         webViewRef.current?.injectJavaScript("window.focusTerminal(); true;");
       },
       blur: () => {
