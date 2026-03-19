@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react'
 import { Pressable } from 'react-native'
-import { ChevronRight, MoreVertical, Search, Upload, X } from 'lucide-react-native'
+import { ChevronRight, Eye, EyeOff, MoreVertical, Search, Upload, X } from 'lucide-react-native'
 import { Text, XStack, useTheme } from 'tamagui'
-import { IconButton, Input } from '@/components/common'
+import { ContextMenu, IconButton, Input } from '@/components/common'
 
 type SftpToolbarProps = {
   rootLabel: string
@@ -11,7 +11,8 @@ type SftpToolbarProps = {
   onQueryChange: (value: string) => void
   onClearQuery: () => void
   onUpload: () => void
-  onMore: () => void
+  showHidden: boolean
+  onToggleShowHidden: () => void
   onPressRoot: () => void
   onPressCurrent: () => void
 }
@@ -23,7 +24,8 @@ export function SftpToolbar({
   onQueryChange,
   onClearQuery,
   onUpload,
-  onMore,
+  showHidden,
+  onToggleShowHidden,
   onPressRoot,
   onPressCurrent,
 }: SftpToolbarProps) {
@@ -96,9 +98,25 @@ export function SftpToolbar({
           <IconButton onPress={openSearch}>
             <Search size={14} color={theme.color.get()} />
           </IconButton>
-          <IconButton onPress={onMore}>
-            <MoreVertical size={14} color={theme.color.get()} />
-          </IconButton>
+          <ContextMenu
+            triggerOnLongPress={false}
+            items={[
+              {
+                key: 'toggle-hidden',
+                label: showHidden ? 'Hide hidden files' : 'Show hidden files',
+                onPress: onToggleShowHidden,
+                icon: showHidden ? (
+                  <EyeOff size={14} color={theme.color.get()} />
+                ) : (
+                  <Eye size={14} color={theme.color.get()} />
+                ),
+              },
+            ]}
+          >
+            <IconButton>
+              <MoreVertical size={14} color={theme.color.get()} />
+            </IconButton>
+          </ContextMenu>
         </XStack>
       )}
     </XStack>
