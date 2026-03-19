@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Pressable, RefreshControl, ScrollView } from 'react-native'
+import { File } from 'expo-file-system'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Text, XStack, YStack } from 'tamagui'
+import { Dialog, Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { EmptyState, FileList, SearchEmptyState, SftpTabBar, SftpToolbar } from '@/components'
+import { Button, ConfirmDialog, EmptyState, FileList, Input, SearchEmptyState, SftpTabBar, SftpToolbar } from '@/components'
 import { useSearch, useSftpActions } from '@/hooks'
 import { useSftpStore, useSnackbarStore } from '@/stores'
 import type { FileInfo } from '@/types'
@@ -22,6 +23,12 @@ export function SftpScreen() {
   const closeAllSessions = useSftpStore((state) => state.closeAllSessions)
   const listDirectory = useSftpStore((state) => state.listDirectory)
   const openFolder = useSftpStore((state) => state.openFolder)
+  const createFolder = useSftpStore((state) => state.createFolder)
+  const renameEntry = useSftpStore((state) => state.renameEntry)
+  const deleteEntries = useSftpStore((state) => state.deleteEntries)
+  const copyEntries = useSftpStore((state) => state.copyEntries)
+  const downloadEntries = useSftpStore((state) => state.downloadEntries)
+  const uploadFiles = useSftpStore((state) => state.uploadFiles)
   const showSnackbar = useSnackbarStore((state) => state.show)
   const activeSession = useMemo(
     () => sessions.find((session) => session.id === activeSessionId) ?? null,
@@ -44,6 +51,11 @@ export function SftpScreen() {
     toggleSelection,
     clearSelection,
   } = useSftpActions(files)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showNewFolderDialog, setShowNewFolderDialog] = useState(false)
+  const [showRenameDialog, setShowRenameDialog] = useState(false)
+  const [newFolderName, setNewFolderName] = useState('')
+  const [renameValue, setRenameValue] = useState('')
   const { query, filtered, setQuery, clearQuery } = useSearch({
     items: visibleFiles,
     fields: ['name', 'path'],
@@ -98,28 +110,57 @@ export function SftpScreen() {
   const handleToggleSelect = useCallback((entry: FileInfo) => {
     toggleSelection(entry.path)
   }, [toggleSelection])
+  const selectedEntries = useMemo(
+    () => files.filter((file) => selectedPaths.includes(file.path)),
+    [files, selectedPaths],
+  )
+  const singleSelectedEntry = selectedEntries.length === 1 ? selectedEntries[0] : null
   const handleNewFolder = useCallback(() => {
-    showSnackbar('New folder coming soon', 'info')
-  }, [showSnackbar])
+    setNewFolderName('')
+    setShowNewFolderDialog(true)
+  }, [])
   const handleDelete = useCallback(() => {
-    if (!hasSelection) {
-      showSnackbar('Select items to delete', 'info')
-      return
+    if (!hasSelection) return
+    setShowDeleteDialog(true)
+  }, [hasSelection])
+  const handleCopy = useCallback(async () => {
+    if (!hasSelection) return
+    try {
+      await copyEntries(selectedPaths, currentPath)
+      showSnackbar(`Copied ${selectedPaths.length} item(s)`, 'success')
+      clearSelection()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Copy failed'
+      showSnackbar(message, 'error')
     }
-    showSnackbar(`Delete ${selectedPaths.length} item(s) coming soon`, 'info')
-  }, [hasSelection, selectedPaths.length, showSnackbar])
-  const handleCopy = useCallback(() => {
+  }, [clearSelection, copyEntries, currentPath, hasSelection, selectedPaths, showSnackbar])
+  const handleDownload = useCallback(async () => {
     if (!hasSelection) return
-    showSnackbar(`Copy ${selectedPaths.length} item(s) coming soon`, 'info')
-  }, [hasSelection, selectedPaths.length, showSnackbar])
-  const handleDownload = useCallback(() => {
-    if (!hasSelection) return
-    showSnackbar(`Download ${selectedPaths.length} item(s) coming soon`, 'info')
-  }, [hasSelection, selectedPaths.length, showSnackbar])
+    try {
+      const outputs = await downloadEntries(selectedPaths)
+      showSnackbar(`Downloaded ${outputs.length} item(s)`, 'success')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Download failed'
+      showSnackbar(message, 'error')
+    }
+  }, [downloadEntries, hasSelection, selectedPaths, showSnackbar])
   const handleRename = useCallback(() => {
-    if (!canSingleSelectAction) return
-    showSnackbar('Rename coming soon', 'info')
-  }, [canSingleSelectAction, showSnackbar])
+    if (!singleSelectedEntry) return
+    setRenameValue(singleSelectedEntry.name)
+    setShowRenameDialog(true)
+  }, [singleSelectedEntry])
+  const handleUpload = useCallback(async () => {
+    try {
+      const picked = await File.pickFileAsync()
+      const list = Array.isArray(picked) ? picked : [picked]
+      const localPaths = list.map((item) => item.uri)
+      await uploadFiles(localPaths, currentPath)
+      showSnackbar(`Uploaded ${localPaths.length} file(s)`, 'success')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Upload failed'
+      showSnackbar(message, 'error')
+    }
+  }, [currentPath, showSnackbar, uploadFiles])
   const pinnedTabBarHeight = insets.top + 52
   const showSearchEmpty = connected && query.trim().length > 0 && filtered.length === 0
 
@@ -150,7 +191,7 @@ export function SftpScreen() {
           query={query}
           onQueryChange={setQuery}
           onClearQuery={clearQuery}
-          onUpload={() => showSnackbar('Upload coming soon', 'info')}
+          onUpload={handleUpload}
           showHidden={showHidden}
           onToggleShowHidden={toggleShowHidden}
           hasSelection={hasSelection}
@@ -243,6 +284,131 @@ export function SftpScreen() {
           </YStack>
         )}
       </YStack>
+
+      <ConfirmDialog
+        open={showDeleteDialog}
+        onOpenChange={setShowDeleteDialog}
+        title="Delete selected items?"
+        description={`This will permanently delete ${selectedPaths.length} item(s).`}
+        destructive
+        confirmText="Delete"
+        onConfirm={() => {
+          void (async () => {
+            try {
+              await deleteEntries(selectedEntries.map((entry) => ({ path: entry.path, isDir: entry.is_dir })))
+              clearSelection()
+              showSnackbar('Deleted selected item(s)', 'success')
+            } catch (error) {
+              const message = error instanceof Error ? error.message : 'Delete failed'
+              showSnackbar(message, 'error')
+            }
+          })()
+        }}
+      />
+
+      <Dialog open={showNewFolderDialog} onOpenChange={setShowNewFolderDialog}>
+        <Dialog.Portal>
+          <Dialog.Overlay opacity={0.5} backgroundColor="$shadowColor" />
+          <Dialog.Content
+            bordered
+            elevate
+            borderRadius="$4"
+            padding="$4"
+            backgroundColor="$background"
+            width="85%"
+            maxWidth={420}
+          >
+            <YStack gap="$3">
+              <Dialog.Title>
+                <Text fontSize={18} fontWeight="700" color="$color">
+                  New folder
+                </Text>
+              </Dialog.Title>
+              <Input
+                placeholder="Folder name"
+                value={newFolderName}
+                onChangeText={setNewFolderName}
+              />
+              <XStack gap="$2" justifyContent="flex-end">
+                <Button onPress={() => setShowNewFolderDialog(false)} bg="$background">
+                  <Text color="$color">Cancel</Text>
+                </Button>
+                <Button
+                  onPress={() => {
+                    void (async () => {
+                      const name = newFolderName.trim()
+                      if (!name) return
+                      try {
+                        await createFolder(name, currentPath)
+                        showSnackbar(`Folder "${name}" created`, 'success')
+                        setShowNewFolderDialog(false)
+                      } catch (error) {
+                        const message = error instanceof Error ? error.message : 'Failed to create folder'
+                        showSnackbar(message, 'error')
+                      }
+                    })()
+                  }}
+                >
+                  <Text color="$accentText">Create</Text>
+                </Button>
+              </XStack>
+            </YStack>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
+
+      <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
+        <Dialog.Portal>
+          <Dialog.Overlay opacity={0.5} backgroundColor="$shadowColor" />
+          <Dialog.Content
+            bordered
+            elevate
+            borderRadius="$4"
+            padding="$4"
+            backgroundColor="$background"
+            width="85%"
+            maxWidth={420}
+          >
+            <YStack gap="$3">
+              <Dialog.Title>
+                <Text fontSize={18} fontWeight="700" color="$color">
+                  Rename
+                </Text>
+              </Dialog.Title>
+              <Input
+                placeholder="New name"
+                value={renameValue}
+                onChangeText={setRenameValue}
+              />
+              <XStack gap="$2" justifyContent="flex-end">
+                <Button onPress={() => setShowRenameDialog(false)} bg="$background">
+                  <Text color="$color">Cancel</Text>
+                </Button>
+                <Button
+                  onPress={() => {
+                    void (async () => {
+                      if (!singleSelectedEntry) return
+                      const nextName = renameValue.trim()
+                      if (!nextName) return
+                      try {
+                        await renameEntry(singleSelectedEntry.path, nextName)
+                        clearSelection()
+                        showSnackbar('Renamed successfully', 'success')
+                        setShowRenameDialog(false)
+                      } catch (error) {
+                        const message = error instanceof Error ? error.message : 'Rename failed'
+                        showSnackbar(message, 'error')
+                      }
+                    })()
+                  }}
+                >
+                  <Text color="$accentText">Rename</Text>
+                </Button>
+              </XStack>
+            </YStack>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
 
     </YStack>
   )
