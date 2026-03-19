@@ -76,6 +76,7 @@ export function ImportKeyScreen({ navigation }: Props) {
                 setPrivateKeyHeight(nextHeight)
               }}
               placeholder="Paste your private key here"
+              placeholderTextColor={t.placeholderColor.get()}
               multiline
               borderColor="$borderColor"
               borderRadius={10}

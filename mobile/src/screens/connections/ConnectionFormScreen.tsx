@@ -83,7 +83,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
         onBackPress={() => navigation.goBack()}
       />
       <Screen keyboardAvoiding keyboardOffset={48}>
-        <YStack gap="$6">
+        <YStack gap="$5">
           {/* General Section */}
           <YStack gap="$4">
             <Text fontSize={14} fontWeight="700" color="$color">
@@ -308,6 +308,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
                         updateField("private_key", value)
                       }
                       placeholder="Paste your private key here"
+                      placeholderTextColor={t.placeholderColor.get()}
                       numberOfLines={6}
                       borderColor="$borderColor"
                       borderRadius={10}
