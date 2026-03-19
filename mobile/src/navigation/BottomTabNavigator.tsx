@@ -57,13 +57,16 @@ export function BottomTabNavigator() {
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <View
-              borderRadius={999}
+              borderRadius={focused ? 12 : 10}
               borderWidth={focused ? 2 : 1}
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
               style={{
-                paddingHorizontal: focused ? 18 : 12,
-                paddingVertical: focused ? 10 : 6,
+                minWidth: focused ? 74 : 46,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: focused ? 22 : 12,
+                paddingVertical: focused ? 6 : 6,
               }}
             >
               <Home size={18} color={color} />
@@ -75,15 +78,22 @@ export function BottomTabNavigator() {
         name="Connections"
         component={ConnectionsScreen}
         options={{
+          headerStyle: {
+            backgroundColor: theme === 'dark' ? '#0b0e14' : '#eef2f7',
+            borderBottomColor: theme === 'dark' ? '#1f2836' : '#cfd7e2',
+          },
           tabBarIcon: ({ color, focused }) => (
             <View
-              borderRadius={999}
+              borderRadius={focused ? 12 : 10}
               borderWidth={focused ? 2 : 1}
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
               style={{
-                paddingHorizontal: focused ? 18 : 12,
-                paddingVertical: focused ? 10 : 6,
+                minWidth: focused ? 74 : 46,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: focused ? 22 : 12,
+                paddingVertical: focused ? 6 : 6,
               }}
             >
               <Server size={18} color={color} />
@@ -97,13 +107,16 @@ export function BottomTabNavigator() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <View
-              borderRadius={999}
+              borderRadius={focused ? 12 : 10}
               borderWidth={focused ? 2 : 1}
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
               style={{
-                paddingHorizontal: focused ? 18 : 12,
-                paddingVertical: focused ? 10 : 6,
+                minWidth: focused ? 74 : 46,
+                alignItems: 'center',
+                justifyContent: 'center',
+                paddingHorizontal: focused ? 22 : 12,
+                paddingVertical: focused ? 6 : 6,
               }}
             >
               <Settings size={18} color={color} />
