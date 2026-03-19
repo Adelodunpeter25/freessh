@@ -1,25 +1,28 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Free SSH Client Application" />
-    <title>Free SSH</title>
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: file: blob:; worker-src 'self' blob:"
-    />
-    <script>
-      // Detect and apply theme before React loads (prevents flash)
-      (function() {
-        const theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-        document.documentElement.setAttribute('data-theme', theme)
-      })()
-    </script>
-  </head>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="Free SSH Client Application" />
+        <title>FreeSSH</title>
+        <meta
+            http-equiv="Content-Security-Policy"
+            content="default-src 'self'; script-src 'self' 'unsafe-inline' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: file: blob:; worker-src 'self' blob:"
+        />
+        <script>
+            // Detect and apply theme before React loads (prevents flash)
+            (function () {
+                const theme = window.matchMedia("(prefers-color-scheme: dark)")
+                    .matches
+                    ? "dark"
+                    : "light";
+                document.documentElement.setAttribute("data-theme", theme);
+            })();
+        </script>
+    </head>
 
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+    <body>
+        <div id="root"></div>
+        <script type="module" src="/src/main.tsx"></script>
+    </body>
 </html>
