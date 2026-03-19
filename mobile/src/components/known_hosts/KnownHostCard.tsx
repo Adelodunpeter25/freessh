@@ -1,6 +1,6 @@
 import { ShieldCheck, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { useTheme, View } from 'tamagui'
+import { View } from 'tamagui'
 import { BaseCard } from '../common'
 import type { KnownHost } from '@/types'
 
@@ -10,13 +10,11 @@ type KnownHostCardProps = {
 }
 
 export function KnownHostCard({ host, onDelete }: KnownHostCardProps) {
-  const theme = useTheme()
-
   return (
     <BaseCard
       title={host.hostname}
       subtitle={host.fingerprint}
-      icon={<ShieldCheck size={20} color={theme.accent.get()} />}
+      icon={<ShieldCheck size={20} color="#ffffff" />}
       action={onDelete && (
         <Pressable onPress={(e) => {
           e.stopPropagation()

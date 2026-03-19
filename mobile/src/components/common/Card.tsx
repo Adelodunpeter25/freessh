@@ -1,6 +1,6 @@
 import { ReactNode } from 'react'
 import { Pressable } from 'react-native'
-import { Text, XStack, YStack, useTheme, View, styled } from 'tamagui'
+import { Text, XStack, YStack, View, styled } from 'tamagui'
 
 export const Card = styled(YStack, {
   name: 'AppCard',
@@ -39,8 +39,6 @@ export function BaseCard({
   selected,
   loading 
 }: BaseCardProps) {
-  const theme = useTheme()
-
   const content = (
       <Card
         borderColor={selected ? '$accent' : '$borderColor'}
@@ -56,7 +54,6 @@ export function BaseCard({
             backgroundColor="$accent"
             alignItems="center"
             justifyContent="center"
-            opacity={0.12}
           >
             {icon}
           </View>

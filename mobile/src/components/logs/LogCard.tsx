@@ -1,6 +1,6 @@
 import { FileText, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { Text, XStack, useTheme, View } from 'tamagui'
+import { Text, XStack, View } from 'tamagui'
 import { BaseCard } from '../common'
 import type { LogEntry } from '@/types'
 
@@ -11,8 +11,6 @@ type LogCardProps = {
 }
 
 export function LogCard({ log, onPress, onDelete }: LogCardProps) {
-  const theme = useTheme()
-
   const formatDate = (isoString: string) => {
     const date = new Date(isoString)
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -40,7 +38,7 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
           </Text>
         </XStack>
       }
-      icon={<FileText size={20} color={theme.accent.get()} />}
+      icon={<FileText size={20} color="#ffffff" />}
       onPress={onPress}
       action={onDelete && (
         <Pressable onPress={(e) => {
