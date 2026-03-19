@@ -5,7 +5,7 @@ import { Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { EmptyState, FileList, SftpTabBar, SftpToolbar } from '@/components'
+import { EmptyState, FileList, SearchEmptyState, SftpTabBar, SftpToolbar } from '@/components'
 import { useSearch } from '@/hooks'
 import { useSftpStore, useSnackbarStore } from '@/stores'
 import type { FileInfo } from '@/types'
@@ -15,17 +15,25 @@ import { getSftpBreadcrumb } from '@/utils/sftp'
 export function SftpScreen() {
   const insets = useSafeAreaInsets()
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
-  const files = useSftpStore((state) => state.files)
-  const currentPath = useSftpStore((state) => state.currentPath)
-  const loading = useSftpStore((state) => state.loading)
-  const connected = useSftpStore((state) => state.connected)
-  const connectionName = useSftpStore((state) => state.connectionName)
-  const error = useSftpStore((state) => state.error)
+  const sessions = useSftpStore((state) => state.sessions)
+  const activeSessionId = useSftpStore((state) => state.activeSessionId)
+  const setActiveSession = useSftpStore((state) => state.setActiveSession)
+  const closeSession = useSftpStore((state) => state.closeSession)
+  const closeAllSessions = useSftpStore((state) => state.closeAllSessions)
   const listDirectory = useSftpStore((state) => state.listDirectory)
   const openFolder = useSftpStore((state) => state.openFolder)
   const goUp = useSftpStore((state) => state.goUp)
-  const disconnect = useSftpStore((state) => state.disconnect)
   const showSnackbar = useSnackbarStore((state) => state.show)
+  const activeSession = useMemo(
+    () => sessions.find((session) => session.id === activeSessionId) ?? null,
+    [sessions, activeSessionId],
+  )
+  const files = activeSession?.files ?? []
+  const currentPath = activeSession?.currentPath ?? '/'
+  const loading = activeSession?.loading ?? false
+  const connected = activeSession?.connected ?? false
+  const connectionName = activeSession?.connectionName ?? null
+  const error = activeSession?.error ?? null
   const { query, filtered, setQuery, clearQuery } = useSearch({
     items: files,
     fields: ['name', 'path'],
@@ -33,17 +41,18 @@ export function SftpScreen() {
 
   useEffect(() => {
     return () => {
-      disconnect()
+      closeAllSessions()
     }
-  }, [disconnect])
+  }, [closeAllSessions])
 
   const handleRefresh = useCallback(async () => {
+    if (!activeSession) return
     try {
       await listDirectory(currentPath)
     } catch {
       showSnackbar('Failed to refresh folder', 'error')
     }
-  }, [currentPath, listDirectory, showSnackbar])
+  }, [activeSession, currentPath, listDirectory, showSnackbar])
 
   const handleOpenFolder = useCallback(async (folder: FileInfo) => {
     try {
@@ -57,21 +66,17 @@ export function SftpScreen() {
     () => getSftpBreadcrumb(currentPath, connectionName),
     [currentPath, connectionName],
   )
-  const tabTitle = useMemo(
-    () => (connectionName ? `SFTP: ${connectionName}` : 'SFTP'),
-    [connectionName],
-  )
   const handleGoUp = useCallback(() => {
     void goUp()
   }, [goUp])
   const handleBack = useCallback(() => {
     navigation.goBack()
   }, [navigation])
-  const handleCancel = useCallback(() => {
-    disconnect()
-    navigation.goBack()
-  }, [disconnect, navigation])
+  const handleCloseSession = useCallback((id: string) => {
+    closeSession(id)
+  }, [closeSession])
   const pinnedTabBarHeight = insets.top + 52
+  const showSearchEmpty = connected && query.trim().length > 0 && filtered.length === 0
 
   return (
     <YStack gap="$0" flex={1} bg="$background">
@@ -85,9 +90,11 @@ export function SftpScreen() {
         bg="$background"
       >
         <SftpTabBar
-          title={tabTitle}
+          sessions={sessions}
+          activeSessionId={activeSessionId}
           onBackPress={handleBack}
-          onCancelPress={handleCancel}
+          onSelect={setActiveSession}
+          onClose={handleCloseSession}
         />
       </YStack>
 
@@ -123,6 +130,10 @@ export function SftpScreen() {
               title="No SFTP connection"
               description={error ?? 'Connect to a host to browse files.'}
             />
+          </YStack>
+        ) : showSearchEmpty ? (
+          <YStack p="$4">
+            <SearchEmptyState query={query} />
           </YStack>
         ) : (
           <ScrollView

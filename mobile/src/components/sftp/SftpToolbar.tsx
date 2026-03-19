@@ -56,10 +56,10 @@ export function SftpToolbar({
       </XStack>
 
       {searchOpen ? (
-        <XStack ai="center" gap="$1.5" width={170}>
+        <XStack ai="center" gap="$1.5" width={210}>
           <Input
             flex={1}
-            height={34}
+            height={30}
             value={query}
             onChangeText={onQueryChange}
             placeholder="Search"

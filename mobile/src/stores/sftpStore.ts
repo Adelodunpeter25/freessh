@@ -38,19 +38,28 @@ type ParsedLongname = {
   name?: string
 }
 
-type SftpState = {
-  client: SSHClientInstance | null
-  connectionName: string | null
+export type SftpSession = {
+  id: string
+  connectionName: string
+  client: SSHClientInstance
   currentPath: string
   files: FileInfo[]
   loading: boolean
   connected: boolean
   error: string | null
+}
+
+type SftpState = {
+  sessions: SftpSession[]
+  activeSessionId: string | null
   connect: (connection: ConnectionConfig) => Promise<void>
+  setActiveSession: (id: string) => void
+  closeSession: (id: string) => void
   listDirectory: (path?: string) => Promise<void>
   openFolder: (path: string) => Promise<void>
   goUp: () => Promise<void>
   disconnect: () => void
+  closeAllSessions: () => void
 }
 
 function normalizePath(path: string): string {
@@ -205,34 +214,24 @@ function normalizeEntries(entries: unknown, currentPath: string): FileInfo[] {
     })
 }
 
+function getActiveSession(state: SftpState): SftpSession | null {
+  if (!state.activeSessionId) return null
+  return state.sessions.find((session) => session.id === state.activeSessionId) ?? null
+}
+
+function updateSession(
+  sessions: SftpSession[],
+  id: string,
+  updater: (session: SftpSession) => SftpSession,
+): SftpSession[] {
+  return sessions.map((session) => (session.id === id ? updater(session) : session))
+}
+
 export const useSftpStore = create<SftpState>((set, get) => ({
-  client: null,
-  connectionName: null,
-  currentPath: '/',
-  files: [],
-  loading: false,
-  connected: false,
-  error: null,
+  sessions: [],
+  activeSessionId: null,
 
   connect: async (connection) => {
-    const existing = get().client
-    if (existing) {
-      try {
-        sshService.disconnect(existing)
-      } catch (error) {
-        console.warn('[SFTP] Failed to disconnect previous client:', error)
-      }
-    }
-
-    set({
-      loading: true,
-      connected: false,
-      error: null,
-      files: [],
-      currentPath: '/',
-      connectionName: connection.name,
-    })
-
     const port = connection.port ?? 22
 
     try {
@@ -264,41 +263,97 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       }
 
       await sshService.connectSftp(client)
-      set({ client, connected: true, loading: false, error: null })
-      await get().listDirectory('/')
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to connect to SFTP'
-      set({
-        client: null,
-        connected: false,
+      const rootPath = '/'
+      const results = await sshService.sftpLs(client, rootPath)
+      const files = normalizeEntries(results, rootPath)
+      const id = `${connection.id}-${Date.now()}`
+      const session: SftpSession = {
+        id,
+        connectionName: connection.name,
+        client,
+        currentPath: rootPath,
+        files,
         loading: false,
-        error: message,
-      })
+        connected: true,
+        error: null,
+      }
+
+      set((state) => ({
+        sessions: [...state.sessions, session],
+        activeSessionId: id,
+      }))
+    } catch (error) {
       throw error
     }
   },
 
-  listDirectory: async (path) => {
-    const client = get().client
-    if (!client) {
-      set({ files: [], connected: false, error: 'No SFTP connection' })
-      return
+  setActiveSession: (id) => {
+    set((state) => {
+      if (!state.sessions.some((session) => session.id === id)) return state
+      return { activeSessionId: id }
+    })
+  },
+
+  closeSession: (id) => {
+    const target = get().sessions.find((session) => session.id === id)
+    if (target) {
+      try {
+        sshService.disconnect(target.client)
+      } catch (error) {
+        console.warn('[SFTP] Disconnect failed:', error)
+      }
     }
 
-    const targetPath = normalizePath(path ?? get().currentPath)
-    set({ loading: true, error: null })
+    set((state) => {
+      const nextSessions = state.sessions.filter((session) => session.id !== id)
+      let nextActiveSessionId = state.activeSessionId
+
+      if (state.activeSessionId === id) {
+        nextActiveSessionId = nextSessions.length > 0 ? nextSessions[nextSessions.length - 1].id : null
+      }
+
+      return {
+        sessions: nextSessions,
+        activeSessionId: nextActiveSessionId,
+      }
+    })
+  },
+
+  listDirectory: async (path) => {
+    const state = get()
+    const active = getActiveSession(state)
+    if (!active) return
+
+    const targetPath = normalizePath(path ?? active.currentPath)
+    set((current) => ({
+      sessions: updateSession(current.sessions, active.id, (session) => ({
+        ...session,
+        loading: true,
+        error: null,
+      })),
+    }))
     try {
-      const results = await sshService.sftpLs(client, targetPath)
+      const results = await sshService.sftpLs(active.client, targetPath)
       const files = normalizeEntries(results, targetPath)
-      set({
-        files,
-        currentPath: targetPath,
-        loading: false,
-        connected: true,
-      })
+      set((current) => ({
+        sessions: updateSession(current.sessions, active.id, (session) => ({
+          ...session,
+          files,
+          currentPath: targetPath,
+          loading: false,
+          connected: true,
+          error: null,
+        })),
+      }))
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load directory'
-      set({ loading: false, error: message })
+      set((current) => ({
+        sessions: updateSession(current.sessions, active.id, (session) => ({
+          ...session,
+          loading: false,
+          error: message,
+        })),
+      }))
       throw error
     }
   },
@@ -308,26 +363,29 @@ export const useSftpStore = create<SftpState>((set, get) => ({
   },
 
   goUp: async () => {
-    await get().listDirectory(parentPath(get().currentPath))
+    const active = getActiveSession(get())
+    if (!active) return
+    await get().listDirectory(parentPath(active.currentPath))
   },
 
   disconnect: () => {
-    const client = get().client
-    if (client) {
+    const active = getActiveSession(get())
+    if (!active) return
+    get().closeSession(active.id)
+  },
+
+  closeAllSessions: () => {
+    const { sessions } = get()
+    sessions.forEach((session) => {
       try {
-        sshService.disconnect(client)
+        sshService.disconnect(session.client)
       } catch (error) {
         console.warn('[SFTP] Disconnect failed:', error)
       }
-    }
+    })
     set({
-      client: null,
-      connectionName: null,
-      currentPath: '/',
-      files: [],
-      connected: false,
-      loading: false,
-      error: null,
+      sessions: [],
+      activeSessionId: null,
     })
   },
 }))
