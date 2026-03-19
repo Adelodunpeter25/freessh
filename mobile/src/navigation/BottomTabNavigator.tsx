@@ -1,9 +1,8 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import { View } from 'tamagui'
 import {
   Home,
-  LayoutGrid,
   Settings,
-  Shield,
   Server,
 } from 'lucide-react-native'
 
@@ -56,21 +55,48 @@ export function BottomTabNavigator() {
         options={{
           headerTitle: 'Home',
           tabBarLabel: 'Home',
-          tabBarIcon: ({ color }) => <Home size={22} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              px="$3"
+              py="$1.5"
+              borderRadius={999}
+              backgroundColor={focused ? (theme === 'dark' ? '#1f6f5f' : '#d9efe8') : 'transparent'}
+            >
+              <Home size={18} color={color} />
+            </View>
+          ),
         }}
       />
       <Tab.Screen
         name="Connections"
         component={ConnectionsScreen}
         options={{
-          tabBarIcon: ({ color }) => <Server size={22} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              px="$3"
+              py="$1.5"
+              borderRadius={999}
+              backgroundColor={focused ? (theme === 'dark' ? '#1f6f5f' : '#d9efe8') : 'transparent'}
+            >
+              <Server size={18} color={color} />
+            </View>
+          ),
         }}
       />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarIcon: ({ color }) => <Settings size={22} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <View
+              px="$3"
+              py="$1.5"
+              borderRadius={999}
+              backgroundColor={focused ? (theme === 'dark' ? '#1f6f5f' : '#d9efe8') : 'transparent'}
+            >
+              <Settings size={18} color={color} />
+            </View>
+          ),
         }}
       />
     </Tab.Navigator>

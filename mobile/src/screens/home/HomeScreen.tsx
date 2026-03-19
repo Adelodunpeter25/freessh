@@ -4,26 +4,22 @@ import {
   ArrowRightLeft, 
   Code2, 
   Fingerprint, 
-  History,
   ChevronRight,
-  ShieldCheck
 } from 'lucide-react-native'
 import { 
   YStack, 
   XStack, 
   Text, 
   Card, 
-  H3, 
-  Theme, 
   useTheme, 
   Circle,
   ScrollView,
-  View
+  Separator
 } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
-import { useConnectionStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore, useTerminalStore } from '@/stores'
+import { useConnectionStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore } from '@/stores'
 
 type HubItem = {
   id: string
@@ -41,11 +37,9 @@ export function HomeScreen() {
   const keys = useKeyStore((state) => state.keys)
   const logs = useLogStore((state) => state.logs)
   const knownHosts = useKnownHostStore((state) => state.knownHosts)
-  const sessions = useTerminalStore((state) => state.sessions)
 
   const items: HubItem[] = [
     { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Connections', count: connections.length },
-    { id: 'sessions', title: 'Active Sessions', icon: History, screen: 'Sessions', count: sessions.length },
     { id: 'keychain', title: 'Keychain', icon: Key, screen: 'Keys', count: keys.length },
     { id: 'forwarding', title: 'Port forwarding', icon: ArrowRightLeft, screen: 'Main' }, // Placeholder
     { id: 'snippets', title: 'Snippets', icon: Code2, screen: 'Snippets', count: snippets.length },
@@ -55,51 +49,60 @@ export function HomeScreen() {
 
   return (
     <ScrollView backgroundColor="$background" flex={1}>
-      <YStack p="$4" pt="$2" gap="$4">
-        {/* List Section */}
-        <YStack gap="$2">
-          {items.map((item) => (
-            <Card
-              key={item.id}
-              p="$2.5"
-              px="$4"
-              borderRadius={12}
-              backgroundColor="$backgroundStrong"
-              borderWidth={1}
-              borderColor="$borderColor"
-              pressStyle={{ scale: 0.98, backgroundColor: '$backgroundHover' }}
-              onPress={() => {
-                if (item.id === 'hosts') {
-                   // @ts-ignore
-                   navigation.navigate('Connections')
-                } else {
-                   // @ts-ignore
-                   navigation.navigate(item.screen)
-                }
-              }}
-            >
-              <XStack ai="center" jc="space-between">
-                <XStack ai="center" gap="$3">
-                  <Circle size={36} bg="$borderColor" opacity={0.5} ai="center" jc="center">
-                    <item.icon size={18} color={t.color.get()} />
-                  </Circle>
-                  <Text fontSize={14} fontWeight="600" color="$color">
-                    {item.title}
-                  </Text>
-                </XStack>
-                
-                <XStack ai="center" gap="$3">
-                  {item.count !== undefined && (
-                    <Text fontSize={13} fontWeight="500" color="$placeholderColor">
-                      {item.count}
+      <YStack p="$4" pt="$3">
+        <Card
+          borderRadius={16}
+          overflow="hidden"
+          backgroundColor="$backgroundStrong"
+          borderWidth={1}
+          borderColor="$borderColor"
+          elevation={0}
+        >
+          {items.map((item, index) => (
+            <YStack key={item.id}>
+              <Card
+                p="$3"
+                px="$4"
+                borderRadius={0}
+                backgroundColor="transparent"
+                borderWidth={0}
+                pressStyle={{ scale: 0.995, backgroundColor: '$backgroundHover' }}
+                onPress={() => {
+                  if (item.id === 'hosts') {
+                    // @ts-ignore
+                    navigation.navigate('Connections')
+                  } else {
+                    // @ts-ignore
+                    navigation.navigate(item.screen)
+                  }
+                }}
+              >
+                <XStack ai="center" jc="space-between">
+                  <XStack ai="center" gap="$3">
+                    <Circle size={28} bg="$borderColor" opacity={0.5} ai="center" jc="center">
+                      <item.icon size={15} color={t.color.get()} />
+                    </Circle>
+                    <Text fontSize={14} fontWeight="600" color="$color">
+                      {item.title}
                     </Text>
-                  )}
-                  <ChevronRight size={14} color={t.placeholderColor.get()} />
+                  </XStack>
+
+                  <XStack ai="center" gap="$2.5">
+                    {item.count !== undefined && (
+                      <Text fontSize={13} fontWeight="500" color="$placeholderColor">
+                        {item.count}
+                      </Text>
+                    )}
+                    <ChevronRight size={14} color={t.placeholderColor.get()} />
+                  </XStack>
                 </XStack>
-              </XStack>
-            </Card>
+              </Card>
+              {index < items.length - 1 ? (
+                <Separator borderColor="$borderColor" opacity={0.6} />
+              ) : null}
+            </YStack>
           ))}
-        </YStack>
+        </Card>
       </YStack>
     </ScrollView>
   )
