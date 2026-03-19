@@ -43,6 +43,9 @@ func IsBootstrapCommand(command string) bool {
 		strings.Contains(c, "fish_prompt") ||
 		strings.Contains(c, "__freessh_precmd") ||
 		strings.Contains(c, "__FREESSH_ZSH_HOOK") ||
+		strings.Contains(c, "autoload -U") ||
+		strings.Contains(c, "HISTCMD") ||
+		strings.Contains(c, "fc -ln -1") ||
 		strings.Contains(c, "precmd_functions") ||
 		strings.Contains(c, "__FREESSH_ZSH_HOOK_INSTALLED") ||
 		strings.Contains(c, "__FREESSH_LAST_HISTNO") ||
@@ -70,6 +73,9 @@ func ContainsBootstrapFragment(content string) bool {
 		"__freessh_emit_history",
 		"__freessh_precmd",
 		"__FREESSH_ZSH_HOOK",
+		"autoload -U",
+		"HISTCMD",
+		"fc -ln -1",
 		"__FREESSH_ZSH_HOOK_INSTALLED",
 		"precmd_functions",
 		"__FREESSH_LAST_HISTNO",
