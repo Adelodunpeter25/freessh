@@ -1,13 +1,14 @@
 import { Pressable } from 'react-native'
-import { ArrowLeft, Monitor } from 'lucide-react-native'
+import { ArrowLeft, Monitor, X } from 'lucide-react-native'
 import { Text, XStack, YStack, useTheme } from 'tamagui'
 
 type SftpTabBarProps = {
   title: string
   onBackPress: () => void
+  onCancelPress: () => void
 }
 
-export function SftpTabBar({ title, onBackPress }: SftpTabBarProps) {
+export function SftpTabBar({ title, onBackPress, onCancelPress }: SftpTabBarProps) {
   const theme = useTheme();
 
   return (
@@ -57,6 +58,21 @@ export function SftpTabBar({ title, onBackPress }: SftpTabBarProps) {
             {title}
           </Text>
         </XStack>
+
+        <Pressable onPress={onCancelPress} hitSlop={8}>
+          <XStack
+            width={34}
+            height={34}
+            borderRadius={9}
+            alignItems="center"
+            justifyContent="center"
+            backgroundColor="$backgroundHover"
+            borderWidth={1}
+            borderColor="$borderColor"
+          >
+            <X size={16} color={theme.color.get()} />
+          </XStack>
+        </Pressable>
       </XStack>
     </YStack>
   );

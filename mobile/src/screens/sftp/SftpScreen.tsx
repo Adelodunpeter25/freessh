@@ -67,6 +67,10 @@ export function SftpScreen() {
   const handleBack = useCallback(() => {
     navigation.goBack()
   }, [navigation])
+  const handleCancel = useCallback(() => {
+    disconnect()
+    navigation.goBack()
+  }, [disconnect, navigation])
   const pinnedTabBarHeight = insets.top + 52
 
   return (
@@ -83,6 +87,7 @@ export function SftpScreen() {
         <SftpTabBar
           title={tabTitle}
           onBackPress={handleBack}
+          onCancelPress={handleCancel}
         />
       </YStack>
 
