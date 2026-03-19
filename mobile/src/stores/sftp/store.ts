@@ -390,11 +390,13 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       if (!rawName) continue
       const safeName = rawName.replace(/[^a-zA-Z0-9.-]/g, '_')
       const remotePath = remoteBase
-      const stagedPath = `${stagingDirectory}${Date.now()}-${safeName}`
+      const uploadStagingDirectory = `${stagingDirectory}${Date.now()}-${Math.random().toString(36).slice(2, 8)}/`
+      const stagedPath = `${uploadStagingDirectory}${safeName}`
       let uploadSourcePath = stagedPath
 
-      console.log('[SFTP] uploadFiles:staging file', { localPath, stagedPath, safeName })
+      console.log('[SFTP] uploadFiles:staging file', { localPath, uploadStagingDirectory, stagedPath, safeName })
       try {
+        await FileSystem.makeDirectoryAsync(uploadStagingDirectory, { intermediates: true })
         await FileSystem.copyAsync({ from: localPath, to: stagedPath })
         await new Promise((resolve) => setTimeout(resolve, 150))
         const stagedInfo = await FileSystem.getInfoAsync(stagedPath)
@@ -418,7 +420,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
 
       try {
         await sftpService.uploadFile(active.client, uploadSourcePath, remotePath)
-        await FileSystem.deleteAsync(uploadSourcePath, { idempotent: true })
+        await FileSystem.deleteAsync(uploadStagingDirectory, { idempotent: true })
       } catch (error) {
         console.error('[SFTP] uploadFiles:item failed', {
           localPath,
@@ -426,7 +428,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
           remotePath,
           error,
         })
-        await FileSystem.deleteAsync(uploadSourcePath, { idempotent: true }).catch(() => undefined)
+        await FileSystem.deleteAsync(uploadStagingDirectory, { idempotent: true }).catch(() => undefined)
         throw error
       }
     }
