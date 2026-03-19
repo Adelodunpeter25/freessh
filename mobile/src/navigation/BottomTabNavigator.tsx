@@ -57,11 +57,11 @@ export function BottomTabNavigator() {
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <View
-              px="$2.5"
-              py="$1"
+              px="$3"
+              py="$1.5"
               borderRadius={999}
-              borderWidth={1}
-              borderColor={focused ? (theme === 'dark' ? '#3a4a60' : '#c8d5e6') : 'transparent'}
+              borderWidth={focused ? 2 : 1}
+              borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
             >
               <Home size={18} color={color} />
@@ -75,11 +75,11 @@ export function BottomTabNavigator() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <View
-              px="$2.5"
-              py="$1"
+              px="$3"
+              py="$1.5"
               borderRadius={999}
-              borderWidth={1}
-              borderColor={focused ? (theme === 'dark' ? '#3a4a60' : '#c8d5e6') : 'transparent'}
+              borderWidth={focused ? 2 : 1}
+              borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
             >
               <Server size={18} color={color} />
@@ -93,11 +93,11 @@ export function BottomTabNavigator() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <View
-              px="$2.5"
-              py="$1"
+              px="$3"
+              py="$1.5"
               borderRadius={999}
-              borderWidth={1}
-              borderColor={focused ? (theme === 'dark' ? '#3a4a60' : '#c8d5e6') : 'transparent'}
+              borderWidth={focused ? 2 : 1}
+              borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
             >
               <Settings size={18} color={color} />
