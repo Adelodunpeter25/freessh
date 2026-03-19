@@ -24,6 +24,8 @@ export function SftpToolbar({
 }: SftpToolbarProps) {
   const theme = useTheme()
   const [searchOpen, setSearchOpen] = useState(false)
+  const showSingleBreadcrumb =
+    rootLabel.trim().toLowerCase() === lastLabel.trim().toLowerCase()
 
   const openSearch = useCallback(() => {
     setSearchOpen(true)
@@ -49,21 +51,29 @@ export function SftpToolbar({
         <Text color="$placeholderColor" fontSize={12} numberOfLines={1}>
           {rootLabel}
         </Text>
-        <ChevronRight size={14} color="#94a3b8" />
-        <Text color="$color" fontSize={12} fontWeight="600" numberOfLines={1}>
-          {lastLabel}
-        </Text>
+        {showSingleBreadcrumb ? null : (
+          <>
+            <ChevronRight size={14} color="#94a3b8" />
+            <Text color="$color" fontSize={12} fontWeight="600" numberOfLines={1}>
+              {lastLabel}
+            </Text>
+          </>
+        )}
       </XStack>
 
       {searchOpen ? (
         <XStack ai="center" gap="$1.5" width={210}>
           <Input
             flex={1}
-            height={30}
+            height={32}
             value={query}
             onChangeText={onQueryChange}
             placeholder="Search"
             autoFocus
+            textAlignVertical="center"
+            fontSize={12}
+            lineHeight={16}
+            py="$0"
           />
           <IconButton onPress={closeSearch}>
             <X size={14} color={theme.color.get()} />

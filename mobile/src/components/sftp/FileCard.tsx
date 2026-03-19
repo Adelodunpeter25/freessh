@@ -13,7 +13,14 @@ export function FileCard({ file, onPress }: FileCardProps) {
   const theme = useTheme()
 
   return (
-    <Pressable onPress={onPress} style={{ width: '100%' }}>
+    <Pressable
+      onPress={onPress}
+      android_ripple={{ color: 'rgba(148, 163, 184, 0.14)' }}
+      style={({ pressed }) => ({
+        width: '100%',
+        backgroundColor: pressed ? 'rgba(148, 163, 184, 0.08)' : 'transparent',
+      })}
+    >
       <XStack
         alignItems="center"
         justifyContent="space-between"
