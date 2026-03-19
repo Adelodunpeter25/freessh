@@ -30,7 +30,8 @@ type BackendMessage = {
 };
 
 function getWindowForMessage(message: BackendMessage): BrowserWindow | null {
-  const requestId = typeof message.request_id === "string" ? message.request_id : "";
+  const requestId =
+    typeof message.request_id === "string" ? message.request_id : "";
   if (requestId) {
     const ownerWindowId = requestOwners.get(requestId);
     if (ownerWindowId !== undefined) {
@@ -42,7 +43,8 @@ function getWindowForMessage(message: BackendMessage): BrowserWindow | null {
     }
   }
 
-  const sessionId = typeof message.session_id === "string" ? message.session_id : "";
+  const sessionId =
+    typeof message.session_id === "string" ? message.session_id : "";
   if (sessionId) {
     const ownerWindowId = sessionOwners.get(sessionId);
     if (ownerWindowId !== undefined) {
@@ -177,7 +179,7 @@ function scheduleBackendRestart(reason: "error" | "exit") {
 
   const delay = Math.min(
     BACKEND_RESTART_BASE_MS * Math.pow(2, backendRestartAttempts),
-    BACKEND_RESTART_MAX_MS
+    BACKEND_RESTART_MAX_MS,
   );
 
   backendRestartAttempts += 1;
@@ -213,14 +215,22 @@ function resolveBackendPath(isDev: boolean, binaryName: string): string {
 // Send message to Go backend
 ipcMain.on("backend:send", (event, message) => {
   if (goBackend && goBackend.stdin) {
-    if (message && typeof message.request_id === "string" && message.request_id) {
+    if (
+      message &&
+      typeof message.request_id === "string" &&
+      message.request_id
+    ) {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (window) {
         requestOwners.set(message.request_id, window.id);
       }
     }
 
-    if (message && typeof message.session_id === "string" && message.session_id) {
+    if (
+      message &&
+      typeof message.session_id === "string" &&
+      message.session_id
+    ) {
       const window = BrowserWindow.fromWebContents(event.sender);
       if (window) {
         sessionOwners.set(message.session_id, window.id);
@@ -234,12 +244,15 @@ ipcMain.on("backend:send", (event, message) => {
 
 app.whenReady().then(() => {
   ipcMain.on("ping", () => console.log("pong"));
-  ipcMain.on("workspace:window-mode:set", (event, payload: { mode?: AppWindowMode }) => {
-    const window = BrowserWindow.fromWebContents(event.sender);
-    if (!window) return;
-    const mode = payload?.mode === "workspace" ? "workspace" : "primary";
-    windowModes.set(window.id, mode);
-  });
+  ipcMain.on(
+    "workspace:window-mode:set",
+    (event, payload: { mode?: AppWindowMode }) => {
+      const window = BrowserWindow.fromWebContents(event.sender);
+      if (!window) return;
+      const mode = payload?.mode === "workspace" ? "workspace" : "primary";
+      windowModes.set(window.id, mode);
+    },
+  );
 
   ipcMain.handle("workspace:create-window", () => {
     if (!FEATURE_FLAGS.DETACHABLE_WORKSPACES) {
@@ -279,6 +292,10 @@ app.whenReady().then(() => {
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
+      backendStopping = false;
+      if (!goBackend) {
+        startBackend();
+      }
       const newWindow = createWindow({ mode: "primary" });
       windowModes.set(newWindow.id, "primary");
       newWindow.on("closed", () => {
