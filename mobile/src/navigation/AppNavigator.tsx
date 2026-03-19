@@ -62,10 +62,10 @@ const darkNavTheme: Theme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    background: '#000000',
-    card: '#09090b',
+    background: '#09090b',
+    card: '#121214',
     text: '#fafafa',
-    border: '#18181b',
+    border: '#1e1e21',
     primary: '#f97316',
   },
 }
