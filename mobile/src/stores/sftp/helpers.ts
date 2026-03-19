@@ -1,5 +1,5 @@
 import type { FileInfo } from '@/types'
-import { joinPath } from '@/utils/sftpPaths'
+import { fileNameFromPath, joinPath } from '@/utils/sftpPaths'
 import type { ParsedLongname, RawSftpEntry, SftpSession, SftpState } from './types'
 
 function toNumber(value: unknown, fallback = 0): number {
@@ -93,7 +93,7 @@ export function normalizeEntries(entries: unknown, currentPath: string): FileInf
       entry.name ??
       entry.filename ??
       parsedLongname.name ??
-      (typeof entry.path === 'string' ? entry.path.split('/').filter(Boolean).pop() : '') ??
+      (typeof entry.path === 'string' ? fileNameFromPath(entry.path) : '') ??
       ''
     ).toString()
     const mode = toNumber(

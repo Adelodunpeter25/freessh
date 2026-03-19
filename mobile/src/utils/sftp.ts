@@ -42,12 +42,10 @@ export function getSftpBreadcrumb(currentPath: string, connectionName: string | 
     clickablePaths.push({ segment, path })
   }
 
-  const fullBreadcrumb = clickablePaths.map((item) => item.segment).join(' > ')
   const canGoUp = normalizedPath !== '/'
 
   return { 
     rootLabel, 
-    fullBreadcrumb,
     clickablePaths,
     canGoUp 
   }

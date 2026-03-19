@@ -144,6 +144,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     const target = get().sessions.find((session) => session.id === id)
     if (target) {
       try {
+        sftpService.stopReconnect(target.client)
         sshService.disconnect(target.client)
       } catch (error) {
         console.warn('[SFTP] Disconnect failed:', error)
@@ -322,6 +323,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     const { sessions } = get()
     sessions.forEach((session) => {
       try {
+        sftpService.stopReconnect(session.client)
         sshService.disconnect(session.client)
       } catch (error) {
         console.warn('[SFTP] Disconnect failed:', error)
