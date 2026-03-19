@@ -58,7 +58,6 @@ export const pinnedTerminalKeys: TerminalKeyboardKey[] = [
 export const terminalKeyboardRows: TerminalKeyboardRow[] = [
   {
     id: "navigation",
-    label: "Navigation",
     keys: [
       { id: "insert", label: "Ins", kind: "action", actionId: "insert" },
       { id: "home", label: "Home", kind: "action", actionId: "home" },
@@ -70,7 +69,6 @@ export const terminalKeyboardRows: TerminalKeyboardRow[] = [
   },
   {
     id: "quick-actions",
-    label: "Quick Actions",
     keys: [
       { id: "interrupt", label: "^C", kind: "action", actionId: "interrupt" },
       { id: "eof", label: "^D", kind: "action", actionId: "eof" },
@@ -81,8 +79,7 @@ export const terminalKeyboardRows: TerminalKeyboardRow[] = [
     ],
   },
   {
-    id: "function-keys",
-    label: "Function Keys",
+    id: "f1-f7",
     keys: [
       { id: "f1", label: "F1", kind: "action", actionId: "f1" },
       { id: "f2", label: "F2", kind: "action", actionId: "f2" },
@@ -91,19 +88,23 @@ export const terminalKeyboardRows: TerminalKeyboardRow[] = [
       { id: "f5", label: "F5", kind: "action", actionId: "f5" },
       { id: "f6", label: "F6", kind: "action", actionId: "f6" },
       { id: "f7", label: "F7", kind: "action", actionId: "f7" },
+    ],
+  },
+  {
+    id: "f8-f12-symbols1",
+    keys: [
       { id: "f8", label: "F8", kind: "action", actionId: "f8" },
       { id: "f9", label: "F9", kind: "action", actionId: "f9" },
       { id: "f10", label: "F10", kind: "action", actionId: "f10" },
       { id: "f11", label: "F11", kind: "action", actionId: "f11" },
       { id: "f12", label: "F12", kind: "action", actionId: "f12" },
+      { id: "tilde", label: "~", kind: "text", value: "~" },
+      { id: "backtick", label: "`", kind: "text", value: "`" },
     ],
   },
   {
-    id: "symbols",
-    label: "Symbols",
+    id: "symbols2",
     keys: [
-      { id: "tilde", label: "~", kind: "text", value: "~" },
-      { id: "backtick", label: "`", kind: "text", value: "`" },
       { id: "pipe", label: "|", kind: "text", value: "|" },
       { id: "backslash", label: "\\", kind: "text", value: "\\" },
       { id: "slash", label: "/", kind: "text", value: "/" },
@@ -111,19 +112,23 @@ export const terminalKeyboardRows: TerminalKeyboardRow[] = [
       { id: "underscore", label: "_", kind: "text", value: "_" },
       { id: "dollar", label: "$", kind: "text", value: "$" },
       { id: "hash", label: "#", kind: "text", value: "#" },
-      { id: "ampersand", label: "&", kind: "text", value: "&" },
-      { id: "asterisk", label: "*", kind: "text", value: "*" },
-      { id: "question", label: "?", kind: "text", value: "?" },
     ],
   },
   {
-    id: "brackets",
-    label: "Brackets",
+    id: "symbols3-brackets1",
     keys: [
+      { id: "ampersand", label: "&", kind: "text", value: "&" },
+      { id: "asterisk", label: "*", kind: "text", value: "*" },
+      { id: "question", label: "?", kind: "text", value: "?" },
       { id: "parenLeft", label: "(", kind: "text", value: "(" },
       { id: "parenRight", label: ")", kind: "text", value: ")" },
       { id: "bracketLeft", label: "[", kind: "text", value: "[" },
       { id: "bracketRight", label: "]", kind: "text", value: "]" },
+    ],
+  },
+  {
+    id: "brackets2",
+    keys: [
       { id: "braceLeft", label: "{", kind: "text", value: "{" },
       { id: "braceRight", label: "}", kind: "text", value: "}" },
       { id: "lessThan", label: "<", kind: "text", value: "<" },
@@ -131,17 +136,15 @@ export const terminalKeyboardRows: TerminalKeyboardRow[] = [
       { id: "quoteSingle", label: "'", kind: "text", value: "'" },
       { id: "quoteDouble", label: "\"", kind: "text", value: "\"" },
       { id: "equals", label: "=", kind: "text", value: "=" },
-      { id: "plus", label: "+", kind: "text", value: "+" },
     ],
   },
   {
-    id: "basic-actions",
-    label: "Basic Actions",
+    id: "brackets3-actions",
     keys: [
+      { id: "plus", label: "+", kind: "text", value: "+" },
       { id: "enter", label: "Enter", kind: "action", actionId: "enter" },
       { id: "space", label: "Space", kind: "action", actionId: "space" },
       { id: "backspace", label: "⌫", kind: "action", actionId: "backspace" },
-      { id: "tab2", label: "Tab", kind: "action", actionId: "tab" },
       { id: "escape2", label: "Esc", kind: "action", actionId: "escape" },
     ],
   },

@@ -57,13 +57,16 @@ export function TerminalAccessoryKeyboard({
       const nextHeight = event.endCoordinates.height;
       if (nextHeight > 0) {
         setKeyboardHeight(nextHeight);
+        if (showKeyboard) {
+          setShowKeyboard(false);
+        }
       }
     });
 
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [showKeyboard]);
 
   useEffect(() => {
     onExpandedLayoutChange?.(showKeyboard);
@@ -182,7 +185,7 @@ export function TerminalAccessoryKeyboard({
 
       {showKeyboard ? (
         <YStack
-          height={Math.max(keyboardHeight, 260) + insets.bottom}
+          height={270 + insets.bottom}
           borderTopWidth={1}
           borderColor="$borderColor"
           backgroundColor="$background"
@@ -190,11 +193,7 @@ export function TerminalAccessoryKeyboard({
           paddingHorizontal="$3"
           paddingBottom={Math.max(insets.bottom, 8)}
         >
-          <YStack gap="$2" flex={1}>
-            <XStack justifyContent="center" paddingBottom="$1">
-              <GripHorizontal size={18} color={theme.placeholderColor.get()} />
-            </XStack>
-
+          <YStack gap="$3" flex={1} paddingTop="$3">
             <ScrollView showsVerticalScrollIndicator={false}>
               <YStack gap="$2.5" paddingBottom="$3">
                 {terminalKeyboardRows.map((row) => (
@@ -206,6 +205,7 @@ export function TerminalAccessoryKeyboard({
                           label={key.label}
                           wide={key.label.length > 3}
                           compact
+                          flex={1}
                           emphasis={
                             row.id === "basic-actions" || row.id === "quick-actions"
                               ? "strong"
@@ -229,6 +229,7 @@ export function TerminalAccessoryKeyboard({
                     label="Paste"
                     wide
                     compact
+                    flex={1}
                     emphasis="strong"
                     onPress={() => handleKeyPress({ id: "paste", label: "Paste", kind: "paste" })}
                   />
@@ -236,6 +237,7 @@ export function TerminalAccessoryKeyboard({
                     label="Search"
                     wide
                     compact
+                    flex={1}
                     emphasis="strong"
                     onPress={() => handleKeyPress({ id: "search", label: "Search", kind: "search" })}
                   />
@@ -243,6 +245,7 @@ export function TerminalAccessoryKeyboard({
                     label="Snippets"
                     wide
                     compact
+                    flex={1}
                     emphasis="strong"
                     onPress={() => handleKeyPress({ id: "snippets", label: "Snippets", kind: "snippets" })}
                   />

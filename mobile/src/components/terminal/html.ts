@@ -137,6 +137,7 @@ export function buildTerminalHtml(theme: TerminalPalette): string {
           cursorInactiveStyle: 'bar',
           altClickMovesCursor: false
         });
+        window.terminal = terminal;
 
         const fitAddon = new FitAddon.FitAddon();
         terminal.loadAddon(fitAddon);
@@ -184,6 +185,10 @@ export function buildTerminalHtml(theme: TerminalPalette): string {
 
         window.focusTerminal = function() {
           try { terminal.focus(); } catch(e) {}
+        };
+
+        window.blurTerminal = function() {
+          try { terminal.blur(); } catch(e) {}
         };
 
         terminal.onData((data) => {

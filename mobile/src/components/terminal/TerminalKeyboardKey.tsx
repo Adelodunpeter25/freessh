@@ -7,6 +7,7 @@ type TerminalKeyboardKeyProps = {
   wide?: boolean;
   compact?: boolean;
   emphasis?: "normal" | "strong" | "subtle";
+  flex?: number;
   onPress: () => void;
 };
 
@@ -16,45 +17,39 @@ export function TerminalKeyboardKey({
   wide = false,
   compact = false,
   emphasis = "normal",
+  flex,
   onPress,
 }: TerminalKeyboardKeyProps) {
   const theme = useTheme();
-  const height = compact ? 30 : 34;
+  const height = compact ? 28 : 32;
   const minWidth = wide ? (compact ? 52 : 60) : compact ? 34 : 38;
   const backgroundColor = active
     ? "$backgroundPress"
     : emphasis === "strong"
       ? "$backgroundStrong"
       : emphasis === "subtle"
-        ? "$background"
+        ? "$backgroundPress"
         : "$backgroundStrong";
-  const borderColor = active
-    ? "$accent"
-    : emphasis === "subtle"
-      ? "$backgroundPress"
-      : "$borderColor";
   const textColor = active
     ? "$accent"
-    : emphasis === "subtle"
-      ? "$color"
-      : "$color";
+    : "$color";
 
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} style={flex ? { flex } : undefined}>
       <XStack
+        flex={flex}
         minWidth={minWidth}
         height={height}
         paddingHorizontal={compact ? "$2" : "$2.5"}
         alignItems="center"
         justifyContent="center"
-        borderRadius={compact ? 8 : 10}
-        borderWidth={1}
-        borderColor={borderColor}
+        borderRadius={compact ? 6 : 8}
+        borderWidth={0}
         backgroundColor={backgroundColor}
       >
         <Text
-          fontSize={compact ? 11 : 12}
-          fontWeight={compact ? "500" : "600"}
+          fontSize={compact ? 12 : 13}
+          fontWeight={compact ? "400" : "500"}
           color={textColor}
         >
           {label}

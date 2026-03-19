@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useCallback } from "react";
+import { useEffect, useMemo, useRef, useCallback, useState } from "react";
+import { Keyboard } from "react-native";
 import { YStack, useTheme } from "tamagui";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,6 +23,7 @@ export function SessionsScreen() {
   const insets = useSafeAreaInsets();
   const sessions = useTerminalStore((s) => s.sessions);
   const activeSessionId = useTerminalStore((s) => s.activeSessionId);
+  const [showCustomKeyboard, setShowCustomKeyboard] = useState(false);
   const setActiveSession = useTerminalStore((s) => s.setActiveSession);
   const closeSession = useTerminalStore((s) => s.closeSession);
   const sendInput = useTerminalStore((s) => s.sendInput);
@@ -117,6 +119,11 @@ export function SessionsScreen() {
   }, [activeSessionId]);
 
   const handleTerminalKeyboardLayoutChange = useCallback((expanded: boolean) => {
+    setShowCustomKeyboard(expanded);
+    if (expanded) {
+      terminalRef.current?.blur();
+      Keyboard.dismiss();
+    }
     setTimeout(() => {
       if (!isMountedRef.current) return;
       terminalRef.current?.fit();
@@ -177,6 +184,7 @@ export function SessionsScreen() {
                   profile={activeSession.profile}
                   showLoading={activeSession.status === "connecting"}
                   connectionName={activeSession.name}
+                  nativeKeyboardEnabled={!showCustomKeyboard}
                 />
                 <TerminalAccessoryKeyboard
                   onExpandedLayoutChange={handleTerminalKeyboardLayoutChange}

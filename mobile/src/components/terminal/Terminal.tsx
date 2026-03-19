@@ -27,6 +27,7 @@ interface TerminalProps {
   profile?: SessionProfile;
   showLoading?: boolean;
   connectionName?: string;
+  nativeKeyboardEnabled?: boolean;
 }
 
 export type TerminalHandle = {
@@ -34,30 +35,37 @@ export type TerminalHandle = {
   clear: () => void;
   fit: () => void;
   focus: () => void;
+  blur: () => void;
 };
 
 const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
-  (
-    { style, onInput, onReady, onResize, theme, profile, showLoading, connectionName },
-    ref,
-  ) => {
-    const webViewRef = useRef<WebView>(null);
-    const isReadyRef = useRef(false);
-    const pendingWritesRef = useRef<string[]>([]);
-    const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    const isMountedRef = useRef(true);
+    (
+      { style, onInput, onReady, onResize, theme, profile, showLoading, connectionName, nativeKeyboardEnabled = true },
+      ref,
+    ) => {
+      const webViewRef = useRef<WebView>(null);
+      const isReadyRef = useRef(false);
+      const pendingWritesRef = useRef<string[]>([]);
+      const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+      const isMountedRef = useRef(true);
 
-    const [isConnected, setIsConnected] = useState(false);
+      const [isConnected, setIsConnected] = useState(false);
 
-    const isDark = useThemeStore((state) => state.theme === "dark");
-    const resolvedTheme = useMemo(
-      () => resolveTerminalPalette(isDark, profile, theme),
-      [isDark, profile, theme],
-    );
-    const htmlContent = useMemo(
-      () => buildTerminalHtml(resolvedTheme),
-      [resolvedTheme],
-    );
+      useEffect(() => {
+        webViewRef.current?.injectJavaScript(
+          `if (window.terminal) { window.terminal.options.readOnly = ${!nativeKeyboardEnabled}; } true;`
+        );
+      }, [nativeKeyboardEnabled]);
+
+      const isDark = useThemeStore((state) => state.theme === "dark");
+      const resolvedTheme = useMemo(
+        () => resolveTerminalPalette(isDark, profile, theme),
+        [isDark, profile, theme],
+      );
+      const htmlContent = useMemo(
+        () => buildTerminalHtml(resolvedTheme),
+        [resolvedTheme],
+      );
 
     useEffect(() => {
       isMountedRef.current = true;
@@ -140,6 +148,10 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
       focus: () => {
         if (!isMountedRef.current) return;
         webViewRef.current?.injectJavaScript("window.focusTerminal(); true;");
+      },
+      blur: () => {
+        if (!isMountedRef.current) return;
+        webViewRef.current?.injectJavaScript("window.blurTerminal(); true;");
       },
     }));
 
