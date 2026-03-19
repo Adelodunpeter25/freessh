@@ -83,7 +83,7 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
         onBackPress={() => navigation.goBack()}
       />
       <Screen keyboardAvoiding keyboardOffset={48}>
-        <YStack gap="$5">
+        <YStack gap="$4">
           {/* General Section */}
           <YStack gap="$4">
             <Text fontSize={14} fontWeight="700" color="$color">
