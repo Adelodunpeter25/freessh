@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { RefreshControl } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Text, View, XStack, YStack } from 'tamagui'
+import { Text, XStack, YStack } from 'tamagui'
 
 import { EmptyState, FileList, IconButton, Screen, SftpBreadcrumb } from '@/components'
 import { useSftpStore, useSnackbarStore } from '@/stores'
@@ -63,24 +63,17 @@ export function SftpScreen() {
           onMore={() => showSnackbar('More actions coming soon', 'info')}
         />
 
-        <View
-          mx="$3"
-          mt="$3"
-          borderRadius={16}
-          overflow="hidden"
-          borderWidth={1}
-          borderColor="$borderColor"
-          bg="$backgroundStrong"
-          flex={1}
-        >
+        <YStack flex={1} bg="$backgroundStrong">
           {canGoUp ? (
             <XStack
               px="$3"
-              py="$3"
+              minHeight={56}
+              py="$2"
               borderBottomWidth={1}
               borderBottomColor="$borderColor"
+              alignItems="center"
             >
-              <Text color="$color" fontSize={15} onPress={() => goUp()}>
+              <Text color="$color" fontSize={14} fontWeight="600" onPress={() => goUp()}>
                 ..
               </Text>
             </XStack>
@@ -100,7 +93,7 @@ export function SftpScreen() {
               onOpenFile={(file) => showSnackbar(`Selected "${file.name}"`, 'info')}
             />
           )}
-        </View>
+        </YStack>
       </YStack>
     </Screen>
   )

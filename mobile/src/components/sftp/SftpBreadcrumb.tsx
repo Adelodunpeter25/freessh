@@ -1,5 +1,5 @@
 import { ChevronRight, MoreVertical, Search, Upload } from 'lucide-react-native'
-import { Text, XStack } from 'tamagui'
+import { Text, XStack, useTheme } from 'tamagui'
 import { IconButton } from '@/components'
 
 type SftpBreadcrumbProps = {
@@ -17,35 +17,37 @@ export function SftpBreadcrumb({
   onSearch,
   onMore,
 }: SftpBreadcrumbProps) {
+  const theme = useTheme()
+
   return (
     <XStack
       ai="center"
       jc="space-between"
-      gap="$3"
+      gap="$2"
       px="$3"
-      py="$2.5"
+      py="$2"
       bg="$background"
       borderBottomWidth={1}
       borderBottomColor="$borderColor"
     >
       <XStack ai="center" gap="$2" flex={1}>
-        <Text color="$placeholderColor" fontSize={13} numberOfLines={1}>
+        <Text color="$placeholderColor" fontSize={12} numberOfLines={1}>
           {rootLabel}
         </Text>
         <ChevronRight size={14} color="#94a3b8" />
-        <Text color="$color" fontSize={13} fontWeight="600" numberOfLines={1}>
+        <Text color="$color" fontSize={12} fontWeight="600" numberOfLines={1}>
           {lastLabel}
         </Text>
       </XStack>
-      <XStack gap="$1.5">
+      <XStack gap="$1">
         <IconButton onPress={onUpload}>
-          <Upload size={16} />
+          <Upload size={14} color={theme.color.get()} />
         </IconButton>
         <IconButton onPress={onSearch}>
-          <Search size={16} />
+          <Search size={14} color={theme.color.get()} />
         </IconButton>
         <IconButton onPress={onMore}>
-          <MoreVertical size={16} />
+          <MoreVertical size={14} color={theme.color.get()} />
         </IconButton>
       </XStack>
     </XStack>

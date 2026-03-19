@@ -33,28 +33,29 @@ export function FileCard({ file, onPress }: FileCardProps) {
       <XStack
         alignItems="center"
         justifyContent="space-between"
-        paddingVertical="$3"
+        minHeight={56}
+        paddingVertical="$2"
         paddingHorizontal="$3"
         borderBottomWidth={1}
         borderBottomColor="$borderColor"
         backgroundColor="transparent"
       >
         <XStack alignItems="center" gap="$3" flex={1}>
-          <FileText size={20} color={theme.color.get()} />
+          <FileText size={18} color={theme.color.get()} />
           <YStack flex={1}>
-            <Text color="$color" fontSize={15} fontWeight="600" numberOfLines={1}>
+            <Text color="$color" fontSize={14} fontWeight="600" numberOfLines={1}>
               {file.name}
             </Text>
-            <Text color="$placeholderColor" fontSize={11} numberOfLines={1}>
+            <Text color="$placeholderColor" opacity={0.7} fontSize={10} numberOfLines={1}>
               {formatMode(file.mode)}
             </Text>
           </YStack>
         </XStack>
-        <YStack alignItems="flex-end" minWidth={86}>
-          <Text color="$placeholderColor" fontSize={11} numberOfLines={1}>
+        <YStack alignItems="flex-end" minWidth={90}>
+          <Text color="$placeholderColor" opacity={0.7} fontSize={10} numberOfLines={1}>
             {formatModified(file.mod_time)}
           </Text>
-          <Text color="$placeholderColor" fontSize={11}>
+          <Text color="$placeholderColor" opacity={0.8} fontSize={10}>
             {formatSize(file.size)}
           </Text>
         </YStack>
