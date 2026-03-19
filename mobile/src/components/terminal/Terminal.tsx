@@ -61,7 +61,8 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
       foreground: terminalTheme.foreground,
       cursor: terminalTheme.cursor,
       selection: terminalTheme.selection || "rgba(255,255,255,0.2)",
-      black: terminalTheme.black,
+      // Some shells paint input with ANSI black background; keep it aligned to terminal background.
+      black: terminalTheme.background,
       red: terminalTheme.red,
       green: terminalTheme.green,
       yellow: terminalTheme.yellow,
@@ -204,7 +205,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
             brightCyan: '${resolvedTheme.brightCyan}',
             brightWhite: '${resolvedTheme.brightWhite}'
           },
-          allowTransparency: true,
+          allowTransparency: false,
           convertEol: true,
           screenReaderMode: false,
           windowsMode: false,
