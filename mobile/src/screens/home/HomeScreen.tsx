@@ -47,9 +47,13 @@ export function HomeScreen() {
 
   const items: HubItem[] = [
     { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Connections', count: connections.length },
-    ...(activeSession
-      ? [{ id: 'active_session', title: `Active session: ${activeSession.name}`, icon: Monitor, screen: 'Sessions' as const }]
-      : []),
+    {
+      id: 'active_session',
+      title: activeSession ? `Active session: ${activeSession.name}` : 'Active session',
+      icon: Monitor,
+      screen: 'Sessions',
+      count: sessions.length,
+    },
     { id: 'keychain', title: 'Keychain', icon: Key, screen: 'Keys', count: keys.length },
     { id: 'forwarding', title: 'Port forwarding', icon: ArrowRightLeft, screen: 'Main' }, // Placeholder
     { id: 'snippets', title: 'Snippets', icon: Code2, screen: 'Snippets', count: snippets.length },
