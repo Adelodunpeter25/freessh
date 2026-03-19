@@ -32,14 +32,14 @@ export function BottomTabNavigator() {
         tabBarActiveTintColor: theme === 'dark' ? '#f1f5f9' : '#0f172a',
         tabBarInactiveTintColor: theme === 'dark' ? '#64748b' : '#94a3b8',
         tabBarStyle: {
-          backgroundColor: theme === 'dark' ? '#141a22' : '#f7fafd',
+          backgroundColor: theme === 'dark' ? '#0b0e14' : '#eef2f7',
           borderTopColor: theme === 'dark' ? '#2c3747' : '#d7e1ec',
           height: 65,
           paddingBottom: 8,
           paddingTop: 8,
         },
         headerStyle: {
-          backgroundColor: theme === 'dark' ? '#141a22' : '#f7fafd',
+          backgroundColor: theme === 'dark' ? '#0b0e14' : '#eef2f7',
           borderBottomColor: theme === 'dark' ? '#2c3747' : '#d7e1ec',
         },
         headerTitleStyle: {
@@ -58,7 +58,7 @@ export function BottomTabNavigator() {
           tabBarIcon: ({ color, focused }) => (
             <View
               borderRadius={focused ? 12 : 10}
-              borderWidth={focused ? 2 : 1}
+              borderWidth={focused ? 2.5 : 1}
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
               style={{
@@ -78,14 +78,10 @@ export function BottomTabNavigator() {
         name="Connections"
         component={ConnectionsScreen}
         options={{
-          headerStyle: {
-            backgroundColor: theme === 'dark' ? '#0b0e14' : '#eef2f7',
-            borderBottomColor: theme === 'dark' ? '#1f2836' : '#cfd7e2',
-          },
           tabBarIcon: ({ color, focused }) => (
             <View
               borderRadius={focused ? 12 : 10}
-              borderWidth={focused ? 2 : 1}
+              borderWidth={focused ? 2.5 : 1}
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
               style={{
@@ -108,7 +104,7 @@ export function BottomTabNavigator() {
           tabBarIcon: ({ color, focused }) => (
             <View
               borderRadius={focused ? 12 : 10}
-              borderWidth={focused ? 2 : 1}
+              borderWidth={focused ? 2.5 : 1}
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
               style={{
