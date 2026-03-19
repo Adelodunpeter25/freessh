@@ -62,10 +62,10 @@ export function BottomTabNavigator() {
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
               style={{
-                minWidth: focused ? 74 : 46,
+                minWidth: focused ? 64 : 46,
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingHorizontal: focused ? 22 : 12,
+                paddingHorizontal: focused ? 16 : 12,
                 paddingVertical: focused ? 6 : 6,
               }}
             >
@@ -85,10 +85,10 @@ export function BottomTabNavigator() {
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
               style={{
-                minWidth: focused ? 74 : 46,
+                minWidth: focused ? 64 : 46,
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingHorizontal: focused ? 22 : 12,
+                paddingHorizontal: focused ? 16 : 12,
                 paddingVertical: focused ? 6 : 6,
               }}
             >
@@ -108,10 +108,10 @@ export function BottomTabNavigator() {
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
               style={{
-                minWidth: focused ? 74 : 46,
+                minWidth: focused ? 64 : 46,
                 alignItems: 'center',
                 justifyContent: 'center',
-                paddingHorizontal: focused ? 22 : 12,
+                paddingHorizontal: focused ? 16 : 12,
                 paddingVertical: focused ? 6 : 6,
               }}
             >
