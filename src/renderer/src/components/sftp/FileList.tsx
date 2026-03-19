@@ -1,4 +1,5 @@
-import { useMemo, useCallback, useState, useRef, useEffect } from "react";
+import { useMemo, useCallback, useRef } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
 import { FileInfo } from "@/types";
 import { FileItem } from "./FileItem";
 import { FilePanelContextMenu } from "@/components/contextmenu";
@@ -18,8 +19,7 @@ interface FileListProps {
   isItemSelected?: (fileName: string) => boolean;
 }
 
-const ITEM_HEIGHT = 88; // Height of FileItem in pixels
-const BUFFER_ITEMS = 20; // Number of items to render above/below the visible area
+const ITEM_HEIGHT = 36; // Height of FileItem in pixels
 
 export function FileList({
   files,
@@ -42,36 +42,16 @@ export function FileList({
   } = useFilePanelContext();
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollTop, setScrollTop] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
-
-  useEffect(() => {
-    const updateHeight = () => {
-      if (containerRef.current) {
-        setContainerHeight(containerRef.current.clientHeight);
-      }
-    };
-
-    updateHeight();
-    window.addEventListener('resize', updateHeight);
-    return () => window.removeEventListener('resize', updateHeight);
-  }, []);
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    setScrollTop(e.currentTarget.scrollTop);
-  };
 
   const sortedFiles = useMemo(() => {
     const filtered = showHidden ? files : files.filter(f => !f.name.startsWith('.'));
     
-    // Sort first, then map. Sorting is more expensive on smaller sets.
     const sorted = [...filtered].sort((a, b) => {
       if (a.is_dir && !b.is_dir) return -1;
       if (!a.is_dir && b.is_dir) return 1;
       return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
     });
 
-    // Only compute formatted strings once per file info change
     return sorted.map(file => ({
       ...file,
       _formattedDate: formatDate(file.mod_time, !isRemote),
@@ -80,22 +60,12 @@ export function FileList({
     }));
   }, [files, showHidden, isRemote]);
 
-  const { visibleFiles, totalHeight, offsetY } = useMemo(() => {
-    const startIndex = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - BUFFER_ITEMS);
-    const endIndex = Math.min(
-      sortedFiles.length,
-      Math.ceil((scrollTop + containerHeight) / ITEM_HEIGHT) + BUFFER_ITEMS
-    );
-
-    return {
-      visibleFiles: sortedFiles.slice(startIndex, endIndex).map((file, i) => ({
-        file,
-        index: startIndex + i
-      })),
-      totalHeight: sortedFiles.length * ITEM_HEIGHT,
-      offsetY: startIndex * ITEM_HEIGHT
-    };
-  }, [sortedFiles, scrollTop, containerHeight]);
+  const rowVirtualizer = useVirtualizer({
+    count: sortedFiles.length,
+    getScrollElement: () => containerRef.current,
+    estimateSize: () => ITEM_HEIGHT,
+    overscan: 10,
+  });
 
   const handleRename = useCallback((filePath: string, newName: string) => {
     const newPath = filePath.replace(/[^/]+$/, newName);
@@ -138,31 +108,48 @@ export function FileList({
       <FilePanelContextMenu onNewFolder={onNewFolder} onRefresh={onRefresh}>
         <div 
           ref={containerRef}
-          className="flex-1 overflow-auto relative"
-          onScroll={handleScroll}
+          className="flex-1 overflow-auto relative h-full"
         >
-          <div style={{ height: totalHeight, width: '100%' }}>
-            <div style={{ transform: `translateY(${offsetY}px)` }}>
-              {visibleFiles.map(({ file, index }) => (
-                <FileItem
-                  key={file.path}
-                  file={file}
-                  selected={selectedFile?.path === file.path}
-                  multiSelected={isItemSelected?.(file.name) || false}
-                  onSelect={() => handleSelectFile(file)}
-                  onOpen={() => handleOpenFile(file)}
-                  onDelete={() => handleDeleteFile(file.path)}
-                  onRename={(newName) => handleRename(file.path, newName)}
-                  onChmod={(mode) => handleChmodFile(file.path, mode)}
-                  draggable
-                  onDragStart={(e) => handleDragStart(file, e)}
-                  onClick={(e) => handleItemClick(file, index, e)}
-                  formattedDate={file._formattedDate}
-                  formattedPerms={file._formattedPerms}
-                  formattedSize={file._formattedSize}
-                />
-              ))}
-            </div>
+          <div 
+            style={{ 
+              height: `${rowVirtualizer.getTotalSize()}px`, 
+              width: '100%',
+              position: 'relative'
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+              const file = sortedFiles[virtualItem.index];
+              return (
+                <div
+                  key={virtualItem.key}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualItem.size}px`,
+                    transform: `translateY(${virtualItem.start}px)`,
+                  }}
+                >
+                  <FileItem
+                    file={file}
+                    selected={selectedFile?.path === file.path}
+                    multiSelected={isItemSelected?.(file.name) || false}
+                    onSelect={() => handleSelectFile(file)}
+                    onOpen={() => handleOpenFile(file)}
+                    onDelete={() => handleDeleteFile(file.path)}
+                    onRename={(newName) => handleRename(file.path, newName)}
+                    onChmod={(mode) => handleChmodFile(file.path, mode)}
+                    draggable
+                    onDragStart={(e) => handleDragStart(file, e)}
+                    onClick={(e) => handleItemClick(file, virtualItem.index, e)}
+                    formattedDate={file._formattedDate}
+                    formattedPerms={file._formattedPerms}
+                    formattedSize={file._formattedSize}
+                  />
+                </div>
+              );
+            })}
           </div>
           {loading && files.length === 0 && (
             <div className="p-4 text-center text-sm text-muted-foreground absolute inset-0 flex items-center justify-center bg-background/50">
