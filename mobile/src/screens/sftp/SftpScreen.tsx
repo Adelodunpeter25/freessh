@@ -73,7 +73,7 @@ export function SftpScreen() {
     }
   }, [openFolder, showSnackbar])
 
-  const { rootLabel, lastLabel, canGoUp } = useMemo(
+  const { rootLabel, fullBreadcrumb, pathSegments, canGoUp } = useMemo(
     () => getSftpBreadcrumb(currentPath, connectionName),
     [currentPath, connectionName],
   )
@@ -144,7 +144,7 @@ export function SftpScreen() {
       <YStack flex={1} bg="$background" mt={pinnedTabBarHeight}>
         <SftpToolbar
           rootLabel={rootLabel}
-          lastLabel={lastLabel}
+          fullBreadcrumb={fullBreadcrumb}
           query={query}
           onQueryChange={setQuery}
           onClearQuery={clearQuery}
@@ -204,7 +204,7 @@ export function SftpScreen() {
                 alignItems="center"
                 justifyContent="space-between"
               >
-                <Text color="$color" fontSize={14} fontWeight="600" onPress={handleGoUp}>
+                <Text color="$color" fontSize={14} fontWeight="600" onPress={handleGoUp} style={{ cursor: 'pointer' }}>
                   ..
                 </Text>
                 {hasSelection ? (

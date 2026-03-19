@@ -28,9 +28,19 @@ export function formatModifiedTime(timestamp: number): string {
 }
 
 export function getSftpBreadcrumb(currentPath: string, connectionName: string | null) {
-  const breadcrumbParts = currentPath.split('/').filter(Boolean)
+  const pathSegments = currentPath.split('/').filter(Boolean)
   const rootLabel = connectionName ?? 'Home'
-  const lastLabel = breadcrumbParts[breadcrumbParts.length - 1] ?? rootLabel
+  
+  // Build full breadcrumb path
+  const breadcrumbSegments = [rootLabel, ...pathSegments]
+  const fullBreadcrumb = breadcrumbSegments.join(' > ')
+  
   const canGoUp = currentPath !== '/'
-  return { rootLabel, lastLabel, canGoUp }
+  
+  return { 
+    rootLabel, 
+    fullBreadcrumb,
+    pathSegments,
+    canGoUp 
+  }
 }

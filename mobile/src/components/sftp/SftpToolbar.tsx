@@ -7,7 +7,7 @@ import { MoreActions } from './MoreActions'
 
 type SftpToolbarProps = {
   rootLabel: string
-  lastLabel: string
+  fullBreadcrumb: string
   query: string
   onQueryChange: (value: string) => void
   onClearQuery: () => void
@@ -27,7 +27,7 @@ type SftpToolbarProps = {
 
 export function SftpToolbar({
   rootLabel,
-  lastLabel,
+  fullBreadcrumb,
   query,
   onQueryChange,
   onClearQuery,
@@ -46,8 +46,7 @@ export function SftpToolbar({
 }: SftpToolbarProps) {
   const theme = useTheme()
   const [searchOpen, setSearchOpen] = useState(false)
-  const showSingleBreadcrumb =
-    rootLabel.trim().toLowerCase() === lastLabel.trim().toLowerCase()
+  const showSingleBreadcrumb = fullBreadcrumb === rootLabel
 
   const openSearch = useCallback(() => {
     setSearchOpen(true)
@@ -80,7 +79,7 @@ export function SftpToolbar({
             <ChevronRight size={14} color="#94a3b8" />
             <Pressable onPress={onPressCurrent} hitSlop={8}>
               <Text color="$color" fontSize={12} fontWeight="600" numberOfLines={1}>
-                {lastLabel}
+                {fullBreadcrumb}
               </Text>
             </Pressable>
           </>
