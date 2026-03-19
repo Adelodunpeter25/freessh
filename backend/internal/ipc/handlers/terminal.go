@@ -205,7 +205,18 @@ func (h *TerminalHandler) captureShellHistory(sessionID, output string, writer R
 		if freesshhistory.IsBootstrapCommand(command) {
 			continue
 		}
-		entry, err := h.historyManager.Add(command)
+		connectionID := ""
+		if session, err := h.manager.GetSession(sessionID); err == nil && session != nil {
+			connectionID = session.Session.ConnectionID
+		}
+
+		var entry *models.HistoryEntry
+		var err error
+		if connectionID != "" {
+			entry, err = h.historyManager.AddForConnection(command, connectionID)
+		} else {
+			entry, err = h.historyManager.Add(command)
+		}
 		if err == nil && entry != nil {
 			_ = writer.WriteMessage(&models.IPCMessage{
 				Type: models.MsgHistoryAdd,

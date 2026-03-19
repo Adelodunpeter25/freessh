@@ -58,6 +58,42 @@ func (m *Manager) Add(command string) (*models.HistoryEntry, error) {
 	return &entry, nil
 }
 
+func (m *Manager) AddForConnection(command, connectionID string) (*models.HistoryEntry, error) {
+	// Normalize command before dedupe/storage checks.
+	command = utils.NormalizeHistoryCommand(command)
+
+	// Ignore empty commands
+	if command == "" {
+		return nil, nil
+	}
+
+	// Ignore common control sequences
+	if command == "clear" || command == "exit" || command == "logout" {
+		return nil, nil
+	}
+
+	// Fast-path duplicate check against a short recent window to absorb
+	// shell hook retries and split marker replays.
+	if !utils.ShouldAddToHistory(command, m.storage.GetRecent(10)) {
+		return nil, nil
+	}
+
+	entry := models.HistoryEntry{
+		ID:      uuid.New().String(),
+		Command: command,
+	}
+
+	added, err := m.storage.AddWithConnection(entry, connectionID)
+	if err != nil {
+		return nil, err
+	}
+	if !added {
+		return nil, nil
+	}
+
+	return &entry, nil
+}
+
 func (m *Manager) Clear() error {
 	return m.storage.Clear()
 }

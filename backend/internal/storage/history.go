@@ -51,6 +51,10 @@ func (s *HistoryStorage) List() []models.HistoryEntry {
 }
 
 func (s *HistoryStorage) Add(entry models.HistoryEntry) (bool, error) {
+	return s.AddWithConnection(entry, "")
+}
+
+func (s *HistoryStorage) AddWithConnection(entry models.HistoryEntry, connectionID string) (bool, error) {
 	normalized := utils.NormalizeHistoryCommand(entry.Command)
 	if normalized == "" {
 		return false, nil
@@ -64,7 +68,11 @@ func (s *HistoryStorage) Add(entry models.HistoryEntry) (bool, error) {
 		return false, nil
 	}
 
-	_, err := s.db.Exec(`INSERT INTO history (id, command, connection_id) VALUES (?, ?, ?)`, entry.ID, entry.Command, nil)
+	var connValue interface{}
+	if connectionID != "" {
+		connValue = connectionID
+	}
+	_, err := s.db.Exec(`INSERT INTO history (id, command, connection_id) VALUES (?, ?, ?)`, entry.ID, entry.Command, connValue)
 	if err != nil {
 		return false, fmt.Errorf("failed to insert history: %w", err)
 	}
