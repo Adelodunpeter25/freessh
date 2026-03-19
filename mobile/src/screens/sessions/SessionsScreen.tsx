@@ -116,6 +116,14 @@ export function SessionsScreen() {
     }
   }, [activeSessionId]);
 
+  const handleTerminalKeyboardLayoutChange = useCallback((expanded: boolean) => {
+    setTimeout(() => {
+      if (!isMountedRef.current) return;
+      terminalRef.current?.fit();
+      terminalRef.current?.focus();
+    }, expanded ? 120 : 80);
+  }, []);
+
   const hasSessions = sessions.length > 0;
 
   return (
@@ -169,6 +177,7 @@ export function SessionsScreen() {
                   connectionName={activeSession.name}
                 />
                 <TerminalAccessoryKeyboard
+                  onExpandedLayoutChange={handleTerminalKeyboardLayoutChange}
                   onSendInput={(data: string) => {
                     if (!activeSessionId || !isMountedRef.current) return;
                     sendInput(activeSessionId, normalizeTerminalInput(data));

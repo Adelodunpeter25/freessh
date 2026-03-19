@@ -21,10 +21,12 @@ import { TerminalSnippetsSheet } from "./TerminalSnippetsSheet";
 
 type TerminalAccessoryKeyboardProps = {
   onSendInput: (data: string) => void;
+  onExpandedLayoutChange?: (expanded: boolean) => void;
 };
 
 export function TerminalAccessoryKeyboard({
   onSendInput,
+  onExpandedLayoutChange,
 }: TerminalAccessoryKeyboardProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -62,6 +64,10 @@ export function TerminalAccessoryKeyboard({
       subscription.remove();
     };
   }, []);
+
+  useEffect(() => {
+    onExpandedLayoutChange?.(showKeyboard);
+  }, [onExpandedLayoutChange, showKeyboard]);
 
   const handlePaste = () => {
     showSnackbar("Paste is temporarily disabled", "info");
@@ -176,10 +182,6 @@ export function TerminalAccessoryKeyboard({
 
       {showKeyboard ? (
         <YStack
-          position="absolute"
-          left={0}
-          right={0}
-          bottom={0}
           height={Math.max(keyboardHeight, 260) + insets.bottom}
           borderTopWidth={1}
           borderColor="$borderColor"
@@ -187,7 +189,6 @@ export function TerminalAccessoryKeyboard({
           paddingTop="$2"
           paddingHorizontal="$3"
           paddingBottom={Math.max(insets.bottom, 8)}
-          zIndex={50}
         >
           <YStack gap="$2" flex={1}>
             <XStack justifyContent="center" paddingBottom="$1">
