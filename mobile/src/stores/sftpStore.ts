@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type { ConnectionConfig, FileInfo } from '@/types'
 import { sshService, type SSHClientInstance } from '@/services'
-import { keyService } from '@/services/crud'
+import { connectionService, keyService } from '@/services/crud'
 
 type RawSftpEntry = {
   name?: string
@@ -158,6 +158,11 @@ function toUnixTimestamp(value: unknown): number {
   return 0
 }
 
+function normalizePrivateKey(privateKey: string): string {
+  const normalized = privateKey.replace(/\r\n/g, '\n').trim()
+  return normalized.endsWith('\n') ? normalized : `${normalized}\n`
+}
+
 function normalizeEntries(entries: unknown, currentPath: string): FileInfo[] {
   if (!Array.isArray(entries)) return []
 
@@ -232,39 +237,68 @@ export const useSftpStore = create<SftpState>((set, get) => ({
   activeSessionId: null,
 
   connect: async (connection) => {
-    const port = connection.port ?? 22
+    const latestConnection = await connectionService.getById(connection.id).catch(() => null)
+    const effectiveConnection = latestConnection ?? connection
+    const port = effectiveConnection.port ?? 22
 
     try {
       let client: SSHClientInstance
-      if (connection.auth_method === 'password') {
-        if (!connection.password) throw new Error('Missing password')
+      if (effectiveConnection.auth_method === 'password') {
+        if (!effectiveConnection.password) throw new Error('Missing password')
         client = await sshService.connectWithPassword(
-          connection.host,
+          effectiveConnection.host,
           port,
-          connection.username,
-          connection.password,
+          effectiveConnection.username,
+          effectiveConnection.password,
         )
       } else {
-        let privateKey = connection.private_key
-        let passphrase = connection.passphrase
-        if (connection.key_id) {
-          const key = await keyService.getById(connection.key_id)
-          if (!key?.private_key && !privateKey) {
-            throw new Error('Selected key is missing private key data')
+        const candidates: Array<{ key: string; passphrase?: string }> = []
+
+        if (effectiveConnection.key_id) {
+          const key = await keyService.getById(effectiveConnection.key_id)
+          if (key?.private_key) {
+            candidates.push({
+              key: normalizePrivateKey(key.private_key),
+              passphrase: effectiveConnection.passphrase ?? key.passphrase,
+            })
           }
-          // Always prefer current keychain key material when key_id is set.
-          privateKey = key?.private_key || privateKey
-          if (!passphrase) passphrase = key?.passphrase
         }
-        const normalizedPrivateKey = (privateKey || '').trim()
-        if (!normalizedPrivateKey) throw new Error('Missing private key')
-        client = await sshService.connectWithKey(
-          connection.host,
-          port,
-          connection.username,
-          normalizedPrivateKey,
-          passphrase,
-        )
+
+        if (effectiveConnection.private_key?.trim()) {
+          const normalized = normalizePrivateKey(effectiveConnection.private_key)
+          const exists = candidates.some((candidate) => candidate.key === normalized)
+          if (!exists) {
+            candidates.push({
+              key: normalized,
+              passphrase: effectiveConnection.passphrase,
+            })
+          }
+        }
+
+        if (candidates.length === 0) throw new Error('Missing private key')
+
+        let lastError: unknown
+        let connectedClient: SSHClientInstance | null = null
+        for (const candidate of candidates) {
+          try {
+            connectedClient = await sshService.connectWithKey(
+              effectiveConnection.host,
+              port,
+              effectiveConnection.username,
+              candidate.key,
+              candidate.passphrase,
+            )
+            break
+          } catch (error) {
+            lastError = error
+          }
+        }
+
+        if (!connectedClient) {
+          throw lastError instanceof Error ? lastError : new Error('Failed to authenticate with private key')
+        }
+
+        client = connectedClient
       }
 
       await sshService.connectSftp(client)
@@ -274,7 +308,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       const id = `${connection.id}-${Date.now()}`
       const session: SftpSession = {
         id,
-        connectionName: connection.name,
+        connectionName: effectiveConnection.name,
         client,
         currentPath: rootPath,
         files,

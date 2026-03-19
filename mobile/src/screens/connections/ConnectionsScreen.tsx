@@ -59,8 +59,12 @@ export function ConnectionsScreen() {
         // @ts-ignore
         navigation.navigate('Sessions')
       }
-    } catch {
-      showSnackbar(`Failed to connect to "${connection.name}"`, 'error')
+    } catch (error) {
+      const detail =
+        error instanceof Error && error.message.trim().length > 0
+          ? `: ${error.message}`
+          : ''
+      showSnackbar(`Failed to connect to "${connection.name}"${detail}`, 'error')
     }
   }, [connectSftp, openTerminalSession, setActiveSession, showSnackbar, navigation])
 
