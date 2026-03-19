@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { File } from 'expo-file-system'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
@@ -15,9 +14,9 @@ import {
 import { useSearch, useSftpActions } from '@/hooks'
 import { useSftpStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
-import type { FileInfo } from '@/types'
 import { getSftpBreadcrumb } from '@/utils/sftp'
 import { parentPath } from '@/utils/sftpPaths'
+import { useSftpScreenActions } from './useSftpScreenActions'
 
 export function SftpScreen() {
   const insets = useSafeAreaInsets()
@@ -61,69 +60,46 @@ export function SftpScreen() {
     clearSelection,
   } = useSftpActions(files)
 
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [showNewFolderDialog, setShowNewFolderDialog] = useState(false)
-  const [showRenameDialog, setShowRenameDialog] = useState(false)
-  const [newFolderName, setNewFolderName] = useState('')
-  const [renameValue, setRenameValue] = useState('')
-  const [copyMode, setCopyMode] = useState(false)
-  const [pendingCopyPaths, setPendingCopyPaths] = useState<string[]>([])
+  const singleSelectedEntry = useMemo(() => {
+    const selected = files.filter((file) => selectedPaths.includes(file.path))
+    return selected.length === 1 ? selected[0] : null
+  }, [files, selectedPaths])
+
+  const actions = useSftpScreenActions({
+    activeSessionExists: Boolean(activeSession),
+    files,
+    currentPath,
+    selectedPaths,
+    hasSelection,
+    singleSelectedEntry,
+    clearSelection,
+    toggleSelection,
+    listDirectory,
+    openFolder,
+    createFolder,
+    renameEntry,
+    deleteEntries,
+    copyEntries,
+    downloadEntries,
+    uploadFiles,
+    showSnackbar,
+  })
 
   const { query, filtered, setQuery, clearQuery } = useSearch({
     items: visibleFiles,
     fields: ['name', 'path'],
   })
 
-  useEffect(() => {
-    return () => {
-      closeAllSessions()
-    }
-  }, [closeAllSessions])
-
-  const selectedEntries = useMemo(
-    () => files.filter((file) => selectedPaths.includes(file.path)),
-    [files, selectedPaths],
-  )
-  const singleSelectedEntry = selectedEntries.length === 1 ? selectedEntries[0] : null
-
   const { clickablePaths, canGoUp } = useMemo(
     () => getSftpBreadcrumb(currentPath, connectionName),
     [connectionName, currentPath],
   )
 
-  const pinnedTabBarHeight = insets.top + 52
-  const showSearchEmpty = connected && query.trim().length > 0 && filtered.length === 0
-
-  const handleRefresh = useCallback(async () => {
-    if (!activeSession) return
-    try {
-      await listDirectory(currentPath)
-    } catch {
-      showSnackbar('Failed to refresh folder', 'error')
+  useEffect(() => {
+    return () => {
+      closeAllSessions()
     }
-  }, [activeSession, currentPath, listDirectory, showSnackbar])
-
-  const handleOpenFolder = useCallback(
-    async (folder: FileInfo) => {
-      try {
-        await openFolder(folder.path)
-      } catch {
-        showSnackbar(`Failed to open "${folder.name}"`, 'error')
-      }
-    },
-    [openFolder, showSnackbar],
-  )
-
-  const navigateToPath = useCallback(
-    async (path: string) => {
-      try {
-        await openFolder(path)
-      } catch {
-        showSnackbar('Failed to navigate to path', 'error')
-      }
-    },
-    [openFolder, showSnackbar],
-  )
+  }, [closeAllSessions])
 
   const handleGoUp = useCallback(() => {
     void listDirectory(parentPath(currentPath))
@@ -133,131 +109,12 @@ export function SftpScreen() {
     navigation.goBack()
   }, [navigation])
 
-  const handleCloseSession = useCallback(
-    (id: string) => {
-      closeSession(id)
-    },
-    [closeSession],
-  )
+  const handleCloseSession = useCallback((id: string) => {
+    closeSession(id)
+  }, [closeSession])
 
-  const handleToggleSelect = useCallback(
-    (entry: FileInfo) => {
-      if (copyMode) return
-      toggleSelection(entry.path)
-    },
-    [copyMode, toggleSelection],
-  )
-
-  const handleNewFolder = useCallback(() => {
-    setNewFolderName('')
-    setShowNewFolderDialog(true)
-  }, [])
-
-  const handleDelete = useCallback(() => {
-    if (!hasSelection) return
-    setShowDeleteDialog(true)
-  }, [hasSelection])
-
-  const handleCopy = useCallback(() => {
-    if (!hasSelection) return
-    setPendingCopyPaths(selectedPaths)
-    setCopyMode(true)
-    clearSelection()
-    showSnackbar('Choose a destination folder, then tap Copy here', 'info')
-  }, [clearSelection, hasSelection, selectedPaths, showSnackbar])
-
-  const handleCancelCopy = useCallback(() => {
-    setCopyMode(false)
-    setPendingCopyPaths([])
-  }, [])
-
-  const handleCopyHere = useCallback(async () => {
-    if (!pendingCopyPaths.length) return
-    try {
-      await copyEntries(pendingCopyPaths, currentPath)
-      showSnackbar(`Copied ${pendingCopyPaths.length} item(s)`, 'success')
-      setCopyMode(false)
-      setPendingCopyPaths([])
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Copy failed'
-      showSnackbar(message, 'error')
-    }
-  }, [copyEntries, currentPath, pendingCopyPaths, showSnackbar])
-
-  const handleDownload = useCallback(async () => {
-    if (!hasSelection) return
-    try {
-      const outputs = await downloadEntries(selectedPaths)
-      showSnackbar(`Downloaded ${outputs.length} item(s)`, 'success')
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Download failed'
-      showSnackbar(message, 'error')
-    }
-  }, [downloadEntries, hasSelection, selectedPaths, showSnackbar])
-
-  const handleRename = useCallback(() => {
-    if (!singleSelectedEntry) return
-    setRenameValue(singleSelectedEntry.name)
-    setShowRenameDialog(true)
-  }, [singleSelectedEntry])
-
-  const handleUpload = useCallback(async () => {
-    try {
-      const picked = await File.pickFileAsync()
-      const list = Array.isArray(picked) ? picked : [picked]
-      const localPaths = list.map((item) => item.uri)
-      await uploadFiles(localPaths, currentPath)
-      showSnackbar(`Uploaded ${localPaths.length} file(s)`, 'success')
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Upload failed'
-      showSnackbar(message, 'error')
-    }
-  }, [currentPath, showSnackbar, uploadFiles])
-
-  const handleConfirmDelete = useCallback(() => {
-    void (async () => {
-      try {
-        await deleteEntries(selectedEntries.map((entry) => ({ path: entry.path, isDir: entry.is_dir })))
-        clearSelection()
-        showSnackbar('Deleted selected item(s)', 'success')
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Delete failed'
-        showSnackbar(message, 'error')
-      }
-    })()
-  }, [clearSelection, deleteEntries, selectedEntries, showSnackbar])
-
-  const handleCreateFolder = useCallback(() => {
-    void (async () => {
-      const name = newFolderName.trim()
-      if (!name) return
-      try {
-        await createFolder(name, currentPath)
-        showSnackbar(`Folder "${name}" created`, 'success')
-        setShowNewFolderDialog(false)
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Failed to create folder'
-        showSnackbar(message, 'error')
-      }
-    })()
-  }, [createFolder, currentPath, newFolderName, showSnackbar])
-
-  const handleConfirmRename = useCallback(() => {
-    void (async () => {
-      if (!singleSelectedEntry) return
-      const nextName = renameValue.trim()
-      if (!nextName) return
-      try {
-        await renameEntry(singleSelectedEntry.path, nextName)
-        clearSelection()
-        showSnackbar('Renamed successfully', 'success')
-        setShowRenameDialog(false)
-      } catch (error) {
-        const message = error instanceof Error ? error.message : 'Rename failed'
-        showSnackbar(message, 'error')
-      }
-    })()
-  }, [clearSelection, renameEntry, renameValue, showSnackbar, singleSelectedEntry])
+  const pinnedTabBarHeight = insets.top + 52
+  const showSearchEmpty = connected && query.trim().length > 0 && filtered.length === 0
 
   return (
     <YStack gap="$0" flex={1} bg="$background">
@@ -282,20 +139,20 @@ export function SftpScreen() {
       <YStack flex={1} bg="$background" mt={pinnedTabBarHeight}>
         <SftpToolbar
           clickablePaths={clickablePaths}
-          onNavigateTo={navigateToPath}
+          onNavigateTo={actions.navigateToPath}
           query={query}
           onQueryChange={setQuery}
           onClearQuery={clearQuery}
-          onUpload={handleUpload}
+          onUpload={actions.handleUpload}
           showHidden={showHidden}
           onToggleShowHidden={toggleShowHidden}
           hasSelection={hasSelection}
           canSingleSelectAction={canSingleSelectAction}
-          onNewFolder={handleNewFolder}
-          onDelete={handleDelete}
-          onCopy={handleCopy}
-          onDownload={handleDownload}
-          onRename={handleRename}
+          onNewFolder={actions.handleNewFolder}
+          onDelete={actions.handleDelete}
+          onCopy={actions.handleCopy}
+          onDownload={actions.handleDownload}
+          onRename={actions.handleRename}
         />
 
         <SftpBrowser
@@ -305,46 +162,46 @@ export function SftpScreen() {
           showSearchEmpty={showSearchEmpty}
           canGoUp={canGoUp}
           hasSelection={hasSelection}
-          copyMode={copyMode}
+          copyMode={actions.copyMode}
           loading={loading}
           files={filtered}
           isSelected={isSelected}
           onClearSelection={clearSelection}
           onGoUp={handleGoUp}
           onRefresh={() => {
-            void handleRefresh()
+            void actions.handleRefresh()
           }}
-          onToggleSelect={handleToggleSelect}
-          onOpenFolder={handleOpenFolder}
+          onToggleSelect={actions.handleToggleSelect}
+          onOpenFolder={actions.handleOpenFolder}
           onOpenFile={(file) => showSnackbar(`Selected "${file.name}"`, 'info')}
         />
       </YStack>
 
-      {copyMode ? (
+      {actions.copyMode ? (
         <SftpCopyFooter
-          itemCount={pendingCopyPaths.length}
+          itemCount={actions.pendingCopyPaths.length}
           onCopyHere={() => {
-            void handleCopyHere()
+            void actions.handleCopyHere()
           }}
-          onCancel={handleCancelCopy}
+          onCancel={actions.handleCancelCopy}
         />
       ) : null}
 
       <SftpActionDialogs
-        showDeleteDialog={showDeleteDialog}
-        onShowDeleteDialogChange={setShowDeleteDialog}
+        showDeleteDialog={actions.showDeleteDialog}
+        onShowDeleteDialogChange={actions.setShowDeleteDialog}
         selectedCount={selectedPaths.length}
-        onConfirmDelete={handleConfirmDelete}
-        showNewFolderDialog={showNewFolderDialog}
-        onShowNewFolderDialogChange={setShowNewFolderDialog}
-        newFolderName={newFolderName}
-        onNewFolderNameChange={setNewFolderName}
-        onCreateFolder={handleCreateFolder}
-        showRenameDialog={showRenameDialog}
-        onShowRenameDialogChange={setShowRenameDialog}
-        renameValue={renameValue}
-        onRenameValueChange={setRenameValue}
-        onConfirmRename={handleConfirmRename}
+        onConfirmDelete={actions.handleConfirmDelete}
+        showNewFolderDialog={actions.showNewFolderDialog}
+        onShowNewFolderDialogChange={actions.setShowNewFolderDialog}
+        newFolderName={actions.newFolderName}
+        onNewFolderNameChange={actions.setNewFolderName}
+        onCreateFolder={actions.handleCreateFolder}
+        showRenameDialog={actions.showRenameDialog}
+        onShowRenameDialogChange={actions.setShowRenameDialog}
+        renameValue={actions.renameValue}
+        onRenameValueChange={actions.setRenameValue}
+        onConfirmRename={actions.handleConfirmRename}
         singleSelectedEntry={singleSelectedEntry}
       />
     </YStack>

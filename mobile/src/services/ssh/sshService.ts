@@ -53,44 +53,4 @@ export const sshService = {
   closeShell(client: SSHClientInstance) {
     client.closeShell()
   },
-
-  connectSftp(client: SSHClientInstance) {
-    return client.connectSFTP()
-  },
-
-  sftpLs(client: SSHClientInstance, path: string) {
-    return client.sftpLs(path)
-  },
-
-  sftpMkdir(client: SSHClientInstance, path: string) {
-    return client.sftpMkdir(path)
-  },
-
-  sftpRename(client: SSHClientInstance, oldPath: string, newPath: string) {
-    return client.sftpRename(oldPath, newPath)
-  },
-
-  sftpRmdir(client: SSHClientInstance, path: string) {
-    return client.sftpRmdir(path)
-  },
-
-  sftpRm(client: SSHClientInstance, path: string) {
-    return client.sftpRm(path)
-  },
-
-  sftpUpload(client: SSHClientInstance, localFilePath: string, remoteFilePath: string) {
-    return client.sftpUpload(localFilePath, remoteFilePath)
-  },
-
-  sftpDownload(client: SSHClientInstance, remoteFilePath: string, localFilePath: string) {
-    return client.sftpDownload(remoteFilePath, localFilePath)
-  },
-
-  sftpCancelUpload(client: SSHClientInstance) {
-    return client.sftpCancelUpload()
-  },
-
-  sftpCancelDownload(client: SSHClientInstance) {
-    return client.sftpCancelDownload()
-  },
 }

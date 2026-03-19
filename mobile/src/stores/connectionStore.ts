@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { ConnectionConfig } from "@/types";
 import { connectionService, keyService } from "../services/crud";
 import { sshService } from "@/services";
+import { sftpService } from "@/services/sftp";
 
 type ConnectionState = {
   connections: ConnectionConfig[];
@@ -151,7 +152,7 @@ export const useConnectionStore = create<ConnectionState>((set, get) => ({
         );
       }
 
-      await sshService.connectSftp(client);
+      await sftpService.connect(client);
       sshService.disconnect(client);
     } catch (error) {
       throw error;

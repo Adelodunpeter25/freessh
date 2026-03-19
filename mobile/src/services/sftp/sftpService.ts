@@ -6,35 +6,35 @@ function shellQuote(value: string): string {
 
 export const sftpService = {
   connect(client: SSHClientInstance) {
-    return sshService.connectSftp(client)
+    return client.connectSFTP()
   },
 
   list(client: SSHClientInstance, path: string) {
-    return sshService.sftpLs(client, path)
+    return client.sftpLs(path)
   },
 
   mkdir(client: SSHClientInstance, path: string) {
-    return sshService.sftpMkdir(client, path)
+    return client.sftpMkdir(path)
   },
 
   rename(client: SSHClientInstance, oldPath: string, newPath: string) {
-    return sshService.sftpRename(client, oldPath, newPath)
+    return client.sftpRename(oldPath, newPath)
   },
 
   removeFile(client: SSHClientInstance, path: string) {
-    return sshService.sftpRm(client, path)
+    return client.sftpRm(path)
   },
 
   removeDirectory(client: SSHClientInstance, path: string) {
-    return sshService.sftpRmdir(client, path)
+    return client.sftpRmdir(path)
   },
 
   uploadFile(client: SSHClientInstance, localFilePath: string, remoteFilePath: string) {
-    return sshService.sftpUpload(client, localFilePath, remoteFilePath)
+    return client.sftpUpload(localFilePath, remoteFilePath)
   },
 
   downloadFile(client: SSHClientInstance, remoteFilePath: string, localFilePath: string) {
-    return sshService.sftpDownload(client, remoteFilePath, localFilePath)
+    return client.sftpDownload(remoteFilePath, localFilePath)
   },
 
   async copyRemoteEntries(client: SSHClientInstance, sourcePaths: string[], destinationDirectory: string) {
@@ -44,4 +44,3 @@ export const sftpService = {
     }
   },
 }
-
