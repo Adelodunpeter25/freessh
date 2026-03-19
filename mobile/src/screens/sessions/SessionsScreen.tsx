@@ -7,6 +7,7 @@ import {
   EmptyState,
   SessionTabs,
   Terminal,
+  TerminalAccessoryKeyboard,
   TerminalScreen,
   mapHardwareKeyboardInput,
   normalizeTerminalInput,
@@ -166,6 +167,13 @@ export function SessionsScreen() {
                   profile={activeSession.profile}
                   showLoading={activeSession.status === "connecting"}
                   connectionName={activeSession.name}
+                />
+                <TerminalAccessoryKeyboard
+                  onSendInput={(data: string) => {
+                    if (!activeSessionId || !isMountedRef.current) return;
+                    sendInput(activeSessionId, normalizeTerminalInput(data));
+                    terminalRef.current?.focus();
+                  }}
                 />
               </YStack>
             )

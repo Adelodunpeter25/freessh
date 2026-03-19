@@ -24,6 +24,7 @@
     "buffer": "^6.0.3",
     "expo": "^54.0.0",
     "expo-build-properties": "~1.0.10",
+    "expo-clipboard": "~8.0.8",
     "expo-dev-client": "~6.0.20",
     "expo-file-system": "^55.0.11",
     "expo-modules-core": "~3.0.29",

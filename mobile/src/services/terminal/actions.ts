@@ -18,6 +18,7 @@ export type TerminalActionId =
   | "arrowLeft"
   | "arrowRight"
   | "clear"
+  | "searchHistory"
   | "interrupt"
   | "eof"
   | "suspend"
@@ -151,6 +152,13 @@ export const TERMINAL_ACTIONS: Record<
     label: "Clear",
     sequence: "\x0c",
     description: "Ctrl+L clear screen",
+  },
+  searchHistory: {
+    id: "searchHistory",
+    label: "Ctrl+R",
+    sequence: "\x12",
+    description: "Reverse history search",
+    aliases: ["search", "ctrlR"],
   },
   interrupt: {
     id: "interrupt",
