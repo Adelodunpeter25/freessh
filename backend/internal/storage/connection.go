@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"freessh-backend/internal/db"
 	"freessh-backend/internal/models"
+	"log"
 
 	"github.com/google/uuid"
 )
@@ -38,6 +39,16 @@ func (s *ConnectionStorage) Save(config models.ConnectionConfig) error {
 	if config.ID == "" {
 		config.ID = uuid.New().String()
 	}
+	if config.AuthMethod == "" {
+		if config.KeyID != "" || config.PrivateKey != "" {
+			config.AuthMethod = models.AuthPublicKey
+		} else {
+			config.AuthMethod = models.AuthPassword
+		}
+	}
+	if config.Port == 0 {
+		config.Port = 22
+	}
 
 	config.Profile = models.NormalizeSessionProfile(config.Profile)
 	profileJSON := ""
@@ -51,7 +62,7 @@ func (s *ConnectionStorage) Save(config models.ConnectionConfig) error {
 
 	_, err := s.db.Exec(`
 		INSERT OR REPLACE INTO connections (
-			id, name, host, port, username, auth_method, private_key, passphrase, key_id, password, 'group', profile
+			id, name, host, port, username, auth_method, private_key, passphrase, key_id, password, "group", profile
 		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`,
 		config.ID,
@@ -79,7 +90,7 @@ func (s *ConnectionStorage) Get(id string) (*models.ConnectionConfig, error) {
 		return nil, fmt.Errorf("connection storage unavailable")
 	}
 	row := s.db.QueryRow(`
-		SELECT id, name, host, port, username, auth_method, private_key, passphrase, key_id, password, 'group', profile
+		SELECT id, name, host, port, username, auth_method, private_key, passphrase, key_id, password, "group", profile
 		FROM connections WHERE id = ?
 	`, id)
 
@@ -99,7 +110,7 @@ func (s *ConnectionStorage) List() []models.ConnectionConfig {
 		return nil
 	}
 	rows, err := s.db.Query(`
-		SELECT id, name, host, port, username, auth_method, private_key, passphrase, key_id, password, 'group', profile
+		SELECT id, name, host, port, username, auth_method, private_key, passphrase, key_id, password, "group", profile
 		FROM connections
 	`)
 	if err != nil {
@@ -154,7 +165,7 @@ func (s *ConnectionStorage) UpdateGroupName(oldName, newName string) error {
 	if s == nil || s.db == nil {
 		return fmt.Errorf("connection storage unavailable")
 	}
-	_, err := s.db.Exec(`UPDATE connections SET 'group' = ? WHERE 'group' = ?`, newName, oldName)
+	_, err := s.db.Exec(`UPDATE connections SET "group" = ? WHERE "group" = ?`, newName, oldName)
 	if err != nil {
 		return fmt.Errorf("failed to update group name: %w", err)
 	}
@@ -165,7 +176,7 @@ func (s *ConnectionStorage) RemoveGroup(groupName string) error {
 	if s == nil || s.db == nil {
 		return fmt.Errorf("connection storage unavailable")
 	}
-	_, err := s.db.Exec(`UPDATE connections SET 'group' = NULL WHERE 'group' = ?`, groupName)
+	_, err := s.db.Exec(`UPDATE connections SET "group" = NULL WHERE "group" = ?`, groupName)
 	if err != nil {
 		return fmt.Errorf("failed to remove group: %w", err)
 	}
@@ -188,12 +199,14 @@ func (s *ConnectionStorage) migrateFromJSON() error {
 
 	var connections []models.ConnectionConfig
 	if err := manager.Load(&connections); err != nil {
-		return err
+		log.Printf("Failed to load connections.json for migration: %v", err)
+		return nil
 	}
 
 	for _, conn := range connections {
 		if err := s.Save(conn); err != nil {
-			return err
+			log.Printf("Failed to migrate connection %s: %v", conn.ID, err)
+			continue
 		}
 	}
 
