@@ -42,6 +42,8 @@ func IsBootstrapCommand(command string) bool {
 		strings.Contains(c, "__FREESSH_LAST_CMD") ||
 		strings.Contains(c, "fish_prompt") ||
 		strings.Contains(c, "__freessh_precmd") ||
+		strings.Contains(c, "precmd_functions") ||
+		strings.Contains(c, "__FREESSH_ZSH_HOOK_INSTALLED") ||
 		strings.Contains(c, "__FREESSH_LAST_HISTNO") ||
 		strings.Contains(c, "__FREESSH_LAST_HIST_ID") ||
 		strings.Contains(c, "freessh-history=") ||
@@ -50,6 +52,7 @@ func IsBootstrapCommand(command string) bool {
 		strings.Contains(c, "Get-EventSubscriber") ||
 		strings.Contains(c, "Get-History") ||
 		strings.Contains(c, "add-zsh-hook") ||
+		strings.Contains(c, "typeset -pm precmd_functions") ||
 		strings.Contains(c, "autoload -Uz") ||
 		strings.Contains(c, "PROMPT_COMMAND=") ||
 		strings.Contains(c, "$BASH_VERSION") ||
@@ -65,6 +68,8 @@ func ContainsBootstrapFragment(content string) bool {
 	fragments := []string{
 		"__freessh_emit_history",
 		"__freessh_precmd",
+		"__FREESSH_ZSH_HOOK_INSTALLED",
+		"precmd_functions",
 		"__FREESSH_LAST_HISTNO",
 		"__FREESSH_LAST_CMD",
 		"freessh-history=%s",
@@ -73,6 +78,7 @@ func ContainsBootstrapFragment(content string) bool {
 		"histno=\"$HISTCMD\"",
 		"cmd=\"$(fc -ln -1",
 		"add-zsh-hook precmd",
+		"typeset -pm precmd_functions",
 		"PROMPT_COMMAND=\"__freessh_emit_history",
 		"[ -n \"$BASH_VERSION\" ]",
 		"[ -n \"$ZSH_VERSION\" ]",
