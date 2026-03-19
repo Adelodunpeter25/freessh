@@ -8,10 +8,12 @@ import {
   SessionTabs,
   Terminal,
   TerminalScreen,
+  mapHardwareKeyboardInput,
+  normalizeTerminalInput,
 } from "@/components";
 import type { TerminalHandle } from "@/components";
 import { sshWebSocketService } from "@/services";
-import { useTerminalStore, useThemeStore } from "@/stores";
+import { useTerminalStore } from "@/stores";
 import { addKeyCommandListener } from "../../../modules/hardware-keyboard/index";
 
 export function SessionsScreen() {
@@ -26,23 +28,21 @@ export function SessionsScreen() {
   const terminalRef = useRef<TerminalHandle>(null);
   const isMountedRef = useRef(true);
 
-  const t = useTheme();
-  const isDark = useThemeStore((s) => s.theme === "dark");
-
   const activeSession = useMemo(
     () => sessions.find((s) => s.id === activeSessionId) ?? null,
     [sessions, activeSessionId],
   );
 
-  const terminalColors = useMemo(() => {
-    if (!activeSession) return undefined;
-    return {
+  const t = useTheme();
+  const terminalColors = useMemo(
+    () => ({
       background: t.background?.get(),
       foreground: t.color?.get(),
       cursor: t.accent?.get(),
       selection: t.selection?.get(),
-    };
-  }, [activeSession, t]);
+    }),
+    [t],
+  );
 
   const handleCloseSession = useCallback(async (id: string) => {
     try {
@@ -65,50 +65,9 @@ export function SessionsScreen() {
 
     const subscription = addKeyCommandListener((event) => {
       if (!activeSessionId || !isMountedRef.current) return;
-
-      // Backspace/Delete handling for full-screen apps (vim/htop).
-      // Many remote line-editing defaults expect ^H (0x08).
-      if (
-        event.input === "\b" ||
-        event.input === "\x7f" ||
-        event.input.toLowerCase() === "backspace"
-      ) {
-        sendInput(activeSessionId, "\x08");
-        return;
-      }
-
-      if (event.input.toLowerCase() === "delete") {
-        // xterm sends ESC [ 3 ~ for Delete
-        sendInput(activeSessionId, "\x1b[3~");
-        return;
-      }
-
-      // Handle Shift+Tab
-      if (event.shift && event.input === "\t") {
-        sendInput(activeSessionId, "\x1b[Z");
-        return;
-      }
-
-      // Handle Ctrl key combinations
-      if (event.ctrl) {
-        const ch = event.input.toLowerCase();
-        const code = ch.charCodeAt(0) & 0x1f;
-        sendInput(activeSessionId, String.fromCharCode(code));
-        return;
-      }
-
-      // Handle special keys (arrows, escape)
-      const specialMap: Record<string, string> = {
-        ArrowUp: "\x1b[A",
-        ArrowDown: "\x1b[B",
-        ArrowRight: "\x1b[C",
-        ArrowLeft: "\x1b[D",
-        Escape: "\x1b",
-      };
-      if (specialMap[event.input]) {
-        sendInput(activeSessionId, specialMap[event.input]);
-        return;
-      }
+      const mapped = mapHardwareKeyboardInput(event);
+      if (!mapped) return;
+      sendInput(activeSessionId, mapped);
     });
 
     return () => {
@@ -164,7 +123,7 @@ export function SessionsScreen() {
         <SessionTabs
           sessions={sessions}
           activeSessionId={activeSessionId}
-          isDark={isDark}
+          isDark={true}
           onBackPress={() => navigation.goBack()}
           onSelect={setActiveSession}
           onClose={handleCloseSession}
@@ -198,15 +157,13 @@ export function SessionsScreen() {
                   ref={terminalRef}
                   onInput={(data: string) => {
                     if (!activeSessionId || !isMountedRef.current) return;
-                    // Normalize backspace codes for remote apps expecting ^H (0x08).
-                    const normalized =
-                      data === "\b" || data === "\x7f" ? "\x08" : data
-                    sendInput(activeSessionId, normalized);
+                    sendInput(activeSessionId, normalizeTerminalInput(data));
                   }}
                   onReady={handleTerminalReady}
                   onResize={handleTerminalResize}
                   style={{ flex: 1 }}
                   theme={terminalColors}
+                  profile={activeSession.profile}
                   showLoading={activeSession.status === "connecting"}
                   connectionName={activeSession.name}
                 />

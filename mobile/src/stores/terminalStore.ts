@@ -6,6 +6,7 @@ export type TerminalSession = {
   id: string;
   connectionId: string;
   name: string;
+  profile?: ConnectionConfig["profile"];
   status: "connecting" | "connected" | "error" | "closed";
 };
 
@@ -45,6 +46,7 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
           id,
           connectionId: connection.id,
           name: connection.name,
+          profile: connection.profile,
           status: "connecting",
         },
       ],
