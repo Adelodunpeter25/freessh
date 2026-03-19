@@ -42,9 +42,6 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
       rendererProps={{
         placement: 'right',
         preferredPlacement: 'right',
-        style: {
-          marginLeft: -1,
-        },
         anchorStyle: {
           opacity: 0,
           transform: [{ scale: 0 }],
