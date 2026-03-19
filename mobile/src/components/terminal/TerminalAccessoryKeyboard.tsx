@@ -4,7 +4,7 @@ import {
   Platform,
   Pressable,
 } from "react-native";
-import { ClipboardPaste, Keyboard as KeyboardIcon, KeyboardOff } from "lucide-react-native";
+import { GripHorizontal, Keyboard as KeyboardIcon, KeyboardOff } from "lucide-react-native";
 import { ScrollView, Text, XStack, YStack, useTheme } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -120,8 +120,8 @@ export function TerminalAccessoryKeyboard({
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: 10,
-            paddingVertical: 8,
-            gap: 6,
+            paddingVertical: 7,
+            gap: 5,
             alignItems: "center",
           }}
           keyboardShouldPersistTaps="handled"
@@ -131,6 +131,13 @@ export function TerminalAccessoryKeyboard({
               key={key.id}
               label={key.label}
               wide={key.label.length > 2}
+              emphasis={
+                key.kind === "modifier" ||
+                key.kind === "search" ||
+                key.kind === "snippets"
+                  ? "strong"
+                  : "normal"
+              }
               active={
                 (key.kind === "modifier" && key.modifier === "ctrl" && ctrlActive) ||
                 (key.kind === "modifier" && key.modifier === "alt" && altActive)
@@ -177,34 +184,32 @@ export function TerminalAccessoryKeyboard({
           borderTopWidth={1}
           borderColor="$borderColor"
           backgroundColor="$background"
-          paddingTop="$3"
-          paddingHorizontal="$4"
+          paddingTop="$2"
+          paddingHorizontal="$3"
           paddingBottom={Math.max(insets.bottom, 8)}
           zIndex={50}
         >
-          <YStack gap="$3" flex={1}>
-            <XStack gap="$2" alignItems="center">
-              <ClipboardPaste size={16} color={theme.accent.get()} />
-              <Text fontSize={16} fontWeight="700" color="$color">
-                Terminal Keyboard
-              </Text>
+          <YStack gap="$2" flex={1}>
+            <XStack justifyContent="center" paddingBottom="$1">
+              <GripHorizontal size={18} color={theme.placeholderColor.get()} />
             </XStack>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-              <YStack gap="$3" paddingBottom="$4">
+              <YStack gap="$2.5" paddingBottom="$3">
                 {terminalKeyboardRows.map((row) => (
                   <YStack key={row.id} gap="$2">
-                    {row.label ? (
-                      <Text fontSize={11} color="$placeholderColor" fontWeight="700">
-                        {row.label}
-                      </Text>
-                    ) : null}
-                    <XStack gap="$2" flexWrap="wrap">
+                    <XStack gap="$1.5" flexWrap="wrap">
                       {row.keys.map((key) => (
                         <TerminalKeyboardKey
                           key={key.id}
                           label={key.label}
                           wide={key.label.length > 3}
+                          compact
+                          emphasis={
+                            row.id === "basic-actions" || row.id === "quick-actions"
+                              ? "strong"
+                              : "subtle"
+                          }
                           onPress={() => handleKeyPress(key)}
                         />
                       ))}
@@ -212,20 +217,32 @@ export function TerminalAccessoryKeyboard({
                   </YStack>
                 ))}
 
-                <XStack gap="$2" flexWrap="wrap" paddingTop="$1">
+                <XStack
+                  gap="$1.5"
+                  flexWrap="wrap"
+                  paddingTop="$2"
+                  borderTopWidth={1}
+                  borderColor="$backgroundPress"
+                >
                   <TerminalKeyboardKey
                     label="Paste"
                     wide
+                    compact
+                    emphasis="strong"
                     onPress={() => handleKeyPress({ id: "paste", label: "Paste", kind: "paste" })}
                   />
                   <TerminalKeyboardKey
                     label="Search"
                     wide
+                    compact
+                    emphasis="strong"
                     onPress={() => handleKeyPress({ id: "search", label: "Search", kind: "search" })}
                   />
                   <TerminalKeyboardKey
                     label="Snippets"
                     wide
+                    compact
+                    emphasis="strong"
                     onPress={() => handleKeyPress({ id: "snippets", label: "Snippets", kind: "snippets" })}
                   />
                 </XStack>
