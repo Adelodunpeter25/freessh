@@ -304,11 +304,23 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     if (!localPaths.length) return
 
     const remoteBase = normalizePath(remoteDirectory ?? active.currentPath)
+    const stagingBase =
+      FileSystem.cacheDirectory ?? FileSystem.documentDirectory ?? null
+    if (!stagingBase) throw new Error('No writable local directory available for upload staging')
+    const stagingDirectory = `${stagingBase.replace(/\/+$/, '')}/sftp-upload-staging/`
+    await FileSystem.makeDirectoryAsync(stagingDirectory, { intermediates: true })
+
     for (const localPath of localPaths) {
       const name = fileNameFromPath(localPath)
       if (!name) continue
       const remotePath = resolveRemotePath(remoteBase, name)
-      await sftpService.uploadFile(active.client, localPath, remotePath)
+      let uploadSourcePath = localPath
+      if (localPath.startsWith('content://')) {
+        const stagedPath = `${stagingDirectory}${Date.now()}-${name}`
+        await FileSystem.copyAsync({ from: localPath, to: stagedPath })
+        uploadSourcePath = stagedPath
+      }
+      await sftpService.uploadFile(active.client, uploadSourcePath, remotePath)
     }
     await get().listDirectory(remoteBase)
   },

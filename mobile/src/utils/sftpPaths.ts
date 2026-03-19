@@ -19,8 +19,14 @@ export function parentPath(path: string): string {
 }
 
 export function fileNameFromPath(path: string): string {
-  const segments = path.split('/').filter(Boolean)
-  return segments[segments.length - 1] ?? ''
+  const withoutQuery = path.split('?')[0] ?? path
+  const segments = withoutQuery.split('/').filter(Boolean)
+  const raw = segments[segments.length - 1] ?? ''
+  try {
+    return decodeURIComponent(raw)
+  } catch {
+    return raw
+  }
 }
 
 export function resolveRemotePath(baseDirectory: string, nameOrPath: string): string {

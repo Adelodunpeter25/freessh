@@ -5,6 +5,10 @@ function shellQuote(value: string): string {
   return `'${value.replace(/'/g, `'\"'\"'`)}'`
 }
 
+function toNativeLocalPath(localPath: string): string {
+  return localPath.startsWith('file://') ? decodeURIComponent(localPath.replace('file://', '')) : localPath
+}
+
 const reconnectManagers = new WeakMap<SSHClientInstance, ReconnectManager>()
 
 function getReconnectManager(client: SSHClientInstance): ReconnectManager {
@@ -64,11 +68,11 @@ export const sftpService = {
   },
 
   uploadFile(client: SSHClientInstance, localFilePath: string, remoteFilePath: string) {
-    return withReconnect(client, () => client.sftpUpload(localFilePath, remoteFilePath))
+    return withReconnect(client, () => client.sftpUpload(toNativeLocalPath(localFilePath), remoteFilePath))
   },
 
   downloadFile(client: SSHClientInstance, remoteFilePath: string, localFilePath: string) {
-    return withReconnect(client, () => client.sftpDownload(remoteFilePath, localFilePath))
+    return withReconnect(client, () => client.sftpDownload(remoteFilePath, toNativeLocalPath(localFilePath)))
   },
 
   async copyRemoteEntries(client: SSHClientInstance, sourcePaths: string[], destinationDirectory: string) {
