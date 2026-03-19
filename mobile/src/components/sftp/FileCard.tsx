@@ -2,6 +2,7 @@ import { FileText } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { Text, XStack, YStack, useTheme } from 'tamagui'
 import type { FileInfo } from '@/types'
+import { formatMode } from '@/utils/sftp'
 
 type FileCardProps = {
   file: FileInfo
@@ -22,19 +23,6 @@ function formatModified(timestamp: number): string {
   const datePart = date.toLocaleDateString()
   const timePart = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   return `${datePart} ${timePart}`
-}
-
-function formatMode(mode: number): string {
-  if (!mode) return '----------'
-  const permissionBits = mode & 0o777
-  const triplets = [
-    (permissionBits >> 6) & 7,
-    (permissionBits >> 3) & 7,
-    permissionBits & 7,
-  ]
-  const toRwx = (bits: number) =>
-    `${bits & 4 ? 'r' : '-'}${bits & 2 ? 'w' : '-'}${bits & 1 ? 'x' : '-'}`
-  return `-${triplets.map(toRwx).join('')}`
 }
 
 export function FileCard({ file, onPress }: FileCardProps) {

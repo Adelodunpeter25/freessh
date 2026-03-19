@@ -1,10 +1,9 @@
 import { useEffect } from 'react'
 import { RefreshControl } from 'react-native'
-import { ChevronRight, MoreVertical, Search, Upload } from 'lucide-react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text, View, XStack, YStack } from 'tamagui'
 
-import { EmptyState, FileList, IconButton, Screen } from '@/components'
+import { EmptyState, FileList, IconButton, Screen, SftpBreadcrumb } from '@/components'
 import { useSftpStore, useSnackbarStore } from '@/stores'
 import type { FileInfo } from '@/types'
 
@@ -56,37 +55,13 @@ export function SftpScreen() {
       }
     >
       <YStack gap="$0" flex={1} pt={insets.top}>
-        <XStack
-          ai="center"
-          jc="space-between"
-          gap="$3"
-          px="$3"
-          py="$2.5"
-          bg="$background"
-          borderBottomWidth={1}
-          borderBottomColor="$borderColor"
-        >
-          <XStack ai="center" gap="$2" flex={1}>
-            <Text color="$placeholderColor" fontSize={13} numberOfLines={1}>
-              {rootLabel}
-            </Text>
-            <ChevronRight size={14} color="#94a3b8" />
-            <Text color="$color" fontSize={13} fontWeight="600" numberOfLines={1}>
-              {lastLabel}
-            </Text>
-          </XStack>
-          <XStack gap="$1.5">
-            <IconButton onPress={() => showSnackbar('Upload coming soon', 'info')}>
-              <Upload size={16} />
-            </IconButton>
-            <IconButton onPress={() => showSnackbar('Search coming soon', 'info')}>
-              <Search size={16} />
-            </IconButton>
-            <IconButton onPress={() => showSnackbar('More actions coming soon', 'info')}>
-              <MoreVertical size={16} />
-            </IconButton>
-          </XStack>
-        </XStack>
+        <SftpBreadcrumb
+          rootLabel={rootLabel}
+          lastLabel={lastLabel}
+          onUpload={() => showSnackbar('Upload coming soon', 'info')}
+          onSearch={() => showSnackbar('Search coming soon', 'info')}
+          onMore={() => showSnackbar('More actions coming soon', 'info')}
+        />
 
         <View
           mx="$3"
