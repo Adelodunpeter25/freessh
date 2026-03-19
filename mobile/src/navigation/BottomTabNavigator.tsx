@@ -33,15 +33,15 @@ export function BottomTabNavigator() {
         tabBarActiveTintColor: '#f97316',
         tabBarInactiveTintColor: theme === 'dark' ? '#64748b' : '#94a3b8',
         tabBarStyle: {
-          backgroundColor: theme === 'dark' ? '#0a0a0a' : '#ffffff',
-          borderTopColor: theme === 'dark' ? '#1f2937' : '#e2e8f0',
+          backgroundColor: theme === 'dark' ? '#141a22' : '#f7fafd',
+          borderTopColor: theme === 'dark' ? '#2c3747' : '#d7e1ec',
           height: 65,
           paddingBottom: 8,
           paddingTop: 8,
         },
         headerStyle: {
-          backgroundColor: theme === 'dark' ? '#0a0a0a' : '#ffffff',
-          borderBottomColor: theme === 'dark' ? '#1f2937' : '#e2e8f0',
+          backgroundColor: theme === 'dark' ? '#141a22' : '#f7fafd',
+          borderBottomColor: theme === 'dark' ? '#2c3747' : '#d7e1ec',
         },
         headerTitleStyle: {
           color: theme === 'dark' ? '#f1f5f9' : '#0f172a',

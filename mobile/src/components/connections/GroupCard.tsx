@@ -49,7 +49,7 @@ export function GroupCard({
       <BaseCard
         title={group.name}
         subtitle={connectionSummary}
-        icon={<Folder size={20} color="#e2e8f0" />}
+        icon={<Folder size={20} color="#cbd5e1" />}
         selected={selected}
         pressable={false}
         action={onEdit && (

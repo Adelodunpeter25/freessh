@@ -5,7 +5,7 @@ import { Text, XStack, YStack, View, styled } from 'tamagui'
 export const Card = styled(YStack, {
   name: 'AppCard',
   borderRadius: 16,
-  padding: 16,
+  padding: 14,
   backgroundColor: '$background',
   borderWidth: 1,
   borderColor: '$borderColor',
@@ -45,15 +45,16 @@ export function BaseCard({
         borderWidth={selected ? 2 : 1}
         elevation={selected ? 4 : 2}
       >
-        <XStack gap="$4" alignItems="center">
+        <XStack gap="$3" alignItems="center">
           {/* Icon Container */}
           <View
-            width={44}
-            height={44}
+            width={40}
+            height={40}
             borderRadius="$3"
-            backgroundColor="$accent"
+            backgroundColor="$backgroundHover"
             alignItems="center"
             justifyContent="center"
+            opacity={0.9}
           >
             {icon}
           </View>

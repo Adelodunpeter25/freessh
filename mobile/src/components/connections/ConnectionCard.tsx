@@ -74,7 +74,7 @@ export function ConnectionCard({
         icon={
           loading
             ? <ActivityIndicator size="small" color="#cbd5e1" />
-            : <Server size={20} color="#e2e8f0" />
+            : <Server size={20} color="#cbd5e1" />
         }
         selected={selected}
         loading={loading}
