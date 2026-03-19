@@ -1,4 +1,4 @@
-import { Braces, Pencil, Trash2 } from "lucide-react-native";
+import { Braces, Pencil, Play, Trash2 } from "lucide-react-native";
 import { Pressable } from "react-native";
 import { Text, XStack, YStack, useTheme, View } from "tamagui";
 
@@ -9,6 +9,7 @@ type SnippetCardProps = {
   snippet: Snippet;
   selected?: boolean;
   onPress?: () => void;
+  onRun?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
 };
@@ -17,6 +18,7 @@ export function SnippetCard({
   snippet,
   selected = false,
   onPress,
+  onRun,
   onEdit,
   onDelete,
 }: SnippetCardProps) {
@@ -27,6 +29,13 @@ export function SnippetCard({
       title={snippet.name}
       onPress={onPress}
       items={[
+        {
+          key: "run",
+          label: "Run",
+          onPress: () => onRun?.(),
+          icon: <Play size={16} color={theme.accent.get()} />,
+        },
+        { type: "separator", key: "sep-0" },
         {
           key: "edit",
           label: "Edit",
@@ -82,18 +91,32 @@ export function SnippetCard({
             </YStack>
 
             {/* Actions */}
-            <Pressable onPress={onEdit}>
-              <View
-                width={32}
-                height={32}
-                alignItems="center"
-                justifyContent="center"
-                borderRadius="$2"
-                backgroundColor="transparent"
-              >
-                <Pencil size={16} color={theme.accent.get()} />
-              </View>
-            </Pressable>
+            <XStack gap="$1">
+              <Pressable onPress={onRun}>
+                <View
+                  width={32}
+                  height={32}
+                  alignItems="center"
+                  justifyContent="center"
+                  borderRadius="$2"
+                  backgroundColor="transparent"
+                >
+                  <Play size={16} color={theme.accent.get()} />
+                </View>
+              </Pressable>
+              <Pressable onPress={onEdit}>
+                <View
+                  width={32}
+                  height={32}
+                  alignItems="center"
+                  justifyContent="center"
+                  borderRadius="$2"
+                  backgroundColor="transparent"
+                >
+                  <Pencil size={16} color={theme.accent.get()} />
+                </View>
+              </Pressable>
+            </XStack>
           </XStack>
         </View>
       </View>

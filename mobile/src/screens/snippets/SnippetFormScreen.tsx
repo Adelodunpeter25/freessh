@@ -1,7 +1,8 @@
-import { Button, Input, Text, TextArea, YStack, XStack } from 'tamagui'
+import { useState } from 'react'
+import { Text, TextArea, YStack, XStack, useTheme } from 'tamagui'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen } from '@/components'
+import { AppHeader, Screen, Input, Button } from '@/components'
 import { useSnippetForm } from '@/hooks'
 import { useSnippetStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -9,6 +10,7 @@ import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 type Props = NativeStackScreenProps<ConnectionsStackParamList, 'SnippetForm'>
 
 export function SnippetFormScreen({ route, navigation }: Props) {
+  const t = useTheme()
   const { snippet } = route.params
   const isEdit = !!snippet
   const addSnippet = useSnippetStore((state) => state.addSnippet)
@@ -32,6 +34,7 @@ export function SnippetFormScreen({ route, navigation }: Props) {
       }
     },
   })
+  const [commandHeight, setCommandHeight] = useState(52)
 
   return (
     <YStack flex={1}>
@@ -64,11 +67,17 @@ export function SnippetFormScreen({ route, navigation }: Props) {
             <TextArea
               value={formData.command}
               onChangeText={(value) => updateField('command', value)}
+              onContentSizeChange={(event) => {
+                const next = Math.max(52, Math.min(260, event.nativeEvent.contentSize.height + 12))
+                setCommandHeight(next)
+              }}
               placeholder="Enter your command here..."
+              placeholderTextColor={t.placeholderColor.get()}
               borderColor={errors.command ? '$red10' : '$borderColor'}
-              flex={1}
               multiline
-              numberOfLines={10}
+              numberOfLines={1}
+              minHeight={52}
+              height={commandHeight}
             />
             {errors.command && <Text fontSize={12} color="$red10">{errors.command}</Text>}
           </YStack>
