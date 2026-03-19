@@ -279,11 +279,14 @@ export function MainLayout() {
           handleOpenConnectionsSidebar(true)
         }}
         onNewLocalTerminal={handleNewLocalTerminal}
-        onNewWorkspaceTab={() => {
-          if (!FEATURE_FLAGS.DETACHABLE_WORKSPACES) return
-          addWorkspaceTab()
-          handleSessionClick()
-        }}
+        onNewWorkspaceTab={
+          FEATURE_FLAGS.DETACHABLE_WORKSPACES
+            ? () => {
+                addWorkspaceTab()
+                handleSessionClick()
+              }
+            : undefined
+        }
         onOpenSettings={() => setShowSettings(true)}
         onOpenKeyboardShortcuts={() => setShowShortcuts(true)}
         onOpenExportImport={() => setShowExportImport(true)}

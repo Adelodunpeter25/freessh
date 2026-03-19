@@ -92,14 +92,18 @@ export function CommandPalette({
         shortcut: `${modLabel}+L`,
         action: onNewLocalTerminal,
       },
-      {
-        id: "new-workspace-tab",
-        label: "New workspace tab",
-        section: "Quick Create",
-        keywords: ["new", "workspace", "tab"],
-        icon: <Braces className="h-4 w-4 text-muted-foreground" />,
-        action: onNewWorkspaceTab,
-      },
+      ...(onNewWorkspaceTab
+        ? [
+            {
+              id: "new-workspace-tab",
+              label: "New workspace tab",
+              section: "Quick Create",
+              keywords: ["new", "workspace", "tab"],
+              icon: <Braces className="h-4 w-4 text-muted-foreground" />,
+              action: onNewWorkspaceTab,
+            },
+          ]
+        : []),
       {
         id: "open-settings",
         label: "Open settings",
