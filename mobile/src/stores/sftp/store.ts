@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import * as FileSystem from 'expo-file-system/legacy'
+import { Platform } from 'react-native'
 import { sshService } from '@/services'
 import { sftpService } from '@/services/sftp'
 import { connectionService, keyService } from '@/services/crud'
@@ -282,9 +283,13 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     if (!active) throw new Error('No active SFTP session')
     if (!remotePaths.length) return []
 
+    const preferredAndroidDownloadsDir = 'file:///storage/emulated/0/Download/freessh-downloads/'
+    const appDownloadsDir = FileSystem.documentDirectory
+      ? `${FileSystem.documentDirectory}freessh-downloads/`
+      : null
     const baseDirectory =
       localDirectory ??
-      (FileSystem.documentDirectory ? `${FileSystem.documentDirectory}freessh-downloads/` : null)
+      (Platform.OS === 'android' ? preferredAndroidDownloadsDir : appDownloadsDir)
     if (!baseDirectory) throw new Error('No writable local directory available')
     console.log('[SFTP] downloadEntries:start', {
       remotePaths,
@@ -292,11 +297,26 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       resolvedBaseDirectory: baseDirectory,
     })
 
-    await FileSystem.makeDirectoryAsync(baseDirectory, { intermediates: true })
+    let writableBaseDirectory = baseDirectory
+    try {
+      await FileSystem.makeDirectoryAsync(writableBaseDirectory, { intermediates: true })
+    } catch (mkdirError) {
+      if (Platform.OS === 'android' && appDownloadsDir && writableBaseDirectory !== appDownloadsDir) {
+        console.warn('[SFTP] downloadEntries:public downloads unavailable, falling back to app storage', {
+          requested: writableBaseDirectory,
+          fallback: appDownloadsDir,
+          mkdirError,
+        })
+        writableBaseDirectory = appDownloadsDir
+        await FileSystem.makeDirectoryAsync(writableBaseDirectory, { intermediates: true })
+      } else {
+        throw mkdirError
+      }
+    }
     const downloadedPaths: string[] = []
     for (const remotePath of remotePaths) {
       const name = fileNameFromPath(remotePath) || `download-${Date.now()}`
-      const localPath = `${baseDirectory.replace(/\/+$/, '')}/${name}`
+      const localPath = `${writableBaseDirectory.replace(/\/+$/, '')}/${name}`
       const normalizedRemotePath = normalizePath(remotePath)
       console.log('[SFTP] downloadEntries:item', {
         remotePath,
