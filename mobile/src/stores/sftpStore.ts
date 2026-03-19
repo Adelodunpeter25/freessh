@@ -163,6 +163,12 @@ function normalizePrivateKey(privateKey: string): string {
   return normalized.endsWith('\n') ? normalized : `${normalized}\n`
 }
 
+function normalizePassphrase(passphrase?: string): string | undefined {
+  if (typeof passphrase !== 'string') return undefined
+  const normalized = passphrase.trim()
+  return normalized.length > 0 ? normalized : undefined
+}
+
 function normalizeEntries(entries: unknown, currentPath: string): FileInfo[] {
   if (!Array.isArray(entries)) return []
 
@@ -257,10 +263,20 @@ export const useSftpStore = create<SftpState>((set, get) => ({
         if (effectiveConnection.key_id) {
           const key = await keyService.getById(effectiveConnection.key_id)
           if (key?.private_key) {
+            const preferredPassphrase =
+              normalizePassphrase(effectiveConnection.passphrase) ??
+              normalizePassphrase(key.passphrase)
             candidates.push({
               key: normalizePrivateKey(key.private_key),
-              passphrase: effectiveConnection.passphrase ?? key.passphrase,
+              passphrase: preferredPassphrase,
             })
+            // Fallback for stale/incorrect passphrase: retry same key without passphrase.
+            if (preferredPassphrase) {
+              candidates.push({
+                key: normalizePrivateKey(key.private_key),
+                passphrase: undefined,
+              })
+            }
           }
         }
 
@@ -270,7 +286,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
           if (!exists) {
             candidates.push({
               key: normalized,
-              passphrase: effectiveConnection.passphrase,
+              passphrase: normalizePassphrase(effectiveConnection.passphrase),
             })
           }
         }
