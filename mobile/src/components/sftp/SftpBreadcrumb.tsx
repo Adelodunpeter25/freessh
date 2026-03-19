@@ -1,6 +1,6 @@
 import { ChevronRight, MoreVertical, Search, Upload } from 'lucide-react-native'
 import { Text, XStack, useTheme } from 'tamagui'
-import { IconButton } from '@/components'
+import { IconButton } from '@/components/common'
 
 type SftpBreadcrumbProps = {
   rootLabel: string

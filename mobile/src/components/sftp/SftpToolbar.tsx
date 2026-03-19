@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react'
 import { Pressable } from 'react-native'
 import { ChevronRight, MoreVertical, Search, Upload, X } from 'lucide-react-native'
 import { Text, XStack, useTheme } from 'tamagui'
-import { IconButton, Input } from '@/components'
+import { IconButton, Input } from '@/components/common'
 
 type SftpToolbarProps = {
   rootLabel: string
