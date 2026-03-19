@@ -1,9 +1,9 @@
 import { Braces, Pencil, Trash2 } from "lucide-react-native";
 import { Pressable } from "react-native";
-import { Text, XStack, YStack, useTheme, View } from "tamagui";
+import { useTheme, View } from "tamagui";
 
 import type { Snippet } from "../../types";
-import { ContextMenu } from "../common";
+import { BaseCard, ContextMenu } from "../common";
 
 type SnippetCardProps = {
   snippet: Snippet;
@@ -43,61 +43,29 @@ export function SnippetCard({
         },
       ]}
     >
-      <View>
-        <View
-          backgroundColor="$background"
-          borderColor={selected ? "$accent" : "$borderColor"}
-          borderWidth={selected ? 2 : 0.5}
-          borderRadius="$4"
-          padding="$4"
-          minHeight={90}
-          shadowColor="$shadowColor"
-          shadowOffset={{ width: 0, height: selected ? 2 : 1 }}
-          shadowOpacity={selected ? 0.1 : 0.05}
-          shadowRadius={selected ? 8 : 4}
-          style={{ elevation: selected ? 4 : 2 }}
-        >
-          <XStack gap="$4" alignItems="center">
-            {/* Icon Container */}
-            <View
-              width={44}
-              height={44}
-              borderRadius="$3"
-              backgroundColor="$accent"
-              alignItems="center"
-              justifyContent="center"
-            >
-              <Braces size={20} color="#e2e8f0" />
-            </View>
-
-            {/* Content */}
-            <YStack flex={1}>
-              <Text fontSize={16} fontWeight="600" color="$color">
-                {snippet.name}
-              </Text>
-              <Text fontSize={12} color="$placeholderColor" numberOfLines={2}>
-                {snippet.command}
-              </Text>
-            </YStack>
-
-            {/* Actions */}
-            <XStack gap="$1">
-              <Pressable onPress={onEdit}>
-                <View
-                  width={32}
-                  height={32}
-                  alignItems="center"
-                  justifyContent="center"
-                  borderRadius="$2"
-                  backgroundColor="transparent"
-                >
-                  <Pencil size={16} color={theme.accent.get()} />
-                </View>
-              </Pressable>
-            </XStack>
-          </XStack>
-        </View>
-      </View>
+      <BaseCard
+        title={snippet.name}
+        subtitle={snippet.command}
+        icon={<Braces size={20} color="#e2e8f0" />}
+        selected={selected}
+        pressable={false}
+        action={
+          onEdit ? (
+            <Pressable onPress={onEdit}>
+              <View
+                width={32}
+                height={32}
+                alignItems="center"
+                justifyContent="center"
+                borderRadius="$2"
+                backgroundColor="transparent"
+              >
+                <Pencil size={16} color={theme.accent.get()} />
+              </View>
+            </Pressable>
+          ) : null
+        }
+      />
     </ContextMenu>
   );
 }
