@@ -33,7 +33,7 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
     text: isDark ? '#f1f5f9' : '#0f172a',
     subtitle: isDark ? '#9fb0c7' : '#64748b',
     destructive: isDark ? '#f87171' : '#dc2626',
-    separator: isDark ? '#2b3646' : '#d7e1ec',
+    separator: isDark ? '#4a5970' : '#c2cedd',
   }
 
   return (
@@ -74,9 +74,9 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
               return (
                 <View
                   key={item.key}
-                  height={1}
+                  height={1.25}
                   backgroundColor={colors.separator}
-                  opacity={0.8}
+                  opacity={1}
                 />
               )
             }

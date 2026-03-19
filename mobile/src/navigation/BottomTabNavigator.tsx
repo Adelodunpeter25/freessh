@@ -57,12 +57,14 @@ export function BottomTabNavigator() {
           tabBarLabel: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <View
-              px="$3"
-              py="$1.5"
               borderRadius={999}
               borderWidth={focused ? 2 : 1}
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
+              style={{
+                paddingHorizontal: focused ? 18 : 12,
+                paddingVertical: focused ? 10 : 6,
+              }}
             >
               <Home size={18} color={color} />
             </View>
@@ -75,12 +77,14 @@ export function BottomTabNavigator() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <View
-              px="$3"
-              py="$1.5"
               borderRadius={999}
               borderWidth={focused ? 2 : 1}
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
+              style={{
+                paddingHorizontal: focused ? 18 : 12,
+                paddingVertical: focused ? 10 : 6,
+              }}
             >
               <Server size={18} color={color} />
             </View>
@@ -93,12 +97,14 @@ export function BottomTabNavigator() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <View
-              px="$3"
-              py="$1.5"
               borderRadius={999}
               borderWidth={focused ? 2 : 1}
               borderColor={focused ? (theme === 'dark' ? '#3f4957' : '#cfd7e2') : 'transparent'}
               backgroundColor={focused ? (theme === 'dark' ? '#1f2a39' : '#eaf1f9') : 'transparent'}
+              style={{
+                paddingHorizontal: focused ? 18 : 12,
+                paddingVertical: focused ? 10 : 6,
+              }}
             >
               <Settings size={18} color={color} />
             </View>
