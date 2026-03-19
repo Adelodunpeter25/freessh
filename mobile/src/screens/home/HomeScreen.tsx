@@ -41,7 +41,9 @@ export function HomeScreen() {
   const knownHosts = useKnownHostStore((state) => state.knownHosts)
   const sessions = useTerminalStore((state) => state.sessions)
   const activeSessionId = useTerminalStore((state) => state.activeSessionId)
-  const activeSession = sessions.find((session) => session.id === activeSessionId)
+  const activeSession =
+    sessions.find((session) => session.id === activeSessionId) ??
+    (sessions.length > 0 ? sessions[sessions.length - 1] : undefined)
 
   const items: HubItem[] = [
     { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Connections', count: connections.length },
@@ -87,8 +89,8 @@ export function HomeScreen() {
               >
                 <XStack ai="center" jc="space-between">
                   <XStack ai="center" gap="$3">
-                    <Circle size={28} bg="$borderColor" opacity={0.5} ai="center" jc="center">
-                      <item.icon size={15} color={t.color.get()} />
+                    <Circle size={30} bg="$borderColor" opacity={0.5} ai="center" jc="center">
+                      <item.icon size={17} color={t.color.get()} />
                     </Circle>
                     <Text fontSize={16} fontWeight="600" color="$color">
                       {item.title}
