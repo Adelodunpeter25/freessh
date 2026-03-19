@@ -10,7 +10,9 @@ import {
   Search,
   Settings,
   Terminal,
+  Server,
 } from "lucide-react";
+import { ConnectionConfig } from "@/types";
 
 interface CommandPaletteItem {
   id: string;
@@ -31,6 +33,8 @@ interface CommandPaletteProps {
   onOpenSettings: () => void;
   onOpenKeyboardShortcuts: () => void;
   onOpenExportImport: () => void;
+  recentConnections: ConnectionConfig[];
+  onConnectConnection: (connection: ConnectionConfig) => void;
 }
 
 export function CommandPalette({
@@ -42,6 +46,8 @@ export function CommandPalette({
   onOpenSettings,
   onOpenKeyboardShortcuts,
   onOpenExportImport,
+  recentConnections,
+  onConnectConnection,
 }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -49,6 +55,18 @@ export function CommandPalette({
 
   const items = useMemo<CommandPaletteItem[]>(
     () => [
+      ...recentConnections.map((connection) => ({
+        id: `recent-${connection.id}`,
+        label: connection.name || connection.host,
+        section: "Recent Connections",
+        keywords: [
+          connection.name || "",
+          connection.host || "",
+          connection.username || "",
+        ].filter(Boolean),
+        icon: <Server className="h-4 w-4 text-muted-foreground" />,
+        action: () => onConnectConnection(connection),
+      })),
       {
         id: "new-connection",
         label: "New connection",
@@ -107,6 +125,8 @@ export function CommandPalette({
       onOpenSettings,
       onOpenKeyboardShortcuts,
       onOpenExportImport,
+      recentConnections,
+      onConnectConnection,
     ],
   );
 

@@ -13,10 +13,15 @@ import { useSessionStore } from "@/stores/sessionStore";
 import { useKeyboardShortcuts, useLocalTerminal } from "@/hooks";
 import { useMenuActions } from "@/hooks";
 import { Snippet } from "@/types/snippet";
+import { ConnectionConfig } from "@/types/connection";
 import { useSessionLifecycle } from "@/hooks/layout/useSessionLifecycle";
 import { useWorkspacePersistence } from "@/hooks/layout/useWorkspacePersistence";
 import { sshService } from "@/services/ipc/ssh";
 import { FEATURE_FLAGS } from "@/constants/features";
+import { connectionService } from "@/services/ipc";
+import { useConnectionStore } from "@/stores/connectionStore";
+import { getRecentConnectionIds } from "@/utils/recentConnections";
+import { toast } from "sonner";
 
 type SidebarTab = "connections" | "keys" | "known-hosts" | "port-forward" | "snippets" | "logs" | "settings";
 type MainView = "home" | "sftp" | "terminal";
@@ -36,6 +41,11 @@ export function MainLayout() {
   const tabs = useTabStore((state) => state.tabs);
   const removeTab = useTabStore((state) => state.removeTab);
   const addWorkspaceTab = useTabStore((state) => state.addWorkspaceTab);
+  const addSession = useSessionStore((state) => state.addSession);
+  const addTab = useTabStore((state) => state.addTab);
+  const connections = useConnectionStore((state) => state.connections);
+  const ensureConnectionsLoaded = useConnectionStore((state) => state.ensureConnectionsLoaded);
+  const [recentConnections, setRecentConnections] = useState<ConnectionConfig[]>([]);
   const currentTab = tabs.find(tab => tab.id === activeSessionTabId);
   const activeSessionId = currentTab?.sessionId;
   const sftpConnectionId = useUIStore((state) => state.sftpConnectionId);
@@ -62,6 +72,29 @@ export function MainLayout() {
     }
     prevTabsLength.current = tabs.length;
   }, [tabs.length, mainView]);
+
+  useEffect(() => {
+    if (!showCommandPalette) return;
+    let cancelled = false;
+    const loadRecentConnections = async () => {
+      try {
+        await ensureConnectionsLoaded();
+      } catch {
+        // Ignore load failures; palette can still render without recents.
+      }
+      if (cancelled) return;
+      const ids = getRecentConnectionIds();
+      const next = ids
+        .map((id) => connections.find((conn) => conn.id === id))
+        .filter((conn): conn is NonNullable<typeof conn> => Boolean(conn))
+        .slice(0, 3);
+      setRecentConnections(next);
+    };
+    void loadRecentConnections();
+    return () => {
+      cancelled = true;
+    };
+  }, [showCommandPalette, ensureConnectionsLoaded, connections]);
 
   useWorkspacePersistence({
     mainView,
@@ -118,6 +151,22 @@ export function MainLayout() {
     removeSession(tab.sessionId);
     removeTab(tab.id);
   }, [activeSessionTabId, tabs, removeSession, removeTab]);
+
+  const handleConnectRecent = useCallback(
+    async (connection: ConnectionConfig) => {
+      try {
+        const session = await connectionService.connect(connection);
+        addSession(session, connection);
+        addTab(session, connection, "terminal");
+        setMainView("terminal");
+        toast.success(`Connected to ${connection.name || connection.host}`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to connect";
+        toast.error(message);
+      }
+    },
+    [addSession, addTab],
+  );
 
   useKeyboardShortcuts({
     onSwitchTab: (index) => {
@@ -238,6 +287,8 @@ export function MainLayout() {
         onOpenSettings={() => setShowSettings(true)}
         onOpenKeyboardShortcuts={() => setShowShortcuts(true)}
         onOpenExportImport={() => setShowExportImport(true)}
+        recentConnections={recentConnections}
+        onConnectConnection={handleConnectRecent}
       />
 
       <DisconnectNotifications

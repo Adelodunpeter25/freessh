@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { Session, ConnectionConfig } from '../types'
 import { useOSTypeStore } from './osTypeStore'
+import { recordRecentConnection } from '@/utils/recentConnections'
 
 interface SessionWithConnection {
   session: Session
@@ -26,6 +27,9 @@ export const useSessionStore = create<SessionStore>((set, get) => ({
     // Cache OS type if available
     if (session.os_type && connection) {
       useOSTypeStore.getState().setOSType(connection.id, session.os_type)
+    }
+    if (connection?.id) {
+      recordRecentConnection(connection.id)
     }
     
     set((state) => {
