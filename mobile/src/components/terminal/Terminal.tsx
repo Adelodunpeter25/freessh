@@ -129,12 +129,6 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
       border-radius: 4px;
     }
 
-    input, textarea, .xterm-helper-textarea {
-      position: absolute !important;
-      left: -9999px !important;
-      top: -9999px !important;
-      opacity: 0 !important;
-    }
   </style>
   <link rel="stylesheet" href="https://unpkg.com/xterm@5.3.0/css/xterm.css" />
 </head>
@@ -221,7 +215,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           fastScrollModifier: 'alt',
           fastScrollSensitivity: 5,
           allowProposedApi: true,
-          disableStdin: true,
+          disableStdin: false,
           cursorInactiveStyle: 'bar',
           altClickMovesCursor: false
         });
