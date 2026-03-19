@@ -339,18 +339,23 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     await FileSystem.makeDirectoryAsync(stagingDirectory, { intermediates: true })
 
     for (const localPath of localPaths) {
-      const name = fileNameFromPath(localPath)
-      if (!name) continue
-      const remotePath = resolveRemotePath(remoteBase, name)
+      const rawName = fileNameFromPath(localPath)
+      if (!rawName) continue
+      const safeName = rawName.replace(/[<>:"/\\|?*\u0000-\u001F]/g, '_')
+      const remotePath = resolveRemotePath(remoteBase, safeName)
       let uploadSourcePath = localPath
       if (localPath.startsWith('content://')) {
-        const stagedPath = `${stagingDirectory}${Date.now()}-${name}`
+        const stagedPath = `${stagingDirectory}${Date.now()}-${safeName}`
         console.log('[SFTP] uploadFiles:staging content uri', { localPath, stagedPath })
         await FileSystem.copyAsync({ from: localPath, to: stagedPath })
+        const stagedInfo = await FileSystem.getInfoAsync(stagedPath)
+        console.log('[SFTP] uploadFiles:staged file info', { stagedPath, stagedInfo })
         uploadSourcePath = stagedPath
       }
       console.log('[SFTP] uploadFiles:item', {
         localPath,
+        rawName,
+        safeName,
         uploadSourcePath,
         remotePath,
       })

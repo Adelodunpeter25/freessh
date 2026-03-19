@@ -9,6 +9,22 @@ function toNativeLocalPath(localPath: string): string {
   return localPath.startsWith('file://') ? decodeURIComponent(localPath.replace('file://', '')) : localPath
 }
 
+function toFileUriPath(localPath: string): string {
+  if (localPath.startsWith('file://')) return decodeURIComponent(localPath)
+  return `file://${localPath}`
+}
+
+function uniqueCandidates(paths: string[]): string[] {
+  const seen = new Set<string>()
+  const result: string[] = []
+  for (const path of paths) {
+    if (seen.has(path)) continue
+    seen.add(path)
+    result.push(path)
+  }
+  return result
+}
+
 const reconnectManagers = new WeakMap<SSHClientInstance, ReconnectManager>()
 
 function getReconnectManager(client: SSHClientInstance): ReconnectManager {
@@ -73,26 +89,52 @@ export const sftpService = {
 
   uploadFile(client: SSHClientInstance, localFilePath: string, remoteFilePath: string) {
     const nativeLocalPath = toNativeLocalPath(localFilePath)
+    const fileUriPath = toFileUriPath(localFilePath)
+    const candidates = uniqueCandidates([localFilePath, fileUriPath, nativeLocalPath])
     console.log('[SFTP] uploadFile', {
       localFilePath,
+      fileUriPath,
       nativeLocalPath,
+      candidates,
       remoteFilePath,
     })
-    return withReconnect(`upload:${nativeLocalPath}->${remoteFilePath}`, client, () =>
-      client.sftpUpload(nativeLocalPath, remoteFilePath),
-    )
+    return withReconnect(`upload:${nativeLocalPath}->${remoteFilePath}`, client, async () => {
+      let lastError: unknown
+      for (const candidate of candidates) {
+        try {
+          return await client.sftpUpload(candidate, remoteFilePath)
+        } catch (error) {
+          lastError = error
+          console.error('[SFTP] uploadFile candidate failed', { candidate, remoteFilePath, error })
+        }
+      }
+      throw lastError instanceof Error ? lastError : new Error('Failed to upload with all local path forms')
+    })
   },
 
   downloadFile(client: SSHClientInstance, remoteFilePath: string, localFilePath: string) {
     const nativeLocalPath = toNativeLocalPath(localFilePath)
+    const fileUriPath = toFileUriPath(localFilePath)
+    const candidates = uniqueCandidates([localFilePath, fileUriPath, nativeLocalPath])
     console.log('[SFTP] downloadFile', {
       remoteFilePath,
       localFilePath,
+      fileUriPath,
       nativeLocalPath,
+      candidates,
     })
-    return withReconnect(`download:${remoteFilePath}->${nativeLocalPath}`, client, () =>
-      client.sftpDownload(remoteFilePath, nativeLocalPath),
-    )
+    return withReconnect(`download:${remoteFilePath}->${nativeLocalPath}`, client, async () => {
+      let lastError: unknown
+      for (const candidate of candidates) {
+        try {
+          return await client.sftpDownload(remoteFilePath, candidate)
+        } catch (error) {
+          lastError = error
+          console.error('[SFTP] downloadFile candidate failed', { remoteFilePath, candidate, error })
+        }
+      }
+      throw lastError instanceof Error ? lastError : new Error('Failed to download with all local path forms')
+    })
   },
 
   async copyRemoteEntries(client: SSHClientInstance, sourcePaths: string[], destinationDirectory: string) {
