@@ -326,12 +326,6 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     const baseDirectory = localDirectory ?? appDownloadsDir
     if (!baseDirectory) throw new Error('No writable local directory available')
 
-    console.log('[SFTP] downloadEntries:start', {
-      remotePaths,
-      localDirectory,
-      resolvedBaseDirectory: baseDirectory,
-    })
-
     await FileSystem.makeDirectoryAsync(baseDirectory, { intermediates: true })
 
     const androidDownloadsDirectoryUri =
@@ -345,13 +339,6 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       const localPath = `${baseDirectory.replace(/\/+$/, '')}/${name}`
       const normalizedRemotePath = normalizePath(remotePath)
       
-      console.log('[SFTP] downloadEntries:item', {
-        remotePath,
-        normalizedRemotePath,
-        localPath,
-        androidDownloadsDirectoryUri,
-      })
-
       try {
         await sftpService.downloadFile(active.client, normalizedRemotePath, localPath)
         if (androidDownloadsDirectoryUri) {
@@ -361,10 +348,15 @@ export const useSftpStore = create<SftpState>((set, get) => ({
             baseName,
             inferMimeType(name),
           )
-          await StorageAccessFramework.copyAsync({
-            from: localPath,
-            to: destinationUri,
+          
+          // Using writeAsStringAsync with Base64 as it's more reliable for SAF URIs in some Expo versions
+          const content = await FileSystem.readAsStringAsync(localPath, {
+            encoding: FileSystem.EncodingType.Base64,
           })
+          await StorageAccessFramework.writeAsStringAsync(destinationUri, content, {
+            encoding: FileSystem.EncodingType.Base64,
+          })
+          
           await FileSystem.deleteAsync(localPath, { idempotent: true })
           downloadedPaths.push(destinationUri)
         } else {
@@ -380,7 +372,6 @@ export const useSftpStore = create<SftpState>((set, get) => ({
         throw error
       }
     }
-    console.log('[SFTP] downloadEntries:done', { downloadedPaths })
     return downloadedPaths
   },
 
@@ -395,25 +386,18 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     if (!stagingBase) throw new Error('No writable local directory available for upload staging')
     const stagingDirectory = `${stagingBase.replace(/\/+$/, '')}/sftp-upload-staging/`
     
-    console.log('[SFTP] uploadFiles:start', {
-      localPaths,
-      remoteDirectory,
-      resolvedRemoteBase: remoteBase,
-      stagingDirectory,
-    })
-    
     await FileSystem.makeDirectoryAsync(stagingDirectory, { intermediates: true })
 
     for (const localPath of localPaths) {
       const rawName = fileNameFromPath(localPath)
       if (!rawName) continue
+      // Even more restrictive safeName to avoid any potential shell/path issues on the server
       const safeName = rawName.replace(/[^a-zA-Z0-9.-]/g, '_')
-      const remotePath = remoteBase
+      const remotePath = resolveRemotePath(remoteBase, safeName)
       const uploadStagingDirectory = `${stagingDirectory}${Date.now()}-${Math.random().toString(36).slice(2, 8)}/`
       const stagedPath = `${uploadStagingDirectory}${safeName}`
       let uploadSourcePath = stagedPath
 
-      console.log('[SFTP] uploadFiles:staging file', { localPath, uploadStagingDirectory, stagedPath, safeName })
       try {
         await FileSystem.makeDirectoryAsync(uploadStagingDirectory, { intermediates: true })
         await FileSystem.copyAsync({ from: localPath, to: stagedPath })
@@ -422,20 +406,11 @@ export const useSftpStore = create<SftpState>((set, get) => ({
         if (!stagedInfo.exists) {
           throw new Error(`Failed to stage file: ${localPath}`)
         }
-        console.log('[SFTP] uploadFiles:staged file info', { stagedPath, stagedInfo })
         uploadSourcePath = stagedInfo.uri
       } catch (stageError) {
         console.error('[SFTP] uploadFiles:staging failed', { localPath, stagedPath, stageError })
         throw stageError
       }
-
-      console.log('[SFTP] uploadFiles:item', {
-        localPath,
-        rawName,
-        safeName,
-        uploadSourcePath,
-        remotePath,
-      })
 
       try {
         await sftpService.uploadFile(active.client, uploadSourcePath, remotePath)
@@ -451,7 +426,6 @@ export const useSftpStore = create<SftpState>((set, get) => ({
         throw error
       }
     }
-    console.log('[SFTP] uploadFiles:done', { remoteBase })
     await get().listDirectory(remoteBase)
   },
 

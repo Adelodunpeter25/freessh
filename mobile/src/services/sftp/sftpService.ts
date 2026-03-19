@@ -135,13 +135,6 @@ export const sftpService = {
     const nativeLocalPath = toNativeLocalPath(localFilePath)
     const fileUriPath = toFileUriPath(localFilePath)
     const candidates = uniqueCandidates([localFilePath, fileUriPath, nativeLocalPath])
-    console.log('[SFTP] uploadFile', {
-      localFilePath,
-      fileUriPath,
-      nativeLocalPath,
-      candidates,
-      remoteFilePath,
-    })
     return withReconnect(`upload:${nativeLocalPath}->${remoteFilePath}`, client, async () => {
       let lastError: unknown
       for (const candidate of candidates) {
@@ -161,13 +154,6 @@ export const sftpService = {
     const nativeLocalPath = toNativeLocalPath(localFilePath)
     const fileUriPath = toFileUriPath(localFilePath)
     const candidates = uniqueCandidates([localFilePath, fileUriPath, nativeLocalPath])
-    console.log('[SFTP] downloadFile', {
-      remoteFilePath,
-      localFilePath,
-      fileUriPath,
-      nativeLocalPath,
-      candidates,
-    })
     return withReconnect(`download:${remoteFilePath}->${nativeLocalPath}`, client, async () => {
       let lastError: unknown
       for (const candidate of candidates) {
