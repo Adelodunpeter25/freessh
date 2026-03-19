@@ -1,7 +1,6 @@
 import { Pressable } from "react-native";
 import { ArrowLeft, Monitor, Plus, X } from "lucide-react-native";
 import { ScrollView, Text, XStack, YStack } from "tamagui";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import type { TerminalSession } from "@/stores";
 
@@ -22,12 +21,10 @@ export function SessionTabs({
   onSelect,
   onClose,
 }: SessionTabsProps) {
-  const insets = useSafeAreaInsets();
-
   return (
     <YStack
       px="$2.5"
-      pt={insets.top > 0 ? "$2" : "$1.5"}
+      pt="$1.5"
       pb="$1.5"
       backgroundColor={isDark ? "#101114" : "#eef2f7"}
       borderBottomWidth={1}

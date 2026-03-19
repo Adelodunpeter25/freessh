@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useCallback } from "react";
 import { YStack, useTheme } from "tamagui";
 import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   EmptyState,
@@ -15,6 +16,7 @@ import { addKeyCommandListener } from "../../../modules/hardware-keyboard/index"
 
 export function SessionsScreen() {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const sessions = useTerminalStore((s) => s.sessions);
   const activeSessionId = useTerminalStore((s) => s.activeSessionId);
   const setActiveSession = useTerminalStore((s) => s.setActiveSession);
@@ -140,7 +142,7 @@ export function SessionsScreen() {
 
   return (
     <TerminalScreen keyboardOffset={0}>
-      <YStack flex={1} gap="$0">
+      <YStack flex={1} gap="$0" pt={Math.max(insets.top, 8)}>
         <SessionTabs
           sessions={sessions}
           activeSessionId={activeSessionId}
