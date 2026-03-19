@@ -111,7 +111,7 @@ const readSshString = (buf: Buffer, offset: number) => {
   if (end > buf.length) {
     throw new Error('Invalid key format')
   }
-  return { value: buf.subarray(lenMeta.offset, end), offset: end }
+  return { value: Buffer.from(buf.subarray(lenMeta.offset, end)), offset: end }
 }
 
 const normalizeAlgorithm = (keyType: string): SSHKey['algorithm'] => {
@@ -184,11 +184,11 @@ const parseOpenSSHPrivateKeyPublicPart = (name: string, privateKey: string) => {
   }
 
   const pubMeta = readSshString(payload, offset)
-  const publicBlob = pubMeta.value
+  const publicBlob = Buffer.from(pubMeta.value)
 
   const typeMeta = readSshString(publicBlob, 0)
-  const keyType = typeMeta.value.toString('utf8')
-  const publicKey = `${keyType} ${publicBlob.toString('base64')} ${name}`.trim()
+  const keyType = Buffer.from(typeMeta.value).toString('utf8')
+  const publicKey = `${keyType} ${Buffer.from(publicBlob).toString('base64')} ${name}`.trim()
 
   return {
     algorithm: normalizeAlgorithm(keyType),
