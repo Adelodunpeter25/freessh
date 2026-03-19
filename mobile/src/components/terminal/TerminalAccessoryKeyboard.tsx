@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Pressable } from "react-native";
 import { ChevronUp, ClipboardPaste } from "lucide-react-native";
-import * as Clipboard from "expo-clipboard";
 import { ScrollView, Sheet, Text, XStack, YStack, useTheme } from "tamagui";
 
 import { useTerminalActions } from "@/hooks";
@@ -41,17 +40,8 @@ export function TerminalAccessoryKeyboard({
     setAltActive(false);
   };
 
-  const handlePaste = async () => {
-    try {
-      const value = await Clipboard.getStringAsync();
-      if (!value) {
-        showSnackbar("Clipboard is empty", "info");
-        return;
-      }
-      onSendInput(value);
-    } catch (error) {
-      showSnackbar("Failed to read clipboard", "error");
-    }
+  const handlePaste = () => {
+    showSnackbar("Paste is temporarily disabled", "info");
   };
 
   const handleKeyPress = (key: TerminalKeyboardKeyDefinition) => {
@@ -65,7 +55,7 @@ export function TerminalAccessoryKeyboard({
     }
 
     if (key.kind === "paste") {
-      void handlePaste();
+      handlePaste();
       resetModifiers();
       return;
     }
