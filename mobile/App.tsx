@@ -1,8 +1,8 @@
 import '@tamagui/native/setup-zeego'
 import { StatusBar } from 'expo-status-bar'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Appearance } from 'react-native'
-import { TamaguiProvider } from 'tamagui'
+import { TamaguiProvider, Spinner, YStack } from 'tamagui'
 import { MenuProvider } from 'react-native-popup-menu'
 
 import { AppNavigator } from './src/navigation/AppNavigator'
@@ -13,6 +13,7 @@ import { Snackbar } from './src/components'
 export default function App() {
   const theme = useThemeStore((state) => state.theme)
   const setSystemTheme = useThemeStore((state) => state.setSystemTheme)
+  const [isReady, setIsReady] = useState(false)
   
   const initConnections = useConnectionStore(s => s.initialize)
   const initGroups = useGroupStore(s => s.initialize)
@@ -25,21 +26,25 @@ export default function App() {
   const snackbarVariant = useSnackbarStore((s) => s.variant)
 
   useEffect(() => {
-    // Initializing SQLite
     const init = async () => {
        try {
-         await import('./src/services/db/schema').then(async (m) => {
-           await m.initDatabase()
-           // Initialize stores after DB is ready
-           initConnections()
-           initGroups()
-           initSnippets()
-           initKeys()
-           initLogs()
+         // Dynamic import to keep initial bundle small
+         const { initDatabase } = await import('./src/services/db/schema')
+         await initDatabase()
+         
+         // Parallelize store initializations for faster startup
+         await Promise.all([
+           initConnections(),
+           initGroups(),
+           initSnippets(),
+           initKeys(),
+           initLogs(),
            initKnownHosts()
-         })
+         ])
        } catch (error) {
-         console.error('Failed to init database:', error)
+         console.error('Startup failed:', error)
+       } finally {
+         setIsReady(true)
        }
     }
     init()
@@ -49,7 +54,17 @@ export default function App() {
     })
 
     return () => subscription.remove()
-  }, [setSystemTheme])
+  }, [])
+
+  if (!isReady) {
+    return (
+      <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
+        <YStack flex={1} ai="center" jc="center" bg={theme === 'dark' ? '#09090b' : '#f8fafc'}>
+          <Spinner size="large" color="$accent" />
+        </YStack>
+      </TamaguiProvider>
+    )
+  }
 
   return (
     <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>

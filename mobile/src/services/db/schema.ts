@@ -108,8 +108,5 @@ export async function initDatabase() {
   });
 
   isInitialized = true;
-}
-
-  isInitialized = true;
-  console.log("Database initialized successfully");
+  console.log("[DB] Database initialized successfully");
 }
