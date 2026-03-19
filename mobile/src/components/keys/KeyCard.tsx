@@ -52,7 +52,7 @@ export function KeyCard({
       <BaseCard
         title={sshKey.name}
         subtitle={`${sshKey.algorithm}${sshKey.bits ? ` • ${sshKey.bits} bits` : ''}`}
-        icon={<Key size={20} color="#cbd5e1" />}
+        icon={<Key size={20} color={theme.color.get()} />}
         pressable={false}
         action={onEdit && (
           <Pressable onPress={(e) => {

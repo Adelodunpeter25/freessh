@@ -46,7 +46,7 @@ export function SnippetCard({
       <BaseCard
         title={snippet.name}
         subtitle={snippet.command}
-        icon={<Braces size={20} color="#cbd5e1" />}
+        icon={<Braces size={20} color={theme.color.get()} />}
         selected={selected}
         pressable={false}
         action={
