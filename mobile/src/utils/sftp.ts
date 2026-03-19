@@ -1,3 +1,5 @@
+import { normalizePath } from './sftpPaths'
+
 export function formatMode(mode: number): string {
   if (!mode) return '----------'
   const permissionBits = mode & 0o777
@@ -28,7 +30,8 @@ export function formatModifiedTime(timestamp: number): string {
 }
 
 export function getSftpBreadcrumb(currentPath: string, connectionName: string | null) {
-  const pathSegments = currentPath.split('/').filter(Boolean)
+  const normalizedPath = normalizePath(currentPath)
+  const pathSegments = normalizedPath.split('/').filter(Boolean)
   const rootLabel = connectionName ?? 'Home'
 
   const clickablePaths = [{ segment: rootLabel, path: '/' }]
@@ -40,7 +43,7 @@ export function getSftpBreadcrumb(currentPath: string, connectionName: string | 
   }
 
   const fullBreadcrumb = clickablePaths.map((item) => item.segment).join(' > ')
-  const canGoUp = currentPath !== '/'
+  const canGoUp = normalizedPath !== '/'
 
   return { 
     rootLabel, 

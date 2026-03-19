@@ -4,16 +4,18 @@ import { sshService } from '@/services'
 import { sftpService } from '@/services/sftp'
 import { connectionService, keyService } from '@/services/crud'
 import type { ConnectionConfig } from '@/types'
-import type { SftpDeleteTarget, SftpSession, SftpState } from './types'
 import {
   fileNameFromPath,
+  normalizePath,
+  parentPath,
+  resolveRemotePath,
+} from '@/utils/sftpPaths'
+import type { SftpDeleteTarget, SftpSession, SftpState } from './types'
+import {
   getActiveSession,
   normalizeEntries,
   normalizePassphrase,
-  normalizePath,
   normalizePrivateKey,
-  parentPath,
-  resolveRemotePath,
   updateSession,
 } from './helpers'
 
@@ -331,4 +333,3 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     })
   },
 }))
-
