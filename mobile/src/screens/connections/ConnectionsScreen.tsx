@@ -220,6 +220,10 @@ export function ConnectionsScreen() {
           <Sheet.Handle />
           <YStack gap="$2" pt="$4">
             <ListItem
+              borderWidth={1}
+              borderColor="$borderColor"
+              borderRadius={14}
+              backgroundColor="$background"
               hoverStyle={{ backgroundColor: '$backgroundHover' }}
               pressStyle={{ backgroundColor: '$backgroundPress' }}
               title="New Connection"
@@ -230,6 +234,10 @@ export function ConnectionsScreen() {
               }}
             />
             <ListItem
+              borderWidth={1}
+              borderColor="$borderColor"
+              borderRadius={14}
+              backgroundColor="$background"
               hoverStyle={{ backgroundColor: '$backgroundHover' }}
               pressStyle={{ backgroundColor: '$backgroundPress' }}
               title="New Group"

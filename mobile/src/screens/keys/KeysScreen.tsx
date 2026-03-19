@@ -166,6 +166,10 @@ export function KeysScreen() {
           <Sheet.Handle />
           <YStack gap="$2" pt="$4">
             <ListItem
+              borderWidth={1}
+              borderColor="$borderColor"
+              borderRadius={14}
+              backgroundColor="$background"
               hoverStyle={{ backgroundColor: '$backgroundHover' }}
               pressStyle={{ backgroundColor: '$backgroundPress' }}
               title="Create New Key"
@@ -176,6 +180,10 @@ export function KeysScreen() {
               }}
             />
             <ListItem
+              borderWidth={1}
+              borderColor="$borderColor"
+              borderRadius={14}
+              backgroundColor="$background"
               hoverStyle={{ backgroundColor: '$backgroundHover' }}
               pressStyle={{ backgroundColor: '$backgroundPress' }}
               title="Import Key"
