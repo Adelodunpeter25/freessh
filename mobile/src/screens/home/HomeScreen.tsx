@@ -4,6 +4,7 @@ import {
   ArrowRightLeft, 
   Code2, 
   Fingerprint, 
+  History,
   ChevronRight,
 } from 'lucide-react-native'
 import { 
