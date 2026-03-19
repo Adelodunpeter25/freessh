@@ -247,17 +247,22 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       } else {
         let privateKey = connection.private_key
         let passphrase = connection.passphrase
-        if (!privateKey && connection.key_id) {
+        if (connection.key_id) {
           const key = await keyService.getById(connection.key_id)
-          privateKey = key?.private_key || ''
+          if (!key?.private_key && !privateKey) {
+            throw new Error('Selected key is missing private key data')
+          }
+          // Always prefer current keychain key material when key_id is set.
+          privateKey = key?.private_key || privateKey
           if (!passphrase) passphrase = key?.passphrase
         }
-        if (!privateKey) throw new Error('Missing private key')
+        const normalizedPrivateKey = (privateKey || '').trim()
+        if (!normalizedPrivateKey) throw new Error('Missing private key')
         client = await sshService.connectWithKey(
           connection.host,
           port,
           connection.username,
-          privateKey,
+          normalizedPrivateKey,
           passphrase,
         )
       }
