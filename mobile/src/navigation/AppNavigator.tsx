@@ -79,6 +79,12 @@ export function AppNavigator() {
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
+          animation: 'none',
+          gestureEnabled: true,
+          fullScreenGestureEnabled: true,
+          contentStyle: {
+            backgroundColor: navigationTheme.colors.background,
+          },
         }}
       >
         <Stack.Screen
