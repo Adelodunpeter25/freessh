@@ -7,6 +7,12 @@ export type TerminalKeyboardPresetId =
   | "sysadmin"
   | "compact";
 
+export type TerminalKeyboardCustomizationPresetId =
+  | TerminalKeyboardPresetId
+  | "custom";
+
+export type TerminalKeyboardKeySize = "small" | "medium" | "large";
+
 export type TerminalKeyboardKey =
   | {
       id: string;
@@ -45,7 +51,28 @@ export type TerminalKeyboardKey =
 export type TerminalKeyboardRow = {
   id: string;
   label?: string;
+  visible?: boolean;
   keys: TerminalKeyboardKey[];
+};
+
+export type TerminalKeyboardSettings = {
+  keySize: TerminalKeyboardKeySize;
+  compactMode: boolean;
+  hapticFeedback: boolean;
+  showHints: boolean;
+};
+
+export type TerminalKeyboardCustomization = {
+  preset: TerminalKeyboardCustomizationPresetId;
+  version: number;
+  topBar: {
+    pinnedKeys: TerminalKeyboardKey[];
+    keys: TerminalKeyboardKey[];
+  };
+  fullKeyboard: {
+    rows: TerminalKeyboardRow[];
+  };
+  settings: TerminalKeyboardSettings;
 };
 
 export type TerminalKeyboardPreset = {
@@ -60,6 +87,20 @@ export type TerminalKeyboardPreset = {
     rows: TerminalKeyboardRow[];
   };
 };
+
+const DEFAULT_SETTINGS: TerminalKeyboardSettings = {
+  keySize: "medium",
+  compactMode: false,
+  hapticFeedback: false,
+  showHints: true,
+};
+
+const cloneKey = (key: TerminalKeyboardKey): TerminalKeyboardKey => ({ ...key });
+
+const cloneRow = (row: TerminalKeyboardRow): TerminalKeyboardRow => ({
+  ...row,
+  keys: row.keys.map(cloneKey),
+});
 
 const actionKey = (
   id: string,
@@ -379,8 +420,34 @@ export function getPresetById(
   return PRESET_DEFINITIONS.find((preset) => preset.id === id);
 }
 
-const defaultPreset = getPresetById("default");
+export function buildTerminalKeyboardCustomization(
+  presetId: TerminalKeyboardPresetId,
+  settings: TerminalKeyboardSettings = DEFAULT_SETTINGS,
+): TerminalKeyboardCustomization {
+  const preset = getPresetById(presetId);
+  if (!preset) {
+    throw new Error(`Terminal keyboard preset "${presetId}" not found`);
+  }
 
-export const pinnedTerminalKeys = defaultPreset?.topBar.keys ?? [];
-export const terminalKeyboardRows = defaultPreset?.fullKeyboard.rows ?? [];
+  return {
+    preset: presetId,
+    version: 1,
+    topBar: {
+      pinnedKeys: preset.topBar.pinnedKeys.map(cloneKey),
+      keys: preset.topBar.keys.map(cloneKey),
+    },
+    fullKeyboard: {
+      rows: preset.fullKeyboard.rows.map((row) => ({
+        ...cloneRow(row),
+        visible: row.visible ?? true,
+      })),
+    },
+    settings: { ...settings },
+  };
+}
+
+export function getDefaultTerminalKeyboardCustomization(): TerminalKeyboardCustomization {
+  return buildTerminalKeyboardCustomization("default");
+}
+
 export { PRESET_DEFINITIONS as terminalKeyboardPresets };

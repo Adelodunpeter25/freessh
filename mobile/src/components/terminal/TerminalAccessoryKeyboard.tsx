@@ -4,18 +4,16 @@ import {
   Platform,
   Pressable,
 } from "react-native";
-import { GripHorizontal, Keyboard as KeyboardIcon, KeyboardOff } from "lucide-react-native";
-import { ScrollView, Text, XStack, YStack, useTheme } from "tamagui";
+import { Keyboard as KeyboardIcon, KeyboardOff } from "lucide-react-native";
+import { ScrollView, XStack, YStack, useTheme } from "tamagui";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useTerminalActions } from "@/hooks";
-import { useSnackbarStore } from "@/stores";
+import { useSnackbarStore, useTerminalKeyboardStore } from "@/stores";
 
 import {
-  pinnedTerminalKeys,
-  terminalKeyboardRows,
   type TerminalKeyboardKey as TerminalKeyboardKeyDefinition,
-} from "@/services";
+} from "@/services/terminal";
 import { TerminalKeyboardKey } from "./TerminalKeyboardKey";
 import { TerminalSnippetsSheet } from "./TerminalSnippetsSheet";
 
@@ -31,6 +29,7 @@ export function TerminalAccessoryKeyboard({
   const theme = useTheme();
   const insets = useSafeAreaInsets();
   const showSnackbar = useSnackbarStore((state) => state.show);
+  const keyboardConfig = useTerminalKeyboardStore((state) => state.config);
   const { sendAction, sendModifiedKey } = useTerminalActions({ sendInput: onSendInput });
 
   const [ctrlActive, setCtrlActive] = useState(false);
@@ -43,6 +42,15 @@ export function TerminalAccessoryKeyboard({
     () => ({ ctrl: ctrlActive, alt: altActive }),
     [altActive, ctrlActive],
   );
+  const topBarKeys = useMemo(
+    () => [...keyboardConfig.topBar.pinnedKeys, ...keyboardConfig.topBar.keys],
+    [keyboardConfig.topBar.keys, keyboardConfig.topBar.pinnedKeys],
+  );
+  const visibleRows = useMemo(
+    () => keyboardConfig.fullKeyboard.rows.filter((row) => row.visible !== false),
+    [keyboardConfig.fullKeyboard.rows],
+  );
+  const rowGap = keyboardConfig.settings.compactMode ? "$2" : "$2.5";
 
   const resetModifiers = () => {
     setCtrlActive(false);
@@ -135,7 +143,7 @@ export function TerminalAccessoryKeyboard({
           }}
           keyboardShouldPersistTaps="handled"
         >
-          {pinnedTerminalKeys.map((key) => (
+          {topBarKeys.map((key) => (
             <TerminalKeyboardKey
               key={key.id}
               label={key.label}
@@ -185,7 +193,7 @@ export function TerminalAccessoryKeyboard({
 
       {showKeyboard ? (
         <YStack
-          height={280 + insets.bottom}
+          height={Math.max(280, keyboardHeight) + insets.bottom}
           borderTopWidth={1}
           borderColor="$borderColor"
           backgroundColor="$background"
@@ -195,9 +203,9 @@ export function TerminalAccessoryKeyboard({
         >
           <YStack gap="$3" flex={1} paddingTop="$3">
             <ScrollView showsVerticalScrollIndicator={false}>
-              <YStack gap="$2.5" paddingBottom="$3">
-                {terminalKeyboardRows.map((row) => (
-                  <YStack key={row.id} gap="$2">
+              <YStack gap={rowGap} paddingBottom="$3">
+                {visibleRows.map((row) => (
+                  <YStack key={row.id} gap={rowGap}>
                     <XStack gap="$1.5" flexWrap="wrap">
                       {row.keys.map((key) => (
                         <TerminalKeyboardKey
@@ -206,11 +214,7 @@ export function TerminalAccessoryKeyboard({
                           wide={key.label.length > 3}
                           compact
                           flex={1}
-                          emphasis={
-                            row.id === "basic-actions" || row.id === "quick-actions"
-                              ? "strong"
-                              : "subtle"
-                          }
+                          emphasis={row.id === "basic-actions" || row.id === "quick-actions" ? "strong" : "subtle"}
                           onPress={() => handleKeyPress(key)}
                         />
                       ))}
