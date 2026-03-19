@@ -216,6 +216,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           fastScrollSensitivity: 5,
           allowProposedApi: true,
           disableStdin: false,
+          cursorStyle: 'bar',
           cursorInactiveStyle: 'bar',
           altClickMovesCursor: false
         });
