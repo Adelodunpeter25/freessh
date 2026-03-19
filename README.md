@@ -71,3 +71,8 @@ If you do not see a build for your platform yet, run locally from source (below)
    - `bun run build`
 2. Preview the built app:
    - `bun run start`
+
+### Build Installers
+
+- macOS: `bun run build:mac`
+- Windows: `bun run build:win`
