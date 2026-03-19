@@ -47,7 +47,7 @@ function MenuRow({
     >
       <XStack alignItems="center" gap="$2">
         {icon}
-        <Text color={destructive ? '#ef4444' : '$color'} fontSize={13} fontWeight="600">
+        <Text color={destructive ? '$destructive' : '$color'} fontSize={13} fontWeight="600">
           {label}
         </Text>
       </XStack>
@@ -102,7 +102,7 @@ export function MoreActions({
         {hasSelection ? (
           <>
             <MenuRow
-              icon={<Trash2 size={14} color="#ef4444" />}
+              icon={<Trash2 size={14} color={theme.destructive.get()} />}
               label="Delete"
               onPress={onDelete}
               destructive

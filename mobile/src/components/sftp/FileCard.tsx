@@ -1,6 +1,6 @@
 import { Check, FileText } from 'lucide-react-native'
 import { Pressable } from 'react-native'
-import { Text, XStack, YStack } from 'tamagui'
+import { Text, XStack, YStack, useTheme } from 'tamagui'
 import type { FileInfo } from '@/types'
 import { formatFileSize, formatMode, formatModifiedTime } from '@/utils/sftp'
 
@@ -12,17 +12,19 @@ type FileCardProps = {
 }
 
 export function FileCard({ file, onPress, onLongPress, selected = false }: FileCardProps) {
+  const theme = useTheme()
+
   return (
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
-      android_ripple={{ color: 'rgba(148, 163, 184, 0.14)' }}
+      android_ripple={{ color: theme.ripple.get() }}
       style={({ pressed }) => ({
         width: '100%',
         backgroundColor: selected
-          ? 'rgba(249, 115, 22, 0.08)'
+          ? theme.selection.get()
           : pressed
-            ? 'rgba(148, 163, 184, 0.08)'
+            ? theme.backgroundHover.get()
             : 'transparent',
       })}
     >
@@ -44,9 +46,9 @@ export function FileCard({ file, onPress, onLongPress, selected = false }: FileC
               borderRadius={5}
               alignItems="center"
               justifyContent="center"
-              backgroundColor="rgba(234, 88, 12, 0.9)"
+              backgroundColor="$accentPress"
             >
-              <Check size={18} color="#ffffff" />
+              <Check size={18} color={theme.iconWhite.get()} />
             </XStack>
           ) : (
             <XStack
@@ -55,9 +57,9 @@ export function FileCard({ file, onPress, onLongPress, selected = false }: FileC
               borderRadius={5}
               alignItems="center"
               justifyContent="center"
-              backgroundColor="rgba(234, 88, 12, 0.18)"
+              backgroundColor="$accentMuted"
             >
-              <FileText size={13} color="#c2410c" fill="#c2410c" />
+              <FileText size={13} color={theme.accentDeep.get()} fill={theme.accentDeep.get()} />
             </XStack>
           )}
           <YStack flex={1}>

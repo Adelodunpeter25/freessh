@@ -53,9 +53,9 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
             alignItems="center"
             justifyContent="center"
             borderRadius="$2"
-            backgroundColor="$red10"
+            backgroundColor="$destructive"
           >
-            <Trash2 size={16} color="#ffffff" />
+            <Trash2 size={16} color={theme.iconWhite.get()} />
           </View>
         </Pressable>
       )}

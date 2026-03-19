@@ -42,7 +42,7 @@ export function GroupCard({
           label: 'Delete',
           destructive: true,
           onPress: () => onDelete?.(),
-          icon: <Trash2 size={16} color="#ef4444" />,
+          icon: <Trash2 size={16} color={theme.destructive.get()} />,
         },
       ]}
     >

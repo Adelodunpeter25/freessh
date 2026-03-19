@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Pressable } from 'react-native'
 import { ChevronRight, Search, Upload, X } from 'lucide-react-native'
-import { Text, XStack, useTheme } from 'tamagui'
+import { Button, Popover, Text, XStack, YStack, useTheme } from 'tamagui'
 import { IconButton, Input } from '@/components/common'
 import { MoreActions } from './MoreActions'
 
@@ -75,17 +75,17 @@ export function SftpToolbar({
               <XStack key={index} ai="center" gap={4}>
                 {item.path ? (
                   <Pressable onPress={() => onNavigateTo(item.path!)} hitSlop={8}>
-                    <Text color="#94a3b8" fontSize={12} fontWeight="500">
+                    <Text color="$iconSubtle" fontSize={12} fontWeight="500">
                       {item.segment}
                     </Text>
                   </Pressable>
                 ) : (
-                  <Text color="#ffffff" fontSize={12} fontWeight="600">
+                  <Text color="$color" fontSize={12} fontWeight="600">
                     {item.segment}
                   </Text>
                 )}
                 {index < clickablePaths.length - 1 && (
-                  <ChevronRight size={12} color="#64748b" />
+                  <ChevronRight size={12} color={theme.iconSubtle.get()} />
                 )}
               </XStack>
             ))}
@@ -104,7 +104,6 @@ export function SftpToolbar({
             autoFocus
             textAlignVertical="center"
             fontSize={12}
-            lineHeight={16}
             py="$0"
           />
           <IconButton onPress={closeSearch}>

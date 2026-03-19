@@ -28,9 +28,9 @@ export function KnownHostCard({ host, onDelete }: KnownHostCardProps) {
             alignItems="center"
             justifyContent="center"
             borderRadius="$2"
-            backgroundColor="$red10"
+            backgroundColor="$destructive"
           >
-            <Trash2 size={16} color="#ffffff" />
+            <Trash2 size={16} color={theme.iconWhite.get()} />
           </View>
         </Pressable>
       )}

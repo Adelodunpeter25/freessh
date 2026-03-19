@@ -34,7 +34,7 @@ export function SftpBreadcrumb({
         <Text color="$placeholderColor" fontSize={12} numberOfLines={1}>
           {rootLabel}
         </Text>
-        <ChevronRight size={14} color="#94a3b8" />
+        <ChevronRight size={14} color={theme.iconMuted.get()} />
         <Text color="$color" fontSize={12} fontWeight="600" numberOfLines={1}>
           {lastLabel}
         </Text>

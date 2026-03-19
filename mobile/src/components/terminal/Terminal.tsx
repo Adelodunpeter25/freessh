@@ -461,10 +461,10 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
               backgroundColor: resolvedTheme.background,
             }}
           >
-            <ActivityIndicator size="large" color="#22C55E" />
+            <ActivityIndicator size="large" color={resolvedTheme.green} />
             <Text
               style={{
-                color: "#ffffff",
+                color: resolvedTheme.foreground,
                 fontSize: 16,
                 marginTop: 16,
                 textAlign: "center",
