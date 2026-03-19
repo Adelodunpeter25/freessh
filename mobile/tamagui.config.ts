@@ -18,6 +18,9 @@ const tamaguiConfig = createTamagui({
     light: {
       ...config.themes.light,
       background: '#f2f6fb',
+      backgroundStrong: '#ecf2f9',
+      backgroundHover: '#e5edf7',
+      backgroundPress: '#dde8f3',
       color: '#0f172a',
       colorHover: '#1e293b',
       colorPress: '#0f172a',
@@ -34,6 +37,9 @@ const tamaguiConfig = createTamagui({
     dark: {
       ...config.themes.dark,
       background: '#141a22',
+      backgroundStrong: '#1b2430',
+      backgroundHover: '#222d3a',
+      backgroundPress: '#2a3647',
       color: '#f1f5f9',
       colorHover: '#e2e8f0',
       colorPress: '#f1f5f9',

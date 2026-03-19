@@ -54,7 +54,7 @@ export function HomeScreen() {
         <Card
           borderRadius={16}
           overflow="hidden"
-          backgroundColor="$backgroundStrong"
+          backgroundColor="$backgroundHover"
           borderWidth={1}
           borderColor="$borderColor"
           elevation={0}

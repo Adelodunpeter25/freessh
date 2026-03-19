@@ -1,6 +1,6 @@
 import { Pressable } from "react-native";
 import { ArrowLeft, Monitor, Plus, X } from "lucide-react-native";
-import { ScrollView, Text, XStack, YStack } from "tamagui";
+import { ScrollView, Text, XStack, YStack, useTheme } from "tamagui";
 
 import type { TerminalSession } from "@/stores";
 
@@ -16,19 +16,21 @@ type SessionTabsProps = {
 export function SessionTabs({
   sessions,
   activeSessionId,
-  isDark,
+  isDark: _isDark,
   onBackPress,
   onSelect,
   onClose,
 }: SessionTabsProps) {
+  const theme = useTheme();
+
   return (
     <YStack
       px="$2.5"
       pt="$1.5"
       pb="$1.5"
-      backgroundColor={isDark ? "#101114" : "#eef2f7"}
+      backgroundColor="$background"
       borderBottomWidth={1}
-      borderColor={isDark ? "#24262b" : "#d4dbe5"}
+      borderColor="$borderColor"
     >
       <XStack alignItems="center" gap="$1.5">
         <Pressable onPress={onBackPress} hitSlop={8}>
@@ -38,11 +40,11 @@ export function SessionTabs({
             borderRadius={9}
             alignItems="center"
             justifyContent="center"
-            backgroundColor={isDark ? "#1a1c22" : "#dde4ef"}
+            backgroundColor="$backgroundHover"
             borderWidth={1}
-            borderColor={isDark ? "#2a2e37" : "#c3cedd"}
+            borderColor="$borderColor"
           >
-            <ArrowLeft size={16} color={isDark ? "#f5f7fb" : "#111827"} />
+            <ArrowLeft size={16} color={theme.color.get()} />
           </XStack>
         </Pressable>
 
@@ -64,18 +66,18 @@ export function SessionTabs({
                     borderRadius={9}
                     alignItems="center"
                     gap="$2"
-                    backgroundColor={isDark ? (isActive ? "#2f3239" : "#1d2026") : (isActive ? "#d6e0ec" : "#e8eff7")}
+                    backgroundColor={isActive ? "$backgroundPress" : "$backgroundHover"}
                     borderWidth={1}
-                    borderColor={isDark ? (isActive ? "#50545f" : "#2c313a") : (isActive ? "#b7c6d8" : "#d2ddea")}
+                    borderColor="$borderColor"
                   >
                     <Monitor
                       size={14}
-                      color={isDark ? (isActive ? "#f8fafc" : "#c9d0dd") : (isActive ? "#1f2937" : "#475569")}
+                      color={isActive ? theme.color.get() : theme.placeholderColor.get()}
                     />
                     <Text
                       flex={1}
                       numberOfLines={1}
-                      color={isDark ? (isActive ? "#f8fafc" : "#dbe2ef") : (isActive ? "#0f172a" : "#334155")}
+                      color={isActive ? "$color" : "$placeholderColor"}
                       fontSize={12}
                       fontWeight="500"
                     >
@@ -88,7 +90,7 @@ export function SessionTabs({
                         onClose(session.id);
                       }}
                     >
-                      <X size={14} color={isDark ? (isActive ? "#f8fafc" : "#a8b2c2") : (isActive ? "#0f172a" : "#64748b")} />
+                      <X size={14} color={isActive ? theme.color.get() : theme.placeholderColor.get()} />
                     </Pressable>
                   </XStack>
                 </Pressable>
@@ -103,11 +105,11 @@ export function SessionTabs({
           borderRadius={9}
           alignItems="center"
           justifyContent="center"
-          backgroundColor={isDark ? "#1a1c22" : "#dde4ef"}
+          backgroundColor="$backgroundHover"
           borderWidth={1}
-          borderColor={isDark ? "#2a2e37" : "#c3cedd"}
+          borderColor="$borderColor"
         >
-          <Plus size={16} color={isDark ? "#f8fafc" : "#111827"} />
+          <Plus size={16} color={theme.color.get()} />
         </XStack>
       </XStack>
     </YStack>

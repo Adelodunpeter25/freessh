@@ -4,7 +4,7 @@ export const Input = styled(TInput, {
   name: 'AppInput',
   borderWidth: 1,
   borderColor: '$borderColor',
-  backgroundColor: '$background',
+  backgroundColor: '$backgroundStrong',
   color: '$color',
   placeholderTextColor: '$placeholderColor',
   borderRadius: 10,
