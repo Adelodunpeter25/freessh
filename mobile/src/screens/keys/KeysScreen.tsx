@@ -1,13 +1,14 @@
 import { RefreshControl } from 'react-native'
-import { ListItem, Sheet, Text, YStack } from 'tamagui'
+import { Dialog, ListItem, Sheet, Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import { useState, useCallback } from 'react'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AddButton, EmptyState, Screen, AppHeader, KeyCard, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
+import { AddButton, EmptyState, Screen, AppHeader, KeyCard, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog, Button, Input } from '@/components'
 import { useSearch } from '@/hooks'
 import { useConnectionStore, useKeyStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
+import type { ConnectionConfig } from '@/types'
 
 export function KeysScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
@@ -20,6 +21,9 @@ export function KeysScreen() {
   const showSnackbar = useSnackbarStore((state) => state.show)
   const [refreshing, setRefreshing] = useState(false)
   const [exportKey, setExportKey] = useState<null | { id: string; name: string }>(null)
+  const [exportConnection, setExportConnection] = useState<ConnectionConfig | null>(null)
+  const [exportPassword, setExportPassword] = useState('')
+  const [exporting, setExporting] = useState(false)
   const [confirmState, setConfirmState] = useState<{
     title: string
     description?: string
@@ -42,6 +46,39 @@ export function KeysScreen() {
 
   const showEmpty = query.length > 0 && isEmpty
   const isActuallyEmpty = keys.length === 0
+
+  const resetExportFlow = useCallback(() => {
+    setExportConnection(null)
+    setExportPassword('')
+    setExporting(false)
+  }, [])
+
+  const performExport = useCallback(async (connection: ConnectionConfig, password?: string) => {
+    if (!exportKey) return
+
+    setExporting(true)
+    try {
+      const updated = await exportKeyToHost(exportKey.id, connection.id, { password })
+      await updateConnection(updated)
+      showSnackbar(`Key installed and linked to "${connection.name}"`, 'success')
+      setExportKey(null)
+      resetExportFlow()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to export key'
+      showSnackbar(message, 'error')
+    } finally {
+      setExporting(false)
+    }
+  }, [exportKey, exportKeyToHost, updateConnection, showSnackbar, resetExportFlow])
+
+  const handleConnectionExport = useCallback(async (connection: ConnectionConfig) => {
+    if (connection.auth_method === 'password' && !connection.password) {
+      setExportConnection(connection)
+      return
+    }
+
+    await performExport(connection)
+  }, [performExport])
 
   return (
     <>
@@ -107,8 +144,11 @@ export function KeysScreen() {
       <Sheet
         modal
         open={exportKey !== null}
-        onOpenChange={(open) => {
-          if (!open) setExportKey(null)
+        onOpenChange={(open: boolean) => {
+          if (!open) {
+            setExportKey(null)
+            resetExportFlow()
+          }
         }}
         snapPoints={[40]}
         dismissOnSnapToBottom
@@ -133,15 +173,7 @@ export function KeysScreen() {
                   title={connection.name}
                   subTitle={`${connection.username}@${connection.host}`}
                   onPress={async () => {
-                    if (!exportKey) return
-                    try {
-                      const updated = await exportKeyToHost(exportKey.id, connection.id)
-                      updateConnection(updated)
-                      showSnackbar(`Exported to "${connection.name}"`, 'success')
-                      setExportKey(null)
-                    } catch {
-                      showSnackbar('Failed to export key', 'error')
-                    }
+                    await handleConnectionExport(connection)
                   }}
                 />
               ))
@@ -149,6 +181,69 @@ export function KeysScreen() {
           </YStack>
         </Sheet.Frame>
       </Sheet>
+
+      <Dialog
+        open={exportConnection !== null}
+        onOpenChange={(open: boolean) => {
+          if (!open) resetExportFlow()
+        }}
+      >
+        <Dialog.Portal>
+          <Dialog.Overlay key="overlay" opacity={0.5} backgroundColor="$shadowColor" />
+          <Dialog.Content
+            key="content"
+            bordered
+            elevate
+            borderRadius="$4"
+            padding="$4"
+            backgroundColor="$background"
+            width="85%"
+            maxWidth={420}
+          >
+            <YStack gap="$3">
+              <Dialog.Title>
+                <Text fontSize={18} fontWeight="700" color="$color">
+                  Enter Host Password
+                </Text>
+              </Dialog.Title>
+              <Dialog.Description>
+                <Text fontSize={14} color="$placeholderColor">
+                  Password is required to install key on {exportConnection?.username}@{exportConnection?.host}.
+                </Text>
+              </Dialog.Description>
+              <Input
+                value={exportPassword}
+                onChangeText={setExportPassword}
+                placeholder="Password"
+                secureTextEntry
+              />
+              <XStack gap="$2" justifyContent="flex-end">
+                <Dialog.Close asChild>
+                  <Button
+                    bg="$background"
+                    borderWidth={1}
+                    borderColor="$borderColor"
+                    disabled={exporting}
+                  >
+                    <Text color="$color">Cancel</Text>
+                  </Button>
+                </Dialog.Close>
+                <Button
+                  disabled={exporting || exportPassword.trim().length === 0 || !exportConnection}
+                  onPress={async () => {
+                    if (!exportConnection) return
+                    await performExport(exportConnection, exportPassword)
+                  }}
+                >
+                  <Text color="$accentText">
+                    {exporting ? 'Exporting...' : 'Install Key'}
+                  </Text>
+                </Button>
+              </XStack>
+            </YStack>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog>
 
       <ConfirmDialog
         open={confirmState !== null}

@@ -1,6 +1,28 @@
 import { db } from '../db/schema'
 import type { ConnectionConfig, SSHKey } from '@/types'
 import { connectionService } from './connectionService'
+import { sshService } from '@/services/ssh/sshService'
+
+type ExportOptions = {
+  password?: string
+}
+
+const shellQuote = (value: string): string => `'${value.replace(/'/g, `'\"'\"'`)}'`
+
+const buildAuthorizedKeysInstallCommand = (publicKey: string): string => {
+  const normalized = publicKey.trim()
+  const quoted = shellQuote(normalized)
+
+  return [
+    'set -e',
+    'umask 077',
+    'mkdir -p ~/.ssh',
+    'chmod 700 ~/.ssh',
+    'touch ~/.ssh/authorized_keys',
+    'chmod 600 ~/.ssh/authorized_keys',
+    `grep -qxF ${quoted} ~/.ssh/authorized_keys || printf '%s\\n' ${quoted} >> ~/.ssh/authorized_keys`,
+  ].join(' && ')
+}
 
 export const keyService = {
   async getAll(): Promise<SSHKey[]> {
@@ -52,7 +74,11 @@ export const keyService = {
     await db.runAsync('DELETE FROM ssh_keys WHERE id = ?', [id])
   },
 
-  async exportToHost(keyId: string, connectionId: string): Promise<ConnectionConfig> {
+  async exportToHost(
+    keyId: string,
+    connectionId: string,
+    options: ExportOptions = {},
+  ): Promise<ConnectionConfig> {
     const key = await this.getById(keyId)
     if (!key) {
       throw new Error('Key not found')
@@ -61,6 +87,62 @@ export const keyService = {
     const connection = await connectionService.getById(connectionId)
     if (!connection) {
       throw new Error('Connection not found')
+    }
+
+    const port = connection.port ?? 22
+    const installCommand = buildAuthorizedKeysInstallCommand(key.publicKey)
+
+    let client: Awaited<ReturnType<typeof sshService.connectWithPassword>> | null = null
+    try {
+      if (connection.auth_method === 'password') {
+        const password = options.password ?? connection.password
+        if (!password) {
+          throw new Error('Password is required to export this key to host')
+        }
+
+        client = await sshService.connectWithPassword(
+          connection.host,
+          port,
+          connection.username,
+          password,
+        )
+      } else {
+        if (connection.private_key) {
+          client = await sshService.connectWithKey(
+            connection.host,
+            port,
+            connection.username,
+            connection.private_key,
+            connection.passphrase,
+          )
+        } else if (connection.key_id) {
+          const authKey = await this.getById(connection.key_id)
+          if (!authKey?.private_key) {
+            throw new Error('Connection key is missing a private key')
+          }
+
+          client = await sshService.connectWithKey(
+            connection.host,
+            port,
+            connection.username,
+            authKey.private_key,
+            connection.passphrase ?? authKey.passphrase,
+          )
+        } else {
+          throw new Error('Connection has no credentials available for host export')
+        }
+      }
+
+      await sshService.execute(client, installCommand)
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to install key on host: ${error.message}`)
+      }
+      throw new Error('Failed to install key on host')
+    } finally {
+      if (client) {
+        sshService.disconnect(client)
+      }
     }
 
     const updated: ConnectionConfig = {
