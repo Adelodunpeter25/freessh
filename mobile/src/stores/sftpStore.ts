@@ -173,6 +173,8 @@ function normalizePassphrase(passphrase?: string): string | undefined {
 function normalizeEntries(entries: unknown, currentPath: string): FileInfo[] {
   if (!Array.isArray(entries)) return []
 
+  console.log('Raw SFTP entries:', JSON.stringify(entries.slice(0, 2), null, 2))
+
   const mapped = (entries as RawSftpEntry[]).map((entry) => {
     const longname = (entry.longname ?? '').toString()
     const parsedLongname = parseLongname(longname)

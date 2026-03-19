@@ -8,9 +8,19 @@ type FileListProps = {
   files: FileInfo[]
   onOpenFolder: (folder: FileInfo) => void
   onOpenFile?: (file: FileInfo) => void
+  onToggleSelect: (entry: FileInfo) => void
+  isSelected: (path: string) => boolean
+  hasSelection: boolean
 }
 
-export function FileList({ files, onOpenFolder, onOpenFile }: FileListProps) {
+export function FileList({
+  files,
+  onOpenFolder,
+  onOpenFile,
+  onToggleSelect,
+  isSelected,
+  hasSelection,
+}: FileListProps) {
   if (files.length === 0) {
     return (
       <EmptyState
@@ -27,13 +37,29 @@ export function FileList({ files, onOpenFolder, onOpenFile }: FileListProps) {
           <FolderCard
             key={entry.path}
             folder={entry}
-            onPress={() => onOpenFolder(entry)}
+            selected={isSelected(entry.path)}
+            onLongPress={() => onToggleSelect(entry)}
+            onPress={() => {
+              if (hasSelection) {
+                onToggleSelect(entry)
+                return
+              }
+              onOpenFolder(entry)
+            }}
           />
         ) : (
           <FileCard
             key={entry.path}
             file={entry}
-            onPress={onOpenFile ? () => onOpenFile(entry) : undefined}
+            selected={isSelected(entry.path)}
+            onLongPress={() => onToggleSelect(entry)}
+            onPress={() => {
+              if (hasSelection) {
+                onToggleSelect(entry)
+                return
+              }
+              onOpenFile?.(entry)
+            }}
           />
         ),
       )}
