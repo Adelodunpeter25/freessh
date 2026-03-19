@@ -28,6 +28,35 @@ async function resolveAndroidDownloadsDirectoryUri(): Promise<string | null> {
   return permission.directoryUri
 }
 
+function splitFileNameParts(fileName: string): { baseName: string; extension: string } {
+  const lastDotIndex = fileName.lastIndexOf('.')
+  if (lastDotIndex <= 0 || lastDotIndex === fileName.length - 1) {
+    return { baseName: fileName, extension: '' }
+  }
+  return {
+    baseName: fileName.slice(0, lastDotIndex),
+    extension: fileName.slice(lastDotIndex + 1).toLowerCase(),
+  }
+}
+
+function inferMimeType(fileName: string): string {
+  const { extension } = splitFileNameParts(fileName)
+  const mimeTypes: Record<string, string> = {
+    pdf: 'application/pdf',
+    txt: 'text/plain',
+    mp3: 'audio/mpeg',
+    wav: 'audio/wav',
+    m4a: 'audio/mp4',
+    jpg: 'image/jpeg',
+    jpeg: 'image/jpeg',
+    png: 'image/png',
+    csv: 'text/csv',
+    json: 'application/json',
+    zip: 'application/zip',
+  }
+  return mimeTypes[extension] ?? 'application/octet-stream'
+}
+
 export const useSftpStore = create<SftpState>((set, get) => ({
   sessions: [],
   activeSessionId: null,
@@ -326,11 +355,18 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       try {
         await sftpService.downloadFile(active.client, normalizedRemotePath, localPath)
         if (androidDownloadsDirectoryUri) {
-          await StorageAccessFramework.moveAsync({
+          const { baseName } = splitFileNameParts(name)
+          const destinationUri = await StorageAccessFramework.createFileAsync(
+            androidDownloadsDirectoryUri,
+            baseName,
+            inferMimeType(name),
+          )
+          await StorageAccessFramework.copyAsync({
             from: localPath,
-            to: androidDownloadsDirectoryUri,
+            to: destinationUri,
           })
-          downloadedPaths.push(`${androidDownloadsDirectoryUri}/${name}`)
+          await FileSystem.deleteAsync(localPath, { idempotent: true })
+          downloadedPaths.push(destinationUri)
         } else {
           downloadedPaths.push(localPath)
         }

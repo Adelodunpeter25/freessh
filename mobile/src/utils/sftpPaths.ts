@@ -22,11 +22,16 @@ export function fileNameFromPath(path: string): string {
   const withoutQuery = path.split('?')[0] ?? path
   const segments = withoutQuery.split('/').filter(Boolean)
   const raw = segments[segments.length - 1] ?? ''
+  let decoded = raw
   try {
-    return decodeURIComponent(raw)
+    decoded = decodeURIComponent(raw)
   } catch {
-    return raw
+    decoded = raw
   }
+  const slashSegments = decoded.split('/').filter(Boolean)
+  const lastSlashSegment = slashSegments[slashSegments.length - 1] ?? decoded
+  const colonSegments = lastSlashSegment.split(':').filter(Boolean)
+  return colonSegments[colonSegments.length - 1] ?? lastSlashSegment
 }
 
 export function resolveRemotePath(baseDirectory: string, nameOrPath: string): string {
