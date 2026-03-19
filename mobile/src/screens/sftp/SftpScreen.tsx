@@ -73,6 +73,14 @@ export function SftpScreen() {
     }
   }, [openFolder, showSnackbar])
 
+  const navigateToPath = useCallback(async (path: string) => {
+    try {
+      await openFolder(path)
+    } catch {
+      showSnackbar('Failed to navigate to path', 'error')
+    }
+  }, [openFolder, showSnackbar])
+
   const { rootLabel, fullBreadcrumb, pathSegments, clickablePaths, canGoUp } = useMemo(
     () => getSftpBreadcrumb(currentPath, connectionName),
     [currentPath, connectionName],
