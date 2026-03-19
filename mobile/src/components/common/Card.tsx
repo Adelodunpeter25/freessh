@@ -6,7 +6,7 @@ export const Card = styled(YStack, {
   name: 'AppCard',
   borderRadius: 16,
   padding: 14,
-  backgroundColor: '$background',
+  backgroundColor: '$backgroundStrong',
   borderWidth: 1,
   borderColor: '$borderColor',
   shadowColor: '$shadowColor',
@@ -51,7 +51,7 @@ export function BaseCard({
             width={40}
             height={40}
             borderRadius="$3"
-            backgroundColor="$backgroundHover"
+            backgroundColor="$backgroundPress"
             alignItems="center"
             justifyContent="center"
             opacity={0.9}

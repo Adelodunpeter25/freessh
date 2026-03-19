@@ -54,7 +54,7 @@ export function HomeScreen() {
         <Card
           borderRadius={16}
           overflow="hidden"
-          backgroundColor="$backgroundHover"
+          backgroundColor="$backgroundStrong"
           borderWidth={1}
           borderColor="$borderColor"
           elevation={0}
@@ -65,9 +65,9 @@ export function HomeScreen() {
                 p="$3"
                 px="$4"
                 borderRadius={0}
-                backgroundColor="transparent"
+                backgroundColor="$backgroundStrong"
                 borderWidth={0}
-                pressStyle={{ scale: 0.995, backgroundColor: '$backgroundHover' }}
+                pressStyle={{ scale: 0.995, backgroundColor: '$backgroundPress' }}
                 onPress={() => {
                   if (item.id === 'hosts') {
                     // @ts-ignore

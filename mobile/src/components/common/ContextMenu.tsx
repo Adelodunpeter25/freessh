@@ -28,12 +28,12 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
   const theme = useThemeStore((state) => state.theme)
   const isDark = theme === 'dark'
   const colors = {
-    background: isDark ? '#0b0b0b' : '#ffffff',
-    border: isDark ? '#1f2937' : '#e2e8f0',
+    background: isDark ? '#1b2430' : '#f7fafd',
+    border: isDark ? '#2b3646' : '#d7e1ec',
     text: isDark ? '#f1f5f9' : '#0f172a',
-    subtitle: isDark ? '#9ca3af' : '#64748b',
+    subtitle: isDark ? '#9fb0c7' : '#64748b',
     destructive: isDark ? '#f87171' : '#dc2626',
-    separator: isDark ? '#1f2937' : '#e2e8f0',
+    separator: isDark ? '#2b3646' : '#d7e1ec',
   }
 
   return (
