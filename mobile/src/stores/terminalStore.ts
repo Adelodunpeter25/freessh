@@ -12,6 +12,7 @@ export type TerminalSession = {
 type OutputListener = (data: string) => void;
 
 const outputListeners = new Map<string, Set<OutputListener>>();
+const CONNECT_TIMEOUT_MS = 20_000;
 
 type TerminalState = {
   sessions: TerminalSession[];
@@ -58,31 +59,86 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
       await sshWebSocketService.connect();
 
       // Set up listeners and store cleanup functions
-      const unsubscribeConnected = sshWebSocketService.on('connected', (response) => {
-        if (response.sessionId === id) {
-          set((state) => ({
-            sessions: state.sessions.map((s) =>
-              s.id === id ? { ...s, status: "connected" } : s
-            ),
-            connectingByConnectionId: {
-              ...state.connectingByConnectionId,
-              [connection.id]: false,
-            },
-          }));
-        }
-      });
+      return await new Promise<string>((resolve, reject) => {
+        let settled = false
+        let timeoutId: ReturnType<typeof setTimeout> | null = null
 
-      const unsubscribeData = sshWebSocketService.on('data', (response) => {
-        if (response.sessionId === id && response.data) {
-          const listeners = outputListeners.get(id);
-          if (listeners) {
-            listeners.forEach((fn) => fn(response.data));
+        const finalize = (fn: () => void) => {
+          if (settled) return
+          settled = true
+          if (timeoutId) {
+            clearTimeout(timeoutId)
+            timeoutId = null
           }
+          fn()
         }
-      });
 
-      const unsubscribeError = sshWebSocketService.on('error', (response) => {
-        if (response.sessionId === id || !response.sessionId) {
+        const unsubscribeConnected = sshWebSocketService.on('connected', (response) => {
+          if (response.sessionId === id) {
+            set((state) => ({
+              sessions: state.sessions.map((s) =>
+                s.id === id ? { ...s, status: "connected" } : s
+              ),
+              connectingByConnectionId: {
+                ...state.connectingByConnectionId,
+                [connection.id]: false,
+              },
+            }));
+
+            finalize(() => {
+              resolve(id)
+            })
+          }
+        });
+
+        const unsubscribeData = sshWebSocketService.on('data', (response) => {
+          if (response.sessionId === id && response.data) {
+            const listeners = outputListeners.get(id);
+            if (listeners) {
+              listeners.forEach((fn) => fn(response.data));
+            }
+          }
+        });
+
+        const unsubscribeError = sshWebSocketService.on('error', (response) => {
+          if (response.sessionId === id || !response.sessionId) {
+            set((state) => ({
+              sessions: state.sessions.map((s) =>
+                s.id === id ? { ...s, status: "error" } : s
+              ),
+              connectingByConnectionId: {
+                ...state.connectingByConnectionId,
+                [connection.id]: false,
+              },
+            }));
+            setTimeout(() => {
+              get().closeSession(id);
+            }, 3000);
+
+            finalize(() => {
+              const message =
+                typeof response.error === 'string' && response.error.trim().length > 0
+                  ? response.error
+                  : 'Failed to establish SSH session'
+              reject(new Error(message))
+            })
+          }
+        });
+
+        // Store cleanup function
+        const cleanup = () => {
+          unsubscribeConnected();
+          unsubscribeData();
+          unsubscribeError();
+        };
+        
+        set((state) => {
+          const newCleanup = new Map(state.sessionCleanup);
+          newCleanup.set(id, cleanup);
+          return { sessionCleanup: newCleanup };
+        });
+
+        timeoutId = setTimeout(() => {
           set((state) => ({
             sessions: state.sessions.map((s) =>
               s.id === id ? { ...s, status: "error" } : s
@@ -95,24 +151,14 @@ export const useTerminalStore = create<TerminalState>((set, get) => ({
           setTimeout(() => {
             get().closeSession(id);
           }, 3000);
-        }
-      });
 
-      // Store cleanup function
-      const cleanup = () => {
-        unsubscribeConnected();
-        unsubscribeData();
-        unsubscribeError();
-      };
-      
-      set((state) => {
-        const newCleanup = new Map(state.sessionCleanup);
-        newCleanup.set(id, cleanup);
-        return { sessionCleanup: newCleanup };
-      });
+          finalize(() => {
+            reject(new Error('Connection timed out'))
+          })
+        }, CONNECT_TIMEOUT_MS)
 
-      sshWebSocketService.createSSHSession(connection, 59, 55, id);
-      return id;
+        sshWebSocketService.createSSHSession(connection, 59, 55, id);
+      })
     } catch (error) {
       set((state) => ({
         sessions: state.sessions.map((s) =>
