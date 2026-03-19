@@ -1,12 +1,12 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { RefreshControl, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { EmptyState, FileList, SearchEmptyState, SftpTabBar, SftpToolbar } from '@/components'
-import { useSearch } from '@/hooks'
+import { EmptyState, FileList, MoreActions, SearchEmptyState, SftpTabBar, SftpToolbar } from '@/components'
+import { useSearch, useSftpActions } from '@/hooks'
 import { useSftpStore, useSnackbarStore } from '@/stores'
 import type { FileInfo } from '@/types'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -34,8 +34,10 @@ export function SftpScreen() {
   const connected = activeSession?.connected ?? false
   const connectionName = activeSession?.connectionName ?? null
   const error = activeSession?.error ?? null
+  const [showMoreActions, setShowMoreActions] = useState(false)
+  const { showHidden, toggleShowHidden, visibleFiles } = useSftpActions(files)
   const { query, filtered, setQuery, clearQuery } = useSearch({
-    items: files,
+    items: visibleFiles,
     fields: ['name', 'path'],
   })
 
@@ -113,7 +115,7 @@ export function SftpScreen() {
           onQueryChange={setQuery}
           onClearQuery={clearQuery}
           onUpload={() => showSnackbar('Upload coming soon', 'info')}
-          onMore={() => showSnackbar('More actions coming soon', 'info')}
+          onMore={() => setShowMoreActions(true)}
           onPressRoot={handlePressRoot}
           onPressCurrent={handlePressCurrent}
         />
@@ -180,6 +182,13 @@ export function SftpScreen() {
           </YStack>
         )}
       </YStack>
+
+      <MoreActions
+        open={showMoreActions}
+        onOpenChange={setShowMoreActions}
+        showHidden={showHidden}
+        onToggleShowHidden={toggleShowHidden}
+      />
     </YStack>
   )
 }
