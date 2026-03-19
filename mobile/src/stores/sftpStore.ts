@@ -12,13 +12,17 @@ type RawSftpEntry = {
   filepath?: string
   size?: number | string
   filesize?: number | string
+  fileSize?: number | string  // Added this field
   mode?: number
-  permissions?: number
+  permissions?: number | string  // Changed to allow string
   permission?: number
+  modificationDate?: number | string  // Added this field
+  lastAccess?: number | string  // Added this field
   mod_time?: number
   modified?: number
   mtime?: number
   lastModified?: number
+  isDirectory?: number | boolean  // Changed to allow number
   attrs?: {
     size?: number | string
     mode?: number
@@ -26,7 +30,6 @@ type RawSftpEntry = {
     isDirectory?: boolean
   }
   is_dir?: boolean
-  isDirectory?: boolean
   directory?: boolean
   type?: string
 }
@@ -173,8 +176,6 @@ function normalizePassphrase(passphrase?: string): string | undefined {
 function normalizeEntries(entries: unknown, currentPath: string): FileInfo[] {
   if (!Array.isArray(entries)) return []
 
-  console.log('Raw SFTP entries:', JSON.stringify(entries.slice(0, 2), null, 2))
-
   const mapped = (entries as RawSftpEntry[]).map((entry) => {
     const longname = (entry.longname ?? '').toString()
     const parsedLongname = parseLongname(longname)
@@ -196,6 +197,7 @@ function normalizeEntries(entries: unknown, currentPath: string): FileInfo[] {
     const isDir =
       entry.is_dir === true ||
       entry.isDirectory === true ||
+      entry.isDirectory === 1 ||
       entry.directory === true ||
       entry.attrs?.isDirectory === true ||
       entry.type === 'directory' ||
@@ -206,13 +208,14 @@ function normalizeEntries(entries: unknown, currentPath: string): FileInfo[] {
     return {
       name,
       path: entry.path ?? entry.fullPath ?? entry.filepath ?? joinPath(currentPath, name),
-      size: toNumber(entry.size ?? entry.filesize ?? entry.attrs?.size ?? parsedLongname.size, 0),
+      size: toNumber(entry.size ?? entry.filesize ?? entry.fileSize ?? entry.attrs?.size ?? parsedLongname.size, 0),
       mode,
       mod_time: toUnixTimestamp(
         entry.mod_time ??
           entry.modified ??
           entry.mtime ??
           entry.lastModified ??
+          entry.modificationDate ??
           entry.attrs?.mtime ??
           parsedLongname.modTime,
       ),
