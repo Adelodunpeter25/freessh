@@ -94,16 +94,16 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
       padding: 0;
       background-color: ${resolvedTheme.background};
       overflow: hidden;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       font-family: 'SF Mono', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
     }
 
     #terminal {
-      width: 100vw;
-      height: 100vh;
-      min-height: 100vh;
-      padding: 4px 4px 20px 4px;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      padding: 0;
       margin: 0;
       box-sizing: border-box;
     }
@@ -227,6 +227,27 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
         terminal.open(terminalElement);
         logToNative('Terminal opened, cols: ' + terminal.cols + ' rows: ' + terminal.rows);
 
+        let lastCols = terminal.cols;
+        let lastRows = terminal.rows;
+
+        const postResizeIfNeeded = function() {
+          try {
+            const cols = terminal.cols;
+            const rows = terminal.rows;
+            if (cols === lastCols && rows === lastRows) return;
+            lastCols = cols;
+            lastRows = rows;
+            if (window.ReactNativeWebView) {
+              window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: 'resize',
+                data: { cols, rows }
+              }));
+            }
+          } catch (e) {
+            // ignore resize post errors
+          }
+        };
+
         window.writeToTerminal = function(data) {
           try { 
             terminal.write(data);
@@ -263,19 +284,22 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           }
         });
 
-        // Simple resize handler
+        // Keep PTY sizing in sync with the WebView's computed terminal size.
         window.addEventListener('resize', () => {
           setTimeout(() => {
             try {
               fitAddon.fit();
+              postResizeIfNeeded();
             } catch(e) {}
-          }, 100);
+          }, 50);
         });
 
-        // Send ready message
-        setTimeout(() => {
+        // Send ready message once the layout settles.
+        requestAnimationFrame(() => {
           try {
             fitAddon.fit();
+            lastCols = terminal.cols;
+            lastRows = terminal.rows;
             if (window.ReactNativeWebView) {
               const message = JSON.stringify({
                 type: 'terminalReady',
@@ -286,7 +310,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           } catch(e) {
             console.error('Error sending ready:', e);
           }
-        }, 150);
+        });
 
       } catch (err) {
         logToNative('Init error: ' + err.message, 'error');
@@ -410,7 +434,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
             opacity: isConnected || !showLoading ? 1 : 0,
           }}
           javaScriptEnabled
-          scrollEnabled
+          scrollEnabled={false}
           overScrollMode="never"
           bounces={false}
           showsHorizontalScrollIndicator={false}

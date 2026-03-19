@@ -66,6 +66,23 @@ export function SessionsScreen() {
     const subscription = addKeyCommandListener((event) => {
       if (!activeSessionId || !isMountedRef.current) return;
 
+      // Backspace/Delete handling for full-screen apps (vim/htop).
+      // Many remote line-editing defaults expect ^H (0x08).
+      if (
+        event.input === "\b" ||
+        event.input === "\x7f" ||
+        event.input.toLowerCase() === "backspace"
+      ) {
+        sendInput(activeSessionId, "\x08");
+        return;
+      }
+
+      if (event.input.toLowerCase() === "delete") {
+        // xterm sends ESC [ 3 ~ for Delete
+        sendInput(activeSessionId, "\x1b[3~");
+        return;
+      }
+
       // Handle Shift+Tab
       if (event.shift && event.input === "\t") {
         sendInput(activeSessionId, "\x1b[Z");
@@ -105,6 +122,7 @@ export function SessionsScreen() {
     // Clear terminal when switching sessions
     if (terminalRef.current) {
       terminalRef.current.clear();
+      terminalRef.current.focus();
     }
 
     const unsubscribe = subscribeOutput(activeSessionId, (data: string) => {
@@ -180,8 +198,9 @@ export function SessionsScreen() {
                   ref={terminalRef}
                   onInput={(data: string) => {
                     if (!activeSessionId || !isMountedRef.current) return;
-                    // Normalize backspace for shells that expect DEL.
-                    const normalized = data === '\b' ? '\x7f' : data
+                    // Normalize backspace codes for remote apps expecting ^H (0x08).
+                    const normalized =
+                      data === "\b" || data === "\x7f" ? "\x08" : data
                     sendInput(activeSessionId, normalized);
                   }}
                   onReady={handleTerminalReady}
