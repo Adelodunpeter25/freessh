@@ -1,5 +1,5 @@
-import { Copy, FolderOpen, Loader2, Pencil, Plug, Server, Trash2 } from 'lucide-react-native'
-import { Pressable } from 'react-native'
+import { Copy, FolderOpen, Pencil, Plug, Server, Trash2 } from 'lucide-react-native'
+import { ActivityIndicator, Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
 import { BaseCard, ContextMenu } from '../common'
 import type { ConnectionConfig } from '../../types'
@@ -71,7 +71,11 @@ export function ConnectionCard({
       <BaseCard
         title={connection.name}
         subtitle={loading ? 'Connecting...' : `${connection.username}@${connection.host}`}
-        icon={loading ? <Loader2 size={20} color={theme.accent.get()} /> : <Server size={20} color={theme.accent.get()} />}
+        icon={
+          loading
+            ? <ActivityIndicator size="small" color={theme.accent.get()} />
+            : <Server size={20} color={theme.accent.get()} />
+        }
         selected={selected}
         loading={loading}
         pressable={false}
