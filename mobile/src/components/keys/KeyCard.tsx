@@ -1,3 +1,4 @@
+import React, { memo } from 'react'
 import { ArrowUpRight, Key, Pencil, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
@@ -12,13 +13,13 @@ type KeyCardProps = {
   onExport?: () => void
 }
 
-export function KeyCard({ 
+export const KeyCard = memo(({ 
   sshKey, 
   onPress, 
   onEdit,
   onDelete,
   onExport,
-}: KeyCardProps) {
+}: KeyCardProps) => {
   const theme = useTheme()
 
   return (
@@ -74,4 +75,4 @@ export function KeyCard({
       />
     </ContextMenu>
   )
-}
+})

@@ -1,3 +1,4 @@
+import React, { memo } from 'react'
 import { ShieldCheck, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { View, useTheme } from 'tamagui'
@@ -9,7 +10,7 @@ type KnownHostCardProps = {
   onDelete?: () => void
 }
 
-export function KnownHostCard({ host, onDelete }: KnownHostCardProps) {
+export const KnownHostCard = memo(({ host, onDelete }: KnownHostCardProps) => {
   const theme = useTheme()
 
   return (
@@ -36,4 +37,4 @@ export function KnownHostCard({ host, onDelete }: KnownHostCardProps) {
       )}
     />
   )
-}
+})

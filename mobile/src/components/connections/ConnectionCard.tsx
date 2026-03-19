@@ -1,3 +1,4 @@
+import React, { memo } from 'react'
 import { Copy, FolderOpen, Pencil, Plug, Server, Trash2 } from 'lucide-react-native'
 import { ActivityIndicator, Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
@@ -16,7 +17,7 @@ type ConnectionCardProps = {
   onConnect?: () => void
 }
 
-export function ConnectionCard({ 
+export const ConnectionCard = memo(({ 
   connection, 
   selected = false, 
   loading = false, 
@@ -26,7 +27,7 @@ export function ConnectionCard({
   onOpenSftp,
   onDuplicate,
   onConnect,
-}: ConnectionCardProps) {
+}: ConnectionCardProps) => {
   const theme = useTheme()
 
   return (
@@ -99,4 +100,4 @@ export function ConnectionCard({
       />
     </ContextMenu>
   )
-}
+})

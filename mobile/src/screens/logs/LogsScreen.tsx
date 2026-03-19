@@ -1,13 +1,14 @@
-import { useEffect, useState, useCallback } from 'react'
-import { RefreshControl } from 'react-native'
+import React, { useEffect, useState, useCallback } from 'react'
+import { RefreshControl, FlatList } from 'react-native'
 import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen, EmptyState, LogCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
+import { AppHeader, EmptyState, LogCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
 import { useLogStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
+import type { LogEntry } from '@/types'
 
 export function LogsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
@@ -40,79 +41,92 @@ export function LogsScreen() {
     initialize()
   }, [])
 
+  const renderItem = useCallback(({ item: log }: { item: LogEntry }) => (
+    <YStack px="$4" pb="$3">
+      <LogCard 
+        log={log} 
+        onDelete={() =>
+          setConfirmState({
+            title: 'Delete log?',
+            description: `This will remove "${log.filename}".`,
+            onConfirm: async () => {
+              try {
+                await removeLog(log.filename)
+                showSnackbar(`Deleted "${log.filename}"`, 'success')
+              } catch {
+                showSnackbar('Failed to delete log', 'error')
+              }
+            },
+          })
+        }
+      />
+    </YStack>
+  ), [removeLog, showSnackbar])
+
   return (
-    <YStack flex={1}>
+    <YStack flex={1} bg="$background">
       <AppHeader 
         title="Session Logs" 
         showBackButton 
         onBackPress={() => navigation.goBack()} 
       />
       
-      <Screen
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        {loading ? (
-          <LoadingState />
-        ) : (
-          <YStack gap="$4">
+      {loading ? (
+        <LoadingState />
+      ) : (
+        <YStack flex={1} pt="$4">
+          <YStack px="$4" pb="$4">
             <SearchBar
               value={query}
               onChangeText={setQuery}
               onClear={clearQuery}
               placeholder="Search logs"
             />
+          </YStack>
 
-            {logs.length === 0 ? (
+          {logs.length === 0 ? (
+            <YStack px="$4">
               <EmptyState 
                 title="No logs found" 
                 description="Stored session logs will appear here." 
               />
-            ) : showEmpty ? (
-              <SearchEmptyState query={query} />
-            ) : (
-              <>
-                <SectionHeader title="Session Logs" />
-                <YStack gap="$3">
-                    {filtered.map((log) => (
-                      <LogCard 
-                        key={log.filename} 
-                        log={log} 
-                        onDelete={() =>
-                          setConfirmState({
-                            title: 'Delete log?',
-                            description: `This will remove "${log.filename}".`,
-                            onConfirm: async () => {
-                              try {
-                                await removeLog(log.filename)
-                                showSnackbar(`Deleted "${log.filename}"`, 'success')
-                              } catch {
-                                showSnackbar('Failed to delete log', 'error')
-                              }
-                            },
-                          })
-                        }
-                      />
-                    ))}
-                  </YStack>
-                </>
-              )}
             </YStack>
-        )}
-      </Screen>
+          ) : showEmpty ? (
+            <YStack px="$4">
+              <SearchEmptyState query={query} />
+            </YStack>
+          ) : (
+            <FlatList
+              data={filtered}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.filename}
+              ListHeaderComponent={() => (
+                <YStack px="$4" py="$2">
+                  <SectionHeader title="Session Logs" />
+                </YStack>
+              )}
+              contentContainerStyle={{ paddingBottom: 40 }}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+              removeClippedSubviews={true}
+              initialNumToRender={10}
+            />
+          )}
+        </YStack>
+      )}
 
-      <ConfirmDialog
-        open={confirmState !== null}
-        onOpenChange={(open) => {
-          if (!open) setConfirmState(null)
-        }}
-        title={confirmState?.title ?? ''}
-        description={confirmState?.description}
-        destructive
-        onConfirm={() => {
-          confirmState?.onConfirm()
-          setConfirmState(null)
-        }}
-      />
+      {confirmState && (
+        <ConfirmDialog
+          open={!!confirmState}
+          onOpenChange={(open) => !open && setConfirmState(null)}
+          title={confirmState.title}
+          description={confirmState.description}
+          destructive
+          onConfirm={() => {
+            confirmState.onConfirm()
+            setConfirmState(null)
+          }}
+        />
+      )}
     </YStack>
   )
 }

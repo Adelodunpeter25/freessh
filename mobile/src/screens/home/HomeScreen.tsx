@@ -1,3 +1,4 @@
+import React, { memo, useMemo } from 'react'
 import { 
   Server, 
   Key, 
@@ -31,22 +32,77 @@ type HubItem = {
   count?: number
 }
 
+const HubItemRow = memo(({ 
+  item, 
+  index, 
+  isLast, 
+  onPress, 
+  theme 
+}: { 
+  item: HubItem; 
+  index: number; 
+  isLast: boolean; 
+  onPress: () => void;
+  theme: any;
+}) => (
+  <YStack key={item.id}>
+    <Card
+      p="$3"
+      px="$4"
+      borderRadius={0}
+      backgroundColor="$backgroundStrong"
+      borderWidth={0}
+      pressStyle={{ scale: 0.995, backgroundColor: '$backgroundPress' }}
+      onPress={onPress}
+    >
+      <XStack ai="center" jc="space-between">
+        <XStack ai="center" gap="$3">
+          <Circle size={30} bg="$borderColor" opacity={0.5} ai="center" jc="center">
+            <item.icon size={17} color={theme.color.get()} />
+          </Circle>
+          <Text fontSize={16} fontWeight="600" color="$color">
+            {item.title}
+          </Text>
+        </XStack>
+
+        <XStack ai="center" gap="$2.5">
+          {item.count !== undefined && (
+            <Text fontSize={14} fontWeight="500" color="$placeholderColor">
+              {item.count}
+            </Text>
+          )}
+          <ChevronRight size={14} color={theme.placeholderColor.get()} />
+        </XStack>
+      </XStack>
+    </Card>
+    {!isLast ? (
+      <Separator borderColor="$borderColor" opacity={0.6} />
+    ) : null}
+  </YStack>
+))
+
 export function HomeScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const t = useTheme()
-  const connections = useConnectionStore((state) => state.connections)
-  const snippets = useSnippetStore((state) => state.snippets)
-  const keys = useKeyStore((state) => state.keys)
-  const logs = useLogStore((state) => state.logs)
-  const knownHosts = useKnownHostStore((state) => state.knownHosts)
+  
+  // Selective store subscriptions to minimize re-renders
+  const connectionsCount = useConnectionStore((state) => state.connections.length)
+  const snippetsCount = useSnippetStore((state) => state.snippets.length)
+  const keysCount = useKeyStore((state) => state.keys.length)
+  const logsCount = useLogStore((state) => state.logs.length)
+  const knownHostsCount = useKnownHostStore((state) => state.knownHosts.length)
+  
   const sessions = useTerminalStore((state) => state.sessions)
   const activeSessionId = useTerminalStore((state) => state.activeSessionId)
-  const activeSession =
+  
+  const activeSession = useMemo(() =>
     sessions.find((session) => session.id === activeSessionId) ??
-    (sessions.length > 0 ? sessions[sessions.length - 1] : undefined)
+    (sessions.length > 0 ? sessions[sessions.length - 1] : undefined),
+    [sessions, activeSessionId]
+  )
 
-  const items: HubItem[] = [
-    { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Connections', count: connections.length },
+  const items = useMemo((): HubItem[] => [
+    { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Connections', count: connectionsCount },
     {
       id: 'active_session',
       title: activeSession ? `Active session: ${activeSession.name}` : 'Active session',
@@ -54,12 +110,12 @@ export function HomeScreen() {
       screen: 'Sessions',
       count: sessions.length,
     },
-    { id: 'keychain', title: 'Keychain', icon: Key, screen: 'Keys', count: keys.length },
+    { id: 'keychain', title: 'Keychain', icon: Key, screen: 'Keys', count: keysCount },
     { id: 'forwarding', title: 'Port forwarding', icon: ArrowRightLeft, screen: 'Main' }, // Placeholder
-    { id: 'snippets', title: 'Snippets', icon: Code2, screen: 'Snippets', count: snippets.length },
-    { id: 'known_hosts', title: 'Known hosts', icon: Fingerprint, screen: 'KnownHosts', count: knownHosts.length },
-    { id: 'logs', title: 'Logs', icon: History, screen: 'Logs', count: logs.length },
-  ]
+    { id: 'snippets', title: 'Snippets', icon: Code2, screen: 'Snippets', count: snippetsCount },
+    { id: 'known_hosts', title: 'Known hosts', icon: Fingerprint, screen: 'KnownHosts', count: knownHostsCount },
+    { id: 'logs', title: 'Logs', icon: History, screen: 'Logs', count: logsCount },
+  ], [connectionsCount, snippetsCount, keysCount, logsCount, knownHostsCount, sessions.length, activeSession])
 
   return (
     <ScrollView backgroundColor="$background" flex={1}>
@@ -73,48 +129,22 @@ export function HomeScreen() {
           elevation={0}
         >
           {items.map((item, index) => (
-            <YStack key={item.id}>
-              <Card
-                p="$3"
-                px="$4"
-                borderRadius={0}
-                backgroundColor="$backgroundStrong"
-                borderWidth={0}
-                pressStyle={{ scale: 0.995, backgroundColor: '$backgroundPress' }}
-                onPress={() => {
-                  if (item.id === 'hosts') {
-                    // @ts-ignore
-                    navigation.navigate('Connections')
-                  } else {
-                    // @ts-ignore
-                    navigation.navigate(item.screen)
-                  }
-                }}
-              >
-                <XStack ai="center" jc="space-between">
-                  <XStack ai="center" gap="$3">
-                    <Circle size={30} bg="$borderColor" opacity={0.5} ai="center" jc="center">
-                      <item.icon size={17} color={t.color.get()} />
-                    </Circle>
-                    <Text fontSize={16} fontWeight="600" color="$color">
-                      {item.title}
-                    </Text>
-                  </XStack>
-
-                  <XStack ai="center" gap="$2.5">
-                    {item.count !== undefined && (
-                      <Text fontSize={14} fontWeight="500" color="$placeholderColor">
-                        {item.count}
-                      </Text>
-                    )}
-                    <ChevronRight size={14} color={t.placeholderColor.get()} />
-                  </XStack>
-                </XStack>
-              </Card>
-              {index < items.length - 1 ? (
-                <Separator borderColor="$borderColor" opacity={0.6} />
-              ) : null}
-            </YStack>
+            <HubItemRow 
+              key={item.id}
+              item={item}
+              index={index}
+              isLast={index === items.length - 1}
+              theme={t}
+              onPress={() => {
+                if (item.id === 'hosts') {
+                  // @ts-ignore
+                  navigation.navigate('Connections')
+                } else {
+                  // @ts-ignore
+                  navigation.navigate(item.screen)
+                }
+              }}
+            />
           ))}
         </Card>
       </YStack>

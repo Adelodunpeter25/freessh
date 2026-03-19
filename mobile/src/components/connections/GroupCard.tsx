@@ -1,3 +1,4 @@
+import React, { memo } from 'react'
 import { Folder, Pencil, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
@@ -12,13 +13,13 @@ type GroupCardProps = {
   onDelete?: () => void
 }
 
-export function GroupCard({ 
+export const GroupCard = memo(({ 
   group, 
   selected = false, 
   onPress, 
   onEdit,
   onDelete,
-}: GroupCardProps) {
+}: GroupCardProps) => {
   const theme = useTheme()
   const connectionSummary =
     group.connection_count === 0
@@ -72,4 +73,4 @@ export function GroupCard({
       />
     </ContextMenu>
   )
-}
+})

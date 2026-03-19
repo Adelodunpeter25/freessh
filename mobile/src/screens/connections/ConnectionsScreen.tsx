@@ -1,7 +1,7 @@
-import { RefreshControl } from 'react-native'
-import { Sheet, YStack, Text, ListItem } from 'tamagui'
-import { Plus, FolderPlus, Server } from 'lucide-react-native'
-import { useState, useCallback, useMemo } from 'react'
+import { RefreshControl, SectionList } from 'react-native'
+import { Sheet, YStack, ListItem } from 'tamagui'
+import { FolderPlus, Server } from 'lucide-react-native'
+import React, { useState, useCallback, useMemo } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
@@ -10,17 +10,15 @@ import {
   ConnectionCard,
   EmptyState,
   GroupCard,
-  Screen,
   SearchBar,
   SearchEmptyState,
   SectionHeader,
-  Spacer,
   ConfirmDialog,
 } from '@/components'
 import { useSearch } from '@/hooks'
 import { useConnectionStore, useGroupStore, useSftpStore, useSnackbarStore, useTerminalStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
-import type { ConnectionConfig, Group } from '@/types'
+import type { ConnectionConfig } from '@/types'
 
 export function ConnectionsScreen() {
   const navigation =
@@ -95,12 +93,29 @@ export function ConnectionsScreen() {
     })), [groups, connections]
   )
 
+  const sections = useMemo(() => {
+    const res = []
+    if (groups.length > 0 && query.length === 0) {
+      res.push({
+        title: 'Groups',
+        data: groupsWithCounts,
+        type: 'group'
+      })
+    }
+    if (ungroupedConnections.length > 0) {
+      res.push({
+        title: 'Connections',
+        data: ungroupedConnections,
+        type: 'connection'
+      })
+    }
+    return res
+  }, [groups.length, query.length, groupsWithCounts, ungroupedConnections])
+
   const displayFlags = useMemo(() => ({
-    showGroups: groups.length > 0 && query.length === 0,
-    showConnections: ungroupedConnections.length > 0,
     showEmpty: query.length > 0 && isEmpty,
     isActuallyEmpty: connections.length === 0 && groups.length === 0
-  }), [groups.length, query.length, ungroupedConnections.length, isEmpty, connections.length])
+  }), [query.length, isEmpty, connections.length, groups.length])
 
   const navigateFromAddSheet = useCallback(
     (screen: keyof ConnectionsStackParamList, params?: object) => {
@@ -113,108 +128,126 @@ export function ConnectionsScreen() {
     [navigation],
   )
 
+  const renderItem = useCallback(({ item, section }: { item: any, section: any }) => {
+    if (section.type === 'group') {
+      return (
+        <YStack px="$4" pb="$3">
+          <GroupCard
+            group={item}
+            onPress={() =>
+              navigation.navigate('GroupDetails', { groupId: item.id })
+            }
+            onEdit={() => navigation.navigate('GroupForm', { group: item })}
+            onDelete={() =>
+              setConfirmState({
+                title: 'Delete group?',
+                description: `This will remove "${item.name}" and ungroup its connections.`,
+                onConfirm: async () => {
+                  try {
+                    await removeGroup(item.id)
+                    showSnackbar(`Deleted "${item.name}"`, 'success')
+                  } catch {
+                    showSnackbar('Failed to delete group', 'error')
+                  }
+                },
+              })
+            }
+          />
+        </YStack>
+      )
+    }
+
+    return (
+      <YStack px="$4" pb="$3">
+        <ConnectionCard 
+          connection={item}
+          loading={
+            !!connectingByConnectionId[item.id] ||
+            !!sftpConnectingByConnectionId[item.id]
+          }
+          onPress={() => handleConnect(item, 'ssh')}
+          onEdit={() => navigation.navigate('ConnectionForm', { connection: item })}
+          onDelete={() =>
+            setConfirmState({
+              title: 'Delete connection?',
+              description: `This will remove "${item.name}" from your saved connections.`,
+              onConfirm: async () => {
+                try {
+                  await removeConnection(item.id)
+                  showSnackbar(`Deleted "${item.name}"`, 'success')
+                } catch {
+                  showSnackbar('Failed to delete connection', 'error')
+                }
+              },
+            })
+          }
+          onDuplicate={async () => {
+            try {
+              const copy = await duplicateConnection(item)
+              showSnackbar(`Created "${copy.name}"`, 'success')
+            } catch {
+              showSnackbar('Failed to duplicate connection', 'error')
+            }
+          }}
+          onConnect={() => handleConnect(item, 'ssh')}
+          onOpenSftp={() => handleConnect(item, 'sftp')}
+        />
+      </YStack>
+    )
+  }, [
+    navigation, 
+    removeGroup, 
+    showSnackbar, 
+    removeConnection, 
+    duplicateConnection, 
+    connectingByConnectionId, 
+    sftpConnectingByConnectionId, 
+    handleConnect
+  ])
+
   return (
     <>
-      <Screen
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        <YStack gap="$4">
-          <SearchBar
-            value={query}
-            onChangeText={setQuery}
-            onClear={clearQuery}
-            placeholder="Search connections"
-          />
+      <YStack flex={1} bg="$background">
+        <YStack gap="$4" pt="$4">
+          <YStack px="$4">
+            <SearchBar
+              value={query}
+              onChangeText={setQuery}
+              onClear={clearQuery}
+              placeholder="Search connections"
+            />
+          </YStack>
 
           {displayFlags.isActuallyEmpty ? (
-            <EmptyState
-              title="No Connections"
-              description="Add your first host or group to get started with SSH."
-            />
+            <YStack px="$4">
+              <EmptyState
+                title="No Connections"
+                description="Add your first host or group to get started with SSH."
+              />
+            </YStack>
           ) : displayFlags.showEmpty ? (
-            <SearchEmptyState query={query} />
+            <YStack px="$4">
+              <SearchEmptyState query={query} />
+            </YStack>
           ) : (
-            <>
-              {displayFlags.showGroups && (
-                <>
-                  <SectionHeader title="Groups" />
-                  <YStack gap="$3">
-                    {groupsWithCounts.map((group) => (
-                      <GroupCard
-                        key={group.id}
-                        group={group}
-                        onPress={() =>
-                          navigation.navigate('GroupDetails', { groupId: group.id })
-                        }
-                        onEdit={() => navigation.navigate('GroupForm', { group })}
-                        onDelete={() =>
-                          setConfirmState({
-                            title: 'Delete group?',
-                            description: `This will remove "${group.name}" and ungroup its connections.`,
-                            onConfirm: async () => {
-                              try {
-                                await removeGroup(group.id)
-                                showSnackbar(`Deleted "${group.name}"`, 'success')
-                              } catch {
-                                showSnackbar('Failed to delete group', 'error')
-                              }
-                            },
-                          })
-                        }
-                      />
-                    ))}
-                  </YStack>
-                  {displayFlags.showConnections && <Spacer height="$4" />}
-                </>
+            <SectionList
+              sections={sections}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              renderSectionHeader={({ section: { title } }) => (
+                <YStack px="$4" py="$2" bg="$background">
+                  <SectionHeader title={title} />
+                </YStack>
               )}
-
-              {displayFlags.showConnections && (
-                <>
-                  <SectionHeader title="Connections" />
-                  <YStack gap="$3">
-                    {ungroupedConnections.map((connection) => (
-                      <ConnectionCard 
-                        key={connection.id} 
-                        connection={connection}
-                        loading={
-                          !!connectingByConnectionId[connection.id] ||
-                          !!sftpConnectingByConnectionId[connection.id]
-                        }
-                        onPress={() => handleConnect(connection, 'ssh')}
-                        onEdit={() => navigation.navigate('ConnectionForm', { connection })}
-                        onDelete={() =>
-                          setConfirmState({
-                            title: 'Delete connection?',
-                            description: `This will remove "${connection.name}" from your saved connections.`,
-                            onConfirm: async () => {
-                              try {
-                                await removeConnection(connection.id)
-                                showSnackbar(`Deleted "${connection.name}"`, 'success')
-                              } catch {
-                                showSnackbar('Failed to delete connection', 'error')
-                              }
-                            },
-                          })
-                        }
-                        onDuplicate={async () => {
-                          try {
-                            const copy = await duplicateConnection(connection)
-                            showSnackbar(`Created "${copy.name}"`, 'success')
-                          } catch {
-                            showSnackbar('Failed to duplicate connection', 'error')
-                          }
-                        }}
-                        onConnect={() => handleConnect(connection, 'ssh')}
-                        onOpenSftp={() => handleConnect(connection, 'sftp')}
-                      />
-                    ))}
-                  </YStack>
-                </>
-              )}
-            </>
+              stickySectionHeadersEnabled={false}
+              contentContainerStyle={{ paddingBottom: 100 }}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+              removeClippedSubviews={true}
+              initialNumToRender={10}
+            />
           )}
         </YStack>
-      </Screen>
+      </YStack>
 
       <AddButton onPress={() => setShowAddSheet(true)} />
 

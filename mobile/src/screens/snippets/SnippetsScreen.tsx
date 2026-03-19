@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import React, { useState, useCallback } from 'react'
+import { FlatList } from 'react-native'
 import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AddButton, Screen, SearchBar, SearchEmptyState, SectionHeader, SnippetCard, AppHeader, EmptyState, ConfirmDialog } from '@/components'
+import { AddButton, SearchBar, SearchEmptyState, SectionHeader, SnippetCard, AppHeader, EmptyState, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
 import { useSnippetStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
+import type { Snippet } from '@/types'
 
 export function SnippetsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
@@ -27,59 +29,76 @@ export function SnippetsScreen() {
   const showEmpty = query.length > 0 && isEmpty
   const isActuallyEmpty = snippets.length === 0
 
+  const renderItem = useCallback(({ item: snippet }: { item: Snippet }) => (
+    <YStack px="$4" pb="$3">
+      <SnippetCard 
+        snippet={snippet}
+        onEdit={() => navigation.navigate('SnippetForm', { snippet })}
+        onDelete={() =>
+          setConfirmState({
+            title: 'Delete snippet?',
+            description: `This will remove "${snippet.name}".`,
+            onConfirm: async () => {
+              try {
+                await removeSnippet(snippet.id)
+                showSnackbar(`Deleted "${snippet.name}"`, 'success')
+              } catch {
+                showSnackbar('Failed to delete snippet', 'error')
+              }
+            },
+          })
+        }
+      />
+    </YStack>
+  ), [navigation, removeSnippet, showSnackbar])
+
   return (
     <>
-      <AppHeader 
-        title="Snippets" 
-        showBackButton 
-        onBackPress={() => navigation.goBack()} 
-      />
-      <Screen>
-        <YStack gap="$4">
-          <SearchBar
-            value={query}
-            onChangeText={setQuery}
-            onClear={clearQuery}
-            placeholder="Search snippets"
-          />
+      <YStack flex={1} bg="$background">
+        <AppHeader 
+          title="Snippets" 
+          showBackButton 
+          onBackPress={() => navigation.goBack()} 
+        />
+        
+        <YStack flex={1} pt="$4">
+          <YStack px="$4" pb="$4">
+            <SearchBar
+              value={query}
+              onChangeText={setQuery}
+              onClear={clearQuery}
+              placeholder="Search snippets"
+            />
+          </YStack>
 
           {isActuallyEmpty ? (
-            <EmptyState
-              title="No Snippets"
-              description="Create reusable command snippets for quick terminal execution."
-            />
+            <YStack px="$4">
+              <EmptyState
+                title="No Snippets"
+                description="Create reusable command snippets for quick terminal execution."
+              />
+            </YStack>
           ) : showEmpty ? (
-            <SearchEmptyState query={query} />
+            <YStack px="$4">
+              <SearchEmptyState query={query} />
+            </YStack>
           ) : (
-            <>
-              <SectionHeader title="Command Snippets" />
-              <YStack gap="$3">
-                {filtered.map((snippet) => (
-                  <SnippetCard 
-                    key={snippet.id} 
-                    snippet={snippet}
-                    onEdit={() => navigation.navigate('SnippetForm', { snippet })}
-                    onDelete={() =>
-                      setConfirmState({
-                        title: 'Delete snippet?',
-                        description: `This will remove "${snippet.name}".`,
-                        onConfirm: async () => {
-                          try {
-                            await removeSnippet(snippet.id)
-                            showSnackbar(`Deleted "${snippet.name}"`, 'success')
-                          } catch {
-                            showSnackbar('Failed to delete snippet', 'error')
-                          }
-                        },
-                      })
-                    }
-                  />
-                ))}
-              </YStack>
-            </>
+            <FlatList
+              data={filtered}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              ListHeaderComponent={() => (
+                <YStack px="$4" py="$2">
+                  <SectionHeader title="Command Snippets" />
+                </YStack>
+              )}
+              contentContainerStyle={{ paddingBottom: 100 }}
+              removeClippedSubviews={true}
+              initialNumToRender={10}
+            />
           )}
         </YStack>
-      </Screen>
+      </YStack>
 
       <AddButton onPress={() => navigation.navigate('SnippetForm', {})} />
 

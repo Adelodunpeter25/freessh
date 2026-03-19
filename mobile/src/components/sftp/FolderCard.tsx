@@ -1,3 +1,4 @@
+import React, { memo } from 'react'
 import { Check, Folder } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { Text, XStack, YStack, useTheme } from 'tamagui'
@@ -11,7 +12,7 @@ type FolderCardProps = {
   selected?: boolean
 }
 
-export function FolderCard({ folder, onPress, onLongPress, selected = false }: FolderCardProps) {
+export const FolderCard = memo(({ folder, onPress, onLongPress, selected = false }: FolderCardProps) => {
   const theme = useTheme()
 
   return (
@@ -74,4 +75,4 @@ export function FolderCard({ folder, onPress, onLongPress, selected = false }: F
       </XStack>
     </Pressable>
   )
-}
+})

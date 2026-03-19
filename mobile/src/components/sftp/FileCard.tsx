@@ -1,3 +1,4 @@
+import React, { memo } from 'react'
 import { Check, FileText } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { Text, XStack, YStack, useTheme } from 'tamagui'
@@ -11,7 +12,7 @@ type FileCardProps = {
   selected?: boolean
 }
 
-export function FileCard({ file, onPress, onLongPress, selected = false }: FileCardProps) {
+export const FileCard = memo(({ file, onPress, onLongPress, selected = false }: FileCardProps) => {
   const theme = useTheme()
 
   return (
@@ -82,4 +83,4 @@ export function FileCard({ file, onPress, onLongPress, selected = false }: FileC
       </XStack>
     </Pressable>
   )
-}
+})

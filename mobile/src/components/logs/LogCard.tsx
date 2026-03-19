@@ -1,3 +1,4 @@
+import React, { memo } from 'react'
 import { FileText, Trash2 } from 'lucide-react-native'
 import { Pressable } from 'react-native'
 import { Text, XStack, View, useTheme } from 'tamagui'
@@ -10,7 +11,7 @@ type LogCardProps = {
   onDelete?: () => void
 }
 
-export function LogCard({ log, onPress, onDelete }: LogCardProps) {
+export const LogCard = memo(({ log, onPress, onDelete }: LogCardProps) => {
   const theme = useTheme()
 
   const formatDate = (isoString: string) => {
@@ -61,4 +62,4 @@ export function LogCard({ log, onPress, onDelete }: LogCardProps) {
       )}
     />
   )
-}
+})

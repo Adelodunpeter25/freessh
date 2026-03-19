@@ -1,3 +1,4 @@
+import React, { memo } from "react";
 import { Braces, Pencil, Trash2 } from "lucide-react-native";
 import { Pressable } from "react-native";
 import { useTheme, View } from "tamagui";
@@ -13,13 +14,13 @@ type SnippetCardProps = {
   onDelete?: () => void;
 };
 
-export function SnippetCard({
+export const SnippetCard = memo(({
   snippet,
   selected = false,
   onPress,
   onEdit,
   onDelete,
-}: SnippetCardProps) {
+}: SnippetCardProps) => {
   const theme = useTheme();
 
   return (
@@ -68,4 +69,4 @@ export function SnippetCard({
       />
     </ContextMenu>
   );
-}
+})

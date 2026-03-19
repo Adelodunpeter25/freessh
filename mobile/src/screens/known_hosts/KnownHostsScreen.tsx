@@ -1,13 +1,14 @@
-import { useEffect, useState, useCallback } from 'react'
-import { RefreshControl } from 'react-native'
+import React, { useEffect, useState, useCallback } from 'react'
+import { RefreshControl, FlatList } from 'react-native'
 import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen, EmptyState, KnownHostCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
+import { AppHeader, EmptyState, KnownHostCard, LoadingState, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog } from '@/components'
 import { useSearch } from '@/hooks'
 import { useKnownHostStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
+import type { KnownHost } from '@/types'
 
 export function KnownHostsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
@@ -40,79 +41,92 @@ export function KnownHostsScreen() {
     initialize()
   }, [])
 
+  const renderItem = useCallback(({ item: host }: { item: KnownHost }) => (
+    <YStack px="$4" pb="$3">
+      <KnownHostCard 
+        host={host} 
+        onDelete={() =>
+          setConfirmState({
+            title: 'Delete known host?',
+            description: `This will remove "${host.hostname}".`,
+            onConfirm: async () => {
+              try {
+                await removeKnownHost(host.id)
+                showSnackbar(`Deleted "${host.hostname}"`, 'success')
+              } catch {
+                showSnackbar('Failed to delete host', 'error')
+              }
+            },
+          })
+        }
+      />
+    </YStack>
+  ), [removeKnownHost, showSnackbar])
+
   return (
-    <YStack flex={1}>
+    <YStack flex={1} bg="$background">
       <AppHeader 
         title="Known Hosts" 
         showBackButton 
         onBackPress={() => navigation.goBack()} 
       />
       
-      <Screen
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        {loading ? (
-          <LoadingState />
-        ) : (
-          <YStack gap="$4">
+      {loading ? (
+        <LoadingState />
+      ) : (
+        <YStack flex={1} pt="$4">
+          <YStack px="$4" pb="$4">
             <SearchBar
               value={query}
               onChangeText={setQuery}
               onClear={clearQuery}
               placeholder="Search known hosts"
             />
+          </YStack>
 
-            {knownHosts.length === 0 ? (
+          {knownHosts.length === 0 ? (
+            <YStack px="$4">
               <EmptyState 
                 title="No known hosts" 
                 description="Verified host fingerprints will be saved here." 
               />
-            ) : showEmpty ? (
-              <SearchEmptyState query={query} />
-            ) : (
-              <>
-                <SectionHeader title="Known Hosts" />
-                <YStack gap="$3">
-                    {filtered.map((host) => (
-                      <KnownHostCard 
-                        key={host.id} 
-                        host={host} 
-                        onDelete={() =>
-                          setConfirmState({
-                            title: 'Delete known host?',
-                            description: `This will remove "${host.hostname}".`,
-                            onConfirm: async () => {
-                              try {
-                                await removeKnownHost(host.id)
-                                showSnackbar(`Deleted "${host.hostname}"`, 'success')
-                              } catch {
-                                showSnackbar('Failed to delete host', 'error')
-                              }
-                            },
-                          })
-                        }
-                      />
-                    ))}
-                  </YStack>
-                </>
-              )}
             </YStack>
-        )}
-      </Screen>
+          ) : showEmpty ? (
+            <YStack px="$4">
+              <SearchEmptyState query={query} />
+            </YStack>
+          ) : (
+            <FlatList
+              data={filtered}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              ListHeaderComponent={() => (
+                <YStack px="$4" py="$2">
+                  <SectionHeader title="Known Hosts" />
+                </YStack>
+              )}
+              contentContainerStyle={{ paddingBottom: 40 }}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+              removeClippedSubviews={true}
+              initialNumToRender={10}
+            />
+          )}
+        </YStack>
+      )}
 
-      <ConfirmDialog
-        open={confirmState !== null}
-        onOpenChange={(open) => {
-          if (!open) setConfirmState(null)
-        }}
-        title={confirmState?.title ?? ''}
-        description={confirmState?.description}
-        destructive
-        onConfirm={() => {
-          confirmState?.onConfirm()
-          setConfirmState(null)
-        }}
-      />
+      {confirmState && (
+        <ConfirmDialog
+          open={!!confirmState}
+          onOpenChange={(open) => !open && setConfirmState(null)}
+          title={confirmState.title}
+          description={confirmState.description}
+          destructive
+          onConfirm={() => {
+            confirmState.onConfirm()
+            setConfirmState(null)
+          }}
+        />
+      )}
     </YStack>
   )
 }

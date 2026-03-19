@@ -1,15 +1,15 @@
-import { RefreshControl } from 'react-native'
+import { RefreshControl, FlatList } from 'react-native'
 import { Dialog, ListItem, Sheet, Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
-import { useState, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Plus, Upload } from 'lucide-react-native'
 
-import { AddButton, EmptyState, Screen, AppHeader, KeyCard, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog, Button, Input } from '@/components'
+import { AddButton, EmptyState, AppHeader, KeyCard, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog, Button, Input } from '@/components'
 import { useSearch } from '@/hooks'
 import { useConnectionStore, useKeyStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
-import type { ConnectionConfig } from '@/types'
+import type { ConnectionConfig, SSHKey } from '@/types'
 
 export function KeysScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
@@ -93,64 +93,78 @@ export function KeysScreen() {
     await performExport(connection)
   }, [performExport])
 
+  const renderItem = useCallback(({ item: key }: { item: SSHKey }) => (
+    <YStack px="$4" pb="$3">
+      <KeyCard
+        sshKey={key}
+        onEdit={() => navigation.navigate('KeyForm', { key })}
+        onDelete={() =>
+          setConfirmState({
+            title: 'Delete key?',
+            description: `This will permanently remove "${key.name}".`,
+            onConfirm: async () => {
+              try {
+                await removeKey(key.id)
+                showSnackbar(`Deleted "${key.name}"`, 'success')
+              } catch {
+                showSnackbar('Failed to delete key', 'error')
+              }
+            },
+          })
+        }
+        onExport={() => setExportKey({ id: key.id, name: key.name })}
+      />
+    </YStack>
+  ), [navigation, removeKey, showSnackbar])
+
   return (
     <>
-      <AppHeader 
-        title="SSH Keys" 
-        showBackButton 
-        onBackPress={() => navigation.goBack()} 
-      />
-      <Screen
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        <YStack
-          gap="$4"
-        >
-          <SearchBar
-            value={query}
-            onChangeText={setQuery}
-            onClear={clearQuery}
-            placeholder="Search SSH keys"
-          />
+      <YStack flex={1} bg="$background">
+        <AppHeader 
+          title="SSH Keys" 
+          showBackButton 
+          onBackPress={() => navigation.goBack()} 
+        />
+
+        <YStack flex={1} pt="$4">
+          <YStack px="$4" pb="$4">
+            <SearchBar
+              value={query}
+              onChangeText={setQuery}
+              onClear={clearQuery}
+              placeholder="Search keys"
+            />
+          </YStack>
 
           {isActuallyEmpty ? (
-            <EmptyState
-              title="No SSH Keys"
-              description="Generate or import SSH keys for authentication."
-            />
+            <YStack px="$4">
+              <EmptyState
+                title="No SSH Keys"
+                description="Generate or import keys to use for secure authentication."
+              />
+            </YStack>
           ) : showEmpty ? (
-            <SearchEmptyState query={query} />
+            <YStack px="$4">
+              <SearchEmptyState query={query} />
+            </YStack>
           ) : (
-            <>
-              <SectionHeader title="SSH Keys" />
-              <YStack gap="$3">
-                {filtered.map((key) => (
-                    <KeyCard
-                      key={key.id}
-                      sshKey={key}
-                      onEdit={() => navigation.navigate('KeyForm', { key })}
-                      onExport={() => setExportKey({ id: key.id, name: key.name })}
-                      onDelete={() =>
-                        setConfirmState({
-                          title: 'Delete key?',
-                          description: `This will remove "${key.name}" from your keychain.`,
-                        onConfirm: async () => {
-                          try {
-                            await removeKey(key.id)
-                            showSnackbar(`Deleted "${key.name}"`, 'success')
-                          } catch {
-                            showSnackbar('Failed to delete key', 'error')
-                          }
-                        },
-                      })
-                    }
-                  />
-                ))}
-              </YStack>
-            </>
+            <FlatList
+              data={filtered}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              ListHeaderComponent={() => (
+                <YStack px="$4" py="$2">
+                  <SectionHeader title="Your Keys" />
+                </YStack>
+              )}
+              contentContainerStyle={{ paddingBottom: 100 }}
+              refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+              removeClippedSubviews={true}
+              initialNumToRender={10}
+            />
           )}
         </YStack>
-      </Screen>
+      </YStack>
 
       <AddButton onPress={() => setShowAddSheet(true)} />
 

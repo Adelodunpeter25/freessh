@@ -1,4 +1,5 @@
-import { YStack } from 'tamagui'
+import React, { useCallback } from 'react'
+import { FlatList } from 'react-native'
 import type { FileInfo } from '@/types'
 import { EmptyState } from '@/components/common'
 import { FileCard } from './FileCard'
@@ -21,6 +22,40 @@ export function FileList({
   isSelected,
   hasSelection,
 }: FileListProps) {
+  const renderItem = useCallback(({ item: entry }: { item: FileInfo }) => {
+    if (entry.is_dir) {
+      return (
+        <FolderCard
+          folder={entry}
+          selected={isSelected(entry.path)}
+          onLongPress={() => onToggleSelect(entry)}
+          onPress={() => {
+            if (hasSelection) {
+              onToggleSelect(entry)
+              return
+            }
+            onOpenFolder(entry)
+          }}
+        />
+      )
+    }
+
+    return (
+      <FileCard
+        file={entry}
+        selected={isSelected(entry.path)}
+        onLongPress={() => onToggleSelect(entry)}
+        onPress={() => {
+          if (hasSelection) {
+            onToggleSelect(entry)
+            return
+          }
+          onOpenFile?.(entry)
+        }}
+      />
+    )
+  }, [isSelected, onToggleSelect, hasSelection, onOpenFolder, onOpenFile])
+
   if (files.length === 0) {
     return (
       <EmptyState
@@ -31,38 +66,19 @@ export function FileList({
   }
 
   return (
-    <YStack>
-      {files.map((entry) =>
-        entry.is_dir ? (
-          <FolderCard
-            key={entry.path}
-            folder={entry}
-            selected={isSelected(entry.path)}
-            onLongPress={() => onToggleSelect(entry)}
-            onPress={() => {
-              if (hasSelection) {
-                onToggleSelect(entry)
-                return
-              }
-              onOpenFolder(entry)
-            }}
-          />
-        ) : (
-          <FileCard
-            key={entry.path}
-            file={entry}
-            selected={isSelected(entry.path)}
-            onLongPress={() => onToggleSelect(entry)}
-            onPress={() => {
-              if (hasSelection) {
-                onToggleSelect(entry)
-                return
-              }
-              onOpenFile?.(entry)
-            }}
-          />
-        ),
-      )}
-    </YStack>
+    <FlatList
+      data={files}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.path}
+      initialNumToRender={15}
+      maxToRenderPerBatch={10}
+      windowSize={5}
+      removeClippedSubviews={true}
+      getItemLayout={(_, index) => ({
+        length: 56,
+        offset: 56 * index,
+        index,
+      })}
+    />
   )
 }
