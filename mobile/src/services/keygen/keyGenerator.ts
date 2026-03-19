@@ -43,6 +43,14 @@ const randomUInt32 = () => {
   return Math.floor(Math.random() * 0xffffffff)
 }
 
+const startsWithBytes = (buf: Buffer, prefix: Buffer): boolean => {
+  if (buf.length < prefix.length) return false
+  for (let i = 0; i < prefix.length; i += 1) {
+    if (buf[i] !== prefix[i]) return false
+  }
+  return true
+}
+
 const toOpenSSHPrivateKeyEd25519 = (keyPair: { publicKey: Uint8Array; privateKey: Uint8Array }, comment: string) => {
   const keyType = Buffer.from('ssh-ed25519', 'ascii')
   const publicKey = Buffer.from(keyPair.publicKey)
@@ -149,7 +157,7 @@ const parseOpenSSHPrivateKeyPublicPart = (name: string, privateKey: string) => {
     .replace(/\s+/g, '')
 
   const payload = Buffer.from(base64Payload, 'base64')
-  if (!payload.subarray(0, OPENSSH_MAGIC.length).equals(OPENSSH_MAGIC)) {
+  if (!startsWithBytes(payload, OPENSSH_MAGIC)) {
     throw new Error('Invalid OpenSSH private key payload')
   }
 
