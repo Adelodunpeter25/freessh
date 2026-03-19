@@ -10,6 +10,7 @@ function toNativeLocalPath(localPath: string): string {
     const withoutPrefix = localPath.replace('file://', '')
     // We try to decode but keep spaces as they are if it's already decoded
     try {
+      // Decode the path while preserving legitimate spaces
       return decodeURIComponent(withoutPrefix)
     } catch {
       return withoutPrefix
@@ -21,14 +22,26 @@ function toNativeLocalPath(localPath: string): string {
 function toFileUriPath(localPath: string): string {
   if (localPath.startsWith('file://')) return localPath
   // On mobile, native modules often expect the file path to be properly encoded for URI
-  const encodedPath = localPath.split('/').map(segment => encodeURIComponent(segment)).join('/')
-  return `file://${encodedPath}`
+  // We only encode the path part, not the protocol
+  const encodedPath = localPath
+    .split('/')
+    .map((segment) => encodeURIComponent(segment))
+    .join('/')
+  return `file://${encodedPath.replace(/^\/+/, '/')}`
 }
 
 function uniqueCandidates(paths: string[]): string[] {
   const seen = new Set<string>()
   const result: string[] = []
-  for (const path of paths) {
+  // Prefer native paths (starting with /) over URIs as many native modules handle them better
+  const sortedPaths = [...paths].sort((a, b) => {
+    const aIsNative = a.startsWith('/') && !a.startsWith('file://')
+    const bIsNative = b.startsWith('/') && !b.startsWith('file://')
+    if (aIsNative && !bIsNative) return -1
+    if (!aIsNative && bIsNative) return 1
+    return 0
+  })
+  for (const path of sortedPaths) {
     if (!path) continue
     if (seen.has(path)) continue
     seen.add(path)
@@ -139,7 +152,8 @@ export const sftpService = {
           console.error('[SFTP] uploadFile candidate failed', { candidate, remoteFilePath, error })
         }
       }
-      throw lastError instanceof Error ? lastError : new Error('Failed to upload with all local path forms')
+      const errorMessage = lastError instanceof Error ? lastError.message : String(lastError)
+      throw new Error(`Failed to upload with all path forms. Last error: ${errorMessage}`)
     })
   },
 
@@ -164,7 +178,8 @@ export const sftpService = {
           console.error('[SFTP] downloadFile candidate failed', { remoteFilePath, candidate, error })
         }
       }
-      throw lastError instanceof Error ? lastError : new Error('Failed to download with all local path forms')
+      const errorMessage = lastError instanceof Error ? lastError.message : String(lastError)
+      throw new Error(`Failed to download with all path forms. Last error: ${errorMessage}`)
     })
   },
 
