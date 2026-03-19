@@ -88,7 +88,7 @@ export function BaseCard({
   }
 
   return (
-    <Pressable onPress={onPress} onLongPress={onLongPress} delayLongPress={250}>
+    <Pressable onPress={onPress} onLongPress={onLongPress} delayLongPress={200}>
       {content}
     </Pressable>
   )
