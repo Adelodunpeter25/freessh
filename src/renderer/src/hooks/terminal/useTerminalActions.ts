@@ -3,7 +3,6 @@ import { Terminal as XTerm } from 'xterm'
 
 interface UseTerminalActionsOptions {
   onFind?: () => void
-  onSplit?: () => void
 }
 
 export const useTerminalActions = (xtermRef: RefObject<XTerm | null>, options?: UseTerminalActionsOptions) => {
@@ -39,16 +38,11 @@ export const useTerminalActions = (xtermRef: RefObject<XTerm | null>, options?: 
     options?.onFind?.()
   }, [options])
 
-  const split = useCallback(() => {
-    options?.onSplit?.()
-  }, [options])
-
   return {
     clear,
     copy,
     paste,
     selectAll,
-    find,
-    split
+    find
   }
 }

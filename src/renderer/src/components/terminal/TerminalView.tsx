@@ -28,8 +28,7 @@ export function TerminalView({ sessionId, isActive = true, sidebarOpen = false }
   const xtermRef = useRef<XTerm | null>(null)
 
   const actions = useTerminalActions(xtermRef, {
-    onFind: () => setShowSearch(true),
-    onSplit: () => console.log('Split not implemented')
+    onFind: () => setShowSearch(true)
   })
 
   const handleSearchResults = useCallback((results: { resultIndex: number, resultCount: number } | null) => {
@@ -87,7 +86,6 @@ export function TerminalView({ sessionId, isActive = true, sidebarOpen = false }
       onSelectAll={actions.selectAll}
       onClear={actions.clear}
       onFind={actions.find}
-      onSplit={actions.split}
     >
       <div className="h-full w-full relative">
         {showSearch && (

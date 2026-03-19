@@ -1,4 +1,4 @@
-import { Copy, Clipboard, MousePointer, Trash2, Search, SplitSquareHorizontal } from 'lucide-react'
+import { Copy, Clipboard, MousePointer, Trash2, Search } from 'lucide-react'
 import { BaseContextMenu, ContextMenuAction } from './BaseContextMenu'
 
 interface TerminalContextMenuProps {
@@ -8,7 +8,6 @@ interface TerminalContextMenuProps {
   onSelectAll: () => void
   onClear: () => void
   onFind: () => void
-  onSplit: () => void
 }
 
 export function TerminalContextMenu({
@@ -17,8 +16,7 @@ export function TerminalContextMenu({
   onPaste,
   onSelectAll,
   onClear,
-  onFind,
-  onSplit
+  onFind
 }: TerminalContextMenuProps) {
   const actions: ContextMenuAction[] = [
     {
@@ -40,12 +38,7 @@ export function TerminalContextMenu({
     {
       label: 'Find in Terminal',
       icon: <Search className="w-4 h-4" />,
-      onClick: onFind
-    },
-    {
-      label: 'Split Terminal',
-      icon: <SplitSquareHorizontal className="w-4 h-4" />,
-      onClick: onSplit,
+      onClick: onFind,
       separator: true
     },
     {
