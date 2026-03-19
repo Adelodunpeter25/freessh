@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import * as FileSystem from 'expo-file-system/legacy'
+import { StorageAccessFramework } from 'expo-file-system/legacy'
 import { Platform } from 'react-native'
 import { sshService } from '@/services'
 import { sftpService } from '@/services/sftp'
@@ -9,6 +10,7 @@ import {
   fileNameFromPath,
   normalizePath,
   parentPath,
+  resolveRemotePath,
 } from '@/utils/sftpPaths'
 import type { SftpDeleteTarget, SftpSession, SftpState } from './types'
 import {
@@ -18,6 +20,13 @@ import {
   normalizePrivateKey,
   updateSession,
 } from './helpers'
+
+async function resolveAndroidDownloadsDirectoryUri(): Promise<string | null> {
+  const downloadsUri = StorageAccessFramework.getUriForDirectoryInRoot('Download')
+  const permission = await StorageAccessFramework.requestDirectoryPermissionsAsync(downloadsUri)
+  if (!permission.granted) return null
+  return permission.directoryUri
+}
 
 export const useSftpStore = create<SftpState>((set, get) => ({
   sessions: [],
@@ -285,18 +294,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     const appDownloadsDir = FileSystem.documentDirectory
       ? `${FileSystem.documentDirectory}freessh-downloads/`
       : null
-    const preferredAndroidDownloadsDir = 'file:///storage/emulated/0/Download/freessh-downloads/'
-    
-    // We try the provided localDirectory first, then the public downloads directory (on Android), then the app's document directory
-    let baseDirectory: string | null | undefined = localDirectory
-    if (!baseDirectory) {
-      if (Platform.OS === 'android') {
-        baseDirectory = preferredAndroidDownloadsDir
-      } else {
-        baseDirectory = appDownloadsDir
-      }
-    }
-
+    const baseDirectory = localDirectory ?? appDownloadsDir
     if (!baseDirectory) throw new Error('No writable local directory available')
 
     console.log('[SFTP] downloadEntries:start', {
@@ -305,39 +303,37 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       resolvedBaseDirectory: baseDirectory,
     })
 
-    let writableBaseDirectory = baseDirectory
-    try {
-      await FileSystem.makeDirectoryAsync(writableBaseDirectory, { intermediates: true })
-    } catch (mkdirError) {
-      // If public downloads dir is not writable (common on Android), fall back to app internal storage
-      if (Platform.OS === 'android' && appDownloadsDir && writableBaseDirectory !== appDownloadsDir) {
-        console.warn('[SFTP] downloadEntries:public downloads unavailable, falling back to app storage', {
-          requested: writableBaseDirectory,
-          fallback: appDownloadsDir,
-          mkdirError,
-        })
-        writableBaseDirectory = appDownloadsDir
-        await FileSystem.makeDirectoryAsync(writableBaseDirectory, { intermediates: true })
-      } else {
-        throw mkdirError
-      }
-    }
+    await FileSystem.makeDirectoryAsync(baseDirectory, { intermediates: true })
+
+    const androidDownloadsDirectoryUri =
+      Platform.OS === 'android' && !localDirectory
+        ? await resolveAndroidDownloadsDirectoryUri()
+        : null
 
     const downloadedPaths: string[] = []
     for (const remotePath of remotePaths) {
       const name = fileNameFromPath(remotePath) || `download-${Date.now()}`
-      const localPath = `${writableBaseDirectory.replace(/\/+$/, '')}/${name}`
+      const localPath = `${baseDirectory.replace(/\/+$/, '')}/${name}`
       const normalizedRemotePath = normalizePath(remotePath)
       
       console.log('[SFTP] downloadEntries:item', {
         remotePath,
         normalizedRemotePath,
         localPath,
+        androidDownloadsDirectoryUri,
       })
 
       try {
         await sftpService.downloadFile(active.client, normalizedRemotePath, localPath)
-        downloadedPaths.push(localPath)
+        if (androidDownloadsDirectoryUri) {
+          await StorageAccessFramework.moveAsync({
+            from: localPath,
+            to: androidDownloadsDirectoryUri,
+          })
+          downloadedPaths.push(`${androidDownloadsDirectoryUri}/${name}`)
+        } else {
+          downloadedPaths.push(localPath)
+        }
       } catch (error) {
         console.error('[SFTP] downloadEntries:item failed', {
           remotePath,
@@ -345,19 +341,6 @@ export const useSftpStore = create<SftpState>((set, get) => ({
           localPath,
           error,
         })
-        // If we fail and we are using a public directory, try falling back to app storage for this specific file
-        if (writableBaseDirectory !== appDownloadsDir && appDownloadsDir) {
-          console.warn('[SFTP] downloadEntries:item failed, retrying in app storage', { localPath, appDownloadsDir })
-          const fallbackLocalPath = `${appDownloadsDir.replace(/\/+$/, '')}/${name}`
-          try {
-            await FileSystem.makeDirectoryAsync(appDownloadsDir, { intermediates: true })
-            await sftpService.downloadFile(active.client, normalizedRemotePath, fallbackLocalPath)
-            downloadedPaths.push(fallbackLocalPath)
-            continue // Succeeded in fallback, move to next file
-          } catch (fallbackError) {
-            console.error('[SFTP] downloadEntries:item fallback also failed', { fallbackLocalPath, fallbackError })
-          }
-        }
         throw error
       }
     }
