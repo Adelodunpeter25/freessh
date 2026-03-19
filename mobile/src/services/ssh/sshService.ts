@@ -77,4 +77,20 @@ export const sshService = {
   sftpRm(client: SSHClientInstance, path: string) {
     return client.sftpRm(path)
   },
+
+  sftpUpload(client: SSHClientInstance, localFilePath: string, remoteFilePath: string) {
+    return client.sftpUpload(localFilePath, remoteFilePath)
+  },
+
+  sftpDownload(client: SSHClientInstance, remoteFilePath: string, localFilePath: string) {
+    return client.sftpDownload(remoteFilePath, localFilePath)
+  },
+
+  sftpCancelUpload(client: SSHClientInstance) {
+    return client.sftpCancelUpload()
+  },
+
+  sftpCancelDownload(client: SSHClientInstance) {
+    return client.sftpCancelDownload()
+  },
 }

@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import * as FileSystem from 'expo-file-system/legacy'
 import type { ConnectionConfig, FileInfo } from '@/types'
 import { sshService, type SSHClientInstance } from '@/services'
 import { connectionService, keyService } from '@/services/crud'
@@ -62,6 +63,12 @@ type SftpState = {
   listDirectory: (path?: string) => Promise<void>
   openFolder: (path: string) => Promise<void>
   goUp: () => Promise<void>
+  createFolder: (name: string, parentPath?: string) => Promise<void>
+  renameEntry: (oldPath: string, newNameOrPath: string) => Promise<void>
+  deleteEntries: (entries: Array<{ path: string; isDir?: boolean }>) => Promise<void>
+  copyEntries: (sourcePaths: string[], destinationDirectory?: string) => Promise<void>
+  downloadEntries: (remotePaths: string[], localDirectory?: string) => Promise<string[]>
+  uploadFiles: (localPaths: string[], remoteDirectory?: string) => Promise<void>
   disconnect: () => void
   closeAllSessions: () => void
 }
@@ -84,6 +91,15 @@ function parentPath(path: string): string {
   const segments = normalized.split('/').filter(Boolean)
   segments.pop()
   return segments.length ? `/${segments.join('/')}` : '/'
+}
+
+function fileNameFromPath(path: string): string {
+  const segments = path.split('/').filter(Boolean)
+  return segments[segments.length - 1] ?? ''
+}
+
+function shellQuote(value: string): string {
+  return `'${value.replace(/'/g, `'\"'\"'`)}'`
 }
 
 function toNumber(value: unknown, fallback = 0): number {
@@ -242,6 +258,12 @@ function updateSession(
   updater: (session: SftpSession) => SftpSession,
 ): SftpSession[] {
   return sessions.map((session) => (session.id === id ? updater(session) : session))
+}
+
+function resolveRemotePath(baseDirectory: string, nameOrPath: string): string {
+  if (!nameOrPath || nameOrPath.trim().length === 0) return baseDirectory
+  if (nameOrPath.startsWith('/')) return normalizePath(nameOrPath)
+  return joinPath(baseDirectory, nameOrPath)
 }
 
 export const useSftpStore = create<SftpState>((set, get) => ({
@@ -440,6 +462,105 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     const active = getActiveSession(get())
     if (!active) return
     await get().listDirectory(parentPath(active.currentPath))
+  },
+
+  createFolder: async (name, parentPathArg) => {
+    const active = getActiveSession(get())
+    if (!active) throw new Error('No active SFTP session')
+    const parent = normalizePath(parentPathArg ?? active.currentPath)
+    const folderPath = resolveRemotePath(parent, name)
+    await sshService.sftpMkdir(active.client, folderPath)
+    await get().listDirectory(parent)
+  },
+
+  renameEntry: async (oldPath, newNameOrPath) => {
+    const active = getActiveSession(get())
+    if (!active) throw new Error('No active SFTP session')
+    const oldNormalized = normalizePath(oldPath)
+    const parent = parentPath(oldNormalized)
+    const nextPath = resolveRemotePath(parent, newNameOrPath)
+    await sshService.sftpRename(active.client, oldNormalized, nextPath)
+    await get().listDirectory(active.currentPath)
+  },
+
+  deleteEntries: async (entries) => {
+    const active = getActiveSession(get())
+    if (!active) throw new Error('No active SFTP session')
+    if (!entries.length) return
+
+    const removeRecursive = async (path: string, isDirHint?: boolean): Promise<void> => {
+      const normalized = normalizePath(path)
+      const known = active.files.find((file) => file.path === normalized)
+      const isDirectory = isDirHint ?? known?.is_dir ?? false
+      if (!isDirectory) {
+        await sshService.sftpRm(active.client, normalized)
+        return
+      }
+
+      const childrenRaw = await sshService.sftpLs(active.client, normalized)
+      const children = normalizeEntries(childrenRaw, normalized)
+      for (const child of children) {
+        await removeRecursive(child.path, child.is_dir)
+      }
+      await sshService.sftpRmdir(active.client, normalized)
+    }
+
+    for (const entry of entries) {
+      await removeRecursive(entry.path, entry.isDir)
+    }
+    await get().listDirectory(active.currentPath)
+  },
+
+  copyEntries: async (sourcePaths, destinationDirectory) => {
+    const active = getActiveSession(get())
+    if (!active) throw new Error('No active SFTP session')
+    if (!sourcePaths.length) return
+
+    const destination = normalizePath(destinationDirectory ?? active.currentPath)
+    for (const sourcePath of sourcePaths) {
+      const source = normalizePath(sourcePath)
+      const command = `cp -R -- ${shellQuote(source)} ${shellQuote(destination)}`
+      await sshService.execute(active.client, command)
+    }
+    await get().listDirectory(destination)
+  },
+
+  downloadEntries: async (remotePaths, localDirectory) => {
+    const active = getActiveSession(get())
+    if (!active) throw new Error('No active SFTP session')
+    if (!remotePaths.length) return []
+
+    const baseDirectory =
+      localDirectory ??
+      (FileSystem.documentDirectory
+        ? `${FileSystem.documentDirectory}freessh-downloads/`
+        : null)
+    if (!baseDirectory) throw new Error('No writable local directory available')
+
+    await FileSystem.makeDirectoryAsync(baseDirectory, { intermediates: true })
+    const downloadedPaths: string[] = []
+    for (const remotePath of remotePaths) {
+      const name = fileNameFromPath(remotePath) || `download-${Date.now()}`
+      const localPath = `${baseDirectory.replace(/\/+$/, '')}/${name}`
+      await sshService.sftpDownload(active.client, normalizePath(remotePath), localPath)
+      downloadedPaths.push(localPath)
+    }
+    return downloadedPaths
+  },
+
+  uploadFiles: async (localPaths, remoteDirectory) => {
+    const active = getActiveSession(get())
+    if (!active) throw new Error('No active SFTP session')
+    if (!localPaths.length) return
+
+    const remoteBase = normalizePath(remoteDirectory ?? active.currentPath)
+    for (const localPath of localPaths) {
+      const name = fileNameFromPath(localPath)
+      if (!name) continue
+      const remotePath = resolveRemotePath(remoteBase, name)
+      await sshService.sftpUpload(active.client, localPath, remotePath)
+    }
+    await get().listDirectory(remoteBase)
   },
 
   disconnect: () => {
