@@ -30,35 +30,19 @@ export function formatModifiedTime(timestamp: number): string {
 export function getSftpBreadcrumb(currentPath: string, connectionName: string | null) {
   const pathSegments = currentPath.split('/').filter(Boolean)
   const rootLabel = connectionName ?? 'Home'
-  
-  // Show only last 2 segments for deep paths
-  const displaySegments = pathSegments.length > 2 
-    ? ['...', ...pathSegments.slice(-2)]
-    : pathSegments
-  
-  const breadcrumbSegments = [rootLabel, ...displaySegments]
-  const fullBreadcrumb = breadcrumbSegments.join(' > ')
-  
-  // Create clickable paths for navigation
-  const clickablePaths = breadcrumbSegments.map((segment, index) => {
-    if (segment === '...') return { segment, path: null }
-    if (index === 0) return { segment, path: '/' } // Root
-    
-    // Calculate actual path for this segment
-    const segmentIndex = pathSegments.length > 2 
-      ? pathSegments.length - (displaySegments.length - index)
-      : index - 1
-    
-    const path = '/' + pathSegments.slice(0, segmentIndex + 1).join('/')
-    return { segment, path }
+
+  const clickablePaths = [{ segment: rootLabel, path: '/' }]
+  pathSegments.forEach((segment, index) => {
+    const path = `/${pathSegments.slice(0, index + 1).join('/')}`
+    clickablePaths.push({ segment, path })
   })
-  
+
+  const fullBreadcrumb = clickablePaths.map((item) => item.segment).join(' > ')
   const canGoUp = currentPath !== '/'
-  
+
   return { 
     rootLabel, 
     fullBreadcrumb,
-    pathSegments,
     clickablePaths,
     canGoUp 
   }

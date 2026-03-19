@@ -22,7 +22,6 @@ export function SftpScreen() {
   const closeAllSessions = useSftpStore((state) => state.closeAllSessions)
   const listDirectory = useSftpStore((state) => state.listDirectory)
   const openFolder = useSftpStore((state) => state.openFolder)
-  const goUp = useSftpStore((state) => state.goUp)
   const showSnackbar = useSnackbarStore((state) => state.show)
   const activeSession = useMemo(
     () => sessions.find((session) => session.id === activeSessionId) ?? null,
@@ -81,26 +80,21 @@ export function SftpScreen() {
     }
   }, [openFolder, showSnackbar])
 
-  const { rootLabel, fullBreadcrumb, pathSegments, clickablePaths, canGoUp } = useMemo(
+  const { clickablePaths, canGoUp } = useMemo(
     () => getSftpBreadcrumb(currentPath, connectionName),
     [currentPath, connectionName],
   )
   const handleGoUp = useCallback(() => {
-    void goUp()
-  }, [goUp])
+    const segments = currentPath.split('/').filter(Boolean)
+    const parent = segments.length > 1 ? `/${segments.slice(0, -1).join('/')}` : '/'
+    void listDirectory(parent)
+  }, [currentPath, listDirectory])
   const handleBack = useCallback(() => {
     navigation.goBack()
   }, [navigation])
   const handleCloseSession = useCallback((id: string) => {
     closeSession(id)
   }, [closeSession])
-  const handlePressRoot = useCallback(() => {
-    void listDirectory('/')
-  }, [listDirectory])
-  const handlePressCurrent = useCallback(() => {
-    if (!connected) return
-    void listDirectory(currentPath)
-  }, [connected, currentPath, listDirectory])
   const handleToggleSelect = useCallback((entry: FileInfo) => {
     toggleSelection(entry.path)
   }, [toggleSelection])
@@ -151,8 +145,6 @@ export function SftpScreen() {
 
       <YStack flex={1} bg="$background" mt={pinnedTabBarHeight}>
         <SftpToolbar
-          rootLabel={rootLabel}
-          fullBreadcrumb={fullBreadcrumb}
           clickablePaths={clickablePaths}
           onNavigateTo={navigateToPath}
           query={query}
@@ -168,8 +160,6 @@ export function SftpScreen() {
           onCopy={handleCopy}
           onDownload={handleDownload}
           onRename={handleRename}
-          onPressRoot={handlePressRoot}
-          onPressCurrent={handlePressCurrent}
         />
 
         {!connected ? (

@@ -6,8 +6,6 @@ import { IconButton, Input } from '@/components/common'
 import { MoreActions } from './MoreActions'
 
 type SftpToolbarProps = {
-  rootLabel: string
-  fullBreadcrumb: string
   clickablePaths: Array<{ segment: string; path: string | null }>
   onNavigateTo: (path: string) => void
   query: string
@@ -23,13 +21,9 @@ type SftpToolbarProps = {
   onCopy: () => void
   onDownload: () => void
   onRename: () => void
-  onPressRoot: () => void
-  onPressCurrent: () => void
 }
 
 export function SftpToolbar({
-  rootLabel,
-  fullBreadcrumb,
   clickablePaths,
   onNavigateTo,
   query,
@@ -45,12 +39,10 @@ export function SftpToolbar({
   onCopy,
   onDownload,
   onRename,
-  onPressRoot,
-  onPressCurrent,
 }: SftpToolbarProps) {
   const theme = useTheme()
   const [searchOpen, setSearchOpen] = useState(false)
-  const showSingleBreadcrumb = fullBreadcrumb === rootLabel
+  const showSingleBreadcrumb = clickablePaths.length <= 1
 
   const openSearch = useCallback(() => {
     setSearchOpen(true)
@@ -75,7 +67,7 @@ export function SftpToolbar({
       <XStack ai="center" gap="$2" flex={1}>
         {showSingleBreadcrumb ? (
           <Text color="$placeholderColor" fontSize={12} numberOfLines={1}>
-            {rootLabel}
+            {clickablePaths[0]?.segment ?? 'Home'}
           </Text>
         ) : (
           <XStack ai="center" gap={4}>
