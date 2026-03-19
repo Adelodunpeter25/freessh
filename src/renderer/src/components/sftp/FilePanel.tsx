@@ -33,15 +33,9 @@ export function FilePanel({
     sessionId,
     onNavigate,
     onRefresh,
-    onDelete,
-    onRename,
-    onChmod,
     onMkdir,
     onDrop,
-    onDragStart,
     onDownloadToTemp,
-    selectedFile,
-    onSelectFile,
     fetchSuggestions,
     selectedItems,
     onItemSelect,
@@ -49,7 +43,7 @@ export function FilePanel({
     onTitleClick,
   } = useFilePanelContext();
   const { isDragOver, dragProps } = useDragDrop(onDrop, currentPath);
-  const { query, setQuery, filteredFiles, clearSearch, isSearching } = useSearch(files);
+  const { query, setQuery, filteredFiles, clearSearch } = useSearch(files);
   const { 
     previewFile, 
     isRemotePreview, 
@@ -72,6 +66,13 @@ export function FilePanel({
       const parent = getParentPath(currentPath, isRemote);
       onNavigate(parent);
     }
+  };
+
+  const handleNavigate = (path: string) => {
+    if (showPreview) {
+      closePreview();
+    }
+    onNavigate(path);
   };
 
   const handleNewFolder = (name: string) => {
@@ -115,7 +116,7 @@ export function FilePanel({
         currentPath={currentPath}
         loading={loading}
         showHidden={showHidden}
-        onNavigate={onNavigate}
+        onNavigate={handleNavigate}
         onOpenFile={handleOpenFilePath}
         onRefresh={onRefresh}
         onGoBack={handleGoBack}
