@@ -6,18 +6,30 @@ function shellQuote(value: string): string {
 }
 
 function toNativeLocalPath(localPath: string): string {
-  return localPath.startsWith('file://') ? decodeURIComponent(localPath.replace('file://', '')) : localPath
+  if (localPath.startsWith('file://')) {
+    const withoutPrefix = localPath.replace('file://', '')
+    // We try to decode but keep spaces as they are if it's already decoded
+    try {
+      return decodeURIComponent(withoutPrefix)
+    } catch {
+      return withoutPrefix
+    }
+  }
+  return localPath
 }
 
 function toFileUriPath(localPath: string): string {
-  if (localPath.startsWith('file://')) return decodeURIComponent(localPath)
-  return `file://${localPath}`
+  if (localPath.startsWith('file://')) return localPath
+  // On mobile, native modules often expect the file path to be properly encoded for URI
+  const encodedPath = localPath.split('/').map(segment => encodeURIComponent(segment)).join('/')
+  return `file://${encodedPath}`
 }
 
 function uniqueCandidates(paths: string[]): string[] {
   const seen = new Set<string>()
   const result: string[] = []
   for (const path of paths) {
+    if (!path) continue
     if (seen.has(path)) continue
     seen.add(path)
     result.push(path)

@@ -389,7 +389,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
     for (const localPath of localPaths) {
       const rawName = fileNameFromPath(localPath)
       if (!rawName) continue
-      const safeName = rawName.replace(/[<>:"/\\|?*\u0000-\u001F]/g, '_')
+      const safeName = rawName.replace(/[<>:"/\\|?*\u0000-\u001F\s]/g, '_')
       const remotePath = resolveRemotePath(remoteBase, safeName)
       let uploadSourcePath = localPath
       
@@ -407,7 +407,7 @@ export const useSftpStore = create<SftpState>((set, get) => ({
             throw new Error(`Failed to stage file: ${localPath}`)
           }
           console.log('[SFTP] uploadFiles:staged file info', { stagedPath, stagedInfo })
-          uploadSourcePath = stagedPath
+          uploadSourcePath = stagedInfo.uri
         } catch (stageError) {
           console.error('[SFTP] uploadFiles:staging failed', { localPath, stageError })
           // If staging fails, we try the original path as a last resort
