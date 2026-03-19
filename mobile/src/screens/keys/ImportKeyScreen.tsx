@@ -17,6 +17,7 @@ export function ImportKeyScreen({ navigation }: Props) {
   const [name, setName] = useState('')
   const [privateKey, setPrivateKey] = useState('')
   const [passphrase, setPassphrase] = useState('')
+  const [privateKeyHeight, setPrivateKeyHeight] = useState(110)
   const [showPassphrase, setShowPassphrase] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
@@ -70,10 +71,15 @@ export function ImportKeyScreen({ navigation }: Props) {
             <TextArea
               value={privateKey}
               onChangeText={setPrivateKey}
+              onContentSizeChange={(event) => {
+                const nextHeight = Math.max(110, Math.min(260, event.nativeEvent.contentSize.height + 16))
+                setPrivateKeyHeight(nextHeight)
+              }}
               placeholder="Paste your private key here"
-              numberOfLines={10}
+              multiline
               borderColor="$borderColor"
               borderRadius={10}
+              height={privateKeyHeight}
             />
           </YStack>
 
@@ -106,4 +112,3 @@ export function ImportKeyScreen({ navigation }: Props) {
     </YStack>
   )
 }
-
