@@ -5,7 +5,8 @@ import { Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { EmptyState, FileList, SftpBreadcrumb, SftpTabBar } from '@/components'
+import { EmptyState, FileList, SftpTabBar, SftpToolbar } from '@/components'
+import { useSearch } from '@/hooks'
 import { useSftpStore, useSnackbarStore } from '@/stores'
 import type { FileInfo } from '@/types'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -25,6 +26,10 @@ export function SftpScreen() {
   const goUp = useSftpStore((state) => state.goUp)
   const disconnect = useSftpStore((state) => state.disconnect)
   const showSnackbar = useSnackbarStore((state) => state.show)
+  const { query, filtered, setQuery, clearQuery } = useSearch({
+    items: files,
+    fields: ['name', 'path'],
+  })
 
   useEffect(() => {
     return () => {
@@ -82,11 +87,13 @@ export function SftpScreen() {
       </YStack>
 
       <YStack flex={1} bg="$backgroundStrong" mt={pinnedTabBarHeight}>
-        <SftpBreadcrumb
+        <SftpToolbar
           rootLabel={rootLabel}
           lastLabel={lastLabel}
+          query={query}
+          onQueryChange={setQuery}
+          onClearQuery={clearQuery}
           onUpload={() => showSnackbar('Upload coming soon', 'info')}
-          onSearch={() => showSnackbar('Search coming soon', 'info')}
           onMore={() => showSnackbar('More actions coming soon', 'info')}
         />
 
@@ -121,7 +128,7 @@ export function SftpScreen() {
             }
           >
             <FileList
-              files={files}
+              files={filtered}
               onOpenFolder={handleOpenFolder}
               onOpenFile={(file) => showSnackbar(`Selected "${file.name}"`, 'info')}
             />
