@@ -46,7 +46,13 @@ export function ConnectionFormScreen({ route, navigation }: Props) {
   const keys = useKeyStore((state) => state.keys);
   const showSnackbar = useSnackbarStore((state) => state.show);
 
-  const [keyMode, setKeyMode] = useState<"existing" | "new">("existing");
+  const [keyMode, setKeyMode] = useState<"existing" | "new">(
+    connection?.auth_method === "publickey" &&
+      !!connection.private_key &&
+      !connection.key_id
+      ? "new"
+      : "existing",
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [showPassphrase, setShowPassphrase] = useState(false);
 
