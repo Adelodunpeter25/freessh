@@ -52,6 +52,7 @@ export type SftpSession = {
 type SftpState = {
   sessions: SftpSession[]
   activeSessionId: string | null
+  connectingByConnectionId: Record<string, boolean>
   connect: (connection: ConnectionConfig) => Promise<void>
   setActiveSession: (id: string) => void
   closeSession: (id: string) => void
@@ -241,8 +242,15 @@ function updateSession(
 export const useSftpStore = create<SftpState>((set, get) => ({
   sessions: [],
   activeSessionId: null,
+  connectingByConnectionId: {},
 
   connect: async (connection) => {
+    set((state) => ({
+      connectingByConnectionId: {
+        ...state.connectingByConnectionId,
+        [connection.id]: true,
+      },
+    }))
     const latestConnection = await connectionService.getById(connection.id).catch(() => null)
     const effectiveConnection = latestConnection ?? connection
     const port = effectiveConnection.port ?? 22
@@ -339,6 +347,12 @@ export const useSftpStore = create<SftpState>((set, get) => ({
       }))
     } catch (error) {
       throw error
+    } finally {
+      set((state) => {
+        const next = { ...state.connectingByConnectionId }
+        delete next[connection.id]
+        return { connectingByConnectionId: next }
+      })
     }
   },
 

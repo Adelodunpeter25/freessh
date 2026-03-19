@@ -33,6 +33,7 @@ export function ConnectionsScreen() {
   const removeConnection = useConnectionStore((state) => state.removeConnection)
   const duplicateConnection = useConnectionStore((state) => state.duplicateConnection)
   const connectSftp = useSftpStore((state) => state.connect)
+  const sftpConnectingByConnectionId = useSftpStore((state) => state.connectingByConnectionId)
   const showSnackbar = useSnackbarStore((state) => state.show)
   const openTerminalSession = useTerminalStore((state) => state.openSession)
   const setActiveSession = useTerminalStore((state) => state.setActiveSession)
@@ -175,7 +176,10 @@ export function ConnectionsScreen() {
                       <ConnectionCard 
                         key={connection.id} 
                         connection={connection}
-                        loading={!!connectingByConnectionId[connection.id]}
+                        loading={
+                          !!connectingByConnectionId[connection.id] ||
+                          !!sftpConnectingByConnectionId[connection.id]
+                        }
                         onPress={() => handleConnect(connection, 'ssh')}
                         onEdit={() => navigation.navigate('ConnectionForm', { connection })}
                         onDelete={() =>
