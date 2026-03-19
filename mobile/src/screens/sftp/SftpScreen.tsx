@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo } from 'react'
-import { RefreshControl } from 'react-native'
+import { RefreshControl, ScrollView } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { EmptyState, FileList, Screen, SftpBreadcrumb, SftpTabBar } from '@/components'
+import { EmptyState, FileList, SftpBreadcrumb, SftpTabBar } from '@/components'
 import { useSftpStore, useSnackbarStore } from '@/stores'
 import type { FileInfo } from '@/types'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
@@ -64,12 +64,8 @@ export function SftpScreen() {
   }, [navigation])
 
   return (
-    <Screen
-      refreshControl={
-        <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
-      }
-    >
-      <YStack gap="$0" flex={1} pt={insets.top}>
+    <YStack gap="$0" flex={1} bg="$background">
+      <YStack pt={insets.top}>
         <SftpTabBar
           title={tabTitle}
           onBackPress={handleBack}
@@ -81,39 +77,47 @@ export function SftpScreen() {
           onSearch={() => showSnackbar('Search coming soon', 'info')}
           onMore={() => showSnackbar('More actions coming soon', 'info')}
         />
+      </YStack>
 
-        <YStack flex={1} bg="$backgroundStrong">
-          {canGoUp ? (
-            <XStack
-              px="$3"
-              minHeight={56}
-              py="$2"
-              borderBottomWidth={1}
-              borderBottomColor="$borderColor"
-              alignItems="center"
-            >
-              <Text color="$color" fontSize={14} fontWeight="600" onPress={handleGoUp}>
-                ..
-              </Text>
-            </XStack>
-          ) : null}
+      <YStack flex={1} bg="$backgroundStrong">
+        {canGoUp ? (
+          <XStack
+            px="$3"
+            minHeight={56}
+            py="$2"
+            borderBottomWidth={1}
+            borderBottomColor="$borderColor"
+            alignItems="center"
+          >
+            <Text color="$color" fontSize={14} fontWeight="600" onPress={handleGoUp}>
+              ..
+            </Text>
+          </XStack>
+        ) : null}
 
-          {!connected ? (
-            <YStack p="$4">
-              <EmptyState
-                title="No SFTP connection"
-                description={error ?? 'Connect to a host to browse files.'}
-              />
-            </YStack>
-          ) : (
+        {!connected ? (
+          <YStack p="$4">
+            <EmptyState
+              title="No SFTP connection"
+              description={error ?? 'Connect to a host to browse files.'}
+            />
+          </YStack>
+        ) : (
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingBottom: 16 }}
+            refreshControl={
+              <RefreshControl refreshing={loading} onRefresh={handleRefresh} />
+            }
+          >
             <FileList
               files={files}
               onOpenFolder={handleOpenFolder}
               onOpenFile={(file) => showSnackbar(`Selected "${file.name}"`, 'info')}
             />
-          )}
-        </YStack>
+          </ScrollView>
+        )}
       </YStack>
-    </Screen>
+    </YStack>
   )
 }
