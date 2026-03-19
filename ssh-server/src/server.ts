@@ -69,11 +69,6 @@ async function handleWebSocketMessage(ws: WebSocket, message: WebSocketMessage) 
 
         console.log(`Connected ${sessionId}`)
         
-        // Send a clear command to reset terminal state
-        setTimeout(() => {
-          sshManager.writeToShell(sessionId, 'stty -echo; stty echo\n')
-        }, 100)
-        
         sendResponse(ws, {
           type: 'connected',
           sessionId,
