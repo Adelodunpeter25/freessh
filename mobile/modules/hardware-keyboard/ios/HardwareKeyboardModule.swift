@@ -78,6 +78,11 @@ extension UIViewController {
     esc.wantsPriorityOverSystemBehavior = true
     commands.append(esc)
 
+    // Backspace/Delete (critical for vim/htop)
+    let del = UIKeyCommand(input: UIKeyCommand.inputDelete, modifierFlags: [], action: #selector(hk_handleDelete))
+    del.wantsPriorityOverSystemBehavior = true
+    commands.append(del)
+
     // Ctrl key combinations
     let ctrlInputs = [
       "a","b","c","d","e","f","g","h","k","l","n","p","q","r","s","t","u","v","w","x","y","z",
@@ -98,6 +103,7 @@ extension UIViewController {
   @objc func hk_handleArrowLeft()  { HardwareKeyboardModule.emitToAll("ArrowLeft",  shift: false) }
   @objc func hk_handleArrowRight() { HardwareKeyboardModule.emitToAll("ArrowRight", shift: false) }
   @objc func hk_handleEscape()     { HardwareKeyboardModule.emitToAll("Escape",     shift: false) }
+  @objc func hk_handleDelete()     { HardwareKeyboardModule.emitToAll("\b",       shift: false) }
 
   @objc func hk_handleCtrlKey(_ sender: UIKeyCommand) {
     guard let input = sender.input else { return }

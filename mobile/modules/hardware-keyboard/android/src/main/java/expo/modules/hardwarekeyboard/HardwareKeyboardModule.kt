@@ -62,6 +62,16 @@ class HardwareKeyboardModule : Module() {
           emitToAll("Escape", shift, ctrl, alt)
           return true
         }
+        KeyEvent.KEYCODE_DEL -> {
+          // Backspace
+          emitToAll("\b", shift, ctrl, alt)
+          return true
+        }
+        KeyEvent.KEYCODE_FORWARD_DEL -> {
+          // Delete
+          emitToAll("delete", shift, ctrl, alt)
+          return true
+        }
         KeyEvent.KEYCODE_TAB -> {
           emitToAll("\t", shift, ctrl, alt)
           return true

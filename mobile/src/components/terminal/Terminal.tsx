@@ -439,7 +439,8 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           bounces={false}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
-          keyboardDisplayRequiresUserAction={false}
+          // Prevent auto-showing the soft keyboard when a hardware keyboard is used.
+          keyboardDisplayRequiresUserAction
           onMessage={handleWebViewMessage}
           onError={(e) => {}}
           onHttpError={(e) => {}}
