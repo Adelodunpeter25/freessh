@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Menu, MenuOption, MenuOptions, MenuTrigger, renderers } from 'react-native-popup-menu'
+import { Menu, MenuOption, MenuOptions, MenuTrigger } from 'react-native-popup-menu'
 import { Text, View, XStack, YStack } from 'tamagui'
 import { useThemeStore } from '@/stores'
 
@@ -37,13 +37,7 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
   }
 
   return (
-    <Menu
-      renderer={renderers.Popover}
-      rendererProps={{
-        placement: 'auto',
-        preferredPlacement: 'right',
-      }}
-    >
+    <Menu>
       <MenuTrigger
         triggerOnLongPress={triggerOnLongPress}
         onAlternativeAction={() => {
@@ -60,6 +54,8 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
             backgroundColor: colors.background,
             borderColor: colors.border,
             borderWidth: 1,
+            alignSelf: 'flex-end',
+            marginRight: 8,
             shadowColor: '#000',
             shadowOpacity: 0.2,
             shadowRadius: 12,
