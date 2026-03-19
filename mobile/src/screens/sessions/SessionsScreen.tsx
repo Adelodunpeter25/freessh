@@ -120,7 +120,9 @@ export function SessionsScreen() {
     setTimeout(() => {
       if (!isMountedRef.current) return;
       terminalRef.current?.fit();
-      terminalRef.current?.focus();
+      if (!expanded) {
+        terminalRef.current?.focus();
+      }
     }, expanded ? 120 : 80);
   }, []);
 
@@ -181,7 +183,6 @@ export function SessionsScreen() {
                   onSendInput={(data: string) => {
                     if (!activeSessionId || !isMountedRef.current) return;
                     sendInput(activeSessionId, normalizeTerminalInput(data));
-                    terminalRef.current?.focus();
                   }}
                 />
               </YStack>
