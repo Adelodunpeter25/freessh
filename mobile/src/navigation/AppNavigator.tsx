@@ -17,6 +17,7 @@ import {
   KeysScreen,
   SnippetsScreen,
   SessionsScreen,
+  SftpScreen,
   LogsScreen,
   KnownHostsScreen,
 } from '../screens'
@@ -37,6 +38,7 @@ export type ConnectionsStackParamList = {
   Keys: undefined
   Snippets: undefined
   Sessions: undefined
+  Sftp: undefined
   History: undefined
   Logs: undefined
   KnownHosts: undefined
@@ -118,6 +120,10 @@ export function AppNavigator() {
         <Stack.Screen
           name="Sessions"
           component={SessionsScreen}
+        />
+        <Stack.Screen
+          name="Sftp"
+          component={SftpScreen}
         />
         <Stack.Screen
           name="Logs"

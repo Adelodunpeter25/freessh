@@ -18,7 +18,7 @@ import {
   ConfirmDialog,
 } from '@/components'
 import { useSearch } from '@/hooks'
-import { useConnectionStore, useGroupStore, useSnackbarStore, useTerminalStore } from '@/stores'
+import { useConnectionStore, useGroupStore, useSftpStore, useSnackbarStore, useTerminalStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 import type { ConnectionConfig, Group } from '@/types'
 
@@ -32,7 +32,7 @@ export function ConnectionsScreen() {
   const removeGroup = useGroupStore((state) => state.removeGroup)
   const removeConnection = useConnectionStore((state) => state.removeConnection)
   const duplicateConnection = useConnectionStore((state) => state.duplicateConnection)
-  const connectSftp = useConnectionStore((state) => state.connectSftp)
+  const connectSftp = useSftpStore((state) => state.connect)
   const showSnackbar = useSnackbarStore((state) => state.show)
   const openTerminalSession = useTerminalStore((state) => state.openSession)
   const setActiveSession = useTerminalStore((state) => state.setActiveSession)
@@ -50,6 +50,8 @@ export function ConnectionsScreen() {
       if (mode === 'sftp') {
         await connectSftp(connection)
         showSnackbar(`SFTP connected to "${connection.name}"`, 'success')
+        // @ts-ignore
+        navigation.navigate('Sftp')
       } else {
         const sessionId = await openTerminalSession(connection)
         setActiveSession(sessionId)
