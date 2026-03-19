@@ -13,12 +13,10 @@ type AppHeaderProps = {
 export function AppHeader({ title, showBackButton = false, onBackPress }: AppHeaderProps) {
   const insets = useSafeAreaInsets()
   const theme = useTheme()
-  const appTheme = useThemeStore((state) => state.theme)
-  const headerBackground = appTheme === 'dark' ? '#0b0e14' : '#eef2f7'
 
   return (
     <YStack
-      backgroundColor={headerBackground}
+      backgroundColor="$headerBackground"
       borderBottomWidth={0.5}
       borderBottomColor="$borderColor"
       paddingTop={insets.top}

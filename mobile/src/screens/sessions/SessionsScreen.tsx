@@ -37,12 +37,12 @@ export function SessionsScreen() {
   const terminalColors = useMemo(() => {
     if (!activeSession) return undefined;
     return {
-      background: t.background?.get() ?? "#0b0b0b",
-      foreground: t.color?.get() ?? "#e5e7eb",
-      cursor: t.accent?.get() ?? "#f97316",
-      selection: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)",
+      background: t.background?.get(),
+      foreground: t.color?.get(),
+      cursor: t.accent?.get(),
+      selection: t.selection?.get(),
     };
-  }, [activeSession, t, isDark]);
+  }, [activeSession, t]);
 
   const handleCloseSession = useCallback(async (id: string) => {
     try {

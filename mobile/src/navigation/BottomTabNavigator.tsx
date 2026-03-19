@@ -4,6 +4,7 @@ import {
   Settings,
   Server,
 } from 'lucide-react-native'
+import { useTheme } from 'tamagui'
 
 import {
   HomeScreen,
@@ -21,31 +22,31 @@ export type RootTabParamList = {
 const Tab = createBottomTabNavigator<RootTabParamList>()
 
 export function BottomTabNavigator() {
-  const theme = useThemeStore((state) => state.theme)
+  const tamaguiTheme = useTheme()
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerTitleAlign: 'center',
         tabBarLabelStyle: { fontSize: 11, fontWeight: '500' },
-        tabBarActiveTintColor: '#f97316',
-        tabBarInactiveTintColor: theme === 'dark' ? '#64748b' : '#94a3b8',
+        tabBarActiveTintColor: tamaguiTheme.accent.get(),
+        tabBarInactiveTintColor: tamaguiTheme.colorMuted.get(),
         tabBarStyle: {
-          backgroundColor: theme === 'dark' ? '#0b0e14' : '#eef2f7',
-          borderTopColor: theme === 'dark' ? '#2c3747' : '#d7e1ec',
+          backgroundColor: tamaguiTheme.tabBarBackground.get(),
+          borderTopColor: tamaguiTheme.borderColor.get(),
           height: 65,
           paddingBottom: 8,
           paddingTop: 8,
         },
         headerStyle: {
-          backgroundColor: theme === 'dark' ? '#0b0e14' : '#eef2f7',
-          borderBottomColor: theme === 'dark' ? '#2c3747' : '#d7e1ec',
+          backgroundColor: tamaguiTheme.headerBackground.get(),
+          borderBottomColor: tamaguiTheme.borderColor.get(),
         },
         headerTitleStyle: {
-          color: theme === 'dark' ? '#f1f5f9' : '#0f172a',
+          color: tamaguiTheme.color.get(),
           fontWeight: '700',
         },
-        headerTintColor: theme === 'dark' ? '#f1f5f9' : '#0f172a',
+        headerTintColor: tamaguiTheme.color.get(),
       }}
     >
       <Tab.Screen

@@ -50,10 +50,10 @@ const lightNavTheme: Theme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: '#f2f6fb',
-    card: '#f7fafd',
+    background: '#f8fafc',
+    card: '#ffffff',
     text: '#0f172a',
-    border: '#d7e1ec',
+    border: '#e2e8f0',
     primary: '#f97316',
   },
 }
@@ -62,10 +62,10 @@ const darkNavTheme: Theme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    background: '#141a22',
-    card: '#1a212c',
-    text: '#f1f5f9',
-    border: '#2c3747',
+    background: '#000000',
+    card: '#09090b',
+    text: '#fafafa',
+    border: '#18181b',
     primary: '#f97316',
   },
 }
