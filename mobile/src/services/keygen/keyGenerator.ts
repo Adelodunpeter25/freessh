@@ -97,7 +97,12 @@ const readUint32 = (buf: Buffer, offset: number) => {
   if (offset + 4 > buf.length) {
     throw new Error('Invalid key format')
   }
-  return { value: buf.readUInt32BE(offset), offset: offset + 4 }
+  const value =
+    ((buf[offset] ?? 0) * 0x1000000) +
+    ((buf[offset + 1] ?? 0) << 16) +
+    ((buf[offset + 2] ?? 0) << 8) +
+    (buf[offset + 3] ?? 0)
+  return { value, offset: offset + 4 }
 }
 
 const readSshString = (buf: Buffer, offset: number) => {
