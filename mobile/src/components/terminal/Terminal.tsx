@@ -110,8 +110,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
     .xterm {
       width: 100% !important;
       height: 100% !important;
-      text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: antialiased;
+      text-rendering: auto;
     }
 
     .xterm-viewport {
@@ -181,7 +180,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
           cursorBlink: true,
           scrollback: 10000,
           fontSize: 14,
-          lineHeight: 0.8,
+          lineHeight: 1.15,
           fontFamily: 'SF Mono, Monaco, Consolas, "Courier New", monospace',
           theme: {
             background: '${resolvedTheme.background}',

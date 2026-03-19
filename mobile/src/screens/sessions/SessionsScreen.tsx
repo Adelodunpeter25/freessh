@@ -185,7 +185,9 @@ export function SessionsScreen() {
                     ref={terminalRef}
                     onInput={(data: string) => {
                       if (!activeSessionId || !isMountedRef.current) return;
-                      sendInput(activeSessionId, data);
+                      // Normalize backspace for shells that expect DEL.
+                      const normalized = data === '\b' ? '\x7f' : data
+                      sendInput(activeSessionId, normalized);
                     }}
                     onReady={handleTerminalReady}
                     onResize={handleTerminalResize}
