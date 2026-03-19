@@ -15,6 +15,7 @@
     "build:backend": "cd backend && go build -o bin/server ./cmd/server",
     "build:mac": "bun run build:backend && bun run build && electron-builder --mac",
     "build:win": "bun run build:backend && bun run build && electron-builder --win",
+    "build:linux": "bun run build:backend && bun run build && electron-builder --linux",
     "build:icons": "bun scripts/generate-icons.ts"
   },
   "dependencies": {
