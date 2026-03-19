@@ -39,12 +39,27 @@ export function getSftpBreadcrumb(currentPath: string, connectionName: string | 
   const breadcrumbSegments = [rootLabel, ...displaySegments]
   const fullBreadcrumb = breadcrumbSegments.join(' > ')
   
+  // Create clickable paths for navigation
+  const clickablePaths = breadcrumbSegments.map((segment, index) => {
+    if (segment === '...') return { segment, path: null }
+    if (index === 0) return { segment, path: '/' } // Root
+    
+    // Calculate actual path for this segment
+    const segmentIndex = pathSegments.length > 2 
+      ? pathSegments.length - (displaySegments.length - index)
+      : index - 1
+    
+    const path = '/' + pathSegments.slice(0, segmentIndex + 1).join('/')
+    return { segment, path }
+  })
+  
   const canGoUp = currentPath !== '/'
   
   return { 
     rootLabel, 
     fullBreadcrumb,
     pathSegments,
+    clickablePaths,
     canGoUp 
   }
 }

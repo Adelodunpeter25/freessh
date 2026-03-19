@@ -8,6 +8,8 @@ import { MoreActions } from './MoreActions'
 type SftpToolbarProps = {
   rootLabel: string
   fullBreadcrumb: string
+  clickablePaths: Array<{ segment: string; path: string | null }>
+  onNavigateTo: (path: string) => void
   query: string
   onQueryChange: (value: string) => void
   onClearQuery: () => void
@@ -28,6 +30,8 @@ type SftpToolbarProps = {
 export function SftpToolbar({
   rootLabel,
   fullBreadcrumb,
+  clickablePaths,
+  onNavigateTo,
   query,
   onQueryChange,
   onClearQuery,
@@ -69,20 +73,31 @@ export function SftpToolbar({
       borderBottomColor="$borderColor"
     >
       <XStack ai="center" gap="$2" flex={1}>
-        <Pressable onPress={onPressRoot} hitSlop={8}>
+        {showSingleBreadcrumb ? (
           <Text color="$placeholderColor" fontSize={12} numberOfLines={1}>
             {rootLabel}
           </Text>
-        </Pressable>
-        {showSingleBreadcrumb ? null : (
-          <>
-            <ChevronRight size={14} color="#94a3b8" />
-            <Pressable onPress={onPressCurrent} hitSlop={8}>
-              <Text color="$color" fontSize={12} fontWeight="600" numberOfLines={1}>
-                {fullBreadcrumb}
-              </Text>
-            </Pressable>
-          </>
+        ) : (
+          <XStack ai="center" gap={4}>
+            {clickablePaths.map((item, index) => (
+              <XStack key={index} ai="center" gap={4}>
+                {item.path ? (
+                  <Pressable onPress={() => onNavigateTo(item.path!)} hitSlop={8}>
+                    <Text color="$blue10" fontSize={12} fontWeight="600">
+                      {item.segment}
+                    </Text>
+                  </Pressable>
+                ) : (
+                  <Text color="$color" fontSize={12} fontWeight="600">
+                    {item.segment}
+                  </Text>
+                )}
+                {index < clickablePaths.length - 1 && (
+                  <ChevronRight size={12} color="$color" />
+                )}
+              </XStack>
+            ))}
+          </XStack>
         )}
       </XStack>
 
