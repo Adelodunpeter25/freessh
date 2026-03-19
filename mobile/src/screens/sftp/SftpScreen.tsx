@@ -129,7 +129,7 @@ export function SftpScreen() {
           </YStack>
         ) : showSearchEmpty ? (
           <YStack
-            mx="$3"
+            mx="$2"
             mt="$2"
             borderWidth={1}
             borderColor="$borderColor"
@@ -143,7 +143,7 @@ export function SftpScreen() {
         ) : (
           <YStack
             flex={1}
-            mx="$3"
+            mx="$2"
             mt="$2"
             mb="$3"
             borderWidth={1}
