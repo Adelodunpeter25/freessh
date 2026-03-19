@@ -89,6 +89,7 @@ export function CommandPalette({
         section: "Quick Create",
         keywords: ["new", "local", "terminal", "shell"],
         icon: <Terminal className="h-4 w-4 text-muted-foreground" />,
+        shortcut: `${modLabel}+L`,
         action: onNewLocalTerminal,
       },
       {
