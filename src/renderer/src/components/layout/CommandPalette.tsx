@@ -13,6 +13,8 @@ import {
   Server,
 } from "lucide-react";
 import { ConnectionConfig } from "@/types";
+import { getOSIcon } from "@/utils/osIcons";
+import { useOSTypeStore } from "@/stores/osTypeStore";
 
 interface CommandPaletteItem {
   id: string;
@@ -52,21 +54,26 @@ export function CommandPalette({
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const modLabel = navigator.platform.toUpperCase().includes("MAC") ? "⌘" : "Ctrl";
+  const getOSType = useOSTypeStore((state) => state.getOSType);
 
   const items = useMemo<CommandPaletteItem[]>(
     () => [
-      ...recentConnections.map((connection) => ({
-        id: `recent-${connection.id}`,
-        label: connection.name || connection.host,
-        section: "Recent Connections",
-        keywords: [
-          connection.name || "",
-          connection.host || "",
-          connection.username || "",
-        ].filter(Boolean),
-        icon: <Server className="h-4 w-4 text-muted-foreground" />,
-        action: () => onConnectConnection(connection),
-      })),
+      ...recentConnections.map((connection) => {
+        const osType = getOSType(connection.id);
+        const Icon = getOSIcon(osType);
+        return {
+          id: `recent-${connection.id}`,
+          label: connection.name || connection.host,
+          section: "Recent Connections",
+          keywords: [
+            connection.name || "",
+            connection.host || "",
+            connection.username || "",
+          ].filter(Boolean),
+          icon: <Icon className="h-4 w-4 text-muted-foreground" />,
+          action: () => onConnectConnection(connection),
+        };
+      }),
       {
         id: "new-connection",
         label: "New connection",
@@ -126,6 +133,7 @@ export function CommandPalette({
       onOpenKeyboardShortcuts,
       onOpenExportImport,
       recentConnections,
+      getOSType,
       onConnectConnection,
     ],
   );

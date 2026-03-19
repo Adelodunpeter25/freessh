@@ -1,5 +1,5 @@
 const STORAGE_KEY = "freessh.recentConnections";
-const MAX_RECENTS = 10;
+const MAX_RECENTS = 3;
 
 export function getRecentConnectionIds(): string[] {
   try {
