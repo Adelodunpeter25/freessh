@@ -64,8 +64,8 @@ export function ContextMenu({ title, items, triggerOnLongPress = true, onPress, 
                 <View
                   key={item.key}
                   height={1}
-                  backgroundColor="$borderColor"
-                  opacity={0.5}
+                  backgroundColor="$contextMenuSeparator"
+                  opacity={1}
                 />
               )
             }

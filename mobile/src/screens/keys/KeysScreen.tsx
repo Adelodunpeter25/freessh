@@ -1,11 +1,11 @@
 import { RefreshControl, FlatList } from 'react-native'
-import { Dialog, ListItem, Sheet, Text, XStack, YStack } from 'tamagui'
+import { Dialog, ListItem, Text, XStack, YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
 import React, { useState, useCallback } from 'react'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Plus, Upload } from 'lucide-react-native'
 
-import { AddButton, EmptyState, AppHeader, KeyCard, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog, Button, Input } from '@/components'
+import { AddButton, EmptyState, AppHeader, KeyCard, SearchBar, SearchEmptyState, SectionHeader, ConfirmDialog, Button, Input, Sheet } from '@/components'
 import { useSearch } from '@/hooks'
 import { useConnectionStore, useKeyStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'

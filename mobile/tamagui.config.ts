@@ -103,6 +103,8 @@ const tamaguiConfig = createTamagui({
       iconWhite: '#ffffff',
       iconAccent: '#f97316',
 
+      contextMenuSeparator: '#cbd5e1',
+
       headerBackground: '#ffffff',
       tabBarBackground: '#ffffff',
       cardBackground: '#ffffff',
@@ -150,6 +152,8 @@ const tamaguiConfig = createTamagui({
       iconSubtle: '#71717a',
       iconWhite: '#ffffff',
       iconAccent: '#f97316',
+
+      contextMenuSeparator: '#3f3f46',
 
       headerBackground: '#09090b',
       tabBarBackground: '#09090b',

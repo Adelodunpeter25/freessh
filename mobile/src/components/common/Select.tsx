@@ -1,6 +1,7 @@
-import { Select as TSelect, Adapt, Sheet, YStack, Text, useTheme } from 'tamagui'
+import { Select as TSelect, Adapt, YStack, Text, useTheme } from 'tamagui'
 import { ChevronDown, Check } from 'lucide-react-native'
-import { useState } from 'react'
+
+import { Sheet } from './Sheet'
 
 type SelectProps = {
   value: string

@@ -1,5 +1,5 @@
 import { RefreshControl, SectionList } from 'react-native'
-import { Sheet, YStack, ListItem } from 'tamagui'
+import { YStack, ListItem } from 'tamagui'
 import { FolderPlus, Server } from 'lucide-react-native'
 import React, { useState, useCallback, useMemo } from 'react'
 import { useNavigation } from '@react-navigation/native'
@@ -14,6 +14,7 @@ import {
   SearchEmptyState,
   SectionHeader,
   ConfirmDialog,
+  Sheet,
 } from '@/components'
 import { useSearch } from '@/hooks'
 import { useConnectionStore, useGroupStore, useSftpStore, useSnackbarStore, useTerminalStore } from '@/stores'

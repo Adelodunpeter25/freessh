@@ -1,7 +1,8 @@
-import { Button, Input, Text, YStack, XStack } from 'tamagui'
 import type { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import { AppHeader, Screen } from '@/components'
+import { Text, YStack, XStack } from 'tamagui'
+
+import { AppHeader, Button, Input, Screen } from '@/components'
 import { useGroupForm } from '@/hooks'
 import { useGroupStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'

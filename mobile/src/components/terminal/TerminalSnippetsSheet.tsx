@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { Pressable } from "react-native";
-import { ScrollView, Sheet, Text, XStack, YStack, useTheme } from "tamagui";
+import { ScrollView, Text, XStack, YStack, useTheme } from "tamagui";
 import { Play, TerminalSquare } from "lucide-react-native";
 
+import { Sheet } from "@/components/common";
 import { SearchBar, SearchEmptyState } from "@/components/common";
 import { useSearch } from "@/hooks";
 import { useSnackbarStore, useSnippetStore } from "@/stores";
