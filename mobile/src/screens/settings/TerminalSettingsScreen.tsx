@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { InteractionManager } from 'react-native'
 import { Text, YStack } from 'tamagui'
 
 import { AppHeader, Screen, SectionHeader } from '@/components'
@@ -14,8 +16,19 @@ import { useTerminalKeyboardStore } from '@/stores'
 export function TerminalSettingsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()
   const config = useTerminalKeyboardStore((state) => state.config)
+  const [contentReady, setContentReady] = useState(false)
 
   const visibleRows = config.fullKeyboard.rows.filter((row) => row.visible !== false).length
+
+  useEffect(() => {
+    const task = InteractionManager.runAfterInteractions(() => {
+      setContentReady(true)
+    })
+
+    return () => {
+      task.cancel()
+    }
+  }, [])
 
   return (
     <YStack flex={1} bg="$background">
@@ -35,20 +48,24 @@ export function TerminalSettingsScreen() {
             </Text>
           </YStack>
 
-          <YStack gap="$4">
-            <SectionHeader title="Presets" />
-            <TerminalPresetPicker />
-          </YStack>
+          {contentReady ? (
+            <>
+              <YStack gap="$4">
+                <SectionHeader title="Presets" />
+                <TerminalPresetPicker />
+              </YStack>
 
-          <YStack gap="$4">
-            <SectionHeader title="Rows" />
-            <TerminalRowEditor />
-          </YStack>
+              <YStack gap="$4">
+                <SectionHeader title="Rows" />
+                <TerminalRowEditor />
+              </YStack>
 
-          <YStack gap="$4">
-            <SectionHeader title="Options" />
-            <TerminalKeyboardSettingsCard />
-          </YStack>
+              <YStack gap="$4">
+                <SectionHeader title="Options" />
+                <TerminalKeyboardSettingsCard />
+              </YStack>
+            </>
+          ) : null}
         </YStack>
       </Screen>
     </YStack>
