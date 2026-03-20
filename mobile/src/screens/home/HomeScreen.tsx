@@ -22,7 +22,7 @@ import {
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
-import { useConnectionStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore, useTerminalStore } from '@/stores'
+import { useConnectionStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore, useTerminalStore, useSftpStore } from '@/stores'
 
 type HubItem = {
   id: string
@@ -92,30 +92,25 @@ export function HomeScreen() {
   const logsCount = useLogStore((state) => state.logs.length)
   const knownHostsCount = useKnownHostStore((state) => state.knownHosts.length)
   
-  const sessions = useTerminalStore((state) => state.sessions)
-  const activeSessionId = useTerminalStore((state) => state.activeSessionId)
-  
-  const activeSession = useMemo(() =>
-    sessions.find((session) => session.id === activeSessionId) ??
-    (sessions.length > 0 ? sessions[sessions.length - 1] : undefined),
-    [sessions, activeSessionId]
-  )
+  const terminalSessionsCount = useTerminalStore((state) => state.sessions.length)
+  const sftpSessionsCount = useSftpStore((state) => state.sessions.length)
+  const activeSessionsCount = terminalSessionsCount + sftpSessionsCount
 
   const items = useMemo((): HubItem[] => [
     { id: 'hosts', title: 'Hosts', icon: Server, screen: 'Connections', count: connectionsCount },
     {
       id: 'active_session',
-      title: activeSession ? `Active session: ${activeSession.name}` : 'Active session',
+      title: 'Active sessions',
       icon: Monitor,
-      screen: 'Sessions',
-      count: sessions.length,
+      screen: 'ActiveSessions',
+      count: activeSessionsCount,
     },
     { id: 'keychain', title: 'Keychain', icon: Key, screen: 'Keys', count: keysCount },
     { id: 'forwarding', title: 'Port forwarding', icon: ArrowRightLeft, screen: 'Main' }, // Placeholder
     { id: 'snippets', title: 'Snippets', icon: Code2, screen: 'Snippets', count: snippetsCount },
     { id: 'known_hosts', title: 'Known hosts', icon: Fingerprint, screen: 'KnownHosts', count: knownHostsCount },
     { id: 'logs', title: 'Logs', icon: History, screen: 'Logs', count: logsCount },
-  ], [connectionsCount, snippetsCount, keysCount, logsCount, knownHostsCount, sessions.length, activeSession])
+  ], [connectionsCount, snippetsCount, keysCount, logsCount, knownHostsCount, activeSessionsCount])
 
   return (
     <ScrollView backgroundColor="$background" flex={1}>

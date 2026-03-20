@@ -16,6 +16,7 @@ import { ImportKeyScreen } from '../screens/keys/ImportKeyScreen'
 import { KeysScreen } from '../screens/keys/KeysScreen'
 import { SnippetsScreen } from '../screens/snippets/SnippetsScreen'
 import { SessionsScreen } from '../screens/sessions/SessionsScreen'
+import { ActiveSessionsScreen } from '../screens/sessions/ActiveSessionsScreen'
 import { SftpScreen } from '../screens/sftp/SftpScreen'
 import { LogsScreen } from '../screens/logs/LogsScreen'
 import { KnownHostsScreen } from '../screens/known_hosts/KnownHostsScreen'
@@ -38,6 +39,7 @@ export type ConnectionsStackParamList = {
   Keys: undefined
   Snippets: undefined
   Sessions: undefined
+  ActiveSessions: undefined
   Sftp: undefined
   History: undefined
   Logs: undefined
@@ -128,6 +130,10 @@ export function AppNavigator() {
         <Stack.Screen
           name="Sessions"
           component={SessionsScreen}
+        />
+        <Stack.Screen
+          name="ActiveSessions"
+          component={ActiveSessionsScreen}
         />
         <Stack.Screen
           name="Sftp"
