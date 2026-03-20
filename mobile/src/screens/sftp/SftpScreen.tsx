@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { YStack } from 'tamagui'
 import { useNavigation } from '@react-navigation/native'
@@ -25,7 +25,6 @@ export function SftpScreen() {
   const activeSessionId = useSftpStore((state) => state.activeSessionId)
   const setActiveSession = useSftpStore((state) => state.setActiveSession)
   const closeSession = useSftpStore((state) => state.closeSession)
-  const closeAllSessions = useSftpStore((state) => state.closeAllSessions)
   const listDirectory = useSftpStore((state) => state.listDirectory)
   const openFolder = useSftpStore((state) => state.openFolder)
   const createFolder = useSftpStore((state) => state.createFolder)
@@ -94,12 +93,6 @@ export function SftpScreen() {
     () => getSftpBreadcrumb(currentPath, connectionName),
     [connectionName, currentPath],
   )
-
-  useEffect(() => {
-    return () => {
-      closeAllSessions()
-    }
-  }, [closeAllSessions])
 
   const handleGoUp = useCallback(() => {
     void listDirectory(parentPath(currentPath))

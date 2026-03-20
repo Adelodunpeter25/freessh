@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { Copy, FolderOpen, Pencil, Plug, Server, Trash2 } from 'lucide-react-native'
+import { Copy, Folder, Pencil, Plug, Server, Trash2 } from 'lucide-react-native'
 import { ActivityIndicator, Pressable } from 'react-native'
 import { useTheme, View } from 'tamagui'
 import { BaseCard, ContextMenu } from '../common'
@@ -45,7 +45,7 @@ export const ConnectionCard = memo(({
           key: 'open-sftp',
           label: 'Open in SFTP',
           onPress: () => onOpenSftp?.(),
-          icon: <FolderOpen size={16} color={theme.accent.get()} />,
+          icon: <Folder size={16} color={theme.accent.get()} />,
         },
         {
           key: 'duplicate',
