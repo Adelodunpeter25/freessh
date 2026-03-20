@@ -27,8 +27,8 @@ export function ConfirmDialog({
       <Dialog.Portal>
         <Dialog.Overlay
           key="overlay"
-          opacity={0.5}
-          backgroundColor="$shadowColor"
+          opacity={1}
+          backgroundColor="$backgroundTransparent"
         />
         <Dialog.Content
           key="content"
@@ -36,9 +36,15 @@ export function ConfirmDialog({
           elevate
           borderRadius="$4"
           padding="$4"
-          backgroundColor="$background"
+          backgroundColor="$backgroundStrong"
+          borderColor="$borderColor"
+          borderWidth={1}
           width="85%"
           maxWidth={420}
+          shadowColor="$shadowColor"
+          shadowOpacity={0.3}
+          shadowRadius={18}
+          shadowOffset={{ width: 0, height: 10 }}
         >
           <YStack gap="$3">
             <Dialog.Title>
