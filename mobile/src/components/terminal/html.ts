@@ -180,6 +180,7 @@ export function buildTerminalHtml(theme: TerminalPalette): string {
         window.fitTerminal = function() {
           try {
             fitAddon.fit();
+            postResizeIfNeeded();
           } catch(e) {}
         };
 

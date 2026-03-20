@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useCallback, useState } from "react";
-import { Keyboard } from "react-native";
+import { Keyboard, Platform } from "react-native";
 import { YStack, useTheme } from "tamagui";
 import { useNavigation } from "@react-navigation/native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -97,6 +97,22 @@ export function SessionsScreen() {
       unsubscribe();
     };
   }, [activeSessionId, subscribeOutput]);
+
+  // When native keyboard hides, re-fit the terminal so it reclaims full screen
+  useEffect(() => {
+    const hideEvent = Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
+    const sub = Keyboard.addListener(hideEvent, () => {
+      // Staggered fit calls to handle Android's adjustResize animation timing
+      [50, 150, 300].forEach((delay) => {
+        setTimeout(() => {
+          if (isMountedRef.current) {
+            terminalRef.current?.fit();
+          }
+        }, delay);
+      });
+    });
+    return () => sub.remove();
+  }, []);
 
   const handleTerminalReady = useCallback((cols: number, rows: number) => {
     if (activeSessionId && sshWebSocketService) {

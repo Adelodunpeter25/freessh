@@ -1,4 +1,4 @@
-import { KeyboardAvoidingView, Platform } from 'react-native'
+import { View } from 'react-native'
 import { YStack } from 'tamagui'
 
 type TerminalScreenProps = {
@@ -6,16 +6,12 @@ type TerminalScreenProps = {
   keyboardOffset?: number
 }
 
-export function TerminalScreen({ children, keyboardOffset = 0 }: TerminalScreenProps) {
+export function TerminalScreen({ children }: TerminalScreenProps) {
   return (
     <YStack f={1} bg="$background">
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={keyboardOffset}
-      >
+      <View style={{ flex: 1 }}>
         {children}
-      </KeyboardAvoidingView>
+      </View>
     </YStack>
   )
 }

@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  InputAccessoryView,
   Keyboard,
   Platform,
   Pressable,
+  View,
   type LayoutChangeEvent,
 } from "react-native";
 import { Keyboard as KeyboardIcon, KeyboardOff } from "lucide-react-native";
@@ -40,6 +42,9 @@ export function TerminalAccessoryKeyboard({
   const [keyboardHeight, setKeyboardHeight] = useState(280);
   const [rowsContentHeight, setRowsContentHeight] = useState(0);
   const [footerHeight, setFooterHeight] = useState(0);
+  const [nativeKeyboardVisible, setNativeKeyboardVisible] = useState(false);
+  const [nativeKeyboardHeight, setNativeKeyboardHeight] = useState(0);
+  const ACCESSORY_ID = "terminal-accessory";
 
   const modifierState = useMemo(
     () => ({ ctrl: ctrlActive, alt: altActive }),
@@ -78,19 +83,29 @@ export function TerminalAccessoryKeyboard({
   useEffect(() => {
     const showEvent =
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
+    const hideEvent =
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide";
 
-    const subscription = Keyboard.addListener(showEvent, (event) => {
+    const showSub = Keyboard.addListener(showEvent, (event) => {
       const nextHeight = event.endCoordinates.height;
       if (nextHeight > 0) {
         setKeyboardHeight(nextHeight);
+        setNativeKeyboardHeight(nextHeight);
+        setNativeKeyboardVisible(true);
         if (showKeyboard) {
           setShowKeyboard(false);
         }
       }
     });
 
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setNativeKeyboardVisible(false);
+      setNativeKeyboardHeight(0);
+    });
+
     return () => {
-      subscription.remove();
+      showSub.remove();
+      hideSub.remove();
     };
   }, [showKeyboard]);
 
@@ -150,71 +165,102 @@ export function TerminalAccessoryKeyboard({
     }
   };
 
+  const topBar = (
+    <YStack
+      borderTopWidth={1}
+      borderColor="$borderColor"
+      backgroundColor="$background"
+    >
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingHorizontal: 10,
+          paddingVertical: 7,
+          gap: 5,
+          alignItems: "center",
+        }}
+        keyboardShouldPersistTaps="handled"
+      >
+        {topBarKeys.map((key) => (
+          <TerminalKeyboardKey
+            key={key.id}
+            label={key.label}
+            wide={key.label.length > 2}
+            emphasis={
+              key.kind === "modifier" ||
+              key.kind === "search" ||
+              key.kind === "snippets"
+                ? "strong"
+                : "normal"
+            }
+            active={
+              (key.kind === "modifier" && key.modifier === "ctrl" && ctrlActive) ||
+              (key.kind === "modifier" && key.modifier === "alt" && altActive)
+            }
+            onPress={() => handleKeyPress(key)}
+          />
+        ))}
+
+        <Pressable
+          onPress={() => {
+            if (!showKeyboard) {
+              Keyboard.dismiss();
+            }
+            setShowKeyboard((current) => !current);
+          }}
+        >
+          <XStack
+            width={34}
+            height={34}
+            borderRadius={10}
+            borderWidth={1}
+            borderColor={showKeyboard ? "$accent" : "$borderColor"}
+            backgroundColor={showKeyboard ? "$backgroundPress" : "$backgroundStrong"}
+            alignItems="center"
+            justifyContent="center"
+          >
+            {showKeyboard ? (
+              <KeyboardOff size={16} color={theme.accent.get()} />
+            ) : (
+              <KeyboardIcon size={16} color={theme.color.get()} />
+            )}
+          </XStack>
+        </Pressable>
+      </ScrollView>
+    </YStack>
+  );
+
   return (
     <>
-      <YStack
-        borderTopWidth={1}
-        borderColor="$borderColor"
-        backgroundColor="$background"
-      >
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingHorizontal: 10,
-            paddingVertical: 7,
-            gap: 5,
-            alignItems: "center",
-          }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {topBarKeys.map((key) => (
-            <TerminalKeyboardKey
-              key={key.id}
-              label={key.label}
-              wide={key.label.length > 2}
-              emphasis={
-                key.kind === "modifier" ||
-                key.kind === "search" ||
-                key.kind === "snippets"
-                  ? "strong"
-                  : "normal"
-              }
-              active={
-                (key.kind === "modifier" && key.modifier === "ctrl" && ctrlActive) ||
-                (key.kind === "modifier" && key.modifier === "alt" && altActive)
-              }
-              onPress={() => handleKeyPress(key)}
-            />
-          ))}
+      {/* Always render the inline top bar — visible when custom keyboard is shown or no native keyboard */}
+      {(showKeyboard || !nativeKeyboardVisible) && topBar}
 
-          <Pressable
-            onPress={() => {
-              if (!showKeyboard) {
-                Keyboard.dismiss();
-              }
-              setShowKeyboard((current) => !current);
-            }}
-          >
-            <XStack
-              width={34}
-              height={34}
-              borderRadius={10}
-              borderWidth={1}
-              borderColor={showKeyboard ? "$accent" : "$borderColor"}
-              backgroundColor={showKeyboard ? "$backgroundPress" : "$backgroundStrong"}
-              alignItems="center"
-              justifyContent="center"
-            >
-              {showKeyboard ? (
-                <KeyboardOff size={16} color={theme.accent.get()} />
-              ) : (
-                <KeyboardIcon size={16} color={theme.color.get()} />
-              )}
-            </XStack>
-          </Pressable>
-        </ScrollView>
-      </YStack>
+      {/* On iOS, also render in InputAccessoryView so it appears above the native keyboard */}
+      {Platform.OS === "ios" && nativeKeyboardVisible && !showKeyboard && (
+        <InputAccessoryView nativeID={ACCESSORY_ID}>
+          <View style={{ height: 52 }}>
+            {topBar}
+          </View>
+        </InputAccessoryView>
+      )}
+
+      {/* On Android, render as absolute overlay just above the keyboard */}
+      {Platform.OS === "android" && nativeKeyboardVisible && !showKeyboard && (
+        <View
+          style={{
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: nativeKeyboardHeight,
+            zIndex: 999,
+          }}
+        >
+          <View style={{ height: 60 }}>
+            {topBar}
+          </View>
+        </View>
+      )}
 
       {showKeyboard ? (
         <YStack
