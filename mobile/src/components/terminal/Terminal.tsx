@@ -60,6 +60,7 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
     const isMountedRef = useRef(true);
 
     const [isConnected, setIsConnected] = useState(false);
+    const layoutFitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const isDark = useThemeStore((state) => state.theme === "dark");
     const resolvedTheme = useMemo(
@@ -78,6 +79,10 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
         if (flushTimerRef.current) {
           clearTimeout(flushTimerRef.current);
           flushTimerRef.current = null;
+        }
+        if (layoutFitTimerRef.current) {
+          clearTimeout(layoutFitTimerRef.current);
+          layoutFitTimerRef.current = null;
         }
       };
     }, []);
@@ -176,8 +181,23 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
       },
     }));
 
+    const scheduleLayoutFit = useCallback(() => {
+      if (!isMountedRef.current) return;
+      if (layoutFitTimerRef.current) {
+        clearTimeout(layoutFitTimerRef.current);
+      }
+      layoutFitTimerRef.current = setTimeout(() => {
+        layoutFitTimerRef.current = null;
+        if (!isMountedRef.current) return;
+        webViewRef.current?.injectJavaScript("window.fitTerminal(); true;");
+      }, 60);
+    }, []);
+
     return (
-      <View style={[{ flex: 1, position: 'relative' }, style]}>
+      <View
+        style={[{ flex: 1, position: 'relative' }, style]}
+        onLayout={scheduleLayoutFit}
+      >
         <WebView
           ref={webViewRef}
           originWhitelist={["*"]}
