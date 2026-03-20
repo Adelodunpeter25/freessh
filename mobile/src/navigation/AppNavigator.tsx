@@ -18,6 +18,7 @@ import { SnippetsScreen } from '../screens/snippets/SnippetsScreen'
 import { SessionsScreen } from '../screens/sessions/SessionsScreen'
 import { ActiveSessionsScreen } from '../screens/sessions/ActiveSessionsScreen'
 import { SftpScreen } from '../screens/sftp/SftpScreen'
+import { FilePreviewScreen } from '../screens/sftp/FilePreviewScreen'
 import { LogsScreen } from '../screens/logs/LogsScreen'
 import { KnownHostsScreen } from '../screens/known_hosts/KnownHostsScreen'
 import { TerminalSettingsScreen } from '../screens/settings/TerminalSettingsScreen'
@@ -41,6 +42,7 @@ export type ConnectionsStackParamList = {
   Sessions: undefined
   ActiveSessions: undefined
   Sftp: undefined
+  FilePreview: { path: string; name: string; size: number }
   History: undefined
   Logs: undefined
   KnownHosts: undefined
@@ -138,6 +140,10 @@ export function AppNavigator() {
         <Stack.Screen
           name="Sftp"
           component={SftpScreen}
+        />
+        <Stack.Screen
+          name="FilePreview"
+          component={FilePreviewScreen}
         />
         <Stack.Screen
           name="Logs"

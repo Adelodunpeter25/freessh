@@ -16,6 +16,7 @@ import { useSftpStore, useSnackbarStore } from '@/stores'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 import { getSftpBreadcrumb } from '@/utils/sftp'
 import { parentPath } from '@/utils/sftpPaths'
+import { isTextFile } from '@/utils/file'
 import { useSftpScreenActions } from './useSftpScreenActions'
 
 export function SftpScreen() {
@@ -166,7 +167,17 @@ export function SftpScreen() {
           }}
           onToggleSelect={actions.handleToggleSelect}
           onOpenFolder={actions.handleOpenFolder}
-          onOpenFile={(file) => showSnackbar(`Selected "${file.name}"`, 'info')}
+          onOpenFile={(file) => {
+            if (isTextFile(file.name)) {
+              navigation.navigate('FilePreview', {
+                path: file.path,
+                name: file.name,
+                size: file.size,
+              })
+            } else {
+              showSnackbar(`Cannot preview binary or unrecognised file "${file.name}"`, 'info')
+            }
+          }}
         />
       </YStack>
 
