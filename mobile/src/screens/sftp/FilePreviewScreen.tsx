@@ -6,16 +6,12 @@ import * as FileSystem from 'expo-file-system/legacy'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
-// @ts-ignore
-import SyntaxHighlighter from 'react-native-syntax-highlighter'
-import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 import { useSftpStore, useSnackbarStore } from '@/stores'
 import {
   isLargeFile,
   isTooLargeForSyntaxHighlighting,
-  getLanguageForFile,
 } from '@/utils/file'
 
 type FilePreviewRouteProp = RouteProp<ConnectionsStackParamList, 'FilePreview'>
@@ -35,7 +31,6 @@ export function FilePreviewScreen() {
 
   const tooLargeForPreview = isLargeFile(size)
   const tooLargeForHighlighting = isTooLargeForSyntaxHighlighting(size)
-  const language = getLanguageForFile(name)
 
   useEffect(() => {
     async function loadFileContent() {
@@ -129,44 +124,25 @@ export function FilePreviewScreen() {
       )
     }
 
-    if (tooLargeForHighlighting) {
-      // Very large files use standard Text to preserve performance
-      return (
-        <ScrollView flex={1} showsVerticalScrollIndicator={true} showsHorizontalScrollIndicator={true}>
-          <ScrollView horizontal showsHorizontalScrollIndicator={true}>
-            <Text
-              fontFamily="monospace"
-              fontSize={14}
-              color="$color11"
-              px="$4"
-              py="$4"
-              lineHeight={20}
-            >
-              {content}
-            </Text>
-          </ScrollView>
-        </ScrollView>
-      )
-    }
-
     return (
       <ScrollView flex={1} showsVerticalScrollIndicator={true} showsHorizontalScrollIndicator={false}>
-          <SyntaxHighlighter
-            language={language}
-            style={atomOneDark}
-            highlighter="hljs"
-            customStyle={{
-              margin: 0,
-              padding: 16,
-              backgroundColor: 'transparent',
-            }}
-            textStyle={{
-              fontFamily: 'monospace',
-              fontSize: 14,
-            }}
+        {tooLargeForHighlighting ? (
+          <Text color="$color10" fontSize="$2" px="$4" pt="$3">
+            Syntax highlighting disabled for large files
+          </Text>
+        ) : null}
+        <ScrollView horizontal showsHorizontalScrollIndicator={true}>
+          <Text
+            fontFamily="monospace"
+            fontSize={14}
+            color="$color11"
+            px="$4"
+            py="$4"
+            lineHeight={20}
           >
             {content}
-          </SyntaxHighlighter>
+          </Text>
+        </ScrollView>
       </ScrollView>
     )
   }
