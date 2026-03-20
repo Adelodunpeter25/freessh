@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { ConnectionConfig } from "@/types";
 import { connectionService, keyService } from "../services/crud";
-import { sshService } from "@/services";
+import { sshService } from "@/services/ssh/sshService";
 import { sftpService } from "@/services/sftp";
 
 type ConnectionState = {

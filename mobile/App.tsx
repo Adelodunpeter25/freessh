@@ -1,20 +1,26 @@
 import '@tamagui/native/setup-zeego'
 import { StatusBar } from 'expo-status-bar'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Appearance } from 'react-native'
-import { TamaguiProvider, Spinner, YStack } from 'tamagui'
+import { TamaguiProvider } from 'tamagui'
 import { MenuProvider } from 'react-native-popup-menu'
 
 import { AppNavigator } from './src/navigation/AppNavigator'
-import { useThemeStore, useConnectionStore, useGroupStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore, useSnackbarStore } from './src/stores'
+import { Snackbar } from './src/components/common/Snackbar'
+import { useConnectionStore } from './src/stores/connectionStore'
+import { useGroupStore } from './src/stores/groupStore'
+import { useKeyStore } from './src/stores/keyStore'
+import { useKnownHostStore } from './src/stores/knownHostStore'
+import { useLogStore } from './src/stores/logStore'
+import { useSnackbarStore } from './src/stores/snackbarStore'
+import { useSnippetStore } from './src/stores/snippetStore'
+import { useThemeStore } from './src/stores/themeStore'
 import tamaguiConfig from './tamagui.config'
-import { Snackbar } from './src/components'
 
 export default function App() {
   const theme = useThemeStore((state) => state.theme)
   const setSystemTheme = useThemeStore((state) => state.setSystemTheme)
-  const [isReady, setIsReady] = useState(false)
-  
+
   const initConnections = useConnectionStore(s => s.initialize)
   const initGroups = useGroupStore(s => s.initialize)
   const initSnippets = useSnippetStore(s => s.initialize)
@@ -26,13 +32,14 @@ export default function App() {
   const snackbarVariant = useSnackbarStore((s) => s.variant)
 
   useEffect(() => {
+    let cancelled = false
+
     const init = async () => {
        try {
-         // Dynamic import to keep initial bundle small
          const { initDatabase } = await import('./src/services/db/schema')
          await initDatabase()
-         
-         // Parallelize store initializations for faster startup
+         if (cancelled) return
+
          await Promise.all([
            initConnections(),
            initGroups(),
@@ -43,28 +50,23 @@ export default function App() {
          ])
        } catch (error) {
          console.error('Startup failed:', error)
-       } finally {
-         setIsReady(true)
        }
     }
-    init()
+
+    const frame = requestAnimationFrame(() => {
+      void init()
+    })
 
     const subscription = Appearance.addChangeListener(({ colorScheme }) => {
       setSystemTheme(colorScheme === 'dark' ? 'dark' : 'light')
     })
 
-    return () => subscription.remove()
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(frame)
+      subscription.remove()
+    }
   }, [])
-
-  if (!isReady) {
-    return (
-      <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>
-        <YStack flex={1} ai="center" jc="center" bg={theme === 'dark' ? '#09090b' : '#f8fafc'}>
-          <Spinner size="large" color="$accent" />
-        </YStack>
-      </TamaguiProvider>
-    )
-  }
 
   return (
     <TamaguiProvider config={tamaguiConfig} defaultTheme={theme}>

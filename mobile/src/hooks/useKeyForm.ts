@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { SSHKey } from '@/types'
-import { keyGenerator } from '@/services'
+import { keyGenerator } from '@/services/keygen/keyGenerator'
 
 export type KeyFormData = {
   name: string

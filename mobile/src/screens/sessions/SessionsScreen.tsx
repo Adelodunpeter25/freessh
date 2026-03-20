@@ -14,7 +14,7 @@ import {
   normalizeTerminalInput,
 } from "@/components";
 import type { TerminalHandle } from "@/components";
-import { sshWebSocketService } from "@/services";
+import { sshWebSocketService } from "@/services/ssh";
 import { useTerminalStore } from "@/stores";
 import { addKeyCommandListener } from "../../../modules/hardware-keyboard/index";
 

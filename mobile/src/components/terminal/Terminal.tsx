@@ -181,15 +181,27 @@ const TerminalComponent = forwardRef<TerminalHandle, TerminalProps>(
       },
     }));
 
-    const scheduleLayoutFit = useCallback(() => {
+    const scheduleLayoutFit = useCallback((event: any) => {
       if (!isMountedRef.current) return;
+      const { width, height } = event.nativeEvent.layout;
       if (layoutFitTimerRef.current) {
         clearTimeout(layoutFitTimerRef.current);
       }
       layoutFitTimerRef.current = setTimeout(() => {
         layoutFitTimerRef.current = null;
         if (!isMountedRef.current) return;
-        webViewRef.current?.injectJavaScript("window.fitTerminal(); true;");
+        // Force the WebView's terminal container to match the actual React Native layout size
+        webViewRef.current?.injectJavaScript(`
+          (function() {
+            var el = document.getElementById('terminal');
+            if (el) {
+              el.style.width = ${Math.floor(width)} + 'px';
+              el.style.height = ${Math.floor(height)} + 'px';
+            }
+            window.fitTerminal && window.fitTerminal();
+          })();
+          true;
+        `);
       }, 60);
     }, []);
 

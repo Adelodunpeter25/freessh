@@ -22,7 +22,13 @@ import {
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
-import { useConnectionStore, useSnippetStore, useKeyStore, useLogStore, useKnownHostStore, useTerminalStore, useSftpStore } from '@/stores'
+import { useConnectionStore } from '@/stores/connectionStore'
+import { useKeyStore } from '@/stores/keyStore'
+import { useKnownHostStore } from '@/stores/knownHostStore'
+import { useLogStore } from '@/stores/logStore'
+import { useSnippetStore } from '@/stores/snippetStore'
+import { useSftpStore } from '@/stores/sftp'
+import { useTerminalStore } from '@/stores/terminalStore'
 
 type HubItem = {
   id: string
