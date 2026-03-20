@@ -201,10 +201,10 @@ export function TerminalAccessoryKeyboard({
           paddingHorizontal="$3"
           paddingBottom={Math.max(insets.bottom, 4)}
         >
-          <YStack gap="$3" flex={1} paddingTop="$3">
+          <YStack gap="$0" flex={1} paddingTop="$3">
             <ScrollView
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 12 }}
+              contentContainerStyle={{ paddingBottom: 0 }}
             >
               <YStack gap={rowGap}>
                 {visibleRows.map((row) => (
@@ -231,6 +231,7 @@ export function TerminalAccessoryKeyboard({
               gap="$1.5"
               flexWrap="wrap"
               paddingTop="$2"
+              marginTop="$2"
               borderTopWidth={1}
               borderColor="$backgroundPress"
             >
