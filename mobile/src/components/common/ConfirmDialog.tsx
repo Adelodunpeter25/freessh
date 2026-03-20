@@ -23,12 +23,13 @@ export function ConfirmDialog({
   onConfirm,
 }: ConfirmDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog modal open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay
           key="overlay"
           opacity={1}
           backgroundColor="$backgroundTransparent"
+          onPress={() => onOpenChange(false)}
         />
         <Dialog.Content
           key="content"
