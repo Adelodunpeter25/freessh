@@ -3,6 +3,7 @@ import {
   Keyboard,
   Platform,
   Pressable,
+  type LayoutChangeEvent,
 } from "react-native";
 import { Keyboard as KeyboardIcon, KeyboardOff } from "lucide-react-native";
 import { ScrollView, XStack, YStack, useTheme } from "tamagui";
@@ -37,6 +38,8 @@ export function TerminalAccessoryKeyboard({
   const [showKeyboard, setShowKeyboard] = useState(false);
   const [showSnippets, setShowSnippets] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState(280);
+  const [rowsContentHeight, setRowsContentHeight] = useState(0);
+  const [footerHeight, setFooterHeight] = useState(0);
 
   const modifierState = useMemo(
     () => ({ ctrl: ctrlActive, alt: altActive }),
@@ -51,6 +54,21 @@ export function TerminalAccessoryKeyboard({
     [keyboardConfig.fullKeyboard.rows],
   );
   const rowGap = keyboardConfig.settings.compactMode ? "$2" : "$2.5";
+  const containerBottomPadding = Math.max(insets.bottom, 4);
+  const chromeHeight = 20 + 16 + containerBottomPadding;
+  const maxExpandedHeight = Math.max(300, keyboardHeight) + insets.bottom;
+  const desiredExpandedHeight = rowsContentHeight + footerHeight + chromeHeight;
+  const hasMeasuredExpandedContent = rowsContentHeight > 0 && footerHeight > 0;
+  const expandedHeight = hasMeasuredExpandedContent
+    ? Math.min(
+        maxExpandedHeight,
+        Math.max(footerHeight + chromeHeight, desiredExpandedHeight),
+      )
+    : maxExpandedHeight;
+  const scrollAreaMaxHeight = Math.max(
+    0,
+    expandedHeight - footerHeight - chromeHeight,
+  );
 
   const resetModifiers = () => {
     setCtrlActive(false);
@@ -125,6 +143,13 @@ export function TerminalAccessoryKeyboard({
     resetModifiers();
   };
 
+  const handleFooterLayout = (event: LayoutChangeEvent) => {
+    const nextHeight = Math.ceil(event.nativeEvent.layout.height);
+    if (nextHeight > 0 && nextHeight !== footerHeight) {
+      setFooterHeight(nextHeight);
+    }
+  };
+
   return (
     <>
       <YStack
@@ -193,18 +218,25 @@ export function TerminalAccessoryKeyboard({
 
       {showKeyboard ? (
         <YStack
-          height={Math.max(300, keyboardHeight) + insets.bottom}
+          height={expandedHeight}
           borderTopWidth={1}
           borderColor="$borderColor"
           backgroundColor="$background"
           paddingTop="$2"
           paddingHorizontal="$3"
-          paddingBottom={Math.max(insets.bottom, 4)}
+          paddingBottom={containerBottomPadding}
         >
-          <YStack gap="$0" flex={1} paddingTop="$3">
+          <YStack gap="$0" paddingTop="$3">
             <ScrollView
+              style={{ maxHeight: scrollAreaMaxHeight }}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 0 }}
+              onContentSizeChange={(_, height) => {
+                const nextHeight = Math.ceil(height);
+                if (nextHeight !== rowsContentHeight) {
+                  setRowsContentHeight(nextHeight);
+                }
+              }}
             >
               <YStack gap={rowGap}>
                 {visibleRows.map((row) => (
@@ -228,6 +260,7 @@ export function TerminalAccessoryKeyboard({
             </ScrollView>
 
             <XStack
+              onLayout={handleFooterLayout}
               gap="$1.5"
               flexWrap="wrap"
               paddingTop="$2"
