@@ -193,17 +193,20 @@ export function TerminalAccessoryKeyboard({
 
       {showKeyboard ? (
         <YStack
-          height={Math.max(280, keyboardHeight) + insets.bottom}
+          height={Math.max(300, keyboardHeight) + insets.bottom}
           borderTopWidth={1}
           borderColor="$borderColor"
           backgroundColor="$background"
           paddingTop="$2"
           paddingHorizontal="$3"
-          paddingBottom={0}
+          paddingBottom={Math.max(insets.bottom, 4)}
         >
           <YStack gap="$3" flex={1} paddingTop="$3">
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <YStack gap={rowGap} paddingBottom="$3">
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 12 }}
+            >
+              <YStack gap={rowGap}>
                 {visibleRows.map((row) => (
                   <YStack key={row.id} gap={rowGap}>
                     <XStack gap="$1.5" flexWrap="wrap">
@@ -221,41 +224,41 @@ export function TerminalAccessoryKeyboard({
                     </XStack>
                   </YStack>
                 ))}
-
-                <XStack
-                  gap="$1.5"
-                  flexWrap="wrap"
-                  paddingTop="$2"
-                  borderTopWidth={1}
-                  borderColor="$backgroundPress"
-                >
-                  <TerminalKeyboardKey
-                    label="Paste"
-                    wide
-                    compact
-                    flex={1}
-                    emphasis="strong"
-                    onPress={() => handleKeyPress({ id: "paste", label: "Paste", kind: "paste" })}
-                  />
-                  <TerminalKeyboardKey
-                    label="Search"
-                    wide
-                    compact
-                    flex={1}
-                    emphasis="strong"
-                    onPress={() => handleKeyPress({ id: "search", label: "Search", kind: "search" })}
-                  />
-                  <TerminalKeyboardKey
-                    label="Snippets"
-                    wide
-                    compact
-                    flex={1}
-                    emphasis="strong"
-                    onPress={() => handleKeyPress({ id: "snippets", label: "Snippets", kind: "snippets" })}
-                  />
-                </XStack>
               </YStack>
             </ScrollView>
+
+            <XStack
+              gap="$1.5"
+              flexWrap="wrap"
+              paddingTop="$2"
+              borderTopWidth={1}
+              borderColor="$backgroundPress"
+            >
+              <TerminalKeyboardKey
+                label="Paste"
+                wide
+                compact
+                flex={1}
+                emphasis="strong"
+                onPress={() => handleKeyPress({ id: "paste", label: "Paste", kind: "paste" })}
+              />
+              <TerminalKeyboardKey
+                label="Search"
+                wide
+                compact
+                flex={1}
+                emphasis="strong"
+                onPress={() => handleKeyPress({ id: "search", label: "Search", kind: "search" })}
+              />
+              <TerminalKeyboardKey
+                label="Snippets"
+                wide
+                compact
+                flex={1}
+                emphasis="strong"
+                onPress={() => handleKeyPress({ id: "snippets", label: "Snippets", kind: "snippets" })}
+              />
+            </XStack>
           </YStack>
         </YStack>
       ) : null}
