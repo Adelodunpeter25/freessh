@@ -8,7 +8,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 // @ts-ignore
 import SyntaxHighlighter from 'react-native-syntax-highlighter'
-import { atomOneDark } from 'react-syntax-highlighter/dist/esm/styles/hljs'
+import { atomOneDark } from 'react-syntax-highlighter/dist/cjs/styles/hljs'
 
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 import { useSftpStore, useSnackbarStore } from '@/stores'
