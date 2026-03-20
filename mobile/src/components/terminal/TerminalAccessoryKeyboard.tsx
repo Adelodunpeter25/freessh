@@ -199,7 +199,7 @@ export function TerminalAccessoryKeyboard({
           backgroundColor="$background"
           paddingTop="$2"
           paddingHorizontal="$3"
-          paddingBottom={Math.max(insets.bottom, 8)}
+          paddingBottom={Math.max(insets.bottom, 2)}
         >
           <YStack gap="$3" flex={1} paddingTop="$3">
             <ScrollView showsVerticalScrollIndicator={false}>
