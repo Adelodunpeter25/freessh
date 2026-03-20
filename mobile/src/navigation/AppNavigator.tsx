@@ -21,6 +21,7 @@ import {
   LogsScreen,
   KnownHostsScreen,
   TerminalSettingsScreen,
+  TerminalTopBarSettingsScreen,
 } from '../screens'
 import { useThemeStore } from '../stores'
 import { BottomTabNavigator } from './BottomTabNavigator'
@@ -44,6 +45,7 @@ export type ConnectionsStackParamList = {
   Logs: undefined
   KnownHosts: undefined
   TerminalSettings: undefined
+  TerminalTopBarSettings: undefined
 }
 
 const Stack = createNativeStackNavigator<ConnectionsStackParamList>()
@@ -144,6 +146,10 @@ export function AppNavigator() {
         <Stack.Screen
           name="TerminalSettings"
           component={TerminalSettingsScreen}
+        />
+        <Stack.Screen
+          name="TerminalTopBarSettings"
+          component={TerminalTopBarSettingsScreen}
         />
         {/* We can use KeysScreen as a placeholder for History if it doesn't exist yet */}
       </Stack.Navigator>
