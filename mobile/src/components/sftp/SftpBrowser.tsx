@@ -1,5 +1,4 @@
-import { Pressable, RefreshControl, ScrollView } from 'react-native'
-import { Text, XStack, YStack } from 'tamagui'
+import { YStack } from 'tamagui'
 import type { FileInfo } from '@/types'
 import { EmptyState, SearchEmptyState } from '@/components/common'
 import { FileList } from './FileList'
@@ -81,50 +80,20 @@ export function SftpBrowser({
       overflow="hidden"
       bg="$background"
     >
-      {canGoUp ? (
-        <Pressable onPress={onGoUp}>
-          <XStack
-            px="$3"
-            minHeight={56}
-            py="$2"
-            borderBottomWidth={1}
-            borderBottomColor="$borderColor"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            <Text color="$color" fontSize={14} fontWeight="600">
-              ..
-            </Text>
-            {hasSelection ? (
-              <Text
-                color="$accent"
-                fontSize={12}
-                fontWeight="600"
-                onPress={(event) => {
-                  event.stopPropagation()
-                  onClearSelection()
-                }}
-              >
-                Clear selection
-              </Text>
-            ) : null}
-          </XStack>
-        </Pressable>
-      ) : null}
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 16 }}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={onRefresh} />}
-      >
-        <FileList
-          files={files}
-          hasSelection={hasSelection && !copyMode}
-          isSelected={isSelected}
-          onToggleSelect={onToggleSelect}
-          onOpenFolder={onOpenFolder}
-          onOpenFile={onOpenFile}
-        />
-      </ScrollView>
+      <FileList
+        files={files}
+        loading={loading}
+        canGoUp={canGoUp}
+        copyMode={copyMode}
+        hasSelection={hasSelection && !copyMode}
+        isSelected={isSelected}
+        onClearSelection={onClearSelection}
+        onGoUp={onGoUp}
+        onRefresh={onRefresh}
+        onToggleSelect={onToggleSelect}
+        onOpenFolder={onOpenFolder}
+        onOpenFile={onOpenFile}
+      />
     </YStack>
   )
 }
