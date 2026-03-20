@@ -4,8 +4,10 @@ import { Pressable } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 
-import { Card, Screen, SectionHeader } from '@/components'
-import { useThemeStore } from '@/stores'
+import { Card } from '@/components/common/Card'
+import { Screen } from '@/components/common/Screen'
+import { SectionHeader } from '@/components/common/SectionHeader'
+import { useThemeStore } from '@/stores/themeStore'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 export function SettingsScreen() {

@@ -2,10 +2,11 @@ import { useNavigation } from '@react-navigation/native'
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Text, YStack } from 'tamagui'
 
-import { AppHeader, Screen } from '@/components'
-import { TerminalTopBarEditor } from '@/components/settings'
+import { AppHeader } from '@/components/common/AppHeader'
+import { Screen } from '@/components/common/Screen'
+import { TerminalTopBarEditor } from '@/components/settings/TerminalTopBarEditor'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
-import { useTerminalKeyboardStore } from '@/stores'
+import { useTerminalKeyboardStore } from '@/stores/terminalKeyboardStore'
 
 export function TerminalTopBarSettingsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()

@@ -3,7 +3,7 @@ import { ArrowDown, ArrowUp, Eye, EyeOff, RotateCcw } from 'lucide-react-native'
 import { Separator, Text, XStack, YStack, useTheme } from 'tamagui'
 
 import { Button, Card } from '@/components/common'
-import { useTerminalKeyboardStore } from '@/stores'
+import { useTerminalKeyboardStore } from '@/stores/terminalKeyboardStore'
 
 export function TerminalRowEditor() {
   const theme = useTheme()

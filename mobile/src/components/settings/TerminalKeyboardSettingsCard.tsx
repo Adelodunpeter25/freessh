@@ -5,7 +5,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Text, Switch, XStack, YStack, useTheme } from 'tamagui'
 
 import { Button, Card, Select } from '@/components/common'
-import { useTerminalKeyboardStore } from '@/stores'
+import { useTerminalKeyboardStore } from '@/stores/terminalKeyboardStore'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
 
 const keySizeOptions = [

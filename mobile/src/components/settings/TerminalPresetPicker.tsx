@@ -3,7 +3,7 @@ import { Text, XStack, YStack } from 'tamagui'
 
 import { Button, Card, Select } from '@/components/common'
 import { terminalKeyboardPresets } from '@/services/terminal'
-import { useTerminalKeyboardStore } from '@/stores'
+import { useTerminalKeyboardStore } from '@/stores/terminalKeyboardStore'
 
 const presetOptions = [
   ...terminalKeyboardPresets.map((preset) => ({

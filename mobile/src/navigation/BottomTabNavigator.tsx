@@ -6,12 +6,9 @@ import {
 } from 'lucide-react-native'
 import { useTheme } from 'tamagui'
 
-import {
-  HomeScreen,
-  ConnectionsScreen,
-  SettingsScreen,
-} from '../screens'
-import { useThemeStore } from '../stores'
+import { HomeScreen } from '../screens/home/HomeScreen'
+import { ConnectionsScreen } from '../screens/connections/ConnectionsScreen'
+import { SettingsScreen } from '../screens/settings/SettingsScreen'
 
 export type RootTabParamList = {
   Home: undefined

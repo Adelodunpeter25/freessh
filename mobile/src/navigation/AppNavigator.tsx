@@ -7,23 +7,21 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { enableScreens } from 'react-native-screens'
 
-import {
-  GroupDetailsScreen,
-  ConnectionFormScreen,
-  GroupFormScreen,
-  SnippetFormScreen,
-  KeyFormScreen,
-  ImportKeyScreen,
-  KeysScreen,
-  SnippetsScreen,
-  SessionsScreen,
-  SftpScreen,
-  LogsScreen,
-  KnownHostsScreen,
-  TerminalSettingsScreen,
-  TerminalTopBarSettingsScreen,
-} from '../screens'
-import { useThemeStore } from '../stores'
+import { GroupDetailsScreen } from '../screens/connections/GroupDetailsScreen'
+import { ConnectionFormScreen } from '../screens/connections/ConnectionFormScreen'
+import { GroupFormScreen } from '../screens/connections/GroupFormScreen'
+import { SnippetFormScreen } from '../screens/snippets/SnippetFormScreen'
+import { KeyFormScreen } from '../screens/keys/KeyFormScreen'
+import { ImportKeyScreen } from '../screens/keys/ImportKeyScreen'
+import { KeysScreen } from '../screens/keys/KeysScreen'
+import { SnippetsScreen } from '../screens/snippets/SnippetsScreen'
+import { SessionsScreen } from '../screens/sessions/SessionsScreen'
+import { SftpScreen } from '../screens/sftp/SftpScreen'
+import { LogsScreen } from '../screens/logs/LogsScreen'
+import { KnownHostsScreen } from '../screens/known_hosts/KnownHostsScreen'
+import { TerminalSettingsScreen } from '../screens/settings/TerminalSettingsScreen'
+import { TerminalTopBarSettingsScreen } from '../screens/settings/TerminalTopBarSettingsScreen'
+import { useThemeStore } from '../stores/themeStore'
 import { BottomTabNavigator } from './BottomTabNavigator'
 import type { ConnectionConfig, Group, Snippet, SSHKey } from '@/types'
 

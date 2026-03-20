@@ -4,14 +4,14 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { InteractionManager } from 'react-native'
 import { Text, YStack } from 'tamagui'
 
-import { AppHeader, Screen, SectionHeader } from '@/components'
-import {
-  TerminalKeyboardSettingsCard,
-  TerminalPresetPicker,
-  TerminalRowEditor,
-} from '@/components/settings'
+import { AppHeader } from '@/components/common/AppHeader'
+import { Screen } from '@/components/common/Screen'
+import { SectionHeader } from '@/components/common/SectionHeader'
+import { TerminalKeyboardSettingsCard } from '@/components/settings/TerminalKeyboardSettingsCard'
+import { TerminalPresetPicker } from '@/components/settings/TerminalPresetPicker'
+import { TerminalRowEditor } from '@/components/settings/TerminalRowEditor'
 import type { ConnectionsStackParamList } from '@/navigation/AppNavigator'
-import { useTerminalKeyboardStore } from '@/stores'
+import { useTerminalKeyboardStore } from '@/stores/terminalKeyboardStore'
 
 export function TerminalSettingsScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<ConnectionsStackParamList>>()

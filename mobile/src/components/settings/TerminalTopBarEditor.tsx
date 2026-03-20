@@ -4,7 +4,7 @@ import { Separator, Text, XStack, YStack, useTheme } from 'tamagui'
 
 import { Button, Card } from '@/components/common'
 import { terminalKeyboardPresets, type TerminalKeyboardKey } from '@/services/terminal'
-import { useTerminalKeyboardStore } from '@/stores'
+import { useTerminalKeyboardStore } from '@/stores/terminalKeyboardStore'
 
 const buildTopBarCatalog = (currentKeys: TerminalKeyboardKey[]) => {
   const catalog = new Map<string, TerminalKeyboardKey>()
